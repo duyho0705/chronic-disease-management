@@ -3,6 +3,9 @@ import { HeartPulse, Stethoscope, Building2, Shield, Activity } from 'lucide-rea
 import DoctorDashboard from './pages/DoctorDashboard';
 import DoctorAppointments from './pages/DoctorAppointments';
 import DoctorMessages from './pages/DoctorMessages';
+import DoctorAnalytics from './pages/DoctorAnalytics';
+import DoctorPatients from './pages/DoctorPatients';
+import DoctorPrescriptions from './pages/DoctorPrescriptions';
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -97,8 +100,11 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/patient" element={<PatientDashboard />} />
         <Route path="/doctor" element={<DoctorDashboard />} />
+        <Route path="/doctor/analytics" element={<DoctorAnalytics />} />
         <Route path="/doctor/appointments" element={<DoctorAppointments />} />
         <Route path="/doctor/messages" element={<DoctorMessages />} />
+        <Route path="/doctor/patients" element={<DoctorPatients />} />
+        <Route path="/doctor/prescriptions" element={<DoctorPrescriptions />} />
         <Route path="/clinic" element={<ClinicDashboard />} />
         <Route path="/admin" element={<AdminDashboard />} />
       </Routes>

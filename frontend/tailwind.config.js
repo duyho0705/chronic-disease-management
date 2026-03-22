@@ -8,9 +8,9 @@ export default {
   theme: {
     extend: {
       colors: {
-        "primary": "#4ade80",
+        "primary": "#2face6ff",
         "background-light": "#f6f8f7",
-        "background-dark": "#122017",
+        "background-dark": "#0f172a",
       },
       fontFamily: {
         "display": ["Manrope", "sans-serif"]

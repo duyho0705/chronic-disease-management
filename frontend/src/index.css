@@ -1,11 +1,11 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --bg-gradient: linear-gradient(135deg, #09090b 0%, #171720 100%);
+  --bg-gradient: linear-gradient(135deg, #09090b 0%, #0f172a 100%);
   --card-bg: rgba(255, 255, 255, 0.05);
   --card-border: rgba(255, 255, 255, 0.1);
   --primary-glow: rgba(56, 189, 248, 0.5);
@@ -251,4 +251,15 @@ body {
 .custom-scrollbar::-webkit-scrollbar-thumb {
     background: #d1e5d9;
     border-radius: 10px;
+}
+
+/* Hide default arrow in all browsers for selects with appearance-none */
+select.appearance-none {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+select.appearance-none::-ms-expand {
+  display: none;
 }

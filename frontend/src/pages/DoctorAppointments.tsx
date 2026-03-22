@@ -18,15 +18,15 @@ export default function DoctorAppointments() {
             <span className="material-symbols-outlined">dashboard</span>
             <span>Bảng điều khiển</span>
           </a>
-          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-medium transition-colors" href="#">
+          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-medium transition-colors" href="/doctor/patients">
             <span className="material-symbols-outlined">groups</span>
             <span>Danh sách bệnh nhân</span>
           </a>
-          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-medium transition-colors" href="#">
-            <span className="material-symbols-outlined">analytics</span>
+          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-medium transition-colors" href="/doctor/analytics">
+             <span className="material-symbols-outlined">analytics</span>
             <span>Phân tích nguy cơ</span>
           </a>
-          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-medium transition-colors" href="#">
+          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-medium transition-colors" href="/doctor/prescriptions">
             <span className="material-symbols-outlined">prescriptions</span>
             <span>Đơn thuốc điện tử</span>
           </a>

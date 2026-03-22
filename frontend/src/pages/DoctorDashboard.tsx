@@ -1,5 +1,9 @@
+import { useState } from 'react';
 
 export default function DoctorDashboard() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAdviceModalOpen, setIsAdviceModalOpen] = useState(false);
+  const [isPrescriptionModalOpen, setIsPrescriptionModalOpen] = useState(false);
   return (
     <div className="flex min-h-screen font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100">
       {/* Sidebar Navigation */}
@@ -18,15 +22,15 @@ export default function DoctorDashboard() {
             <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>dashboard</span>
             <span>Bảng điều khiển</span>
           </a>
-          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-medium transition-colors" href="#">
+          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-medium transition-colors" href="/doctor/patients">
             <span className="material-symbols-outlined">groups</span>
             <span>Danh sách bệnh nhân</span>
           </a>
-          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-medium transition-colors" href="#">
-            <span className="material-symbols-outlined">analytics</span>
+          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-medium transition-colors" href="/doctor/analytics">
+             <span className="material-symbols-outlined">analytics</span>
             <span>Phân tích nguy cơ</span>
           </a>
-          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-medium transition-colors" href="#">
+          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-medium transition-colors" href="/doctor/prescriptions">
             <span className="material-symbols-outlined">prescriptions</span>
             <span>Đơn thuốc điện tử</span>
           </a>
@@ -235,19 +239,25 @@ export default function DoctorDashboard() {
               <section>
                 <h2 className="text-xl font-extrabold mb-4">Thao tác nhanh</h2>
                 <div className="grid grid-cols-1 gap-3">
-                  <button className="flex items-center gap-4 p-4 bg-white dark:bg-slate-900 hover:border-primary transition-all rounded-2xl border border-primary/10 shadow-sm text-left group">
+                  <button 
+                    onClick={() => setIsPrescriptionModalOpen(true)}
+                    className="flex items-center gap-4 p-4 bg-white dark:bg-slate-900 hover:border-primary transition-all rounded-2xl border border-primary/10 shadow-sm text-left group">
                     <div className="w-10 h-10 bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white rounded-xl flex items-center justify-center transition-colors">
                       <span className="material-symbols-outlined">description</span>
                     </div>
                     <span className="font-bold text-sm">Kê đơn thuốc mới</span>
                   </button>
-                  <button className="flex items-center gap-4 p-4 bg-white dark:bg-slate-900 hover:border-primary transition-all rounded-2xl border border-primary/10 shadow-sm text-left group">
+                  <button 
+                    onClick={() => setIsAdviceModalOpen(true)}
+                    className="flex items-center gap-4 p-4 bg-white dark:bg-slate-900 hover:border-primary transition-all rounded-2xl border border-primary/10 shadow-sm text-left group">
                     <div className="w-10 h-10 bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white rounded-xl flex items-center justify-center transition-colors">
                       <span className="material-symbols-outlined">send</span>
                     </div>
                     <span className="font-bold text-sm">Gửi lời khuyên</span>
                   </button>
-                  <button className="flex items-center gap-4 p-4 bg-white dark:bg-slate-900 hover:border-primary transition-all rounded-2xl border border-primary/10 shadow-sm text-left group">
+                  <button 
+                    onClick={() => setIsModalOpen(true)}
+                    className="flex items-center gap-4 p-4 bg-white dark:bg-slate-900 hover:border-primary transition-all rounded-2xl border border-primary/10 shadow-sm text-left group">
                     <div className="w-10 h-10 bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white rounded-xl flex items-center justify-center transition-colors">
                       <span className="material-symbols-outlined">event</span>
                     </div>
@@ -400,6 +410,398 @@ export default function DoctorDashboard() {
           </section>
         </div>
       </main>
+
+      {/* Rescheduling Appointment Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]"
+            onClick={() => setIsModalOpen(false)}
+          ></div>
+          
+          <div className="relative bg-white dark:bg-slate-900 w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-200 border border-primary/10 transition-all">
+            <div className="px-10 py-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 sticky top-0 z-10 transition-all">
+              <div>
+                <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white">Đặt lịch tái khám</h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium tracking-tight">Thiết lập lịch hẹn tiếp theo cho bệnh nhân của bạn</p>
+              </div>
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all"
+              >
+                <span className="material-symbols-outlined font-bold">close</span>
+              </button>
+            </div>
+
+            <div className="p-10 overflow-hidden">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold border-l-4 border-primary pl-2">Thông tin bệnh nhân</label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                        <span className="material-symbols-outlined text-slate-400 text-sm">person</span>
+                      </div>
+                      <select className="w-full pl-12 pr-10 py-3.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-primary/50 text-slate-900 dark:text-white font-bold text-sm appearance-none outline-none shadow-sm transition-all">
+                        <option value="1">Nguyễn Văn A - ID: BN-8842</option>
+                        <option value="2">Trần Thị B - ID: BN-8839</option>
+                        <option value="3">Lê Văn C - ID: BN-2034</option>
+                      </select>
+                      <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-slate-400 font-bold">
+                        <span className="material-symbols-outlined">expand_more</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <label className="text-sm font-bold border-l-4 border-primary pl-2">Chọn ngày khám</label>
+                    <div className="p-8 border border-slate-100 dark:border-slate-800 rounded-3xl bg-white dark:bg-slate-800/20 shadow-sm">
+                      <div className="flex items-center justify-between mb-6">
+                        <button className="p-2 hover:bg-primary/10 rounded-xl transition-all text-slate-400 hover:text-primary">
+                          <span className="material-symbols-outlined font-bold">chevron_left</span>
+                        </button>
+                        <span className="text-sm font-extrabold uppercase tracking-widest text-primary">Tháng 11, 2024</span>
+                        <button className="p-2 hover:bg-primary/10 rounded-xl transition-all text-slate-400 hover:text-primary">
+                          <span className="material-symbols-outlined font-bold">chevron_right</span>
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-7 text-center text-xs font-extrabold text-slate-400 mb-2 uppercase tracking-widest opacity-60">
+                        <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+                      </div>
+                      <div className="grid grid-cols-7 gap-3">
+                        {[27, 28, 29, 30, 31].map(d => <div key={d} className="text-xs h-10 flex items-center justify-center text-slate-300 font-medium">{d}</div>)}
+                        {[1, 2, 3, 4].map(d => <button key={d} className="text-xs font-bold h-10 flex items-center justify-center rounded-xl hover:bg-primary/10 hover:text-primary transition-all">{d}</button>)}
+                        <button className="text-xs font-extrabold h-10 flex items-center justify-center rounded-xl bg-primary text-slate-900 shadow-xl shadow-primary/20 transform scale-110 z-10">5</button>
+                        {[6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map(d => <button key={d} className="text-xs font-bold h-10 flex items-center justify-center rounded-xl hover:bg-primary/10 hover:text-primary transition-all">{d}</button>)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="space-y-3">
+                    <label className="text-sm font-bold border-l-4 border-primary pl-2">Hình thức khám bệnh</label>
+                    <div className="flex gap-4">
+                      <label className="flex-1 cursor-pointer group">
+                        <input defaultChecked className="peer hidden" name="resched-type" type="radio" />
+                        <div className="flex flex-col items-center gap-3 px-4 py-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary transition-all hover:border-primary/30">
+                          <span className="material-symbols-outlined text-3xl font-light group-hover:scale-110 transition-transform">person_pin_circle</span>
+                          <span className="text-[10px] font-extrabold uppercase tracking-widest">Trực tiếp</span>
+                        </div>
+                      </label>
+                      <label className="flex-1 cursor-pointer group">
+                        <input className="peer hidden" name="resched-type" type="radio" />
+                        <div className="flex flex-col items-center gap-3 px-4 py-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary transition-all hover:border-primary/30">
+                          <span className="material-symbols-outlined text-3xl font-light group-hover:scale-110 transition-transform">videocam</span>
+                          <span className="text-[10px] font-extrabold uppercase tracking-widest">Online</span>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <label className="text-sm font-bold border-l-4 border-primary pl-2">Giờ khám ưu tiên</label>
+                    <div className="grid grid-cols-4 gap-3">
+                      {['08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '14:00', '14:30'].map(time => (
+                        <button
+                          key={time}
+                          className={`py-3 text-xs font-extrabold rounded-xl border-2 transition-all ${
+                            time === '09:00' 
+                            ? 'border-primary bg-primary/5 text-primary scale-105 shadow-sm shadow-primary/10' 
+                            : 'border-slate-50 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 hover:border-primary/30'
+                          }`}
+                        >
+                          {time}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <label className="text-sm font-bold border-l-4 border-primary pl-2">Ghi chú lâm sàng</label>
+                    <textarea
+                      className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-primary/50 text-slate-900 dark:text-white placeholder:text-slate-400 text-sm font-medium transition-all shadow-sm outline-none resize-none"
+                      placeholder="BS ghi chú thêm dặn dò cho bệnh nhân tại đây..."
+                      rows={3}
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="px-10 py-6 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3 sticky bottom-0 z-10 transition-all">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="px-8 py-3 text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-xl transition-all"
+              >
+                Hủy bỏ
+              </button>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="px-10 py-3 text-sm font-extrabold text-slate-900 bg-primary hover:bg-primary/90 rounded-xl transition-all shadow-xl shadow-primary/20 flex items-center gap-3 active:scale-95 transform"
+              >
+                <span className="material-symbols-outlined font-bold">send</span>
+                Lưu &amp; Gửi thông báo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Professional Advice Modal */}
+      {isAdviceModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]"
+            onClick={() => setIsAdviceModalOpen(false)}
+          ></div>
+          
+          <div className="relative bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200 border border-primary/10 transition-all">
+            <div className="px-10 py-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 sticky top-0 z-10 transition-all">
+              <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">Gửi lời khuyên chuyên môn</h2>
+              <button 
+                onClick={() => setIsAdviceModalOpen(false)}
+                className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-slate-500"
+              >
+                <span className="material-symbols-outlined font-bold">close</span>
+              </button>
+            </div>
+
+            <div className="p-10 space-y-8 overflow-y-auto max-h-[80vh] custom-scrollbar text-left">
+              <div className="flex items-center gap-6 p-6 bg-primary/5 rounded-2xl border border-primary/10">
+                <div className="w-16 h-16 rounded-full bg-slate-200 overflow-hidden shadow-inner flex-shrink-0"
+                  style={{ backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuBUstbGh5q911TPTLus7gX2RIO2ML_RSZbjV67EFkDBw0zf6vQQzS7IP3LwXkWI6OWS4mwx5KhEFyn-NJ5T-OeMOhMLb321T1uEw1ypz_mfVSy4RJSGZA4h5NHgwDOx8syKTRjqsnQ5cRRZlRIs0lxo8cA7nJHIBpBUgVAUxh3e6QkBpGR5iW1WaEsU3Xu5JdVd5WA_HjKsBFimtKG_GF5CgYz-JAa03FTdaPVVyoP_Kqd8-PCCC03jKnqOMbqTRYOC5StfAJMV2wM')`, backgroundSize: 'cover' }}>
+                </div>
+                <div>
+                  <p className="font-extrabold text-slate-900 dark:text-white text-lg">Nguyễn Văn A</p>
+                  <p className="text-xs text-slate-500 font-bold uppercase tracking-widest opacity-70">ID: BN-12345678</p>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-sm font-bold border-l-4 border-primary pl-2 uppercase tracking-tight">Danh mục lời khuyên</label>
+                <select className="w-full rounded-xl border-none bg-slate-50 dark:bg-slate-800 text-sm font-bold focus:ring-2 focus:ring-primary/50 outline-none py-3.5 px-4 shadow-sm transition-all appearance-none cursor-pointer">
+                  <option>Dinh dưỡng & Chế độ ăn</option>
+                  <option>Vận động / Thể dục</option>
+                  <option>Sử dụng thuốc đúng cách</option>
+                  <option>Theo dõi chỉ số tại nhà</option>
+                </select>
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-sm font-bold border-l-4 border-primary pl-2 uppercase tracking-tight">Nội dung tư vấn</label>
+                <textarea
+                  className="w-full rounded-2xl border-none bg-slate-50 dark:bg-slate-800 text-sm font-medium focus:ring-2 focus:ring-primary/50 min-h-[150px] p-5 outline-none transition-all shadow-sm resize-none"
+                  placeholder="Bác sĩ nhập lời khuyên chi tiết tại đây..."
+                ></textarea>
+              </div>
+
+              <div className="space-y-3">
+                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest pl-2">Gợi ý mẫu nhanh</p>
+                <div className="flex flex-wrap gap-2">
+                  {['Hạn chế muối', 'Đi bộ 30p mỗi ngày', 'Theo dõi huyết áp sáng/tối', 'Uống đủ 2L nước'].map(template => (
+                    <button
+                      key={template}
+                      className="px-5 py-2 bg-white dark:bg-slate-800 hover:bg-primary hover:text-slate-900 border border-slate-100 dark:border-slate-700 rounded-full text-xs font-bold transition-all text-slate-600 dark:text-slate-400 shadow-sm active:scale-95"
+                    >
+                      {template}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="px-10 py-6 bg-slate-50 dark:bg-slate-900/50 flex gap-4 border-t border-slate-100 dark:border-slate-800 sticky bottom-0 z-10">
+              <button
+                onClick={() => setIsAdviceModalOpen(false)}
+                className="flex-1 py-3.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+                type="button"
+              >
+                Hủy bỏ
+              </button>
+              <button
+                onClick={() => setIsAdviceModalOpen(false)}
+                className="flex-[1.5] py-3.5 rounded-xl bg-primary hover:bg-primary/90 text-slate-900 font-extrabold text-sm shadow-xl shadow-primary/20 transition-all active:scale-95 flex items-center justify-center gap-3"
+                type="button"
+              >
+                <span className="material-symbols-outlined font-bold">send</span>
+                Gửi lời khuyên ngay
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Prescription Modal - Redesigned to match test.html 100% */}
+      {isPrescriptionModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]"
+            onClick={() => setIsPrescriptionModalOpen(false)}
+          ></div>
+          
+          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900 rounded-xl shadow-2xl flex flex-col animate-in fade-in zoom-in duration-200">
+            {/* Modal Header */}
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-6 py-4">
+              <div className="flex items-center gap-3">
+                <div className="bg-primary/10 p-2 rounded-lg">
+                  <span className="material-symbols-outlined text-primary">description</span>
+                </div>
+                <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Kê đơn thuốc mới</h2>
+              </div>
+              <button 
+                onClick={() => setIsPrescriptionModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-8 text-left">
+              {/* Patient & Diagnosis Section */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Bệnh nhân</label>
+                  <div className="relative">
+                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+                    <select className="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all appearance-none text-slate-900 dark:text-white font-medium">
+                      <option>Nguyễn Văn A</option>
+                      <option>Trần Thị B</option>
+                      <option>Lê Văn C</option>
+                    </select>
+                    <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">expand_more</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Chẩn đoán hiện tại</label>
+                  <input
+                    className="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all text-slate-900 dark:text-white font-medium"
+                    placeholder="Nhập chẩn đoán..."
+                    type="text"
+                    defaultValue="Viêm họng cấp / Theo dõi đái tháo đường"
+                  />
+                </div>
+              </div>
+
+              {/* Medication Dynamic List */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary">pill</span>
+                    Danh sách thuốc
+                  </h3>
+                  <button className="flex items-center gap-1 text-sm font-bold text-primary hover:bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
+                    <span className="material-symbols-outlined text-sm">add_circle</span>
+                    Thêm thuốc
+                  </button>
+                </div>
+                <div className="overflow-hidden border border-slate-100 dark:border-slate-800 rounded-xl">
+                  <table className="w-full text-left border-collapse">
+                    <thead className="bg-slate-50 dark:bg-slate-800/50 text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider">
+                      <tr>
+                        <th className="px-4 py-3">Tên thuốc &amp; Hàm lượng</th>
+                        <th className="px-4 py-3">Liều dùng</th>
+                        <th className="px-4 py-3">Tần suất</th>
+                        <th className="px-4 py-3">Thời gian</th>
+                        <th className="px-4 py-3 text-right">Thao tác</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                      <tr className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                        <td className="px-4 py-4 text-slate-900 dark:text-white">
+                          <div className="font-medium">Metformin 500mg</div>
+                          <div className="text-xs text-slate-400">Uống sau khi ăn</div>
+                        </td>
+                        <td className="px-4 py-4 text-sm text-slate-900 dark:text-white">1 viên</td>
+                        <td className="px-4 py-4 text-sm text-slate-900 dark:text-white">Sáng 1, Tối 1</td>
+                        <td className="px-4 py-4 text-sm font-medium text-slate-900 dark:text-white">30 ngày</td>
+                        <td className="px-4 py-4 text-right">
+                          <button className="p-1.5 text-slate-400 hover:text-red-500 transition-colors">
+                            <span className="material-symbols-outlined text-lg">delete</span>
+                          </button>
+                        </td>
+                      </tr>
+                      <tr className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                        <td className="px-4 py-4 text-slate-900 dark:text-white">
+                          <div className="font-medium">Paracetamol 500mg</div>
+                          <div className="text-xs text-slate-400">Khi sốt trên 38.5 độ</div>
+                        </td>
+                        <td className="px-4 py-4 text-sm text-slate-900 dark:text-white">1 viên</td>
+                        <td className="px-4 py-4 text-sm text-slate-900 dark:text-white">Cách 4-6 giờ</td>
+                        <td className="px-4 py-4 text-sm font-medium text-slate-900 dark:text-white">5 ngày</td>
+                        <td className="px-4 py-4 text-right">
+                          <button className="p-1.5 text-slate-400 hover:text-red-500 transition-colors">
+                            <span className="material-symbols-outlined text-lg">delete</span>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Notes & Follow-up Section */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
+                <div className="space-y-3">
+                  <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-slate-400 text-sm">edit_note</span>
+                    Ghi chú dược sĩ/bệnh nhân
+                  </label>
+                  <textarea
+                    className="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all resize-none text-slate-900 dark:text-white text-sm"
+                    placeholder="Nhập lời dặn thêm..."
+                    rows={3}
+                  ></textarea>
+                </div>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-primary/5 rounded-xl border border-primary/10">
+                    <div className="flex items-center gap-3">
+                      <span className="material-symbols-outlined text-primary">event_repeat</span>
+                      <div className="text-left">
+                        <p className="text-sm font-bold text-slate-900 dark:text-white">Hẹn tái khám</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">Tự động nhắc lịch cho bệnh nhân</p>
+                      </div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input defaultChecked className="sr-only peer" type="checkbox" />
+                      <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+                    </label>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ngày tái khám dự kiến</label>
+                    <div className="relative">
+                      <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">calendar_today</span>
+                      <input
+                        className="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all text-slate-900 dark:text-white font-medium"
+                        type="date"
+                        defaultValue="2023-12-25"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="sticky bottom-0 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 px-6 py-4 flex items-center justify-end gap-3">
+              <button 
+                onClick={() => setIsPrescriptionModalOpen(false)}
+                className="px-6 py-2.5 rounded-lg font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                Hủy
+              </button>
+              <button 
+                onClick={() => setIsPrescriptionModalOpen(false)}
+                className="px-8 py-2.5 rounded-lg font-bold bg-primary text-slate-900 hover:shadow-lg hover:shadow-primary/20 transition-all flex items-center gap-2"
+              >
+                <span className="material-symbols-outlined text-lg">send</span>
+                Lưu &amp; Gửi
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
