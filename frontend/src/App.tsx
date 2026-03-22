@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { HeartPulse, Stethoscope, Building2, Shield, Activity } from 'lucide-react';
 import DoctorDashboard from './pages/DoctorDashboard';
+import DoctorAppointments from './pages/DoctorAppointments';
+import DoctorMessages from './pages/DoctorMessages';
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -95,6 +97,8 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/patient" element={<PatientDashboard />} />
         <Route path="/doctor" element={<DoctorDashboard />} />
+        <Route path="/doctor/appointments" element={<DoctorAppointments />} />
+        <Route path="/doctor/messages" element={<DoctorMessages />} />
         <Route path="/clinic" element={<ClinicDashboard />} />
         <Route path="/admin" element={<AdminDashboard />} />
       </Routes>

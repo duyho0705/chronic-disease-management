@@ -14,8 +14,8 @@ export default function DoctorDashboard() {
           </div>
         </div>
         <nav className="flex-1 px-4 py-4 space-y-1">
-          <a className="flex items-center gap-3 px-4 py-3 bg-primary text-white rounded-xl font-medium" href="#">
-            <span className="material-symbols-outlined">dashboard</span>
+          <a className="flex items-center gap-3 px-4 py-3 bg-primary text-white rounded-xl font-medium transition-colors" href="/doctor">
+            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>dashboard</span>
             <span>Bảng điều khiển</span>
           </a>
           <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-medium transition-colors" href="#">
@@ -30,11 +30,11 @@ export default function DoctorDashboard() {
             <span className="material-symbols-outlined">prescriptions</span>
             <span>Đơn thuốc điện tử</span>
           </a>
-          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-medium transition-colors" href="#">
+          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-medium transition-colors" href="/doctor/appointments">
             <span className="material-symbols-outlined">calendar_today</span>
             <span>Lịch hẹn khám</span>
           </a>
-          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-medium transition-colors" href="#">
+          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-medium transition-colors" href="/doctor/messages">
             <span className="material-symbols-outlined">chat</span>
             <span>Tin nhắn</span>
             <span className="ml-auto bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">5</span>
