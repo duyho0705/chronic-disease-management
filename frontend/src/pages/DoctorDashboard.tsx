@@ -5,6 +5,7 @@ import RescheduleModal from '../components/RescheduleModal';
 import Toast from '../components/Toast';
 import TopBar from '../components/TopBar';
 import PatientDetailModal from '../components/PatientDetailModal';
+import Dropdown from '../components/Dropdown';
 
 export default function DoctorDashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -42,6 +43,7 @@ export default function DoctorDashboard() {
     { id: 1, title: 'Cảnh báo chỉ số', message: 'Bệnh nhân Nguyễn Văn An có chỉ số đường huyết cao bất thường.', time: '5 phút trước', type: 'warning' },
     { id: 2, title: 'Lịch hẹn mới', message: 'Bạn có một yêu cầu đặt lịch hẹn mới từ Lê Thị Bình.', time: '2 giờ trước', type: 'info' }
   ]);
+  const [dashboardTimeRange, setDashboardTimeRange] = useState('7 ngày qua');
 
   const removeMedication = (id: number) => {
     setMedications(medications.filter(m => m.id !== id));
@@ -290,10 +292,12 @@ export default function DoctorDashboard() {
                       <h3 className="text-[17px] font-bold">Xu hướng sức khỏe cộng đồng</h3>
                       <p className="text-[14px] text-slate-500">Thống kê dữ liệu lâm sàng theo tuần</p>
                     </div>
-                    <select className="text-xs border-primary/10 rounded-lg bg-background-light dark:bg-slate-800 focus:ring-primary">
-                      <option>7 ngày qua</option>
-                      <option>30 ngày qua</option>
-                    </select>
+                    <Dropdown 
+                      options={['7 ngày qua', '30 ngày qua']}
+                      value={dashboardTimeRange}
+                      onChange={setDashboardTimeRange}
+                      className="min-w-[140px]"
+                    />
                   </div>
                   <div className="h-48 flex items-end justify-between gap-2 px-2">
                     <div className="w-full bg-primary/20 rounded-t-lg relative group h-[40%]">

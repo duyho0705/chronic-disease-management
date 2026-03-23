@@ -6,6 +6,7 @@ import Toast from '../components/Toast';
 import TopBar from '../components/TopBar';
 import FilterDropdown from '../components/FilterDropdown';
 import PatientDetailModal from '../components/PatientDetailModal';
+import AddPatientModal from '../components/AddPatientModal';
 
 export default function DoctorPatients() {
   const [notifications, setNotifications] = useState([
@@ -21,6 +22,7 @@ export default function DoctorPatients() {
   const [diseaseFilter, setDiseaseFilter] = useState('Tất cả bệnh lý');
   const [riskFilter, setRiskFilter] = useState('Mọi mức độ');
   const [isPatientDetailModalOpen, setIsPatientDetailModalOpen] = useState(false);
+  const [isAddPatientModalOpen, setIsAddPatientModalOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
 
   // Date & Time states for RescheduleModal
@@ -162,7 +164,8 @@ export default function DoctorPatients() {
               <p className="text-slate-500 text-[15px] font-medium">Quản lý và theo dõi lộ trình chăm sóc sức khỏe của 128 bệnh nhân đang điều trị trực tiếp.</p>
             </div>
             <button
-              className="bg-primary text-slate-900 px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 shadow-lg shadow-primary/10 hover:scale-105 active:scale-95 transition-all">
+              onClick={() => setIsAddPatientModalOpen(true)}
+              className="bg-primary text-slate-900 px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 shadow-lg shadow-primary/10 transition-all">
               <span className="material-symbols-outlined">person_add</span>
               Thêm bệnh nhân mới
             </button>
@@ -397,6 +400,20 @@ export default function DoctorPatients() {
           isOpen={isPatientDetailModalOpen}
           onClose={() => setIsPatientDetailModalOpen(false)}
           patient={selectedPatient}
+        />
+
+        <AddPatientModal
+          isOpen={isAddPatientModalOpen}
+          onClose={() => setIsAddPatientModalOpen(false)}
+          isSaving={isSaving}
+          onAdd={async (data) => {
+            setIsSaving(true);
+            console.log('Adding patient:', data);
+            await new Promise(r => setTimeout(r, 1500));
+            setIsSaving(false);
+            setIsAddPatientModalOpen(false);
+            setToast({ show: true, title: `Đã cấp tài khoản cho bệnh nhân ${data.fullName} thành công!`, type: "success" });
+          }}
         />
 
         <Toast
