@@ -1,50 +1,54 @@
 
+import { useState } from 'react';
+ 
 export default function DoctorAnalytics() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   return (
     <div className="flex min-h-screen font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100">
       {/* Sidebar Navigation */}
-      <aside className="w-72 bg-white dark:bg-slate-900 border-r border-primary/10 flex flex-col fixed h-full z-20">
-        <div className="p-6 flex items-center gap-3">
-          <div className="w-10 h-10 bg-primary flex items-center justify-center rounded-xl text-white">
+      <aside className={`fixed left-0 top-0 bottom-0 bg-white dark:bg-slate-900 border-r border-primary/10 flex flex-col z-[150] transition-transform duration-300 w-72 lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} shadow-2xl lg:shadow-none shadow-primary/10`}>
+        <div className="p-6 flex items-center gap-3 border-b border-primary/5">
+          <div className="w-10 h-10 bg-primary flex items-center justify-center rounded-xl text-white shadow-lg shadow-primary/20">
             <span className="material-symbols-outlined fill-1">health_metrics</span>
           </div>
           <div>
             <h1 className="text-xl font-extrabold text-slate-900 dark:text-white leading-none">Sống Khỏe</h1>
-            <p className="text-xs text-primary font-semibold uppercase tracking-wider">Hệ thống quản lý</p>
+            <p className="text-xs text-primary font-semibold tracking-wide">Hệ thống quản lý</p>
           </div>
         </div>
-        <nav className="flex-1 px-4 py-4 space-y-1">
-          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-medium transition-colors" href="/doctor">
+        <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar">
+          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-bold transition-all" href="/doctor">
             <span className="material-symbols-outlined">dashboard</span>
             <span>Bảng điều khiển</span>
           </a>
-          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-medium transition-colors" href="/doctor/patients">
+          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-bold transition-all" href="/doctor/patients">
             <span className="material-symbols-outlined">groups</span>
             <span>Danh sách bệnh nhân</span>
           </a>
-          <a className="flex items-center gap-3 px-4 py-3 bg-primary text-white rounded-xl font-medium transition-colors" href="/doctor/analytics">
+          <a className="flex items-center gap-3 px-4 py-3 bg-primary text-white rounded-xl font-bold shadow-lg shadow-primary/10 transition-all" href="/doctor/analytics">
              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>analytics</span>
             <span>Phân tích nguy cơ</span>
           </a>
-          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-medium transition-colors" href="/doctor/prescriptions">
-            <span className="material-symbols-outlined">prescriptions</span>
-            <span>Đơn thuốc điện tử</span>
-          </a>
-          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-medium transition-colors" href="/doctor/appointments">
-            <span className="material-symbols-outlined">calendar_today</span>
-            <span>Lịch hẹn khám</span>
-          </a>
-          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-medium transition-colors" href="/doctor/messages">
+          {[
+            { name: 'Đơn thuốc điện tử', icon: 'prescriptions', href: '/doctor/prescriptions' },
+            { name: 'Lịch hẹn khám', icon: 'calendar_today', href: '/doctor/appointments' },
+          ].map((item, idx) => (
+            <a key={idx} className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-bold transition-all" href={item.href}>
+              <span className="material-symbols-outlined">{item.icon}</span>
+              <span>{item.name}</span>
+            </a>
+          ))}
+          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-bold transition-all" href="/doctor/messages">
             <span className="material-symbols-outlined">chat</span>
             <span>Tin nhắn</span>
             <span className="ml-auto bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">5</span>
           </a>
         </nav>
         <div className="p-4 mt-auto">
-          <div className="bg-primary/5 rounded-2xl p-4 border border-primary/10">
+          <div className="bg-primary/5 rounded-lg p-4 border border-primary/10">
             <div className="flex items-center gap-3 mb-3">
-              <div 
-                className="w-10 h-10 rounded-full bg-slate-200" 
+              <div
+                className="w-10 h-10 rounded-full bg-slate-200"
                 data-alt="Bác sĩ Lê Minh Tâm portrait profile"
                 style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDvD1gNLm_sBMkVyq8FuYHA20LjP97yY90_RzaDO9mjZaL9ubIXYPTKQeV1FDlhsH3p7qndF3QILzvglilx1ly9Sb7AtePxkBlVz8-5HPGNI5wMlA1c27CCvjNz865bvs_Y9uYkK2245BaMa66pFJCTPXK2wTV6-A4oQjShYdPHNg1nx01j-yW7I48c8aShwiEDSx2B_FE04UGkIxELFaJ-Ho65BrMgC_LF9Yk0dKK7BGEGWjFX4zFwmnNWi44sq8khTm_Q-D-Iig4')" }}>
               </div>
@@ -62,16 +66,31 @@ export default function DoctorAnalytics() {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 ml-72">
+      <main className="flex-1 lg:ml-72 min-h-screen flex flex-col transition-all duration-300">
+        {/* Mobile Sidebar Overlay */}
+        {isSidebarOpen && (
+          <div
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[140] lg:hidden animate-in fade-in duration-300"
+            onClick={() => setIsSidebarOpen(false)}
+          ></div>
+        )}
         {/* Top Bar */}
-        <header className="h-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-primary/5 px-8 flex items-center justify-between sticky top-0 z-10">
-          <div className="w-96 relative">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
-            <input
-              className="w-full pl-10 pr-4 py-2.5 bg-background-light dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-primary/50 placeholder-slate-400 text-sm"
-              placeholder="Tìm kiếm bệnh nhân, hồ sơ..." 
-              type="text" 
-            />
+        <header className="h-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-primary/5 px-4 md:px-8 flex items-center justify-between sticky top-0 z-[100] transition-all">
+          <div className="flex items-center gap-4 flex-1 text-left">
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="lg:hidden w-10 h-10 flex items-center justify-center text-slate-600 dark:text-slate-400 bg-background-light dark:bg-slate-800 rounded-xl"
+            >
+              <span className="material-symbols-outlined">menu</span>
+            </button>
+            <div className="hidden sm:block w-96 relative">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+              <input
+                className="w-full pl-10 pr-4 py-2.5 bg-background-light dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-primary/50 placeholder-slate-400 text-sm"
+                placeholder="Tìm kiếm bệnh nhân, hồ sơ..."
+                type="text"
+              />
+            </div>
           </div>
           <div className="flex items-center gap-4">
             <button className="w-10 h-10 flex items-center justify-center rounded-xl bg-background-light dark:bg-slate-800 text-slate-600 relative">
