@@ -263,12 +263,12 @@ export default function PatientDetailModal({ isOpen, onClose, patient }: Patient
 
       {/* Overlay */}
       <div
-        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300 print:hidden"
+        className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] animate-in fade-in duration-300 print:hidden"
         onClick={onClose}
       ></div>
 
-      {/* Modal Content */}
-      <div className="relative w-full max-w-6xl max-h-[90vh] bg-background-light dark:bg-background-dark rounded-[24px] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-300 modal-main-container">
+      {/* Modal Content: Matched with Scheduling Modal styling */}
+      <div className="relative w-full max-w-6xl max-h-[90vh] bg-white dark:bg-slate-900 rounded-[24px] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-300 modal-main-container border border-primary/10">
 
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto p-8 custom-scrollbar modal-scroll-area">
