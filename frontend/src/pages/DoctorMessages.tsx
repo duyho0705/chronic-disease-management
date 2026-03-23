@@ -88,7 +88,7 @@ export default function DoctorMessages() {
                     </div>
                 </div>
                 <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar">
-                    <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-bold transition-all" href="/doctor">
+                    <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-medium transition-all" href="/doctor">
                         <span className="material-symbols-outlined">dashboard</span>
                         <span>Bảng điều khiển</span>
                     </a>
@@ -98,12 +98,12 @@ export default function DoctorMessages() {
                         { name: 'Đơn thuốc điện tử', icon: 'prescriptions', href: '/doctor/prescriptions' },
                         { name: 'Lịch hẹn khám', icon: 'calendar_today', href: '/doctor/appointments' },
                     ].map((item, idx) => (
-                        <a key={idx} className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-bold transition-all" href={item.href}>
+                        <a key={idx} className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-medium transition-all" href={item.href}>
                             <span className="material-symbols-outlined">{item.icon}</span>
                             <span>{item.name}</span>
                         </a>
                     ))}
-                    <a className="flex items-center gap-3 px-4 py-3 bg-primary text-white rounded-xl font-bold shadow-lg shadow-primary/10 transition-all" href="/doctor/messages">
+                    <a className="flex items-center gap-3 px-4 py-3 bg-primary text-white rounded-xl font-medium shadow-lg shadow-primary/10 transition-all" href="/doctor/messages">
                         <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>chat</span>
                         <span>Tin nhắn</span>
                         <span className="ml-auto bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">5</span>

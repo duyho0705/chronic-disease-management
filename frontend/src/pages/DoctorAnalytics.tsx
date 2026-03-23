@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import TopBar from '../components/TopBar';
 import PatientDetailModal from '../components/PatientDetailModal';
+import AdviceModal from '../components/AdviceModal';
+import Toast from '../components/Toast';
 
 export default function DoctorAnalytics() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -11,6 +13,29 @@ export default function DoctorAnalytics() {
     ]);
     const [isPatientDetailModalOpen, setIsPatientDetailModalOpen] = useState(false);
     const [selectedPatient, setSelectedPatient] = useState<any>(null);
+
+    // Advice Modal State
+    const [isAdviceModalOpen, setIsAdviceModalOpen] = useState(false);
+    const [adviceCategory, setAdviceCategory] = useState('Theo dõi');
+    const [adviceContent, setAdviceContent] = useState('');
+    const [isAdviceSaving, setIsAdviceSaving] = useState(false);
+    const [advicePatientName, setAdvicePatientName] = useState('');
+
+    const [showToast, setShowToast] = useState(false);
+    const [toastTitle, setToastTitle] = useState('');
+    const [toastType, setToastType] = useState<'success' | 'error' | 'warning'>('success');
+
+    const handleSaveAdvice = async () => {
+        setIsAdviceSaving(true);
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        setIsAdviceSaving(false);
+        setIsAdviceModalOpen(false);
+        setAdviceContent('');
+        setToastTitle(`Đã gửi lời khuyên đến ${advicePatientName} thành công!`);
+        setToastType('success');
+        setShowToast(true);
+    };
     return (
         <div className="flex min-h-screen font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100">
             {/* Sidebar Navigation */}
@@ -25,28 +50,27 @@ export default function DoctorAnalytics() {
                     </div>
                 </div>
                 <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar">
-                    <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-bold transition-all" href="/doctor">
+                    <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-2xl font-medium transition-all" href="/doctor">
                         <span className="material-symbols-outlined">dashboard</span>
                         <span>Bảng điều khiển</span>
                     </a>
-                    <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-bold transition-all" href="/doctor/patients">
+                    <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-2xl font-medium transition-all" href="/doctor/patients">
                         <span className="material-symbols-outlined">groups</span>
                         <span>Danh sách bệnh nhân</span>
                     </a>
-                    <a className="flex items-center gap-3 px-4 py-3 bg-primary text-white rounded-xl font-bold shadow-lg shadow-primary/10 transition-all" href="/doctor/analytics">
+                    <a className="flex items-center gap-3 px-4 py-3 bg-primary text-white rounded-2xl font-medium shadow-lg shadow-primary/10 transition-all" href="/doctor/analytics">
                         <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>analytics</span>
                         <span>Phân tích nguy cơ</span>
                     </a>
-                    {[
-                        { name: 'Đơn thuốc điện tử', icon: 'prescriptions', href: '/doctor/prescriptions' },
-                        { name: 'Lịch hẹn khám', icon: 'calendar_today', href: '/doctor/appointments' },
-                    ].map((item, idx) => (
-                        <a key={idx} className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-bold transition-all" href={item.href}>
-                            <span className="material-symbols-outlined">{item.icon}</span>
-                            <span>{item.name}</span>
-                        </a>
-                    ))}
-                    <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-bold transition-all" href="/doctor/messages">
+                    <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-2xl font-medium transition-all" href="/doctor/prescriptions">
+                        <span className="material-symbols-outlined">prescriptions</span>
+                        <span>Đơn thuốc điện tử</span>
+                    </a>
+                    <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-2xl font-medium transition-all" href="/doctor/appointments">
+                        <span className="material-symbols-outlined">calendar_today</span>
+                        <span>Lịch hẹn khám</span>
+                    </a>
+                    <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-2xl font-medium transition-all" href="/doctor/messages">
                         <span className="material-symbols-outlined">chat</span>
                         <span>Tin nhắn</span>
                         <span className="ml-auto bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">5</span>
@@ -88,7 +112,7 @@ export default function DoctorAnalytics() {
                     setNotifications={setNotifications}
                 />
 
-                <div className="p-8 space-y-8">
+                <div className="p-4 md:p-8 space-y-6 md:space-y-8">
                     {/* Header Section */}
                     <div className="mb-8">
                         <h2 className="text-[22px] font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">Phân tích nguy cơ</h2>
@@ -97,52 +121,59 @@ export default function DoctorAnalytics() {
 
                     {/* Stats Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 border-l-4 border-l-blue-500 hover:scale-[1.02] transition-transform">
+                        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border border-primary/5">
                             <div className="flex justify-between items-start">
                                 <div>
-                                    <p className="text-[14px] font-bold text-slate-400 uppercase tracking-widest">Tổng ca nguy cơ</p>
-                                    <h3 className="text-2xl font-extrabold mt-1">1,284</h3>
+                                    <p className="text-sm font-medium text-slate-500 mb-1">Tổng ca nguy cơ</p>
+                                    <h3 className="text-3xl font-extrabold mt-1 text-slate-900 dark:text-white">1,284</h3>
                                 </div>
-                                <span className="material-symbols-outlined text-blue-500 bg-blue-50 p-2.5 rounded-xl text-xl">monitoring</span>
+                                <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/30 rounded-lg flex items-center justify-center text-blue-500">
+                                    <span className="material-symbols-outlined text-2xl">monitoring</span>
+                                </div>
                             </div>
-                            <div className="mt-4 flex items-center text-xs text-blue-600 font-bold">
-                                <span className="material-symbols-outlined text-xs mr-1">trending_up</span>
+                            <div className="mt-4 flex items-center text-[14px] text-blue-600 dark:text-blue-400 font-bold">
+                                <span className="material-symbols-outlined text-[14px] mr-1">trending_up</span>
                                 +12% so với tháng trước
                             </div>
                         </div>
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 border-l-4 border-l-red-500 hover:scale-[1.02] transition-transform">
+                        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border border-primary/5">
                             <div className="flex justify-between items-start">
                                 <div>
-                                    <p className="text-[14px] font-bold text-slate-400 uppercase tracking-widest">Nguy cơ cao</p>
-                                    <h3 className="text-2xl font-extrabold mt-1 text-red-500">42</h3>
+                                    <p className="text-sm font-medium text-slate-500 mb-1">Nguy cơ cao</p>
+                                    <h3 className="text-3xl font-extrabold mt-1 text-red-500">42</h3>
                                 </div>
-                                <span className="material-symbols-outlined text-red-500 bg-red-100 p-2.5 rounded-xl text-xl"
-                                    style={{ fontVariationSettings: "'FILL' 1" }}>warning</span>
+                                <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center text-red-500">
+                                    <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>warning</span>
+                                </div>
                             </div>
-                            <p className="text-xs text-slate-500 mt-4 italic font-medium">Cần can thiệp khẩn cấp ngay</p>
+                            <p className="text-[14px] text-slate-500 dark:text-slate-400 mt-4 italic font-medium">Cần can thiệp khẩn cấp ngay</p>
                         </div>
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 border-l-4 border-l-orange-500 hover:scale-[1.02] transition-transform">
+                        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border border-primary/5">
                             <div className="flex justify-between items-start">
                                 <div>
-                                    <p className="text-[14px] font-bold text-slate-400 uppercase tracking-widest">Xu hướng xấu</p>
-                                    <h3 className="text-2xl font-extrabold mt-1 text-orange-500">156</h3>
+                                    <p className="text-sm font-medium text-slate-500 mb-1">Xu hướng xấu</p>
+                                    <h3 className="text-3xl font-extrabold mt-1 text-orange-500">156</h3>
                                 </div>
-                                <span className="material-symbols-outlined text-orange-500 bg-orange-50 p-2.5 rounded-xl text-xl">trending_down</span>
+                                <div className="w-12 h-12 bg-orange-50 dark:bg-orange-900/30 rounded-lg flex items-center justify-center text-orange-500">
+                                    <span className="material-symbols-outlined text-2xl">trending_down</span>
+                                </div>
                             </div>
-                            <div className="mt-4 flex items-center text-xs text-orange-500 font-bold">
+                            <div className="mt-4 flex items-center text-[14px] text-orange-500 dark:text-orange-400 font-bold">
                                 Dự báo tăng 5% tới
                             </div>
                         </div>
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 border-l-4 border-l-primary hover:scale-[1.02] transition-transform">
+                        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border border-primary/5">
                             <div className="flex justify-between items-start">
                                 <div>
-                                    <p className="text-[14px] font-bold text-slate-400 uppercase tracking-widest">Ổn định</p>
-                                    <h3 className="text-2xl font-extrabold mt-1 text-primary">1,086</h3>
+                                    <p className="text-sm font-medium text-slate-500 mb-1">Ổn định</p>
+                                    <h3 className="text-3xl font-extrabold mt-1 text-primary">1,086</h3>
                                 </div>
-                                <span className="material-symbols-outlined text-primary bg-primary/10 p-2.5 rounded-xl text-xl"
-                                    style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
+                                    <span className="material-symbols-outlined text-2xl"
+                                        style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                                </div>
                             </div>
-                            <div className="mt-4 flex items-center text-xs text-primary font-bold">
+                            <div className="mt-4 flex items-center text-[14px] text-primary dark:text-primary/80 font-bold">
                                 Duy trì trạng thái tốt
                             </div>
                         </div>
@@ -151,7 +182,7 @@ export default function DoctorAnalytics() {
                     {/* Middle Section: Chart & AI Insights */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
                         {/* Chart Section */}
-                        <div className="lg:col-span-2 bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
+                        <div className="lg:col-span-2 bg-white p-8 rounded-lg shadow-sm border border-slate-100">
                             <div className="flex justify-between items-center mb-8">
                                 <div>
                                     <h4 className="text-lg font-bold">Xu hướng sức khỏe cộng đồng</h4>
@@ -205,38 +236,38 @@ export default function DoctorAnalytics() {
                             <div className="flex items-center gap-6 mt-6">
                                 <div className="flex items-center gap-2">
                                     <span className="w-3 h-3 rounded-full bg-primary/80"></span>
-                                    <span className="text-xs text-slate-500">Trung bình nhóm nguy cơ</span>
+                                    <span className="text-[14px] text-slate-500">Trung bình nhóm nguy cơ</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <span className="w-3 h-3 rounded-full bg-slate-200"></span>
-                                    <span className="text-xs text-slate-500">Ngưỡng an toàn (120 mmHg)</span>
+                                    <span className="text-[14px] text-slate-500">Ngưỡng an toàn (120 mmHg)</span>
                                 </div>
                             </div>
                         </div>
                         {/* AI Insights Panel */}
-                        <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+                        <div className="bg-white p-8 rounded-lg shadow-sm border border-slate-100 space-y-4">
                             <div className="flex items-center gap-2 mb-4">
                                 <span className="material-symbols-outlined text-primary"
                                     style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
                                 <h4 className="text-lg font-bold">AI Insights</h4>
                             </div>
-                            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border-l-4 border-red-500">
+                            <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800 border-l-4 border-red-500">
                                 <div className="flex items-center gap-2 mb-2">
                                     <span className="material-symbols-outlined text-red-500 text-sm">emergency</span>
                                     <span className="text-xs font-extrabold text-red-500 uppercase tracking-wider">Cảnh báo khẩn</span>
                                 </div>
                                 <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Bệnh nhân Trần Anh có SpO2 giảm đột ngột (88%)
                                 </p>
-                                <button className="mt-3 text-xs font-bold text-primary hover:underline">Liên hệ ngay →</button>
+                                <a href="/doctor/messages" className="inline-block mt-3 text-[13px] font-bold text-primary hover:underline">Liên hệ ngay →</a>
                             </div>
-                            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border-l-4 border-orange-500">
+                            <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800 border-l-4 border-orange-500">
                                 <div className="flex items-center gap-2 mb-2">
                                     <span className="material-symbols-outlined text-orange-500 text-sm">groups_2</span>
                                     <span className="text-xs font-extrabold text-orange-600 uppercase tracking-wider">Phân tích cụm</span>
                                 </div>
                                 <p className="text-sm text-slate-900 dark:text-slate-100 font-semibold">Phát hiện cụm 15 bệnh nhân tại Quận 7 có dấu hiệu tăng huyết áp.</p>
                             </div>
-                            <div className="p-4 rounded-xl bg-primary/5 border-l-4 border-primary">
+                            <div className="p-4 rounded-lg bg-primary/5 border-l-4 border-primary">
                                 <div className="flex items-center gap-2 mb-2">
                                     <span className="material-symbols-outlined text-primary text-sm">query_stats</span>
                                     <span className="text-xs font-extrabold text-primary uppercase tracking-wider">Dự báo biến chứng</span>
@@ -247,9 +278,9 @@ export default function DoctorAnalytics() {
                     </div>
 
                     {/* Patient Table Section */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div className="bg-white rounded-lg shadow-sm border border-slate-100 overflow-hidden">
                         <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center">
-                            <h4 className="text-lg font-bold text-slate-900 dark:text-slate-100">Bệnh nhân nguy cơ cao</h4>
+                            <h4 className="text-xl font-extrabold text-slate-900 dark:text-white">Bệnh nhân nguy cơ cao</h4>
                             <button
                                 className="flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-100 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors">
                                 <span className="material-symbols-outlined text-sm">filter_list</span>
@@ -259,11 +290,11 @@ export default function DoctorAnalytics() {
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead>
-                                    <tr className="bg-slate-50/50 text-slate-500 text-[10px] uppercase tracking-widest font-bold">
-                                        <th className="px-8 py-4 border-b border-slate-100">Bệnh nhân</th>
-                                        <th className="px-8 py-4 border-b border-slate-100">Chỉ số mới nhất</th>
-                                        <th className="px-8 py-4 border-b border-slate-100">Phân tích từ AI</th>
-                                        <th className="px-8 py-4 text-right border-b border-slate-100 whitespace-nowrap">Thao tác</th>
+                                    <tr className="bg-primary/5 border-b border-primary/5">
+                                        <th className="px-8 py-4 text-[14px] font-bold text-slate-500">Bệnh nhân</th>
+                                        <th className="px-8 py-4 text-[14px] font-bold text-slate-500">Chỉ số mới nhất</th>
+                                        <th className="px-8 py-4 text-[14px] font-bold text-slate-500">Phân tích từ AI</th>
+                                        <th className="px-8 py-4 text-[14px] font-bold text-slate-500 text-right whitespace-nowrap">Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
@@ -279,40 +310,49 @@ export default function DoctorAnalytics() {
                                                         className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold">
                                                         {p.initials}</div>
                                                     <div>
-                                                        <p className="text-sm font-bold text-slate-900 dark:text-slate-100">{p.name}</p>
-                                                        <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">ID: SK-{p.id}</p>
+                                                        <p className="text-[15px] font-bold text-slate-900 dark:text-white">{p.name}</p>
+                                                        <p className="text-[13px] text-slate-400">Mã bệnh nhân: SK-{p.id}</p>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-5">
                                                 <div className="flex items-center gap-2">
-                                                    <span className={`text-sm font-bold text-${p.color}-500`}>{p.bp}</span>
-                                                    <span className={`material-symbols-outlined text-${p.color}-500 text-sm`}>{p.icon}</span>
+                                                    <span className={`text-[14px] font-bold text-${p.color}-500`}>{p.bp}</span>
+                                                    <span className={`material-symbols-outlined text-${p.color}-500 text-[13px]`}>{p.icon}</span>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-5">
-                                                <span 
+                                                <span
                                                     style={p.color === 'red' ? { backgroundColor: 'rgb(255, 197, 197)', borderColor: 'rgb(237, 152, 152)' } : {}}
-                                                    className={`inline-flex items-center px-3 py-1.5 rounded-[8px] text-[11px] font-extrabold gap-1 border ${p.color === 'red' ? 'text-red-500' :
+                                                    className={`inline-flex items-center px-4 py-2 rounded-lg text-[13px] font-bold gap-2 border ${p.color === 'red' ? 'text-red-500' :
                                                         p.color === 'orange' ? 'bg-orange-50 text-orange-500 border-orange-100' :
                                                             'bg-green-50 text-green-500 border-green-100'
-                                                    }`}>
+                                                        }`}>
                                                     <span className="material-symbols-outlined text-[13px]" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
                                                     {p.alert}
                                                 </span>
                                             </td>
                                             <td className="px-8 py-5">
                                                 <div className="flex justify-end gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
-                                                    <button className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all">
+                                                    <a
+                                                        href="/doctor/messages"
+                                                        className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all flex items-center justify-center cursor-pointer"
+                                                    >
                                                         <span className="material-symbols-outlined text-xl">chat</span>
-                                                    </button>
-                                                    <button 
+                                                    </a>
+                                                    <button
                                                         onClick={() => { setSelectedPatient({ name: p.name, id: `SK-${p.id}`, risk: p.color === 'red' ? 'Nguy cơ cao' : 'Cần theo dõi' }); setIsPatientDetailModalOpen(true); }}
                                                         className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all">
                                                         <span className="material-symbols-outlined text-xl">visibility</span>
                                                     </button>
-                                                    <button className="p-2 text-red-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
-                                                        <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>campaign</span>
+                                                    <button
+                                                        className="p-2 text-red-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                                                        onClick={() => {
+                                                            setAdvicePatientName(p.name);
+                                                            setIsAdviceModalOpen(true);
+                                                        }}
+                                                    >
+                                                        <span className="material-symbols-outlined text-xl">campaign</span>
                                                     </button>
                                                 </div>
                                             </td>
@@ -322,7 +362,7 @@ export default function DoctorAnalytics() {
                             </table>
                         </div>
                         <div className="px-8 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/30">
-                            <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Hiển thị 3 trên 42 ca nguy cơ</p>
+                            <p className="text-[13px] font-bold text-slate-400">Hiển thị 3 trên 42 ca nguy cơ</p>
                             <div className="flex items-center gap-1">
                                 <button className="p-2 rounded-lg hover:bg-white hover:shadow-sm transition-all text-slate-400 border border-transparent hover:border-slate-100">
                                     <span className="material-symbols-outlined text-sm">chevron_left</span>
@@ -339,10 +379,31 @@ export default function DoctorAnalytics() {
                 </div>
             </main>
 
-            <PatientDetailModal 
-                isOpen={isPatientDetailModalOpen}
-                onClose={() => setIsPatientDetailModalOpen(false)}
-                patient={selectedPatient}
+            {selectedPatient && (
+                <PatientDetailModal
+                    isOpen={isPatientDetailModalOpen}
+                    onClose={() => setIsPatientDetailModalOpen(false)}
+                    patient={selectedPatient}
+                />
+            )}
+
+            <AdviceModal
+                isOpen={isAdviceModalOpen}
+                onClose={() => setIsAdviceModalOpen(false)}
+                adviceCategory={adviceCategory}
+                setAdviceCategory={setAdviceCategory}
+                adviceContent={adviceContent}
+                setAdviceContent={setAdviceContent}
+                isSaving={isAdviceSaving}
+                onSave={handleSaveAdvice}
+                patientName={advicePatientName}
+            />
+
+            <Toast
+                show={showToast}
+                title={toastTitle}
+                type={toastType}
+                onClose={() => setShowToast(false)}
             />
         </div>
     );

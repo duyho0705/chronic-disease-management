@@ -1,20 +1,43 @@
-import { useState } from 'react';
-import PrescriptionModal from '../components/PrescriptionModal';
-import AdviceModal from '../components/AdviceModal';
-import RescheduleModal from '../components/RescheduleModal';
-import Toast from '../components/Toast';
+import React, { useState, useEffect } from 'react';
 import TopBar from '../components/TopBar';
 import PatientDetailModal from '../components/PatientDetailModal';
+import AdviceModal from '../components/AdviceModal';
+import Toast from '../components/Toast';
+import PrescriptionModal from '../components/PrescriptionModal';
+import RescheduleModal from '../components/RescheduleModal';
 import Dropdown from '../components/Dropdown';
 
 export default function DoctorDashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isAdviceModalOpen, setIsAdviceModalOpen] = useState(false);
   const [isPrescriptionModalOpen, setIsPrescriptionModalOpen] = useState(false);
   const [isAddingNewMedicine, setIsAddingNewMedicine] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [isPatientDetailModalOpen, setIsPatientDetailModalOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
+
+  // Advice Modal State
+  const [isAdviceModalOpen, setIsAdviceModalOpen] = useState(false);
+  const [adviceCategory, setAdviceCategory] = useState('Theo dõi');
+  const [adviceContent, setAdviceContent] = useState('');
+  const [isAdviceSaving, setIsAdviceSaving] = useState(false);
+  const [advicePatientName, setAdvicePatientName] = useState('');
+
+  // Toast State
+  const [showToast, setShowToast] = useState(false);
+  const [toastTitle, setToastTitle] = useState('');
+  const [toastType, setToastType] = useState<'success' | 'error' | 'warning'>('success');
+
+  const handleSaveAdvice = async () => {
+    setIsAdviceSaving(true);
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    setIsAdviceSaving(false);
+    setIsAdviceModalOpen(false);
+    setAdviceContent('');
+    setToastTitle(`Đã gửi lời khuyên đến ${advicePatientName} thành công!`);
+    setToastType('success');
+    setShowToast(true);
+  };
   const [medications, setMedications] = useState([
     { id: 1, name: 'Metformin 500mg', intakeType: 'Uống sau khi ăn', dosage: '1 viên', frequency: 'Sáng 1, Tối 1', duration: '30 ngày' },
     { id: 2, name: 'Paracetamol 500mg', intakeType: 'Khi sốt trên 38.5 độ', dosage: '1 viên', frequency: 'Cách 4-6 giờ', duration: '5 ngày' }
@@ -31,12 +54,10 @@ export default function DoctorDashboard() {
   const [formErrors, setFormErrors] = useState<Record<string, boolean>>({});
   const [selectedTime, setSelectedTime] = useState('09:00');
   const [selectedDay, setSelectedDay] = useState(5);
-  const [adviceCategory, setAdviceCategory] = useState('Dinh dưỡng');
-  const [adviceContent, setAdviceContent] = useState('');
+  // const [adviceCategory, setAdviceCategory] = useState('Dinh dưỡng'); // Duplicate, removed
+  // const [adviceContent, setAdviceContent] = useState(''); // Duplicate, removed
   const [currentMonth, setCurrentMonth] = useState(10); // November (0-indexed)
   const [currentYear, setCurrentYear] = useState(2024);
-  const [showToast, setShowToast] = useState(false);
-  const [toastTitle, setToastTitle] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState([
@@ -77,15 +98,15 @@ export default function DoctorDashboard() {
     setShowToast(true);
   };
 
-  const handleSaveAdvice = async () => {
-    setIsSaving(true);
-    // Process Advice Sending
-    await new Promise(r => setTimeout(r, 1000));
-    setIsSaving(false);
-    setIsAdviceModalOpen(false);
-    setToastTitle('Gửi lời khuyên thành công');
-    setShowToast(true);
-  };
+  // const handleSaveAdvice = async () => { // Duplicate, removed
+  //   setIsSaving(true);
+  //   // Process Advice Sending
+  //   await new Promise(r => setTimeout(r, 1000));
+  //   setIsSaving(false);
+  //   setIsAdviceModalOpen(false);
+  //   setToastTitle('Gửi lời khuyên thành công');
+  //   setShowToast(true);
+  // };
 
   const handleSavePrescription = async () => {
     setIsSaving(true);
@@ -111,22 +132,27 @@ export default function DoctorDashboard() {
             </div>
           </div>
           <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar">
-            <a className="flex items-center gap-3 px-4 py-3 bg-primary text-white rounded-xl font-bold shadow-lg shadow-primary/10 transition-all" href="/doctor">
+            <a className="flex items-center gap-3 px-4 py-3 bg-primary text-white rounded-2xl font-medium shadow-lg shadow-primary/10 transition-all" href="/doctor">
               <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>dashboard</span>
               <span>Bảng điều khiển</span>
             </a>
-            {[
-              { name: 'Danh sách bệnh nhân', icon: 'groups', href: '/doctor/patients' },
-              { name: 'Phân tích nguy cơ', icon: 'analytics', href: '/doctor/analytics' },
-              { name: 'Đơn thuốc điện tử', icon: 'prescriptions', href: '/doctor/prescriptions' },
-              { name: 'Lịch hẹn khám', icon: 'calendar_today', href: '/doctor/appointments' },
-            ].map((item, idx) => (
-              <a key={idx} className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-bold transition-all" href={item.href}>
-                <span className="material-symbols-outlined">{item.icon}</span>
-                <span>{item.name}</span>
-              </a>
-            ))}
-            <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-bold transition-all" href="/doctor/messages">
+            <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-2xl font-medium transition-all" href="/doctor/patients">
+              <span className="material-symbols-outlined">groups</span>
+              <span>Danh sách bệnh nhân</span>
+            </a>
+            <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-2xl font-medium transition-all" href="/doctor/analytics">
+              <span className="material-symbols-outlined">analytics</span>
+              <span>Phân tích nguy cơ</span>
+            </a>
+            <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-2xl font-medium transition-all" href="/doctor/prescriptions">
+              <span className="material-symbols-outlined">prescriptions</span>
+              <span>Đơn thuốc điện tử</span>
+            </a>
+            <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-2xl font-medium transition-all" href="/doctor/appointments">
+              <span className="material-symbols-outlined">calendar_today</span>
+              <span>Lịch hẹn khám</span>
+            </a>
+            <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-2xl font-medium transition-all" href="/doctor/messages">
               <span className="material-symbols-outlined">chat</span>
               <span>Tin nhắn</span>
               <span className="ml-auto bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">5</span>
@@ -249,10 +275,19 @@ export default function DoctorDashboard() {
                       <p className="text-[10px] text-red-400 font-bold hidden sm:block">Tăng mạnh (+12)</p>
                     </div>
                     <div className="flex flex-row sm:flex-col gap-2 w-full sm:w-auto">
-                      <span 
+                      <span
                         style={{ backgroundColor: 'rgb(255, 197, 197)', borderColor: 'rgb(237, 152, 152)' }}
                         className="flex-1 sm:flex-none text-red-500 border text-[10px] font-bold px-3 py-1.5 rounded-full text-center">Nguy cấp</span>
-                      <button className="flex-1 sm:flex-none bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold py-2 px-4 rounded-lg transition-colors">Chi tiết</button>
+                      <div className="flex gap-2">
+                        <a href="/doctor/messages" className="flex-1 sm:flex-none bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center">
+                          <span className="material-symbols-outlined text-base">chat</span>
+                        </a>
+                        <button
+                          onClick={() => { setIsAdviceModalOpen(true); setAdvicePatientName('Nguyễn Văn A'); }}
+                          className="flex-1 sm:flex-none bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center">
+                          <span className="material-symbols-outlined text-base">campaign</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
 
@@ -280,7 +315,16 @@ export default function DoctorDashboard() {
                     </div>
                     <div className="flex flex-row sm:flex-col gap-2 w-full sm:w-auto">
                       <span className="flex-1 sm:flex-none bg-orange-50 text-orange-500 border border-orange-100 text-[10px] font-bold px-3 py-1.5 rounded-full text-center">Cần theo dõi</span>
-                      <button className="flex-1 sm:flex-none bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold py-2 px-4 rounded-lg transition-colors">Chi tiết</button>
+                      <div className="flex gap-2">
+                        <a href="/doctor/messages" className="flex-1 sm:flex-none bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center">
+                          <span className="material-symbols-outlined text-base">chat</span>
+                        </a>
+                        <button
+                          onClick={() => { setIsAdviceModalOpen(true); setAdvicePatientName('Trần Thị B'); }}
+                          className="flex-1 sm:flex-none bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center">
+                          <span className="material-symbols-outlined text-base">campaign</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -292,7 +336,7 @@ export default function DoctorDashboard() {
                       <h3 className="text-[17px] font-bold">Xu hướng sức khỏe cộng đồng</h3>
                       <p className="text-[14px] text-slate-500">Thống kê dữ liệu lâm sàng theo tuần</p>
                     </div>
-                    <Dropdown 
+                    <Dropdown
                       options={['7 ngày qua', '30 ngày qua']}
                       value={dashboardTimeRange}
                       onChange={setDashboardTimeRange}
@@ -430,7 +474,7 @@ export default function DoctorDashboard() {
                               </div>
                               <div>
                                 <p className="text-[14px] font-bold text-slate-900 dark:text-white">Lê Văn C</p>
-                                <p className="text-xs text-slate-400">ID: #SK-2034</p>
+                                <p className="text-xs text-slate-400 font-medium">Mã bệnh nhân: #SK-2034</p>
                               </div>
                             </div>
                           </td>
@@ -447,7 +491,7 @@ export default function DoctorDashboard() {
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                             <span className="px-2 py-1 bg-green-50 text-green-500 border border-green-100 text-xs font-bold rounded-md">Ổn định</span>
+                            <span className="px-2 py-1 bg-green-50 text-green-500 border border-green-100 text-xs font-bold rounded-md">Ổn định</span>
                           </td>
                           <td className="px-6 py-4 text-[13px] text-slate-500">10 phút trước</td>
                           <td className="px-6 py-4 text-right relative">
@@ -461,14 +505,14 @@ export default function DoctorDashboard() {
                               <>
                                 <div className="fixed inset-0 z-[100]" onClick={() => setActiveMenu(null)}></div>
                                 <div className="absolute right-6 top-12 w-56 bg-white dark:bg-slate-900 rounded-lg shadow-2xl border border-slate-100 dark:border-slate-800 py-2 z-[110] animate-in fade-in slide-in-from-top-2 duration-200 overflow-hidden text-left">
-                                  <button 
+                                  <button
                                     onClick={() => { setSelectedPatient({ name: 'Nguyễn Văn A', id: 'BN-001', risk: 'Bình thường' }); setIsPatientDetailModalOpen(true); setActiveMenu(null); }}
                                     className="w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-3 group">
                                     <span className="material-symbols-outlined text-slate-400 group-hover:text-primary text-xl">visibility</span>
                                     <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Xem chi tiết hồ sơ</span>
                                   </button>
                                   <button
-                                    onClick={() => { setIsAdviceModalOpen(true); setActiveMenu(null); }}
+                                    onClick={() => { setIsAdviceModalOpen(true); setAdvicePatientName('Lê Văn C'); setActiveMenu(null); }}
                                     className="w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-3 group">
                                     <span className="material-symbols-outlined text-slate-400 group-hover:text-primary text-xl">send</span>
                                     <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Gửi lời khuyên</span>
@@ -501,7 +545,7 @@ export default function DoctorDashboard() {
                               </div>
                               <div>
                                 <p className="text-[15px] font-bold text-slate-900 dark:text-white">Phạm Minh H</p>
-                                <p className="text-xs text-slate-400">ID: #SK-2155</p>
+                                <p className="text-xs text-slate-400 font-medium">Mã bệnh nhân: #SK-2155</p>
                               </div>
                             </div>
                           </td>
@@ -518,7 +562,7 @@ export default function DoctorDashboard() {
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                             <span className="px-2 py-1 bg-orange-50 text-orange-500 border border-orange-100 text-xs font-bold rounded-md">Cần kiểm tra</span>
+                            <span className="px-2 py-1 bg-orange-50 text-orange-500 border border-orange-100 text-xs font-bold rounded-md">Cần kiểm tra</span>
                           </td>
                           <td className="px-6 py-4 text-[13px] text-slate-500">2 giờ trước</td>
                           <td className="px-6 py-4 text-right relative">
@@ -532,14 +576,14 @@ export default function DoctorDashboard() {
                               <>
                                 <div className="fixed inset-0 z-[100]" onClick={() => setActiveMenu(null)}></div>
                                 <div className="absolute right-6 top-12 w-64 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 py-2.5 z-[110] animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-200 overflow-hidden text-left">
-                                  <button 
+                                  <button
                                     onClick={() => { setSelectedPatient({ name: 'Phạm Minh H', id: '#SK-2155', risk: 'Cần theo dõi' }); setIsPatientDetailModalOpen(true); setActiveMenu(null); }}
                                     className="w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-3 group">
                                     <span className="material-symbols-outlined text-slate-400 group-hover:text-primary text-xl">visibility</span>
                                     <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Xem chi tiết hồ sơ</span>
                                   </button>
                                   <button
-                                    onClick={() => { setIsAdviceModalOpen(true); setActiveMenu(null); }}
+                                    onClick={() => { setIsAdviceModalOpen(true); setAdvicePatientName('Phạm Minh H'); setActiveMenu(null); }}
                                     className="w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-3 group">
                                     <span className="material-symbols-outlined text-slate-400 group-hover:text-primary text-xl">send</span>
                                     <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Gửi lời khuyên</span>
@@ -586,18 +630,6 @@ export default function DoctorDashboard() {
           onSave={handleSaveReschedule}
         />
 
-        <AdviceModal
-          isOpen={isAdviceModalOpen}
-          onClose={() => setIsAdviceModalOpen(false)}
-          adviceCategory={adviceCategory}
-          setAdviceCategory={setAdviceCategory}
-          adviceContent={adviceContent}
-          setAdviceContent={setAdviceContent}
-          isSaving={isSaving}
-          onSave={handleSaveAdvice}
-          patientName="Nguyễn Văn A"
-        />
-
         <PrescriptionModal
           isOpen={isPrescriptionModalOpen}
           onClose={() => setIsPrescriptionModalOpen(false)}
@@ -611,15 +643,29 @@ export default function DoctorDashboard() {
           setFormErrors={setFormErrors as any}
           addMedicationToPrescription={addMedicationToPrescription}
           isSaving={isSaving}
-           onSave={handleSavePrescription}
-           patientName="Nguyễn Văn A"
-         />
- 
-         <PatientDetailModal
-           isOpen={isPatientDetailModalOpen}
-           onClose={() => setIsPatientDetailModalOpen(false)}
-           patient={selectedPatient}
-         />
+          onSave={handleSavePrescription}
+          patientName="Nguyễn Văn A"
+        />
+
+        {selectedPatient && (
+          <PatientDetailModal
+            isOpen={isPatientDetailModalOpen}
+            onClose={() => setIsPatientDetailModalOpen(false)}
+            patient={selectedPatient}
+          />
+        )}
+
+        <AdviceModal
+          isOpen={isAdviceModalOpen}
+          onClose={() => setIsAdviceModalOpen(false)}
+          adviceCategory={adviceCategory}
+          setAdviceCategory={setAdviceCategory}
+          adviceContent={adviceContent}
+          setAdviceContent={setAdviceContent}
+          isSaving={isAdviceSaving}
+          onSave={handleSaveAdvice}
+          patientName={advicePatientName}
+        />
 
         <Toast
           show={showToast}

@@ -29,13 +29,13 @@ export default function FilterDropdown({
         onClick={() => setIsOpen(!isOpen)}
         className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-center gap-4 group hover:border-primary/30 transition-all w-full text-left focus:outline-none"
       >
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${iconBgColor} ${iconTextColor}`}>
-          <span className="material-symbols-outlined text-xl">{icon}</span>
+        <div className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 ${iconBgColor} ${iconTextColor}`}>
+          <span className="material-symbols-outlined text-2xl">{icon}</span>
         </div>
         <div className="flex-1 overflow-hidden">
-          <p className="text-[14px] font-bold text-slate-400 mb-0.5">{label}</p>
+          <p className="text-sm font-medium text-slate-500 mb-1">{label}</p>
           <div className="flex items-center justify-between gap-2">
-            <span className={`text-sm font-bold truncate ${optionColors?.[value] || 'text-slate-700'}`}>{value}</span>
+            <span className={`text-[15px] font-bold truncate ${optionColors?.[value] || 'text-slate-900'}`}>{value}</span>
             <span className={`material-symbols-outlined text-slate-400 text-lg transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
               expand_more
             </span>

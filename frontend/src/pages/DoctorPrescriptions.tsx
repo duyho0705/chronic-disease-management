@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import TopBar from '../components/TopBar';
- 
+
 export default function DoctorPrescriptions() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [notifications, setNotifications] = useState([
@@ -21,27 +21,27 @@ export default function DoctorPrescriptions() {
                     </div>
                 </div>
                 <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar">
-                    <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-bold transition-all" href="/doctor">
+                    <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-medium transition-all" href="/doctor">
                         <span className="material-symbols-outlined">dashboard</span>
                         <span>Bảng điều khiển</span>
                     </a>
-                    <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-bold transition-all" href="/doctor/patients">
+                    <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-medium transition-all" href="/doctor/patients">
                         <span className="material-symbols-outlined">groups</span>
                         <span>Danh sách bệnh nhân</span>
                     </a>
-                    <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-bold transition-all" href="/doctor/analytics">
+                    <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-medium transition-all" href="/doctor/analytics">
                         <span className="material-symbols-outlined">analytics</span>
                         <span>Phân tích nguy cơ</span>
                     </a>
-                    <a className="flex items-center gap-3 px-4 py-3 bg-primary text-white rounded-xl font-bold shadow-lg shadow-primary/10 transition-all" href="/doctor/prescriptions">
+                    <a className="flex items-center gap-3 px-4 py-3 bg-primary text-white rounded-xl font-medium shadow-lg shadow-primary/10 transition-all" href="/doctor/prescriptions">
                         <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>prescriptions</span>
                         <span>Đơn thuốc điện tử</span>
                     </a>
-                    <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-bold transition-all" href="/doctor/appointments">
+                    <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-medium transition-all" href="/doctor/appointments">
                         <span className="material-symbols-outlined">calendar_today</span>
                         <span>Lịch hẹn khám</span>
                     </a>
-                    <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-bold transition-all" href="/doctor/messages">
+                    <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-medium transition-all" href="/doctor/messages">
                         <span className="material-symbols-outlined">chat</span>
                         <span>Tin nhắn</span>
                         <span className="ml-auto bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">5</span>
@@ -78,8 +78,8 @@ export default function DoctorPrescriptions() {
                     ></div>
                 )}
                 {/* Top Bar */}
-                <TopBar 
-                    setIsSidebarOpen={setIsSidebarOpen} 
+                <TopBar
+                    setIsSidebarOpen={setIsSidebarOpen}
                     notifications={notifications}
                     setNotifications={setNotifications}
                     actionButton={
@@ -103,9 +103,9 @@ export default function DoctorPrescriptions() {
                             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
                                 <span className="material-symbols-outlined text-6xl text-primary">description</span>
                             </div>
-                            <p className="text-[14px] font-bold text-slate-400 uppercase tracking-widest mb-1">Tổng đơn thuốc</p>
+                            <p className="text-sm font-medium text-slate-500 mb-1">Tổng đơn thuốc</p>
                             <h3 className="text-3xl font-extrabold text-slate-900">1,284</h3>
-                            <div className="mt-4 flex items-center gap-1 text-primary text-xs font-bold">
+                            <div className="mt-4 flex items-center gap-1 text-primary text-[14px] font-bold">
                                 <span className="material-symbols-outlined text-sm">trending_up</span>
                                 +12% tháng này
                             </div>
@@ -115,18 +115,18 @@ export default function DoctorPrescriptions() {
                             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform text-primary">
                                 <span className="material-symbols-outlined text-6xl">check_circle</span>
                             </div>
-                            <p className="text-[14px] font-bold text-slate-400 uppercase tracking-widest mb-1">Đang hiệu lực</p>
+                            <p className="text-sm font-medium text-slate-500 mb-1">Đang hiệu lực</p>
                             <h3 className="text-3xl font-extrabold text-slate-900">452</h3>
-                            <p className="mt-4 text-[10px] text-slate-500 font-medium">Đang được bệnh nhân sử dụng</p>
+                            <p className="mt-4 text-[14px] text-slate-500 font-medium">Đang được bệnh nhân sử dụng</p>
                         </div>
 
                         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden group">
                             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform text-orange-400">
                                 <span className="material-symbols-outlined text-6xl">update</span>
                             </div>
-                            <p className="text-[14px] font-bold text-slate-400 uppercase tracking-widest mb-1">Chờ tái cấp</p>
+                            <p className="text-sm font-medium text-slate-500 mb-1">Chờ tái cấp</p>
                             <h3 className="text-3xl font-extrabold text-slate-900">18</h3>
-                            <div className="mt-4 flex items-center gap-1 text-orange-500 text-xs font-bold">
+                            <div className="mt-4 flex items-center gap-1 text-orange-500 text-[14px] font-bold">
                                 <span className="material-symbols-outlined text-sm">priority_high</span>
                                 Cần phê duyệt ngay
                             </div>
@@ -136,9 +136,9 @@ export default function DoctorPrescriptions() {
                             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform text-blue-400">
                                 <span className="material-symbols-outlined text-6xl">task_alt</span>
                             </div>
-                            <p className="text-[14px] font-bold text-slate-400 uppercase tracking-widest mb-1">Hoàn thành</p>
+                            <p className="text-sm font-medium text-slate-500 mb-1">Hoàn thành</p>
                             <h3 className="text-3xl font-extrabold text-slate-900">814</h3>
-                            <p className="mt-4 text-[10px] text-blue-500 font-bold tracking-wide">Tỷ lệ hồi phục: 94.2%</p>
+                            <p className="mt-4 text-[14px] text-blue-500 font-bold tracking-wide">Tỷ lệ hồi phục: 94.2%</p>
                         </div>
                     </div>
 

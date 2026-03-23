@@ -93,28 +93,32 @@ export default function DoctorPatients() {
           </div>
         </div>
         <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar">
-          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-bold transition-all" href="/doctor">
+          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-2xl font-medium transition-all" href="/doctor">
             <span className="material-symbols-outlined">dashboard</span>
             <span>Bảng điều khiển</span>
           </a>
 
-          <a className="flex items-center gap-3 px-4 py-3 bg-primary text-white rounded-xl font-bold shadow-lg shadow-primary/10 transition-all" href="/doctor/patients">
+          <a className="flex items-center gap-3 px-4 py-3 bg-primary text-white rounded-2xl font-medium shadow-lg shadow-primary/10 transition-all" href="/doctor/patients">
             <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>groups</span>
             <span>Danh sách bệnh nhân</span>
           </a>
 
-          {[
-            { name: 'Phân tích nguy cơ', icon: 'analytics', href: '/doctor/analytics' },
-            { name: 'Đơn thuốc điện tử', icon: 'prescriptions', href: '/doctor/prescriptions' },
-            { name: 'Lịch hẹn khám', icon: 'calendar_today', href: '/doctor/appointments' },
-          ].map((item, idx) => (
-            <a key={idx} className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-bold transition-all" href={item.href}>
-              <span className="material-symbols-outlined">{item.icon}</span>
-              <span>{item.name}</span>
-            </a>
-          ))}
+          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-2xl font-medium transition-all" href="/doctor/analytics">
+            <span className="material-symbols-outlined">analytics</span>
+            <span>Phân tích nguy cơ</span>
+          </a>
 
-          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-xl font-bold transition-all" href="/doctor/messages">
+          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-2xl font-medium transition-all" href="/doctor/prescriptions">
+            <span className="material-symbols-outlined">prescriptions</span>
+            <span>Đơn thuốc điện tử</span>
+          </a>
+
+          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-2xl font-medium transition-all" href="/doctor/appointments">
+            <span className="material-symbols-outlined">calendar_today</span>
+            <span>Lịch hẹn khám</span>
+          </a>
+
+          <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-2xl font-medium transition-all" href="/doctor/messages">
             <span className="material-symbols-outlined">chat</span>
             <span>Tin nhắn</span>
             <span className="ml-auto bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">5</span>
@@ -199,23 +203,23 @@ export default function DoctorPatients() {
               }}
             />
 
-            <div className="bg-white p-4 rounded-2xl shadow-sm flex items-center justify-between border border-slate-100">
+            <div className="bg-white p-6 rounded-lg shadow-sm flex items-center justify-between border border-slate-100">
               <div>
-                <p className="text-[14px] font-bold text-slate-400 mb-1">Tổng bệnh nhân</p>
-                <p className="text-2xl font-extrabold text-slate-900">1,284</p>
+                <p className="text-sm font-medium text-slate-500 mb-1">Tổng bệnh nhân</p>
+                <p className="text-3xl font-extrabold text-slate-900 mt-1">1,284</p>
               </div>
-              <div className="p-3 bg-primary/10 rounded-xl">
-                <span className="material-symbols-outlined text-primary">groups</span>
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
+                <span className="material-symbols-outlined">groups</span>
               </div>
             </div>
 
-            <div className="bg-white p-4 rounded-2xl shadow-sm flex items-center justify-between border border-slate-100">
+            <div className="bg-white p-6 rounded-lg shadow-sm flex items-center justify-between border border-slate-100">
               <div>
-                <p className="text-[14px] font-bold text-slate-400 mb-1">Cần can thiệp</p>
-                <p className="text-2xl font-extrabold text-red-500">12</p>
+                <p className="text-sm font-medium text-slate-500 mb-1">Cần can thiệp</p>
+                <p className="text-3xl font-extrabold text-red-500 mt-1">12</p>
               </div>
-              <div className="p-3 bg-red-50 rounded-xl">
-                <span className="material-symbols-outlined text-red-600">notification_important</span>
+              <div className="w-12 h-12 bg-red-50 rounded-lg flex items-center justify-center text-red-600">
+                <span className="material-symbols-outlined">notification_important</span>
               </div>
             </div>
           </div>

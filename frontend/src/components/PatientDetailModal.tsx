@@ -306,8 +306,8 @@ export default function PatientDetailModal({ isOpen, onClose, patient }: Patient
                       <span
                         style={patient?.risk === 'Nguy cơ cao' ? { backgroundColor: 'rgb(255, 197, 197)', borderColor: 'rgb(237, 152, 152)' } : {}}
                         className={`px-3 py-1 text-[13px] font-bold rounded-full tracking-wide border ${patient?.risk === 'Nguy cơ cao' ? 'text-red-500' :
-                            patient?.risk === 'Cần theo dõi' ? 'bg-orange-50 text-orange-500 border-orange-100' :
-                              'bg-green-50 text-green-500 border-green-100'
+                          patient?.risk === 'Cần theo dõi' ? 'bg-orange-50 text-orange-500 border-orange-100' :
+                            'bg-green-50 text-green-500 border-green-100'
                           }`}>
                         {patient?.risk || 'Nguy cơ cao'}
                       </span>
@@ -441,7 +441,7 @@ export default function PatientDetailModal({ isOpen, onClose, patient }: Patient
                       <p className="text-sm text-slate-500">Biểu đồ so sánh Huyết áp & Đường huyết</p>
                     </div>
                     <div className="relative">
-                      <Dropdown 
+                      <Dropdown
                         options={['30 ngày qua', '90 ngày qua']}
                         value={timeRange}
                         onChange={setTimeRange}

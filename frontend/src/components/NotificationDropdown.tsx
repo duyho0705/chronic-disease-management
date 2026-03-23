@@ -61,7 +61,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
               <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800/50 rounded-full flex items-center justify-center mb-2">
                 <span className="material-symbols-outlined text-4xl opacity-20">notifications_off</span>
               </div>
-              <p className="text-sm font-extrabold tracking-tight text-slate-300 dark:text-slate-600">Không có thông báo</p>
+              <p className="text-sm font-extrabold tracking-tight text-slate-300 dark:text-slate-600 italic">Không có thông báo</p>
             </div>
           )}
         </div>
