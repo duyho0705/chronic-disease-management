@@ -1,7 +1,13 @@
 import { useState } from 'react';
+import PrescriptionModal from '../components/PrescriptionModal';
+import AdviceModal from '../components/AdviceModal';
+import RescheduleModal from '../components/RescheduleModal';
+import Toast from '../components/Toast';
+import TopBar from '../components/TopBar';
+import FilterDropdown from '../components/FilterDropdown';
+import PatientDetailModal from '../components/PatientDetailModal';
 
 export default function DoctorPatients() {
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notifications, setNotifications] = useState([
     { id: 1, title: 'Cảnh báo chỉ số', message: 'Bệnh nhân Nguyễn Văn An có chỉ số đường huyết cao bất thường.', time: '5 phút trước', type: 'warning' },
     { id: 2, title: 'Lịch hẹn mới', message: 'Bạn có một yêu cầu đặt lịch hẹn mới từ Lê Thị Bình.', time: '2 giờ trước', type: 'info' }
@@ -11,6 +17,66 @@ export default function DoctorPatients() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAdviceModalOpen, setIsAdviceModalOpen] = useState(false);
   const [isPrescriptionModalOpen, setIsPrescriptionModalOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [diseaseFilter, setDiseaseFilter] = useState('Tất cả bệnh lý');
+  const [riskFilter, setRiskFilter] = useState('Mọi mức độ');
+  const [isPatientDetailModalOpen, setIsPatientDetailModalOpen] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState<any>(null);
+
+  // Date & Time states for RescheduleModal
+  const [selectedDay, setSelectedDay] = useState<number>(1);
+  const [selectedTime, setSelectedTime] = useState<string>('09:00');
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+
+  // Toast state
+  const [toast, setToast] = useState({ show: false, title: '', type: 'success' as 'success' | 'warning' | 'error' });
+
+  // Prescription states
+  const [medications, setMedications] = useState([
+    { id: 1, name: 'Metformin', dosage: '500mg', frequency: '2 lần/ngày', duration: '30 ngày', intakeType: 'Sau ăn' }
+  ]);
+  const [isAddingNewMedicine, setIsAddingNewMedicine] = useState(false);
+  const [newMedForm, setNewMedForm] = useState({
+    name: '',
+    dosage: '',
+    frequency: '1 lần/ngày',
+    duration: '',
+    intakeType: 'Sau ăn'
+  });
+
+  // Advice states
+  const [adviceCategory, setAdviceCategory] = useState('Dinh dưỡng');
+  const [adviceContent, setAdviceContent] = useState('');
+
+  const [formErrors, setFormErrors] = useState({
+    name: false,
+    dosage: false,
+    duration: false,
+    frequency: false,
+    intakeType: false
+  });
+
+  const removeMedication = (id: number) => {
+    setMedications(medications.filter(m => m.id !== id));
+  };
+
+  const addMedicationToPrescription = () => {
+    const errors = {
+      name: !newMedForm.name,
+      dosage: !newMedForm.dosage,
+      duration: !newMedForm.duration,
+      frequency: !newMedForm.frequency,
+      intakeType: !newMedForm.intakeType
+    };
+    setFormErrors(errors);
+
+    if (!errors.name && !errors.dosage && !errors.duration && !errors.frequency && !errors.intakeType) {
+      setMedications([...medications, { ...newMedForm, id: Date.now() }]);
+      setNewMedForm({ name: '', dosage: '', frequency: '1 lần/ngày', duration: '', intakeType: 'Sau ăn' });
+      setIsAddingNewMedicine(false);
+    }
+  };
   return (
     <div className="flex min-h-screen font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100">
       {/* Sidebar Navigation */}
@@ -82,102 +148,21 @@ export default function DoctorPatients() {
             onClick={() => setIsSidebarOpen(false)}
           ></div>
         )}
-        {/* Top Bar */}
-        <header className="h-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-primary/5 px-4 md:px-8 flex items-center justify-between sticky top-0 z-[100] transition-all">
-          <div className="flex items-center gap-4 flex-1 text-left">
-            <button
-              onClick={() => setIsSidebarOpen(true)}
-              className="lg:hidden w-10 h-10 flex items-center justify-center text-slate-600 dark:text-slate-400 bg-background-light dark:bg-slate-800 rounded-xl"
-            >
-              <span className="material-symbols-outlined">menu</span>
-            </button>
-            <div className="hidden sm:block w-96 relative">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
-              <input
-                className="w-full pl-10 pr-4 py-2.5 bg-background-light dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-primary/50 placeholder-slate-400 text-sm"
-                placeholder="Tìm kiếm bệnh nhân, hồ sơ..."
-                type="text"
-              />
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <button
-                onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-                className="w-10 h-10 flex items-center justify-center rounded-xl bg-background-light dark:bg-slate-800 text-slate-600 relative transition-all hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95"
-              >
-                <span className="material-symbols-outlined">notifications</span>
-                {notifications.length > 0 && (
-                  <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-                )}
-              </button>
-
-              {isNotificationOpen && (
-                <>
-                  <div className="fixed inset-0 z-[110]" onClick={() => setIsNotificationOpen(false)}></div>
-                  <div className="absolute right-0 mt-3 w-80 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 z-[120] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300 transform-gpu">
-                    <div className="p-4 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
-                      <h3 className="font-extrabold text-sm text-slate-900 dark:text-white text-left">Thông báo</h3>
-                      {notifications.length > 0 && (
-                        <button onClick={() => setNotifications([])} className="text-[13px] font-extrabold text-primary hover:underline tracking-tight">Xóa tất cả</button>
-                      )}
-                    </div>
-                    <div className="max-h-[400px] overflow-y-auto custom-scrollbar">
-                      {notifications.length > 0 ? (
-                        <div className="divide-y divide-slate-50 dark:divide-slate-800">
-                          {notifications.map((notif) => (
-                            <div key={notif.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group">
-                              <div className="flex gap-3">
-                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${notif.type === 'warning' ? 'bg-red-50 text-red-500' : 'bg-primary/10 text-primary'}`}>
-                                  <span className="material-symbols-outlined text-lg">{notif.type === 'warning' ? 'error' : 'info'}</span>
-                                </div>
-                                <div className="space-y-1 text-left">
-                                  <p className="text-sm font-bold text-slate-800 dark:text-slate-200 leading-tight group-hover:text-primary transition-colors">{notif.title}</p>
-                                  <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">{notif.message}</p>
-                                  <p className="text-[10px] font-medium text-slate-400 mt-1">{notif.time}</p>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="py-12 flex flex-col items-center justify-center gap-3 text-slate-400">
-                          <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800/50 rounded-full flex items-center justify-center mb-2">
-                            <span className="material-symbols-outlined text-4xl opacity-20">notifications_off</span>
-                          </div>
-                          <p className="text-sm font-extrabold tracking-tight text-slate-300 dark:text-slate-600">Không có thông báo</p>
-                        </div>
-                      )}
-                    </div>
-                    {notifications.length > 0 && (
-                      <div className="p-3 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800">
-                        <button className="w-full py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-primary/10 hover:text-primary transition-all shadow-sm">Xem tất cả thông báo</button>
-                      </div>
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
-            <button className="w-10 h-10 flex items-center justify-center rounded-xl bg-background-light dark:bg-slate-800 text-slate-600">
-              <span className="material-symbols-outlined">settings</span>
-            </button>
-            <div className="h-8 w-px bg-slate-200 dark:bg-slate-700 mx-2"></div>
-            <button className="bg-primary hover:bg-primary/90 text-slate-900 font-bold px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 transition-all">
-              <span className="material-symbols-outlined text-lg">add_circle</span>
-              Thêm bệnh nhân
-            </button>
-          </div>
-        </header>
+        <TopBar
+          setIsSidebarOpen={setIsSidebarOpen}
+          notifications={notifications}
+          setNotifications={setNotifications}
+        />
 
         <div className="p-8 space-y-8">
           {/* Page Header */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
             <div className="max-w-2xl">
-              <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 mb-2">Danh sách bệnh nhân</h2>
-              <p className="text-slate-500 font-medium">Quản lý và theo dõi lộ trình chăm sóc sức khỏe của 128 bệnh nhân đang điều trị trực tiếp.</p>
+              <h2 className="text-[22px] font-extrabold tracking-tight text-slate-900 mb-2">Danh sách bệnh nhân</h2>
+              <p className="text-slate-500 text-[15px] font-medium">Quản lý và theo dõi lộ trình chăm sóc sức khỏe của 128 bệnh nhân đang điều trị trực tiếp.</p>
             </div>
             <button
-              className="bg-primary text-slate-900 px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-primary/10 hover:scale-105 active:scale-95 transition-all">
+              className="bg-primary text-slate-900 px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 shadow-lg shadow-primary/10 hover:scale-105 active:scale-95 transition-all">
               <span className="material-symbols-outlined">person_add</span>
               Thêm bệnh nhân mới
             </button>
@@ -185,47 +170,35 @@ export default function DoctorPatients() {
 
           {/* Filters */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {/* Filter 1 */}
-            <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4 group hover:border-primary/30 transition-all">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                <span className="material-symbols-outlined text-xl">filter_list</span>
-              </div>
-              <div className="flex-1">
-                <p className="text-[10px] font-bold text-slate-400 mb-0.5">Loại bệnh</p>
-                <div className="relative">
-                  <select className="bg-transparent border-none focus:ring-0 text-sm font-bold text-slate-700 w-full cursor-pointer appearance-none p-0 pr-8 relative z-10">
-                    <option>Tất cả bệnh lý</option>
-                    <option>Tiểu đường Type 2</option>
-                    <option>Tăng huyết áp</option>
-                    <option>Tim mạch</option>
-                  </select>
-                  <span className="material-symbols-outlined absolute right-0 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-lg">expand_more</span>
-                </div>
-              </div>
-            </div>
+            <FilterDropdown
+              label="Loại bệnh"
+              icon="filter_list"
+              iconBgColor="bg-primary/10"
+              iconTextColor="text-primary"
+              options={['Tất cả bệnh lý', 'Tiểu đường Type 2', 'Tăng huyết áp', 'Tim mạch']}
+              value={diseaseFilter}
+              onChange={setDiseaseFilter}
+            />
 
-            {/* Filter 2 */}
-            <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4 group hover:border-primary/30 transition-all">
-              <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-500">
-                <span className="material-symbols-outlined text-xl">error</span>
-              </div>
-              <div className="flex-1">
-                <p className="text-[10px] font-bold text-slate-400 mb-0.5">Mức độ nguy cơ</p>
-                <div className="relative">
-                  <select className="bg-transparent border-none focus:ring-0 text-sm font-bold text-slate-700 w-full cursor-pointer appearance-none p-0 pr-8 relative z-10">
-                    <option>Mọi mức độ</option>
-                    <option>Nguy cơ cao</option>
-                    <option>Cần theo dõi</option>
-                    <option>Bình thường</option>
-                  </select>
-                  <span className="material-symbols-outlined absolute right-0 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-lg">expand_more</span>
-                </div>
-              </div>
-            </div>
+            <FilterDropdown
+              label="Mức độ nguy cơ"
+              icon="error"
+              iconBgColor="bg-orange-50"
+              iconTextColor="text-orange-500"
+              options={['Mọi mức độ', 'Nguy cơ cao', 'Cần theo dõi', 'Bình thường']}
+              value={riskFilter}
+              onChange={setRiskFilter}
+              optionColors={{
+                'Mọi mức độ': 'text-primary',
+                'Nguy cơ cao': 'text-red-500 hover:bg-red-50',
+                'Cần theo dõi': 'text-orange-500 hover:bg-orange-50',
+                'Bình thường': 'text-green-500 hover:bg-green-50'
+              }}
+            />
 
             <div className="bg-white p-4 rounded-2xl shadow-sm flex items-center justify-between border border-slate-100">
               <div>
-                <p className="text-[10px] font-bold text-slate-400 mb-1">Tổng bệnh nhân</p>
+                <p className="text-[14px] font-bold text-slate-400 mb-1">Tổng bệnh nhân</p>
                 <p className="text-2xl font-extrabold text-slate-900">1,284</p>
               </div>
               <div className="p-3 bg-primary/10 rounded-xl">
@@ -235,7 +208,7 @@ export default function DoctorPatients() {
 
             <div className="bg-white p-4 rounded-2xl shadow-sm flex items-center justify-between border border-slate-100">
               <div>
-                <p className="text-[10px] font-bold text-slate-400 mb-1">Cần can thiệp</p>
+                <p className="text-[14px] font-bold text-slate-400 mb-1">Cần can thiệp</p>
                 <p className="text-2xl font-extrabold text-red-500">12</p>
               </div>
               <div className="p-3 bg-red-50 rounded-xl">
@@ -280,13 +253,19 @@ export default function DoctorPatients() {
                       <td className="px-6 py-5 text-[15px] font-medium text-slate-600">{p.age}</td>
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-2">
-                          <span className="px-2 py-1 bg-slate-100 text-slate-700 text-xs font-bold rounded-lg">{p.glucose} mmol/L</span>
-                          <span className="px-2 py-1 bg-slate-100 text-slate-700 text-xs font-bold rounded-lg">{p.bp} mmHg</span>
+                          <span className="px-2.5 py-1 bg-slate-100/80 text-slate-800 text-[13px] font-bold rounded-[5px] border border-slate-200/50">{p.glucose} mmol/L</span>
+                          <span className="px-2.5 py-1 bg-slate-100/80 text-slate-800 text-[13px] font-bold rounded-[5px] border border-slate-200/50">{p.bp} mmHg</span>
                         </div>
                       </td>
-                      <td className="px-6 py-5 text-xs text-slate-500 font-medium">{p.update}</td>
+                      <td className="px-6 py-5 text-[14px] text-slate-500 font-medium">{p.update}</td>
                       <td className="px-6 py-5">
-                        <span className={`px-3 py-1 bg-${p.riskColor}-50 text-${p.riskColor}-600 text-xs font-extrabold rounded-full ring-1 ring-${p.riskColor}-200`}>
+                        <span
+                          style={p.riskColor === 'red' ? { backgroundColor: 'rgb(255, 197, 197)', borderColor: 'rgb(237, 152, 152)' } : {}}
+                          className={`px-3 py-1.5 text-[12px] font-extrabold rounded-[5px] border ${p.riskColor === 'red' ? 'text-red-500' :
+                              p.riskColor === 'orange' ? 'bg-orange-50 text-orange-500 border-orange-100' :
+                                'bg-green-50 text-green-500 border-green-100'
+                            }`}
+                        >
                           {p.risk}
                         </span>
                       </td>
@@ -301,10 +280,12 @@ export default function DoctorPatients() {
                           <>
                             <div className="fixed inset-0 z-[100]" onClick={() => setActiveMenu(null)}></div>
                             <div className="absolute right-6 top-12 w-56 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 py-2 z-[110] animate-in fade-in slide-in-from-top-2 duration-200 overflow-hidden text-left">
-                              <button className="w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-3 group">
-                                <span className="material-symbols-outlined text-slate-400 group-hover:text-primary text-xl">visibility</span>
-                                <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Xem chi tiết hồ sơ</span>
-                              </button>
+                                <button 
+                                  onClick={() => { setSelectedPatient(p); setIsPatientDetailModalOpen(true); setActiveMenu(null); }}
+                                  className="w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-3 group">
+                                  <span className="material-symbols-outlined text-slate-400 group-hover:text-primary text-xl">visibility</span>
+                                  <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Xem chi tiết hồ sơ</span>
+                                </button>
                               <button
                                 onClick={() => { setIsAdviceModalOpen(true); setActiveMenu(null); }}
                                 className="w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-3 group">
@@ -348,6 +329,81 @@ export default function DoctorPatients() {
             </div>
           </div>
         </div>
+
+        {/* Modals & Feedback */}
+        <PrescriptionModal
+          isOpen={isPrescriptionModalOpen}
+          onClose={() => setIsPrescriptionModalOpen(false)}
+          isAddingNewMedicine={isAddingNewMedicine}
+          setIsAddingNewMedicine={setIsAddingNewMedicine}
+          medications={medications}
+          removeMedication={removeMedication}
+          newMedForm={newMedForm}
+          setNewMedForm={setNewMedForm}
+          formErrors={formErrors}
+          setFormErrors={setFormErrors}
+          addMedicationToPrescription={addMedicationToPrescription}
+          isSaving={isSaving}
+          onSave={async () => {
+            setIsSaving(true);
+            await new Promise(r => setTimeout(r, 1000));
+            setIsSaving(false);
+            setIsPrescriptionModalOpen(false);
+            setToast({ show: true, title: "Đã gửi đơn thuốc thành công!", type: "success" });
+          }}
+          patientName="Nguyễn Văn An"
+        />
+
+        <AdviceModal
+          isOpen={isAdviceModalOpen}
+          onClose={() => setIsAdviceModalOpen(false)}
+          adviceCategory={adviceCategory}
+          setAdviceCategory={setAdviceCategory}
+          adviceContent={adviceContent}
+          setAdviceContent={setAdviceContent}
+          isSaving={isSaving}
+          onSave={async () => {
+            setIsSaving(true);
+            await new Promise(r => setTimeout(r, 1000));
+            setIsSaving(false);
+            setIsAdviceModalOpen(false);
+            setToast({ show: true, title: "Đã gửi lời khuyên thành công!", type: "success" });
+          }}
+          patientName="Nguyễn Văn An"
+        />
+
+        <RescheduleModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          isSaving={isSaving}
+          onSave={async () => {
+            setIsSaving(true);
+            await new Promise(r => setTimeout(r, 1000));
+            setIsSaving(false);
+            setIsModalOpen(false);
+            setToast({ show: true, title: "Đã đặt lịch tái khám thành công!", type: "success" });
+          }}
+          selectedDay={selectedDay}
+          setSelectedDay={setSelectedDay}
+          selectedTime={selectedTime}
+          setSelectedTime={setSelectedTime}
+          currentMonth={currentMonth}
+          setCurrentMonth={setCurrentMonth}
+          currentYear={currentYear}
+          setCurrentYear={setCurrentYear}
+        />
+
+        <PatientDetailModal 
+          isOpen={isPatientDetailModalOpen}
+          onClose={() => setIsPatientDetailModalOpen(false)}
+          patient={selectedPatient}
+        />
+
+        <Toast
+          show={toast.show}
+          title={toast.title}
+          onClose={() => setToast({ ...toast, show: false })}
+        />
       </main>
     </div>
   );

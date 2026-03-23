@@ -1,7 +1,12 @@
 import { useState } from 'react';
+import TopBar from '../components/TopBar';
  
 export default function DoctorPrescriptions() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [notifications, setNotifications] = useState([
+        { id: 1, title: 'Cảnh báo chỉ số', message: 'Bệnh nhân Nguyễn Văn An có chỉ số đường huyết cao bất thường.', time: '5 phút trước', type: 'warning' },
+        { id: 2, title: 'Lịch hẹn mới', message: 'Bạn có một yêu cầu đặt lịch hẹn mới từ Lê Thị Bình.', time: '2 giờ trước', type: 'info' }
+    ]);
     return (
         <div className="flex min-h-screen font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100">
             {/* Sidebar Navigation */}
@@ -73,43 +78,22 @@ export default function DoctorPrescriptions() {
                     ></div>
                 )}
                 {/* Top Bar */}
-                <header className="h-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-primary/5 px-4 md:px-8 flex items-center justify-between sticky top-0 z-[100] transition-all">
-                    <div className="flex items-center gap-4 flex-1 text-left">
-                        <button
-                            onClick={() => setIsSidebarOpen(true)}
-                            className="lg:hidden w-10 h-10 flex items-center justify-center text-slate-600 dark:text-slate-400 bg-background-light dark:bg-slate-800 rounded-xl"
-                        >
-                            <span className="material-symbols-outlined">menu</span>
-                        </button>
-                        <div className="hidden sm:block w-96 relative">
-                            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
-                            <input
-                                className="w-full pl-10 pr-4 py-2.5 bg-background-light dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-primary/50 placeholder-slate-400 text-sm"
-                                placeholder="Tìm kiếm mã đơn, bệnh nhân..."
-                                type="text"
-                            />
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <button className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-600 relative hover:bg-slate-100 transition-colors">
-                            <span className="material-symbols-outlined">notifications</span>
-                            <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-                        </button>
-                        <button className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-600 hover:bg-slate-100 transition-colors">
-                            <span className="material-symbols-outlined">settings</span>
-                        </button>
-                        <div className="h-8 w-px bg-slate-200 dark:bg-slate-700 mx-2"></div>
-                        <button className="bg-primary hover:bg-primary/90 text-white font-bold px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 transition-all shadow-lg shadow-primary/20">
+                <TopBar 
+                    setIsSidebarOpen={setIsSidebarOpen} 
+                    notifications={notifications}
+                    setNotifications={setNotifications}
+                    actionButton={
+                        <button className="bg-primary hover:bg-primary/90 text-slate-900 font-bold px-5 py-2.5 rounded-lg text-sm flex items-center gap-2 transition-all">
                             <span className="material-symbols-outlined text-lg">add_circle</span>
                             Kê đơn mới
                         </button>
-                    </div>
-                </header>
+                    }
+                />
 
                 <div className="p-8 space-y-8">
                     {/* Header Section */}
                     <div>
-                        <h2 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">Đơn thuốc điện tử</h2>
+                        <h2 className="text-[22px] font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">Đơn thuốc điện tử</h2>
                         <p className="text-slate-500 mt-1">Quản lý và theo dõi phác đồ điều trị của bệnh nhân trực tiếp qua hệ thống</p>
                     </div>
 
@@ -119,7 +103,7 @@ export default function DoctorPrescriptions() {
                             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
                                 <span className="material-symbols-outlined text-6xl text-primary">description</span>
                             </div>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Tổng đơn thuốc</p>
+                            <p className="text-[14px] font-bold text-slate-400 uppercase tracking-widest mb-1">Tổng đơn thuốc</p>
                             <h3 className="text-3xl font-extrabold text-slate-900">1,284</h3>
                             <div className="mt-4 flex items-center gap-1 text-primary text-xs font-bold">
                                 <span className="material-symbols-outlined text-sm">trending_up</span>
@@ -131,7 +115,7 @@ export default function DoctorPrescriptions() {
                             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform text-primary">
                                 <span className="material-symbols-outlined text-6xl">check_circle</span>
                             </div>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Đang hiệu lực</p>
+                            <p className="text-[14px] font-bold text-slate-400 uppercase tracking-widest mb-1">Đang hiệu lực</p>
                             <h3 className="text-3xl font-extrabold text-slate-900">452</h3>
                             <p className="mt-4 text-[10px] text-slate-500 font-medium">Đang được bệnh nhân sử dụng</p>
                         </div>
@@ -140,7 +124,7 @@ export default function DoctorPrescriptions() {
                             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform text-orange-400">
                                 <span className="material-symbols-outlined text-6xl">update</span>
                             </div>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Chờ tái cấp</p>
+                            <p className="text-[14px] font-bold text-slate-400 uppercase tracking-widest mb-1">Chờ tái cấp</p>
                             <h3 className="text-3xl font-extrabold text-slate-900">18</h3>
                             <div className="mt-4 flex items-center gap-1 text-orange-500 text-xs font-bold">
                                 <span className="material-symbols-outlined text-sm">priority_high</span>
@@ -152,7 +136,7 @@ export default function DoctorPrescriptions() {
                             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform text-blue-400">
                                 <span className="material-symbols-outlined text-6xl">task_alt</span>
                             </div>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Hoàn thành</p>
+                            <p className="text-[14px] font-bold text-slate-400 uppercase tracking-widest mb-1">Hoàn thành</p>
                             <h3 className="text-3xl font-extrabold text-slate-900">814</h3>
                             <p className="mt-4 text-[10px] text-blue-500 font-bold tracking-wide">Tỷ lệ hồi phục: 94.2%</p>
                         </div>

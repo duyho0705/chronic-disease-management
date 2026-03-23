@@ -1,7 +1,29 @@
 import { useState } from 'react';
+import TopBar from '../components/TopBar';
+import RescheduleModal from '../components/RescheduleModal';
+import Toast from '../components/Toast';
  
 export default function DoctorAppointments() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [notifications, setNotifications] = useState([
+    { id: 1, title: 'Cảnh báo chỉ số', message: 'Bệnh nhân Nguyễn Văn An có chỉ số đường huyết cao bất thường.', time: '5 phút trước', type: 'warning' },
+    { id: 2, title: 'Lịch hẹn mới', message: 'Bạn có một yêu cầu đặt lịch hẹn mới từ Lê Thị Bình.', time: '2 giờ trước', type: 'info' }
+  ]);
+  const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
+  const [selectedDay, setSelectedDay] = useState<number>(1);
+  const [selectedTime, setSelectedTime] = useState<string>('09:00');
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [isSaving, setIsSaving] = useState(false);
+  const [toast, setToast] = useState({ show: false, title: '', type: 'success' as 'success' | 'warning' | 'error' });
+
+  const handleSaveReschedule = async () => {
+    setIsSaving(true);
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    setIsSaving(false);
+    setIsRescheduleModalOpen(false);
+    setToast({ show: true, title: 'Đặt lịch thành công!', type: 'success' });
+  };
   return (
     <div className="flex min-h-screen font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100">
       {/* Sidebar Navigation */}
@@ -74,52 +96,25 @@ export default function DoctorAppointments() {
           ></div>
         )}
         {/* Top Bar */}
-        <header className="h-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-primary/5 px-4 md:px-8 flex items-center justify-between sticky top-0 z-[100] transition-all">
-          <div className="flex items-center gap-4 flex-1 text-left">
-            <button
-              onClick={() => setIsSidebarOpen(true)}
-              className="lg:hidden w-10 h-10 flex items-center justify-center text-slate-600 dark:text-slate-400 bg-background-light dark:bg-slate-800 rounded-xl"
-            >
-              <span className="material-symbols-outlined">menu</span>
-            </button>
-            <div className="hidden sm:block w-96 relative">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
-              <input
-                className="w-full pl-10 pr-4 py-2.5 bg-background-light dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-primary/50 placeholder-slate-400 text-sm"
-                placeholder="Tìm kiếm bệnh nhân, hồ sơ..."
-                type="text"
-              />
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <button className="w-10 h-10 flex items-center justify-center rounded-xl bg-background-light dark:bg-slate-800 text-slate-600 relative">
-              <span className="material-symbols-outlined">notifications</span>
-              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-            </button>
-            <button className="w-10 h-10 flex items-center justify-center rounded-xl bg-background-light dark:bg-slate-800 text-slate-600">
-              <span className="material-symbols-outlined">settings</span>
-            </button>
-            <div className="h-8 w-px bg-slate-200 dark:bg-slate-700 mx-2"></div>
-            <button className="bg-primary hover:bg-primary/90 text-slate-900 font-bold px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 transition-all">
-              <span className="material-symbols-outlined text-lg">add_circle</span>
-              Thêm bệnh nhân
-            </button>
-          </div>
-        </header>
+        <TopBar 
+            setIsSidebarOpen={setIsSidebarOpen} 
+            notifications={notifications}
+            setNotifications={setNotifications}
+        />
 
         <div className="p-8 space-y-8">
 
                     {/* Title & Actions */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div>
-                            <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">Lịch
+                            <h1 className="text-[22px] font-extrabold tracking-tight text-slate-900 dark:text-slate-100">Lịch
                                 hẹn khám</h1>
                             <p className="text-slate-500 dark:text-slate-400 mt-1">Chào buổi sáng, BS. Nguyễn. Bạn có 24
                                 lịch hẹn trong hôm nay.</p>
                         </div>
                         <div className="flex items-center gap-3">
                             <button
-                                className="flex items-center gap-2 px-5 py-2.5 bg-primary text-slate-900 font-bold text-sm rounded-xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
+                                className="flex items-center gap-2 px-5 py-2.5 bg-primary text-slate-900 font-bold text-sm rounded-lg hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
                                 <span className="material-symbols-outlined text-lg">add_circle</span>
                                 <span>Thêm lịch hẹn mới</span>
                             </button>
@@ -465,7 +460,31 @@ export default function DoctorAppointments() {
                     </div>
                 
 </div>
-</main>
-</div>
-);
+      </main>
+
+      <RescheduleModal
+        isOpen={isRescheduleModalOpen}
+        onClose={() => setIsRescheduleModalOpen(false)}
+        currentMonth={currentMonth}
+        setCurrentMonth={setCurrentMonth}
+        currentYear={currentYear}
+        setCurrentYear={setCurrentYear}
+        selectedDay={selectedDay}
+        setSelectedDay={setSelectedDay}
+        selectedTime={selectedTime}
+        setSelectedTime={setSelectedTime}
+        isSaving={isSaving}
+        onSave={handleSaveReschedule}
+      />
+
+      {toast.show && (
+        <Toast
+          show={toast.show}
+          title={toast.title}
+          type={toast.type}
+          onClose={() => setToast({ ...toast, show: false })}
+        />
+      )}
+    </div>
+  );
 }

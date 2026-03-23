@@ -2,6 +2,7 @@ import { useState } from 'react';
 import PrescriptionModal from '../components/PrescriptionModal';
 import AdviceModal from '../components/AdviceModal';
 import Toast from '../components/Toast';
+import TopBar from '../components/TopBar';
 
 export default function DoctorMessages() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -26,6 +27,10 @@ export default function DoctorMessages() {
     const [showToast, setShowToast] = useState(false);
     const [toastTitle, setToastTitle] = useState('');
     const [isSaving, setIsSaving] = useState(false);
+    const [notifications, setNotifications] = useState([
+        { id: 1, title: 'Cảnh báo chỉ số', message: 'Bệnh nhân Nguyễn Văn An có chỉ số đường huyết cao bất thường.', time: '5 phút trước', type: 'warning' },
+        { id: 2, title: 'Lịch hẹn mới', message: 'Bạn có một yêu cầu đặt lịch hẹn mới từ Lê Thị Bình.', time: '2 giờ trước', type: 'info' }
+    ]);
 
     const removeMedication = (id: number) => {
         setMedications(medications.filter(m => m.id !== id));
@@ -58,7 +63,6 @@ export default function DoctorMessages() {
         setIsAdviceModalOpen(false);
         setToastTitle('Gửi tư vấn thành công');
         setShowToast(true);
-        setTimeout(() => setShowToast(false), 3500);
     };
 
     const handleSavePrescription = async () => {
@@ -68,7 +72,6 @@ export default function DoctorMessages() {
         setIsPrescriptionModalOpen(false);
         setToastTitle('Kê đơn thành công');
         setShowToast(true);
-        setTimeout(() => setShowToast(false), 3500);
     };
 
     return (
@@ -136,38 +139,11 @@ export default function DoctorMessages() {
                     ></div>
                 )}
                 {/* Top Bar */}
-                <header className="h-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-primary/5 px-4 md:px-8 flex items-center justify-between sticky top-0 z-10 transition-all">
-                    <div className="flex items-center gap-4 flex-1 text-left">
-                        <button
-                            onClick={() => setIsSidebarOpen(true)}
-                            className="lg:hidden w-10 h-10 flex items-center justify-center text-slate-600 dark:text-slate-400 bg-background-light dark:bg-slate-800 rounded-xl"
-                        >
-                            <span className="material-symbols-outlined">menu</span>
-                        </button>
-                        <div className="hidden sm:block w-96 relative">
-                            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
-                            <input
-                                className="w-full pl-10 pr-4 py-2.5 bg-background-light dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-primary/50 placeholder-slate-400 text-sm"
-                                placeholder="Tìm kiếm bệnh nhân, hồ sơ..."
-                                type="text"
-                            />
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <button className="w-10 h-10 flex items-center justify-center rounded-xl bg-background-light dark:bg-slate-800 text-slate-600 relative">
-                            <span className="material-symbols-outlined">notifications</span>
-                            <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-                        </button>
-                        <button className="w-10 h-10 flex items-center justify-center rounded-xl bg-background-light dark:bg-slate-800 text-slate-600">
-                            <span className="material-symbols-outlined">settings</span>
-                        </button>
-                        <div className="h-8 w-px bg-slate-200 dark:bg-slate-700 mx-2"></div>
-                        <button className="bg-primary hover:bg-primary/90 text-slate-900 font-bold px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 transition-all">
-                            <span className="material-symbols-outlined text-lg">add_circle</span>
-                            Thêm bệnh nhân
-                        </button>
-                    </div>
-                </header>
+                <TopBar 
+                    setIsSidebarOpen={setIsSidebarOpen} 
+                    notifications={notifications}
+                    setNotifications={setNotifications}
+                />
 
                 <div className="flex flex-1 overflow-hidden w-full">
                     {/* Left Column: Contact List */}

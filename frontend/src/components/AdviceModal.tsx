@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 interface AdviceModalProps {
   isOpen: boolean;
@@ -23,6 +23,17 @@ const AdviceModal: React.FC<AdviceModalProps> = ({
   onSave,
   patientName
 }) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
@@ -77,18 +88,18 @@ const AdviceModal: React.FC<AdviceModalProps> = ({
               </label>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { icon: 'restaurant', label: 'Dinh dưỡng', color: 'bg-green-50 text-green-600 border-green-100' },
-                  { icon: 'fitness_center', label: 'Vận động', color: 'bg-blue-50 text-blue-600 border-blue-100' },
-                  { icon: 'pill', label: 'Dùng thuốc', color: 'bg-purple-50 text-purple-600 border-purple-100' },
-                  { icon: 'monitoring', label: 'Theo dõi', color: 'bg-amber-50 text-amber-600 border-amber-100' }
+                  { icon: 'restaurant', label: 'Dinh dưỡng' },
+                  { icon: 'fitness_center', label: 'Vận động' },
+                  { icon: 'pill', label: 'Dùng thuốc' },
+                  { icon: 'monitoring', label: 'Theo dõi' }
                 ].map((cat, idx) => (
                   <button
                     key={idx}
                     type="button"
                     onClick={() => setAdviceCategory(cat.label)}
                     className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${adviceCategory === cat.label
-                      ? `${cat.color} border-current ring-1 ring-current shadow-md scale-[1.02]`
-                      : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 hover:border-primary/30 text-slate-500 hover:text-slate-700 hover:bg-slate-50'}`}
+                      ? 'bg-primary/5 text-primary border-primary ring-1 ring-primary shadow-md scale-[1.02]'
+                      : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 hover:border-primary/30 text-slate-500 hover:text-slate-700 hover:bg-slate-100'}`}
                   >
                     <span className="material-symbols-outlined text-2xl">{cat.icon}</span>
                     <span className="text-[13px] font-bold leading-none">{cat.label}</span>
@@ -132,7 +143,7 @@ const AdviceModal: React.FC<AdviceModalProps> = ({
                   key={idx}
                   type="button"
                   onClick={() => setAdviceContent(prev => prev ? prev + ', ' + template.text : template.text)}
-                  className="px-5 py-2.5 bg-white dark:bg-slate-800 hover:bg-primary text-slate-600 dark:text-slate-400 hover:text-slate-900 border border-slate-200 dark:border-slate-700 rounded-full text-[13px] font-bold transition-all shadow-sm active:scale-95 flex items-center gap-2"
+                  className="px-5 py-2.5 bg-white dark:bg-slate-800 hover:bg-primary text-slate-600 dark:text-slate-400 hover:text-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-[13px] font-bold transition-all shadow-sm active:scale-95 flex items-center gap-2"
                 >
                   <span className="material-symbols-outlined text-sm opacity-70">{template.icon}</span>
                   {template.text}
@@ -146,7 +157,7 @@ const AdviceModal: React.FC<AdviceModalProps> = ({
         <div className="px-8 py-6 bg-slate-50 dark:bg-slate-900/50 flex gap-4 border-t border-slate-100 dark:border-slate-800 sticky bottom-0 z-20">
           <button
             onClick={onClose}
-            className="flex-1 py-3.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
+            className="flex-1 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
             type="button"
           >
             Hủy bỏ
@@ -154,7 +165,7 @@ const AdviceModal: React.FC<AdviceModalProps> = ({
           <button
             onClick={onSave}
             disabled={isSaving}
-            className="flex-[1.8] py-3.5 rounded-xl bg-primary hover:bg-primary/90 text-slate-900 font-extrabold text-sm shadow-xl shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-wait"
+            className="flex-[1.8] py-2.5 rounded-lg bg-primary hover:bg-primary/90 text-slate-900 font-extrabold text-sm shadow-xl shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-wait"
             type="button"
           >
             {isSaving ? (

@@ -1,0 +1,78 @@
+import React from 'react';
+
+interface Notification {
+  id: number;
+  title: string;
+  message: string;
+  time: string;
+  type: string;
+}
+
+interface NotificationDropdownProps {
+  isOpen: boolean;
+  onClose: () => void;
+  notifications: Notification[];
+  setNotifications: React.Dispatch<React.SetStateAction<Notification[]>>;
+}
+
+const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
+  isOpen,
+  onClose,
+  notifications,
+  setNotifications
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <>
+      <div className="fixed inset-0 z-[110]" onClick={onClose}></div>
+      <div className="absolute right-0 mt-3 w-80 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 z-[120] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300 transform-gpu">
+        <div className="p-4 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+          <h3 className="font-extrabold text-sm text-slate-900 dark:text-white text-left">Thông báo</h3>
+          {notifications.length > 0 && (
+            <button 
+              onClick={() => setNotifications([])} 
+              className="text-[13px] font-extrabold text-primary hover:underline tracking-tight"
+            >
+              Xóa tất cả
+            </button>
+          )}
+        </div>
+        <div className="max-h-[400px] overflow-y-auto custom-scrollbar">
+          {notifications.length > 0 ? (
+            <div className="divide-y divide-slate-50 dark:divide-slate-800">
+              {notifications.map((notif) => (
+                <div key={notif.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group">
+                  <div className="flex gap-3">
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${notif.type === 'warning' ? 'bg-red-50 text-red-500' : 'bg-primary/10 text-primary'}`}>
+                      <span className="material-symbols-outlined text-lg">{notif.type === 'warning' ? 'error' : 'info'}</span>
+                    </div>
+                    <div className="space-y-1 text-left">
+                      <p className="text-sm font-bold text-slate-800 dark:text-slate-200 leading-tight group-hover:text-primary transition-colors">{notif.title}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">{notif.message}</p>
+                      <p className="text-[10px] font-medium text-slate-400 mt-1">{notif.time}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="py-12 flex flex-col items-center justify-center gap-3 text-slate-400">
+              <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800/50 rounded-full flex items-center justify-center mb-2">
+                <span className="material-symbols-outlined text-4xl opacity-20">notifications_off</span>
+              </div>
+              <p className="text-sm font-extrabold tracking-tight text-slate-300 dark:text-slate-600">Không có thông báo</p>
+            </div>
+          )}
+        </div>
+        {notifications.length > 0 && (
+          <div className="p-3 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800">
+            <button className="w-full py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-primary/10 hover:text-primary transition-all shadow-sm">Xem tất cả thông báo</button>
+          </div>
+        )}
+      </div>
+    </>
+  );
+};
+
+export default NotificationDropdown;
