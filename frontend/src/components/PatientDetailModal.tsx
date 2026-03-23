@@ -286,10 +286,6 @@ export default function PatientDetailModal({ isOpen, onClose, patient }: Patient
                   <span className="material-symbols-outlined text-lg">print</span>
                   Xuất PDF / In báo cáo
                 </button>
-                <button className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl hover:opacity-90 text-sm font-semibold shadow-lg shadow-primary/20 transition-all">
-                  <span className="material-symbols-outlined text-lg">medical_services</span>
-                  Kê đơn thuốc
-                </button>
               </div>
             </div>
 
