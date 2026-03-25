@@ -3,12 +3,16 @@ import PrescriptionModal from '../components/PrescriptionModal';
 import AdviceModal from '../components/AdviceModal';
 import Toast from '../components/Toast';
 import TopBar from '../components/TopBar';
+import PatientDetailModal from '../components/PatientDetailModal';
+import MedicalHistoryModal from '../components/MedicalHistoryModal';
 
 export default function DoctorMessages() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<'all' | 'unread'>('all');
     const [isAdviceModalOpen, setIsAdviceModalOpen] = useState(false);
     const [isPrescriptionModalOpen, setIsPrescriptionModalOpen] = useState(false);
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+    const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
     const [isAddingNewMedicine, setIsAddingNewMedicine] = useState(false);
     const [medications, setMedications] = useState([
         { id: 1, name: 'Metformin 500mg', intakeType: 'Uống sau khi ăn', dosage: '1 viên', frequency: 'Sáng 1, Tối 1', duration: '30 ngày' },
@@ -83,8 +87,7 @@ export default function DoctorMessages() {
                         <span className="material-symbols-outlined fill-1">health_metrics</span>
                     </div>
                     <div>
-                        <h1 className="text-xl font-extrabold text-slate-900 dark:text-white leading-none">Sống Khỏe</h1>
-                        <p className="text-xs text-primary font-semibold tracking-wide">Hệ thống quản lý</p>
+                        <h1 className="text-xl font-extrabold text-slate-900 dark:text-white leading-none">DamDiep</h1>
                     </div>
                 </div>
                 <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar">
@@ -139,8 +142,8 @@ export default function DoctorMessages() {
                     ></div>
                 )}
                 {/* Top Bar */}
-                <TopBar 
-                    setIsSidebarOpen={setIsSidebarOpen} 
+                <TopBar
+                    setIsSidebarOpen={setIsSidebarOpen}
                     notifications={notifications}
                     setNotifications={setNotifications}
                 />
@@ -182,15 +185,15 @@ export default function DoctorMessages() {
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex justify-between items-center mb-0.5">
-                                            <h3 className="text-sm font-bold truncate">Nguyễn Văn A</h3>
-                                            <span className="text-[10px] text-slate-400">10:45</span>
+                                            <h3 className="text-base font-bold truncate">Nguyễn Văn A</h3>
+                                            <span className="text-xs text-slate-400">10:45</span>
                                         </div>
-                                        <p className="text-xs text-slate-600 dark:text-slate-400 truncate font-semibold">Bác sĩ ơi, chỉ số huyết áp...</p>
+                                        <p className="text-sm text-slate-600 dark:text-slate-400 truncate font-semibold">Bác sĩ ơi, chỉ số huyết áp...</p>
                                         <div className="flex items-center gap-2 mt-1">
-                                            <span className="px-1.5 py-0.5 bg-red-100 text-red-600 text-[10px] rounded-md font-bold uppercase tracking-tighter">Nguy cơ cao</span>
+                                            <span className="px-2 py-0.5 bg-red-100 text-red-600 text-xs rounded-md font-bold uppercase tracking-tighter">Nguy cơ cao</span>
                                         </div>
                                     </div>
-                                    <div className="size-5 rounded-full bg-primary flex items-center justify-center text-[10px] text-white font-bold">2</div>
+                                    <div className="size-6 rounded-full bg-primary flex items-center justify-center text-xs text-white font-bold shadow-sm shadow-primary/30">2</div>
                                 </div>
 
                                 {/* Trần Thị B - Chỉ hiển thị khi tab là "Tất cả" */}
@@ -199,12 +202,12 @@ export default function DoctorMessages() {
                                         <img className="size-12 rounded-full object-cover grayscale opacity-70" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBhD6WWkEmCMteDAhlg1khjJmteYcqGR_yWPtw7M8cvkR3Pz1-1ppF9o5AMWC6HaT2f-5pYOc8QcYtyOYqIwns5BwN129P-TJ0KCcF__-O9EC29r_C_OwDHLBNK4gPhThgBbxZTnZh6_65fKk1BuXOPABOf5XFyVqBB3elRY41Rw1LVHLJb67lK83eFMaCHBlpb8wxLmEDLfeNEowQbIJP7cHp5YfLb_9os0KnEGIqfCwFAk7CcH4yVH_nP5tWbnE2ExIYImKwspU" alt="B" />
                                         <div className="flex-1 min-w-0">
                                             <div className="flex justify-between items-center mb-0.5">
-                                                <h3 className="text-sm font-bold truncate text-slate-600 dark:text-slate-400">Trần Thị B</h3>
-                                                <span className="text-[10px] text-slate-400 font-medium">Hôm qua</span>
+                                                <h3 className="text-base font-bold truncate text-slate-600 dark:text-slate-400">Trần Thị B</h3>
+                                                <span className="text-xs text-slate-400 font-medium">Hôm qua</span>
                                             </div>
-                                            <p className="text-xs text-slate-500 truncate font-medium">Vâng, tôi đã nhận được đơn thuốc.</p>
+                                            <p className="text-sm text-slate-500 truncate font-medium">Vâng, tôi đã nhận được đơn thuốc.</p>
                                             <div className="flex items-center gap-2 mt-1">
-                                                <span className="px-1.5 py-0.5 bg-green-100 text-green-600 text-[10px] rounded-md font-bold uppercase tracking-tighter">Bình thường</span>
+                                                <span className="px-2 py-0.5 bg-green-100 text-green-600 text-xs rounded-md font-bold uppercase tracking-tighter">Bình thường</span>
                                             </div>
                                         </div>
                                     </div>
@@ -216,12 +219,12 @@ export default function DoctorMessages() {
                                         <img className="size-12 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAc-MU_mpYw71RWBRumDqWQSpX2jT6lqY_yymf4_8OwEvcAeGZzV7l3yAxJ5MF7jROH6_6fdNdNvtucQdPatsAfzP-B49W4vIFviX6tGN97yhtJTuP3BrvS6YgON1wqQxZEmplohMDKvuNYebXLrTKsq0q12FH8pdkhC93H4v8cZNbJLFkBV_JVSSRhTFssTOzM27hXOpef5uBaFNc9JV_YDbeJBtL4rMTTD0AGoZ3LRXHFIL1qr8Avgse8OBgMCCLHYBPdo6QmmNo" alt="C" />
                                         <div className="flex-1 min-w-0">
                                             <div className="flex justify-between items-center mb-0.5">
-                                                <h3 className="text-sm font-bold truncate text-slate-600 dark:text-slate-400">Lê Văn C</h3>
-                                                <span className="text-[10px] text-slate-400 font-medium">Thứ 2</span>
+                                                <h3 className="text-base font-bold truncate text-slate-600 dark:text-slate-400">Lê Văn C</h3>
+                                                <span className="text-xs text-slate-400 font-medium">Thứ 2</span>
                                             </div>
-                                            <p className="text-xs text-slate-500 truncate font-medium">Cảm ơn bác sĩ nhiều lắm!</p>
+                                            <p className="text-sm text-slate-500 truncate font-medium">Cảm ơn bác sĩ nhiều lắm!</p>
                                             <div className="flex items-center gap-2 mt-1">
-                                                <span className="px-1.5 py-0.5 bg-green-100 text-green-600 text-[10px] rounded-md font-bold uppercase tracking-tighter">Bình thường</span>
+                                                <span className="px-2 py-0.5 bg-green-100 text-green-600 text-xs rounded-md font-bold uppercase tracking-tighter">Bình thường</span>
                                             </div>
                                         </div>
                                     </div>
@@ -255,29 +258,29 @@ export default function DoctorMessages() {
                         {/* Chat History */}
                         <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
                             <div className="flex justify-center">
-                                <span className="text-[10px] bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded-full text-slate-500 font-medium uppercase">Hôm nay</span>
+                                <span className="text-[13px] bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded-full text-slate-500 font-medium">Hôm nay</span>
                             </div>
 
                             <div className="flex gap-3 max-w-[80%]">
                                 <img className="size-8 rounded-full self-end" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCugxZ95a_v-3AW68QiUMCSrPj_G-Cfl0ygNoDoBH7sjAURggNcXC4KC--moLZZMx3B4m2TOx_TS2VSfyS5bdD4YaETWmaqCLr3CZ7R9OdnTHG8Bgj9y_85jABmvPBkBLEG3k9NC8VUHMJaiWJj3VxNxeKgSWQO0R8WO6MAqJUiDUhV_5kwUUr6_pM0uyhB9LlpdE78cWs5v7fs5GdNu-IK_wZy9ueZZJtcxuEnj3qcCXD--kAUEoOF6ST-sWqLlqrhX0FhvBFloJs" alt="P" />
                                 <div className="bg-white dark:bg-slate-800 p-3 rounded-2xl rounded-bl-none shadow-sm border border-slate-100 dark:border-slate-700">
-                                    <p className="text-sm">Bác sĩ ơi, chỉ số huyết áp của tôi sáng nay đo là 160/95 mmHg. Tôi cảm thấy hơi chóng mặt, có cần điều chỉnh thuốc không ạ?</p>
-                                    <span className="text-[10px] text-slate-400 mt-1 block">10:42 AM</span>
+                                    <p className="text-[15px]">Bác sĩ ơi, chỉ số huyết áp của tôi sáng nay đo là 160/95 mmHg. Tôi cảm thấy hơi chóng mặt, có cần điều chỉnh thuốc không ạ?</p>
+                                    <span className="text-[13px] text-slate-400 mt-1 block font-bold">10:42 AM</span>
                                 </div>
                             </div>
 
                             <div className="flex flex-row-reverse gap-3 max-w-[80%] ml-auto">
                                 <div className="bg-primary text-white p-3 rounded-2xl rounded-br-none shadow-md">
-                                    <p className="text-sm">Chào anh A, chỉ số 160/95 là khá cao. Anh hãy nghỉ ngơi tại chỗ trong 15-20 phút, tránh vận động mạnh và đo lại nhé.</p>
-                                    <span className="text-[10px] opacity-70 mt-1 block text-right font-bold uppercase tracking-tighter">10:44 AM</span>
+                                    <p className="text-[15px]">Chào anh A, chỉ số 160/95 là khá cao. Anh hãy nghỉ ngơi tại chỗ trong 15-20 phút, tránh vận động mạnh và đo lại nhé.</p>
+                                    <span className="text-[13px] opacity-70 mt-1 block text-right font-bold uppercase tracking-tighter">10:44 AM</span>
                                 </div>
                             </div>
 
                             <div className="flex gap-3 max-w-[80%]">
                                 <img className="size-8 rounded-full self-end" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbj29KgBXLWBPKSZdaUeM5dWr-bzaBrxa3Dw06ijYcBv7WpYsmU9h9wHJI4ypLmiHnLjbeN_T8jHyd8Qhvi4Cj_v2O2TiOU06IqDmQ0GSixl8-bDsmQxuEgYA4Vfr4z0dld7KPJWUkoFonI5L0C3uYrACQqyPeSvoYFOj5lGL2m9-gAQbUit8mJzvKR7fBr9KqNks5Mlez4_BHEEe_Rr1mqNlJy6Er3yK2YSfLiI8LgKltFrE3Olj4Qx_LS47T4cc8LK8zvADUjmQ" alt="P" />
                                 <div className="bg-white dark:bg-slate-800 p-3 rounded-2xl rounded-bl-none shadow-sm border border-slate-100 dark:border-slate-700">
-                                    <p className="text-sm">Vâng, tôi đang nằm nghỉ rồi ạ. Tôi có nên uống thêm liều thuốc hạ áp dự phòng không?</p>
-                                    <span className="text-[10px] text-slate-400 mt-1 block">10:45 AM</span>
+                                    <p className="text-[15px]">Vâng, tôi đang nằm nghỉ rồi ạ. Tôi có nên uống thêm liều thuốc hạ áp dự phòng không?</p>
+                                    <span className="text-[13px] text-slate-400 mt-1 block font-bold">10:45 AM</span>
                                 </div>
                             </div>
                         </div>
@@ -320,69 +323,72 @@ export default function DoctorMessages() {
                             <div className="size-20 mx-auto rounded-full border-4 border-primary/20 p-1 mb-3">
                                 <img className="w-full h-full rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFISugC6Rpeutv2EMF1mKJgLNRCsl5qg11rlHsyeW10Tt4IwD3QZojRXX5GNm14e17phWogUWTZ9RbzM7u4B4JLFRLuUJHOm6CwJeyKFiNRnfIKR4EjL8PovYrTnfnrwp4tmXdx_mSmmk1h5zbrLbXWbNLQfGgExg9bpqRJ7FKBe7b4iOWCETJ8kbntW4QnsM9NZPvhI__l-PXLbH3vDpL6RlU37IfywN4bCq7fGM2znIa4C9kC0i69IVkBLa1reGlZjaIyPGD1CA" alt="Profile" />
                             </div>
-                            <h3 className="font-bold text-lg">Nguyễn Văn A</h3>
-                            <p className="text-xs text-slate-500 uppercase tracking-wider font-extrabold mt-1">Nam • 58 tuổi</p>
+                            <h3 className="font-bold text-xl mb-2">Nguyễn Văn A</h3>
+                            <div className="flex flex-col text-[15px] font-medium text-slate-500">
+                                <span>Giới tính: Nam</span>
+                                <span>Tuổi: 85</span>
+                            </div>
                         </div>
 
                         <div className="space-y-4">
                             <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
-                                <div className="flex items-center justify-between mb-3 px-1">
-                                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Chỉ số sinh tồn</h4>
-                                    <span className="text-[9px] text-primary font-black uppercase tracking-tighter">1 giờ trước</span>
+                                <div className="flex items-center justify-between mb-4 px-1">
+                                    <h4 className="text-[15px] font-medium text-slate-700 leading-none">Chỉ số sinh tồn</h4>
+                                    <span className="text-[13px] text-primary font-black tracking-tighter">1 giờ trước</span>
                                 </div>
                                 <div className="space-y-3">
                                     <div className="flex items-center justify-between px-1">
                                         <div className="flex items-center gap-2">
                                             <span className="material-symbols-outlined text-red-500 text-sm">blood_pressure</span>
-                                            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Huyết áp</span>
+                                            <span className="text-[15px] font-medium text-slate-600 dark:text-slate-400">Huyết áp</span>
                                         </div>
-                                        <span className="text-sm font-black text-red-500">160/95</span>
+                                        <span className="text-[15px] font-bold text-red-500">160/95</span>
                                     </div>
                                     <div className="flex items-center justify-between px-1">
                                         <div className="flex items-center gap-2">
                                             <span className="material-symbols-outlined text-blue-500 text-sm">favorite</span>
-                                            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Nhịp tim</span>
+                                            <span className="text-[15px] font-medium text-slate-600 dark:text-slate-400">Nhịp tim</span>
                                         </div>
-                                        <span className="text-sm font-black text-slate-900 dark:text-white">82 bpm</span>
+                                        <span className="text-[15px] font-bold text-slate-900 dark:text-white">82 bpm</span>
                                     </div>
                                     <div className="flex items-center justify-between px-1">
                                         <div className="flex items-center gap-2">
                                             <span className="material-symbols-outlined text-orange-500 text-sm">water_drop</span>
-                                            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Đường huyết</span>
+                                            <span className="text-[15px] font-medium text-slate-600 dark:text-slate-400">Đường huyết</span>
                                         </div>
-                                        <span className="text-sm font-black text-slate-900 dark:text-white">6.8 mmol/L</span>
+                                        <span className="text-[15px] font-bold text-slate-900 dark:text-white">6.8 mmol/L</span>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="space-y-1.5">
-                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1 mb-2">Lối tắt</h4>
+                                <h4 className="text-[15px] font-medium text-slate-700 pl-1 mb-3">Lối tắt</h4>
                                 {[
-                                    { icon: 'description', label: 'Hồ sơ đầy đủ', action: () => {} },
+                                    { icon: 'description', label: 'Hồ sơ đầy đủ', action: () => setIsDetailModalOpen(true) },
                                     { icon: 'pill', label: 'Kê đơn thuốc', action: () => setIsPrescriptionModalOpen(true) },
-                                    { icon: 'history', label: 'Lịch sử khám', action: () => {} }
+                                    { icon: 'history', label: 'Lịch sử khám', action: () => setIsHistoryModalOpen(true) }
                                 ].map((item, idx) => (
                                     <button
                                         key={idx}
                                         onClick={item.action}
-                                        className="w-full flex items-center justify-between p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all group"
+                                        className="w-full flex items-center justify-between p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all group"
                                     >
-                                        <div className="flex items-center gap-2.5">
-                                            <span className="material-symbols-outlined text-primary text-lg">{item.icon}</span>
-                                            <span className="text-xs font-bold text-slate-700 dark:text-slate-300 tracking-tight">{item.label}</span>
+                                        <div className="flex items-center gap-3">
+                                            <span className="material-symbols-outlined text-primary text-xl">{item.icon}</span>
+                                            <span className="text-[15px] font-medium text-slate-700 dark:text-slate-300 tracking-tight">{item.label}</span>
                                         </div>
-                                        <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-all text-lg">chevron_right</span>
+                                        <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-all text-xl">chevron_right</span>
                                     </button>
                                 ))}
                             </div>
                         </div>
 
-                        <div className="mt-8 p-4 bg-primary/5 rounded-2xl border border-primary/10 relative overflow-hidden group">
+                        <div className="mt-8 p-4 bg-orange-50 dark:bg-orange-950/20 rounded-2xl border border-orange-100 dark:border-orange-900/30 relative overflow-hidden group">
                             <div className="flex items-center gap-2 mb-2">
-                                <span className="material-symbols-outlined text-primary text-lg font-bold">info</span>
-                                <h5 className="text-[10px] font-black text-primary uppercase tracking-widest">Ghi chú nhanh</h5>
+                                <span className="material-symbols-outlined text-red-500 text-lg font-bold">info</span>
+                                <h5 className="text-[15px] font-medium text-slate-700">Ghi chú nhanh</h5>
                             </div>
-                            <p className="text-[11px] text-slate-600 dark:text-slate-400 italic font-medium leading-relaxed">
+                            <p className="text-[14px] text-slate-600 dark:text-slate-400 italic font-medium leading-relaxed">
                                 "Bệnh nhân có tiền sử cao huyết áp mãn tính, cần theo dõi sát sao vào buổi sáng."
                             </p>
                         </div>
@@ -400,6 +406,40 @@ export default function DoctorMessages() {
                 isSaving={isSaving}
                 onSave={handleSaveAdvice}
                 patientName="Nguyễn Văn A"
+            />
+
+            <PatientDetailModal
+                isOpen={isDetailModalOpen}
+                onClose={() => setIsDetailModalOpen(false)}
+                patient={{
+                    id: 1,
+                    name: "Nguyễn Văn A",
+                    gender: "Nam",
+                    age: 85,
+                    email: "nguyenvan.a@example.com",
+                    phone: "0901 222 333",
+                    address: "123 Đường Lê Lợi, Quận 1, TP.HCM",
+                    joinDate: "15/01/2024",
+                    risk: "Cao",
+                    lastVisit: "2 giờ trước",
+                    bloodType: "A+",
+                    height: "172 cm",
+                    weight: "68 kg",
+                    diagnose: "Tăng huyết áp vô căn, Đái tháo đường Tuýp 2",
+                    vitals: {
+                        bp: "160/95",
+                        hr: "82",
+                        temp: "36.8",
+                        glu: "6.8"
+                    }
+                }}
+            />
+
+            <MedicalHistoryModal
+                isOpen={isHistoryModalOpen}
+                onClose={() => setIsHistoryModalOpen(false)}
+                patientName="Nguyễn Văn A"
+                patientAvatar="https://i.pravatar.cc/150?u=Nguyễn+Văn+A"
             />
 
             <PrescriptionModal

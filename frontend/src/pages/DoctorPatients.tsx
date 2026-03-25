@@ -88,8 +88,7 @@ export default function DoctorPatients() {
             <span className="material-symbols-outlined fill-1">health_metrics</span>
           </div>
           <div>
-            <h1 className="text-xl font-extrabold text-slate-900 dark:text-white leading-none">Sống Khỏe</h1>
-            <p className="text-xs text-primary font-semibold tracking-wide">Hệ thống quản lý</p>
+            <h1 className="text-xl font-extrabold text-slate-900 dark:text-white leading-none">DamDiep</h1>
           </div>
         </div>
         <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar">
@@ -203,23 +202,23 @@ export default function DoctorPatients() {
               }}
             />
 
-            <div className="bg-white p-6 rounded-lg shadow-sm flex items-center justify-between border border-slate-100">
-              <div>
-                <p className="text-sm font-medium text-slate-500 mb-1">Tổng bệnh nhân</p>
-                <p className="text-3xl font-extrabold text-slate-900 mt-1">1,284</p>
-              </div>
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
+            <div className="bg-white p-6 rounded-2xl shadow-sm flex items-center gap-4 border border-slate-100">
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary flex-shrink-0">
                 <span className="material-symbols-outlined">groups</span>
+              </div>
+              <div className="flex-1 overflow-hidden">
+                <p className="text-sm font-medium text-slate-500 mb-1">Tổng bệnh nhân</p>
+                <p className="text-3xl font-black text-slate-900 mt-1 tracking-tight truncate">1,284</p>
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm flex items-center justify-between border border-slate-100">
-              <div>
-                <p className="text-sm font-medium text-slate-500 mb-1">Cần can thiệp</p>
-                <p className="text-3xl font-extrabold text-red-500 mt-1">12</p>
-              </div>
-              <div className="w-12 h-12 bg-red-50 rounded-lg flex items-center justify-center text-red-600">
+            <div className="bg-white p-6 rounded-2xl shadow-sm flex items-center gap-4 border border-slate-100">
+              <div className="w-12 h-12 bg-red-50 rounded-lg flex items-center justify-center text-red-600 flex-shrink-0">
                 <span className="material-symbols-outlined">notification_important</span>
+              </div>
+              <div className="flex-1 overflow-hidden">
+                <p className="text-sm font-medium text-slate-500 mb-1">Cần can thiệp</p>
+                <p className="text-3xl font-black text-red-500 mt-1 tracking-tight truncate">12</p>
               </div>
             </div>
           </div>

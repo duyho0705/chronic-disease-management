@@ -27,7 +27,7 @@ export default function FilterDropdown({
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-center gap-4 group hover:border-primary/30 transition-all w-full text-left focus:outline-none"
+        className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4 group hover:border-primary/30 transition-all w-full h-full text-left focus:outline-none"
       >
         <div className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 ${iconBgColor} ${iconTextColor}`}>
           <span className="material-symbols-outlined text-2xl">{icon}</span>

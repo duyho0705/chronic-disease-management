@@ -13,6 +13,7 @@ export default function DoctorAnalytics() {
     ]);
     const [isPatientDetailModalOpen, setIsPatientDetailModalOpen] = useState(false);
     const [selectedPatient, setSelectedPatient] = useState<any>(null);
+    const [chartType, setChartType] = useState<'bp' | 'glucose'>('bp');
 
     // Advice Modal State
     const [isAdviceModalOpen, setIsAdviceModalOpen] = useState(false);
@@ -45,8 +46,7 @@ export default function DoctorAnalytics() {
                         <span className="material-symbols-outlined fill-1">health_metrics</span>
                     </div>
                     <div>
-                        <h1 className="text-xl font-extrabold text-slate-900 dark:text-white leading-none">Sống Khỏe</h1>
-                        <p className="text-xs text-primary font-semibold tracking-wide">Hệ thống quản lý</p>
+                        <h1 className="text-xl font-extrabold text-slate-900 dark:text-white leading-none">DamDiep</h1>
                     </div>
                 </div>
                 <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar">
@@ -121,14 +121,14 @@ export default function DoctorAnalytics() {
 
                     {/* Stats Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border border-primary/5">
+                        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-primary/5">
                             <div className="flex justify-between items-start">
                                 <div>
                                     <p className="text-sm font-medium text-slate-500 mb-1">Tổng ca nguy cơ</p>
                                     <h3 className="text-3xl font-extrabold mt-1 text-slate-900 dark:text-white">1,284</h3>
                                 </div>
-                                <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/30 rounded-lg flex items-center justify-center text-blue-500">
-                                    <span className="material-symbols-outlined text-2xl">monitoring</span>
+                                <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/30 rounded-xl flex items-center justify-center text-blue-500">
+                                    <span className="material-symbols-outlined text-3xl">monitoring</span>
                                 </div>
                             </div>
                             <div className="mt-4 flex items-center text-[14px] text-blue-600 dark:text-blue-400 font-bold">
@@ -136,40 +136,40 @@ export default function DoctorAnalytics() {
                                 +12% so với tháng trước
                             </div>
                         </div>
-                        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border border-primary/5">
+                        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-primary/5">
                             <div className="flex justify-between items-start">
                                 <div>
                                     <p className="text-sm font-medium text-slate-500 mb-1">Nguy cơ cao</p>
                                     <h3 className="text-3xl font-extrabold mt-1 text-red-500">42</h3>
                                 </div>
-                                <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center text-red-500">
-                                    <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>warning</span>
+                                <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center text-red-500">
+                                    <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>warning</span>
                                 </div>
                             </div>
                             <p className="text-[14px] text-slate-500 dark:text-slate-400 mt-4 italic font-medium">Cần can thiệp khẩn cấp ngay</p>
                         </div>
-                        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border border-primary/5">
+                        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-primary/5">
                             <div className="flex justify-between items-start">
                                 <div>
                                     <p className="text-sm font-medium text-slate-500 mb-1">Xu hướng xấu</p>
                                     <h3 className="text-3xl font-extrabold mt-1 text-orange-500">156</h3>
                                 </div>
-                                <div className="w-12 h-12 bg-orange-50 dark:bg-orange-900/30 rounded-lg flex items-center justify-center text-orange-500">
-                                    <span className="material-symbols-outlined text-2xl">trending_down</span>
+                                <div className="w-12 h-12 bg-orange-50 dark:bg-orange-900/30 rounded-xl flex items-center justify-center text-orange-500">
+                                    <span className="material-symbols-outlined text-3xl">trending_down</span>
                                 </div>
                             </div>
                             <div className="mt-4 flex items-center text-[14px] text-orange-500 dark:text-orange-400 font-bold">
                                 Dự báo tăng 5% tới
                             </div>
                         </div>
-                        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border border-primary/5">
+                        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-primary/5">
                             <div className="flex justify-between items-start">
                                 <div>
                                     <p className="text-sm font-medium text-slate-500 mb-1">Ổn định</p>
                                     <h3 className="text-3xl font-extrabold mt-1 text-primary">1,086</h3>
                                 </div>
-                                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
-                                    <span className="material-symbols-outlined text-2xl"
+                                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                                    <span className="material-symbols-outlined text-3xl"
                                         style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
                                 </div>
                             </div>
@@ -190,11 +190,15 @@ export default function DoctorAnalytics() {
                                 </div>
                                 <div className="flex gap-2">
                                     <button
-                                        className="px-4 py-2 bg-primary/5 text-primary text-xs font-bold rounded-lg border border-emerald-100">Huyết
-                                        áp</button>
+                                        onClick={() => setChartType('bp')}
+                                        className={`px-4 py-2 text-xs font-bold rounded-lg border transition-all ${chartType === 'bp' ? 'bg-primary/5 text-primary border-emerald-100 shadow-sm' : 'text-slate-500 hover:bg-slate-50 border-transparent'}`}>
+                                        Huyết áp
+                                    </button>
                                     <button
-                                        className="px-4 py-2 hover:bg-slate-50 text-slate-500 text-xs font-bold rounded-lg transition-colors">Đường
-                                        huyết</button>
+                                        onClick={() => setChartType('glucose')}
+                                        className={`px-4 py-2 text-xs font-bold rounded-lg border transition-all ${chartType === 'glucose' ? 'bg-primary/5 text-primary border-emerald-100 shadow-sm' : 'text-slate-500 hover:bg-slate-50 border-transparent'}`}>
+                                        Đường huyết
+                                    </button>
                                 </div>
                             </div>
                             {/* Chart Simulation */}

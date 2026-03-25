@@ -127,8 +127,7 @@ export default function DoctorDashboard() {
               <span className="material-symbols-outlined fill-1">health_metrics</span>
             </div>
             <div>
-              <h1 className="text-xl font-extrabold text-slate-900 dark:text-white leading-none">Sống Khỏe</h1>
-              <p className="text-xs text-primary font-semibold tracking-wide">Hệ thống quản lý</p>
+              <h1 className="text-xl font-extrabold text-slate-900 dark:text-white leading-none">DamDiep</h1>
             </div>
           </div>
           <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar">
@@ -198,7 +197,7 @@ export default function DoctorDashboard() {
           <div className="p-4 md:p-8 space-y-6 md:space-y-8">
             {/* Summary Cards */}
             <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-white dark:bg-slate-900 p-6 rounded-lg border border-primary/5 shadow-sm">
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm">
                 <div className="flex justify-between items-start mb-4">
                   <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
                     <span className="material-symbols-outlined size-6">person</span>
@@ -208,7 +207,7 @@ export default function DoctorDashboard() {
                 <h3 className="text-slate-500 text-sm font-medium">Tổng bệnh nhân</h3>
                 <p className="text-3xl font-extrabold mt-1">1,250</p>
               </div>
-              <div className="bg-white dark:bg-slate-900 p-6 rounded-lg border border-primary/5 shadow-sm">
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm">
                 <div className="flex justify-between items-start mb-4">
                   <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center text-red-500">
                     <span className="material-symbols-outlined size-6">emergency</span>
@@ -218,7 +217,7 @@ export default function DoctorDashboard() {
                 <h3 className="text-slate-500 text-sm font-medium">Nguy cơ cao</h3>
                 <p className="text-3xl font-extrabold mt-1 text-red-500">12</p>
               </div>
-              <div className="bg-white dark:bg-slate-900 p-6 rounded-lg border border-primary/5 shadow-sm">
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm">
                 <div className="flex justify-between items-start mb-4">
                   <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center text-blue-500">
                     <span className="material-symbols-outlined size-6">event_upcoming</span>
@@ -227,7 +226,7 @@ export default function DoctorDashboard() {
                 <h3 className="text-slate-500 text-sm font-medium">Lịch hẹn chờ</h3>
                 <p className="text-3xl font-extrabold mt-1">08</p>
               </div>
-              <div className="bg-white dark:bg-slate-900 p-6 rounded-lg border border-primary/5 shadow-sm">
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm">
                 <div className="flex justify-between items-start mb-4">
                   <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center text-amber-500">
                     <span className="material-symbols-outlined size-6">mail</span>

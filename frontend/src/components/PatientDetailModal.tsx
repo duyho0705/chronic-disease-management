@@ -94,7 +94,7 @@ export default function PatientDetailModal({ isOpen, onClose, patient }: Patient
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <span className="material-symbols-outlined text-[#00391c]" style={{ fontVariationSettings: "'FILL' 1", fontSize: '18px' }}>health_and_safety</span>
               </div>
-              <span className="text-lg font-extrabold text-[#059669] tracking-tight">Sống Khỏe</span>
+              <span className="text-lg font-extrabold text-[#059669] tracking-tight">DamDiep</span>
             </div>
           </div>
           <div className="text-right">

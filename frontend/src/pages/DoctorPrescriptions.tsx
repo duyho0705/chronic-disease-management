@@ -16,8 +16,7 @@ export default function DoctorPrescriptions() {
                         <span className="material-symbols-outlined fill-1">health_metrics</span>
                     </div>
                     <div>
-                        <h1 className="text-xl font-extrabold text-slate-900 dark:text-white leading-none">Sống Khỏe</h1>
-                        <p className="text-xs text-primary font-semibold tracking-wide">Hệ thống quản lý</p>
+                        <h1 className="text-xl font-extrabold text-slate-900 dark:text-white leading-none">DamDiep</h1>
                     </div>
                 </div>
                 <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar">
@@ -99,45 +98,61 @@ export default function DoctorPrescriptions() {
 
                     {/* Stats Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden group">
-                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
-                                <span className="material-symbols-outlined text-6xl text-primary">description</span>
+                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden group transition-all duration-300">
+                            <div className="flex justify-between items-start mb-4">
+                                <div>
+                                    <p className="text-sm font-medium text-slate-500 mb-1">Tổng đơn thuốc</p>
+                                    <h3 className="text-3xl font-black text-slate-900 tracking-tight">1,284</h3>
+                                </div>
+                                <div className="size-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                    <span className="material-symbols-outlined text-2xl">description</span>
+                                </div>
                             </div>
-                            <p className="text-sm font-medium text-slate-500 mb-1">Tổng đơn thuốc</p>
-                            <h3 className="text-3xl font-extrabold text-slate-900">1,284</h3>
                             <div className="mt-4 flex items-center gap-1 text-primary text-[14px] font-bold">
                                 <span className="material-symbols-outlined text-sm">trending_up</span>
                                 +12% tháng này
                             </div>
                         </div>
 
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 border-t-4 border-t-primary relative overflow-hidden group">
-                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform text-primary">
-                                <span className="material-symbols-outlined text-6xl">check_circle</span>
+                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 border-t-4 border-t-primary relative overflow-hidden group transition-all duration-300">
+                            <div className="flex justify-between items-start mb-4">
+                                <div>
+                                    <p className="text-sm font-medium text-slate-500 mb-1">Đang hiệu lực</p>
+                                    <h3 className="text-3xl font-black text-slate-900 tracking-tight">452</h3>
+                                </div>
+                                <div className="size-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                    <span className="material-symbols-outlined text-2xl">medication</span>
+                                </div>
                             </div>
-                            <p className="text-sm font-medium text-slate-500 mb-1">Đang hiệu lực</p>
-                            <h3 className="text-3xl font-extrabold text-slate-900">452</h3>
                             <p className="mt-4 text-[14px] text-slate-500 font-medium">Đang được bệnh nhân sử dụng</p>
                         </div>
 
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden group">
-                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform text-orange-400">
-                                <span className="material-symbols-outlined text-6xl">update</span>
+                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden group transition-all duration-300">
+                            <div className="flex justify-between items-start mb-4">
+                                <div>
+                                    <p className="text-sm font-medium text-slate-500 mb-1">Chờ tái cấp</p>
+                                    <h3 className="text-3xl font-black text-slate-900 tracking-tight">18</h3>
+                                </div>
+                                <div className="size-12 rounded-full bg-orange-50 flex items-center justify-center text-orange-400">
+                                    <span className="material-symbols-outlined text-2xl">update</span>
+                                </div>
                             </div>
-                            <p className="text-sm font-medium text-slate-500 mb-1">Chờ tái cấp</p>
-                            <h3 className="text-3xl font-extrabold text-slate-900">18</h3>
                             <div className="mt-4 flex items-center gap-1 text-orange-500 text-[14px] font-bold">
                                 <span className="material-symbols-outlined text-sm">priority_high</span>
                                 Cần phê duyệt ngay
                             </div>
                         </div>
 
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden group">
-                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform text-blue-400">
-                                <span className="material-symbols-outlined text-6xl">task_alt</span>
+                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden group transition-all duration-300">
+                            <div className="flex justify-between items-start mb-4">
+                                <div>
+                                    <p className="text-sm font-medium text-slate-500 mb-1">Hoàn thành</p>
+                                    <h3 className="text-3xl font-black text-slate-900 tracking-tight">814</h3>
+                                </div>
+                                <div className="size-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-400">
+                                    <span className="material-symbols-outlined text-2xl">task_alt</span>
+                                </div>
                             </div>
-                            <p className="text-sm font-medium text-slate-500 mb-1">Hoàn thành</p>
-                            <h3 className="text-3xl font-extrabold text-slate-900">814</h3>
                             <p className="mt-4 text-[14px] text-blue-500 font-bold tracking-wide">Tỷ lệ hồi phục: 94.2%</p>
                         </div>
                     </div>
@@ -192,10 +207,10 @@ export default function DoctorPrescriptions() {
                                                             <div className={`w-8 h-8 rounded-full bg-${row.color}-100 flex items-center justify-center text-[10px] font-bold text-${row.color}-600`}>
                                                                 {row.initial}
                                                             </div>
-                                                            <span className="text-sm font-bold text-slate-700">{row.name}</span>
+                                                            <span className="text-base font-bold text-slate-700">{row.name}</span>
                                                         </div>
                                                     </td>
-                                                    <td className="px-6 py-4 text-xs text-slate-500 font-medium max-w-[200px] truncate">{row.diagnosis}</td>
+                                                    <td className="px-6 py-4 text-sm text-slate-500 font-medium max-w-[200px] truncate">{row.diagnosis}</td>
                                                     <td className="px-6 py-4 text-right">
                                                         <div className="flex items-center justify-end gap-1 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity">
                                                             <button className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-primary transition-colors">
@@ -248,8 +263,8 @@ export default function DoctorPrescriptions() {
                                                 <span className="material-symbols-outlined">{med.desc.includes('Kháng sinh') ? 'vaccines' : 'medication'}</span>
                                             </div>
                                             <div className="flex-1">
-                                                <p className="text-xs font-bold text-slate-800">{med.name}</p>
-                                                <p className="text-[10px] text-slate-500 font-medium">{med.desc}</p>
+                                                <p className="text-sm font-bold text-slate-800">{med.name}</p>
+                                                <p className="text-xs text-slate-500 font-medium">{med.desc}</p>
                                             </div>
                                             <button className="text-slate-200 group-hover:text-primary transition-colors">
                                                 <span className="material-symbols-outlined text-lg">add_circle</span>
