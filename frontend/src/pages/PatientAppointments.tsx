@@ -1,6 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
+import AddAppointmentModal from '../components/AddAppointmentModal';
+import Toast from '../components/Toast';
 
 const PatientAppointments: React.FC = () => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [toast, setToast] = useState({ show: false, title: '', type: 'success' as 'success' | 'warning' | 'error' });
+
+    const handleSaveAppointment = async () => {
+        setIsSaving(true);
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        setIsSaving(false);
+        setIsModalOpen(false);
+        setToast({ 
+            show: true, 
+            title: 'Đặt lịch khám thành công! Vui lòng chờ bác sĩ xác nhận.', 
+            type: 'success' 
+        });
+    };
+
     return (
         <div className="flex flex-col lg:flex-row -m-8 h-[calc(100vh-64px)] overflow-hidden animate-in fade-in duration-700">
             {/* Main Content Area */}
@@ -11,7 +30,10 @@ const PatientAppointments: React.FC = () => {
                         <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Lịch hẹn</h2>
                         <p className="text-slate-500 dark:text-slate-400">Quản lý và theo dõi các buổi khám của bạn</p>
                     </div>
-                    <button className="bg-primary hover:bg-primary/90 text-slate-900 px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-primary/20 active:scale-95">
+                    <button 
+                        onClick={() => setIsModalOpen(true)}
+                        className="bg-primary hover:bg-primary/90 text-slate-900 px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-primary/20 active:scale-95"
+                    >
                         <span className="material-symbols-outlined">add_circle</span>
                         Đặt lịch mới
                     </button>
@@ -218,6 +240,18 @@ const PatientAppointments: React.FC = () => {
                     <div className="absolute -right-4 -bottom-4 size-24 bg-primary/20 rounded-full blur-2xl group-hover:bg-primary/30 transition-all"></div>
                 </section>
             </aside>
+            <AddAppointmentModal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+                onSave={handleSaveAppointment}
+                isSaving={isSaving}
+            />
+            <Toast 
+                show={toast.show}
+                title={toast.title}
+                type={toast.type}
+                onClose={() => setToast({ ...toast, show: false })}
+            />
         </div>
     );
 };
