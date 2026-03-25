@@ -6,6 +6,13 @@ import DoctorMessages from './pages/DoctorMessages';
 import DoctorAnalytics from './pages/DoctorAnalytics';
 import DoctorPatients from './pages/DoctorPatients';
 import DoctorPrescriptions from './pages/DoctorPrescriptions';
+import PatientHealthMetrics from './pages/PatientHealthMetrics';
+import PatientDashboard from './pages/PatientDashboard';
+import PatientAppointments from './pages/PatientAppointments';
+import PatientPrescriptions from './pages/PatientPrescriptions';
+import PatientMessages from './pages/PatientMessages';
+import PatientProfile from './pages/PatientProfile';
+import PatientLayout from './layouts/PatientLayout';
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -51,7 +58,7 @@ const LandingPage = () => {
         <div className="bg-orb orb-1"></div>
         <div className="bg-orb orb-2"></div>
       </div>
-      
+
       <header className="header">
         <h1>
           Hệ Thống <span className="heading-gradient">Quản Lý Tuyến Khoẻ</span>
@@ -61,8 +68,8 @@ const LandingPage = () => {
 
       <div className="roles-grid">
         {roles.map((role) => (
-          <div 
-            key={role.id} 
+          <div
+            key={role.id}
             className={`role-card ${role.className}`}
             onClick={() => navigate(`/${role.id}`)}
           >
@@ -88,8 +95,7 @@ const LandingPage = () => {
   );
 };
 
-// Placeholder components for the 4 roles
-const PatientDashboard = () => <div className="app-container"><div className="header"><h2>Patient Dashboard</h2><p>Đang xây dựng...</p></div></div>;
+// Placeholder components for the roles
 const ClinicDashboard = () => <div className="app-container"><div className="header"><h2>Clinic Manager Dashboard</h2><p>Đang xây dựng...</p></div></div>;
 const AdminDashboard = () => <div className="app-container"><div className="header"><h2>System Admin Dashboard</h2><p>Đang xây dựng...</p></div></div>;
 
@@ -98,7 +104,14 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/patient" element={<PatientDashboard />} />
+        <Route path="/patient" element={<PatientLayout />}>
+          <Route index element={<PatientDashboard />} />
+          <Route path="metrics" element={<PatientHealthMetrics />} />
+          <Route path="appointments" element={<PatientAppointments />} />
+          <Route path="prescriptions" element={<PatientPrescriptions />} />
+          <Route path="messages" element={<PatientMessages />} />
+          <Route path="profile" element={<PatientProfile />} />
+        </Route>
         <Route path="/doctor" element={<DoctorDashboard />} />
         <Route path="/doctor/analytics" element={<DoctorAnalytics />} />
         <Route path="/doctor/appointments" element={<DoctorAppointments />} />
