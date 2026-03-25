@@ -7,10 +7,10 @@ const PatientProfile: React.FC = () => {
             <header className="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-800 mb-6">
                 <div className="flex flex-col md:flex-row gap-6 items-center">
                     <div className="relative">
-                        <img 
-                            alt="Profile Large" 
-                            className="size-32 rounded-full border-4 border-primary/20 object-cover" 
-                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbiJ7I6ctWWGnLQNqOglT3drtEvxoxgYwECbwnYBCihONL1qNBKpbHcL2VeMYUVBj31tQd7ASwCsOQomYDGohIQ2rXA8jbkkTL4YM-fQv-tjNXzsQCNAQaHW7nG9UMdlyukB3l3PUh4hEh7vuj6jVuptgmzF1tXf-qIYhm_A4v8uOwZc5wDGnVt7nJTqMvmi9Wh6zLunQYlemDuQWa26BnYtYKxxG7LoL4xdQW2RXEPZBLTGvX4w5JtK0Q0ycV_kMsrUEhwFQLZtA" 
+                        <img
+                            alt="Profile Large"
+                            className="size-32 rounded-full border-4 border-primary/20 object-cover"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbiJ7I6ctWWGnLQNqOglT3drtEvxoxgYwECbwnYBCihONL1qNBKpbHcL2VeMYUVBj31tQd7ASwCsOQomYDGohIQ2rXA8jbkkTL4YM-fQv-tjNXzsQCNAQaHW7nG9UMdlyukB3l3PUh4hEh7vuj6jVuptgmzF1tXf-qIYhm_A4v8uOwZc5wDGnVt7nJTqMvmi9Wh6zLunQYlemDuQWa26BnYtYKxxG7LoL4xdQW2RXEPZBLTGvX4w5JtK0Q0ycV_kMsrUEhwFQLZtA"
                         />
                         <div className="absolute bottom-1 right-1 bg-primary text-white p-1.5 rounded-full border-2 border-white dark:border-slate-900">
                             <span className="material-symbols-outlined text-sm block">edit</span>

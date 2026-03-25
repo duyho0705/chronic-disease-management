@@ -19,16 +19,11 @@ const PatientSidebar: React.FC<PatientSidebarProps> = ({ isSidebarOpen, setIsSid
     return (
         <aside className={`fixed left-0 top-0 bottom-0 bg-white dark:bg-slate-900 border-r border-primary/10 flex flex-col z-[150] transition-transform duration-300 w-72 lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} shadow-2xl lg:shadow-none shadow-primary/10`}>
             <div className="p-6 flex items-center gap-3 border-b border-primary/5">
-                <div className="bg-primary/20 rounded-full p-1 border border-primary/30">
-                    <img 
-                        alt="User Avatar" 
-                        className="size-10 rounded-full object-cover shadow-sm" 
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIE7cpqMQYwxvywaZd9d-dqNN8Tu5ZbEDoO88OfW5JlfRDSo6ELN3KBizhgI71yp74XfKyLpesBzh29HTyLQZq-5mdJYd4CEzvZby6qxuDhH3CJCOLbkX1jRT2ABLdQjjRPlILMBvUeHuPSuTHKO7rfSrXBY2hk25NO59ueGygYg1GURQS_WPSyQsOBeAekYpLwpQe410234aMcVN-iQf7zv40w3tSn26GA7D8RXkyNl6DE1q-8itPnObvllx-n2UUumXLQbxiIB0" 
-                    />
+                <div className="w-10 h-10 bg-primary flex items-center justify-center rounded-xl text-white shadow-lg shadow-primary/20">
+                    <span className="material-symbols-outlined fill-1">health_metrics</span>
                 </div>
-                <div className="flex flex-col">
-                    <h1 className="text-slate-900 dark:text-slate-100 text-sm font-bold leading-tight">Nguyễn Văn A</h1>
-                    <p className="text-primary text-xs font-semibold">ID: P-99283</p>
+                <div>
+                    <h1 className="text-xl font-extrabold text-slate-900 dark:text-white leading-none">DamDiep</h1>
                 </div>
             </div>
             

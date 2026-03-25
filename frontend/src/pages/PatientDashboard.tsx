@@ -1,6 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const PatientDashboard: React.FC = () => {
+    const navigate = useNavigate();
+
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
             {/* 1. Profile Summary */}
@@ -26,7 +29,10 @@ const PatientDashboard: React.FC = () => {
                         <p className="text-base font-bold text-slate-900 dark:text-white">Tăng huyết áp</p>
                     </div>
                 </div>
-                <button className="px-6 py-2 border border-slate-200 dark:border-slate-700 rounded-xl font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors whitespace-nowrap active:scale-95 text-slate-700 dark:text-slate-300">
+                <button 
+                    onClick={() => navigate('/patient/profile')}
+                    className="px-6 py-2 border border-slate-200 dark:border-slate-700 rounded-xl font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors whitespace-nowrap active:scale-95 text-slate-700 dark:text-slate-300"
+                >
                     Chỉnh sửa hồ sơ
                 </button>
             </section>
@@ -39,7 +45,10 @@ const PatientDashboard: React.FC = () => {
                             <span className="material-symbols-outlined text-primary">show_chart</span>
                             Chỉ số sức khỏe & Xu hướng
                         </h2>
-                        <button className="text-primary font-bold text-sm flex items-center gap-1 hover:underline active:scale-95">
+                        <button 
+                            onClick={() => navigate('/patient/metrics')}
+                            className="text-primary font-bold text-sm flex items-center gap-1 hover:underline active:scale-95"
+                        >
                             <span className="material-symbols-outlined text-sm">add_circle</span> Nhập chỉ số mới
                         </button>
                     </div>
@@ -105,7 +114,7 @@ const PatientDashboard: React.FC = () => {
                                 <span className="material-symbols-outlined filled">favorite</span>
                             </div>
                             <div>
-                                <p className="text-xs text-slate-500">Nhịp tim</p>
+                                <p className="text-[14px] text-slate-500">Nhịp tim</p>
                                 <p className="text-lg font-bold">72 bpm</p>
                             </div>
                         </div>
@@ -114,7 +123,7 @@ const PatientDashboard: React.FC = () => {
                                 <span className="material-symbols-outlined filled">air</span>
                             </div>
                             <div>
-                                <p className="text-xs text-slate-500">SpO2</p>
+                                <p className="text-[14px] text-slate-500">SpO2</p>
                                 <p className="text-lg font-bold">98%</p>
                             </div>
                         </div>
@@ -123,7 +132,7 @@ const PatientDashboard: React.FC = () => {
                                 <span className="material-symbols-outlined filled">fitness_center</span>
                             </div>
                             <div>
-                                <p className="text-xs text-slate-500">Cân nặng</p>
+                                <p className="text-[14px] text-slate-500">Cân nặng</p>
                                 <p className="text-lg font-bold">68.5 kg</p>
                             </div>
                         </div>
@@ -140,7 +149,7 @@ const PatientDashboard: React.FC = () => {
                         </div>
                         <p className="text-sm text-red-700 dark:text-red-300">Đường huyết sáng nay cao hơn mức bình thường. Vui lòng kiểm tra lại chế độ ăn uống và thông báo cho bác sĩ.</p>
                     </div>
-                    
+
                     {/* 2. Medication Management */}
                     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
                         <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900">
@@ -148,7 +157,12 @@ const PatientDashboard: React.FC = () => {
                                 <span className="material-symbols-outlined text-primary">pill</span>
                                 Lịch uống thuốc
                             </h3>
-                            <button className="text-xs text-primary font-bold">Xem tất cả</button>
+                            <button 
+                                onClick={() => navigate('/patient/prescriptions')}
+                                className="text-[14px] text-primary font-bold hover:underline"
+                            >
+                                Xem tất cả
+                            </button>
                         </div>
                         <div className="p-4 space-y-4">
                             <div className="flex items-center gap-3">
@@ -157,7 +171,7 @@ const PatientDashboard: React.FC = () => {
                                 </div>
                                 <div className="flex-1">
                                     <p className="text-sm font-bold">Metformin 500mg</p>
-                                    <p className="text-xs text-slate-500">08:00 AM • Đã uống</p>
+                                    <p className="text-[13px] text-slate-500">08:00 Sáng- Đã uống</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
@@ -166,7 +180,7 @@ const PatientDashboard: React.FC = () => {
                                 </div>
                                 <div className="flex-1">
                                     <p className="text-sm font-bold">Lisinopril 10mg</p>
-                                    <p className="text-xs text-slate-500">01:00 PM • Cần uống</p>
+                                    <p className="text-[13px] text-slate-500">01:00 Chiều - Cần uống</p>
                                 </div>
                                 <button className="bg-primary text-slate-900 px-3 py-1 rounded-lg text-xs font-bold active:scale-95 transition-transform">Đã uống</button>
                             </div>
@@ -176,7 +190,7 @@ const PatientDashboard: React.FC = () => {
                                 </div>
                                 <div className="flex-1">
                                     <p className="text-sm font-bold">Atorvastatin 20mg</p>
-                                    <p className="text-xs text-slate-500">09:00 PM • Chờ</p>
+                                    <p className="text-[13px] text-slate-500">09:00 Tối - Chờ</p>
                                 </div>
                             </div>
                         </div>
@@ -203,7 +217,7 @@ const PatientDashboard: React.FC = () => {
                                 </div>
                                 <div className="flex items-center gap-2 text-xs text-slate-500 mt-1">
                                     <span className="material-symbols-outlined text-sm">schedule</span>
-                                    09:30 - 10:30 AM
+                                    09:30 - 10:30 Sáng
                                 </div>
                             </div>
                             <button className="w-full mt-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-white dark:hover:bg-slate-800 transition-colors relative z-10">

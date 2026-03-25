@@ -9,7 +9,7 @@ const PatientMessages: React.FC = () => {
                     <h2 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">Tin nhắn</h2>
                     <div className="relative">
                         <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
-                        <input className="w-full pl-10 pr-4 py-2 rounded-xl border-none bg-slate-100 dark:bg-slate-800 focus:ring-2 focus:ring-primary text-sm" placeholder="Tìm kiếm bác sĩ..." type="text"/>
+                        <input className="w-full pl-10 pr-4 py-2 rounded-xl border-none bg-slate-100 dark:bg-slate-800 focus:ring-2 focus:ring-primary text-sm" placeholder="Tìm kiếm bác sĩ..." type="text" />
                     </div>
                 </div>
                 <div className="flex-1 overflow-y-auto px-2 space-y-2 custom-scrollbar">
@@ -139,7 +139,7 @@ const PatientMessages: React.FC = () => {
                         <button className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl text-slate-500 transition-colors">
                             <span className="material-symbols-outlined">sentiment_satisfied</span>
                         </button>
-                        <input className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 text-slate-800 dark:text-white placeholder-slate-400" placeholder="Nhập tin nhắn..." type="text"/>
+                        <input className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 text-slate-800 dark:text-white placeholder-slate-400" placeholder="Nhập tin nhắn..." type="text" />
                         <button className="bg-primary text-white p-2.5 rounded-xl shadow-lg shadow-primary/30 flex items-center justify-center hover:bg-primary/90 transition-all active:scale-95">
                             <span className="material-symbols-outlined font-bold">send</span>
                         </button>

@@ -26,78 +26,72 @@ const PatientHealthMetrics: React.FC = () => {
             {/* Metric Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 text-left">
                 {/* Card: Đường huyết */}
-                <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-primary ring-2 ring-primary/10">
-                    <div className="flex justify-between items-start mb-4">
-                        <div className="p-2 bg-primary/10 text-primary rounded-lg">
-                            <span className="material-symbols-outlined text-xl">glucose</span>
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-primary/10 shadow-sm flex items-center gap-5 transition-all hover:shadow-md">
+                    <div className="size-16 bg-primary/10 text-primary rounded-full flex items-center justify-center shrink-0">
+                        <span className="material-symbols-outlined text-3xl fill-1">glucose</span>
+                    </div>
+                    <div>
+                        <p className="text-slate-400 text-lg font-medium leading-tight">Đường huyết</p>
+                        <div className="flex items-baseline gap-2 mt-1">
+                            <span className="text-2xl font-black text-slate-900 dark:text-white">5.6</span>
+                            <span className="text-lg font-black text-slate-900 dark:text-white">mmol/L</span>
                         </div>
-                        <span className="text-[10px] font-bold px-2 py-0.5 bg-primary/10 text-primary rounded-full">ỔN ĐỊNH</span>
-                    </div>
-                    <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Đường huyết</p>
-                    <div className="flex items-baseline gap-1 mt-1">
-                        <span className="text-2xl font-black text-slate-900 dark:text-white">5.6</span>
-                        <span className="text-xs text-slate-400">mmol/L</span>
-                    </div>
-                    <div className="mt-2 flex items-center gap-1 text-primary">
-                        <span className="material-symbols-outlined text-sm">trending_down</span>
-                        <span className="text-xs font-bold">-2% so với hôm qua</span>
                     </div>
                 </div>
 
                 {/* Card: Huyết áp */}
-                <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-primary/10">
-                    <div className="flex justify-between items-start mb-4">
-                        <div className="p-2 bg-orange-100 text-orange-600 rounded-lg">
-                            <span className="material-symbols-outlined text-xl">vital_signs</span>
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-primary/10 shadow-sm flex items-center gap-5 transition-all hover:shadow-md">
+                    <div className="size-16 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center shrink-0">
+                        <span className="material-symbols-outlined text-3xl fill-1">vital_signs</span>
+                    </div>
+                    <div>
+                        <p className="text-slate-400 text-lg font-medium leading-tight">Huyết áp</p>
+                        <div className="flex items-baseline gap-2 mt-1">
+                            <span className="text-2xl font-black text-slate-900 dark:text-white">120/80</span>
+                            <span className="text-lg font-black text-slate-900 dark:text-white">mmHg</span>
                         </div>
-                        <span className="text-[10px] font-bold px-2 py-0.5 bg-orange-100 text-orange-600 rounded-full uppercase">Cần chú ý</span>
-                    </div>
-                    <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Huyết áp</p>
-                    <div className="flex items-baseline gap-1 mt-1">
-                        <span className="text-2xl font-black text-slate-900 dark:text-white">120/80</span>
-                        <span className="text-xs text-slate-400">mmHg</span>
-                    </div>
-                    <div className="mt-2 flex items-center gap-1 text-orange-600">
-                        <span className="material-symbols-outlined text-sm">trending_up</span>
-                        <span className="text-xs font-bold">+5% so với hôm qua</span>
                     </div>
                 </div>
 
                 {/* Card: Nhịp tim */}
-                <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-primary/10">
-                    <div className="flex justify-between items-start mb-4">
-                        <div className="p-2 bg-red-100 text-red-600 rounded-lg">
-                            <span className="material-symbols-outlined text-xl">favorite</span>
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-primary/10 shadow-sm flex items-center gap-5 transition-all hover:shadow-md">
+                    <div className="size-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center shrink-0">
+                        <span className="material-symbols-outlined text-3xl fill-1" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
+                    </div>
+                    <div>
+                        <p className="text-slate-400 text-lg font-medium leading-tight">Nhịp tim</p>
+                        <div className="flex items-baseline gap-2 mt-1">
+                            <span className="text-2xl font-black text-slate-900 dark:text-white">72</span>
+                            <span className="text-lg font-black text-slate-900 dark:text-white">bpm</span>
                         </div>
-                        <span className="text-[10px] font-bold px-2 py-0.5 bg-primary/10 text-primary rounded-full uppercase">ỔN ĐỊNH</span>
-                    </div>
-                    <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Nhịp tim</p>
-                    <div className="flex items-baseline gap-1 mt-1">
-                        <span className="text-2xl font-black text-slate-900 dark:text-white">72</span>
-                        <span className="text-xs text-slate-400">bpm</span>
-                    </div>
-                    <div className="mt-2 flex items-center gap-1 text-slate-400">
-                        <span className="material-symbols-outlined text-sm">horizontal_rule</span>
-                        <span className="text-xs font-bold">0% không đổi</span>
                     </div>
                 </div>
 
                 {/* Card: Cân nặng */}
-                <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-primary/10">
-                    <div className="flex justify-between items-start mb-4">
-                        <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
-                            <span className="material-symbols-outlined text-xl">weight</span>
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-primary/10 shadow-sm flex items-center gap-5 transition-all hover:shadow-md">
+                    <div className="size-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center shrink-0">
+                        <span className="material-symbols-outlined text-3xl fill-1">weight</span>
+                    </div>
+                    <div>
+                        <p className="text-slate-400 text-lg font-medium leading-tight">Cân nặng</p>
+                        <div className="flex items-baseline gap-2 mt-1">
+                            <span className="text-2xl font-black text-slate-900 dark:text-white">68.5</span>
+                            <span className="text-lg font-black text-slate-900 dark:text-white">kg</span>
                         </div>
-                        <span className="text-[10px] font-bold px-2 py-0.5 bg-primary/10 text-primary rounded-full uppercase">ỔN ĐỊNH</span>
                     </div>
-                    <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Cân nặng</p>
-                    <div className="flex items-baseline gap-1 mt-1">
-                        <span className="text-2xl font-black text-slate-900 dark:text-white">68.5</span>
-                        <span className="text-xs text-slate-400">kg</span>
+                </div>
+
+                {/* Card: SpO2 */}
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-primary/10 shadow-sm flex items-center gap-5 transition-all hover:shadow-md">
+                    <div className="size-16 bg-cyan-100 text-cyan-600 rounded-full flex items-center justify-center shrink-0">
+                        <span className="material-symbols-outlined text-3xl fill-1">blood_pressure</span>
                     </div>
-                    <div className="mt-2 flex items-center gap-1 text-primary">
-                        <span className="material-symbols-outlined text-sm">trending_down</span>
-                        <span className="text-xs font-bold">-1% tuần này</span>
+                    <div>
+                        <p className="text-slate-400 text-lg font-medium leading-tight">SpO2</p>
+                        <div className="flex items-baseline gap-2 mt-1">
+                            <span className="text-2xl font-black text-slate-900 dark:text-white">98</span>
+                            <span className="text-lg font-black text-slate-900 dark:text-white">%</span>
+                        </div>
                     </div>
                 </div>
 
@@ -241,7 +235,7 @@ const PatientHealthMetrics: React.FC = () => {
                     </table>
                 </div>
             </div>
-            
+
             <style>{`
                 .filled-icon { font-variation-settings: 'FILL' 1; }
             `}</style>
