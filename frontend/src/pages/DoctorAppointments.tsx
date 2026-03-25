@@ -341,8 +341,8 @@ export default function DoctorAppointments() {
                                 className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col h-full">
                                 <div className="p-6 border-b border-slate-100 dark:border-slate-700">
                                     <div className="flex items-center justify-between">
-                                        <h3 className="text-lg font-bold">Lịch trình hôm nay</h3>
-                                        <span className="text-sm text-slate-500">05/10/2023</span>
+                                        <h3 className="text-[15px] font-bold text-slate-900 dark:text-white">Lịch trình hôm nay</h3>
+                                        <span className="text-[13px] text-slate-500 font-medium">05/10/2023</span>
                                     </div>
                                 </div>
                                 <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[600px]">
@@ -357,17 +357,17 @@ export default function DoctorAppointments() {
                                                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuCb0o6sygn-tTBsZBoC65Kab2XSzD5kyvM0cQCp7q3D7d-DPRbS2WPN-J9qW4defKHVTm4Ne5MybPvbpX15y3nuJcGH_ZMAV8Ing63zo37JBptWi-L8G3hT8XrQ_Y473osbARM671qPBYZj2fWD5e3VlCBHz0VkMgjBoMngTblCw01LasrKK3QeulfZg6OlsV6ZaIikF3_Vh00RGRscipZqgzhWRIHE_P_3CLik_L6Z8JdHIrdntfvNFNm9etpeHf4onJOFuVdE42s" />
                                                 </div>
                                                 <div>
-                                                    <h4 className="text-lg font-bold group-hover:text-primary transition-colors">
+                                                    <h4 className="text-[15px] font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">
                                                         Nguyễn T. Bảo Vy</h4>
-                                                    <p className="text-sm text-slate-500 font-medium">Khám sức khỏe tổng quát</p>
+                                                    <p className="text-[13px] text-slate-500 font-medium">Khám sức khỏe tổng quát</p>
                                                 </div>
                                             </div>
                                             <span className="text-sm font-bold text-slate-900 dark:text-white bg-blue-100 dark:bg-blue-900/40 px-3 py-1 rounded-lg">8:00</span>
                                         </div>
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">
-                                                <span className="material-symbols-outlined text-base text-blue-500">location_on</span>
-                                                <span className="text-sm font-medium">Tại phòng khám</span>
+                                                <span className="material-symbols-outlined text-[18px] text-blue-500">location_on</span>
+                                                <span className="text-[13px] font-medium text-slate-600">Tại phòng khám</span>
                                             </div>
                                             <div className="flex gap-2">
                                                 <button
@@ -392,21 +392,21 @@ export default function DoctorAppointments() {
                                                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGrkxIzbuHaZxef3rzbpLYbiAtdG822jvnMg2FKb_FlHFGO3kjrxrd6ruHNX0QMyzUDOcM9-m2KiMjMnlZ4cc6Y8qZwSSQfjr8jlyE6qFhZlWewFHYSjcFEaAKDbtZMDQBIFjuscvq6ZD-3KgWQS4xgGzxC_UYtU5a6JMxdbAJNaQEHi89I5qWDZZbDBHCDEKZOw0DMTYDiOvm-wwKau6eh0tmbI-YZdP5k3ceDFtlqN2FUICg8b-fN4bGfyj839rsFb-kIUZYZbU" />
                                                 </div>
                                                 <div>
-                                                    <h4 className="text-lg font-bold group-hover:text-primary transition-colors">
+                                                    <h4 className="text-[15px] font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">
                                                         Trần Văn Đạt</h4>
-                                                    <p className="text-sm text-slate-500 font-medium">Tư vấn triệu chứng ho</p>
+                                                    <p className="text-[13px] text-slate-500 font-medium">Tư vấn triệu chứng ho</p>
                                                 </div>
                                             </div>
                                             <span className="text-sm font-bold text-slate-900 dark:text-white bg-primary/20 px-3 py-1 rounded-lg">9:30</span>
                                         </div>
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">
-                                                <span className="material-symbols-outlined text-base text-primary">video_call</span>
-                                                <span className="text-sm font-medium">Trực tuyến</span>
+                                                <span className="material-symbols-outlined text-[18px] text-primary">video_call</span>
+                                                <span className="text-[13px] font-medium text-slate-600">Trực tuyến</span>
                                             </div>
                                             <div className="flex gap-2">
                                                 <button
-                                                    className="px-3 py-1 bg-primary text-[14px] font-bold rounded-lg shadow-sm">Bắt
+                                                    className="px-5 py-2 bg-primary text-slate-900 text-[15px] font-medium rounded-full shadow-lg shadow-primary/20 active:scale-95 transition-all">Bắt
                                                     đầu cuộc gọi</button>
                                             </div>
                                         </div>
@@ -422,8 +422,8 @@ export default function DoctorAppointments() {
                                                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtH3dN-8KIzsDFEDv2W-iFSfo0ZO8hy2FXS7WoKI-vVxzjEP-j9jUP8zWwjwAlwLq_gCWb_zuDW8bAl5rRVOQWmU4uWhVmjT8QMey3PPmHxvRR8jJk9lM59VD1QMfhrNSJKy6TdBxERjsqW3lSqgE1CdbXNa4dy9ngK_POeINMMJgE69M3KAAaJzqk6XMxP8p3HVpUdBy7BncgoGRGn_N1fWdWRWsdvPLMyKHqT_-FVfXPJsXM2tdtJvGMqDCXD2HqoSXEZ7q6zkI" />
                                                 </div>
                                                 <div>
-                                                    <h4 className="text-lg font-bold">Lê Minh Tuấn</h4>
-                                                    <p className="text-sm text-slate-500 font-medium">Kiểm tra kết quả xét nghiệm
+                                                    <h4 className="text-[15px] font-bold text-slate-900 dark:text-white">Lê Minh Tuấn</h4>
+                                                    <p className="text-[13px] text-slate-500 font-medium">Kiểm tra kết quả xét nghiệm
                                                     </p>
                                                 </div>
                                             </div>
@@ -431,13 +431,13 @@ export default function DoctorAppointments() {
                                         </div>
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">
-                                                <span className="material-symbols-outlined text-base text-slate-400">hourglass_top</span>
-                                                <span className="text-sm font-medium text-slate-400">Đang chờ xác
+                                                <span className="material-symbols-outlined text-[18px] text-slate-400">hourglass_top</span>
+                                                <span className="text-[13px] font-medium text-slate-400">Đang chờ xác
                                                     nhận</span>
                                             </div>
                                             <div className="flex gap-2">
                                                 <button
-                                                    className="px-3 py-1 bg-slate-200 dark:bg-slate-700 text-[10px] font-bold rounded-lg">Xác
+                                                    className="px-4 py-1.5 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[13px] font-medium rounded-full active:scale-95 transition-all">Xác
                                                     nhận</button>
                                             </div>
                                         </div>

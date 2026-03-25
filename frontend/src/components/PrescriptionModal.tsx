@@ -91,13 +91,13 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
 
       <div className={`relative flex flex-col lg:flex-row h-fit max-h-[92vh] md:max-h-[85vh] transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] ${isAddingNewMedicine ? 'max-w-7xl w-full' : 'max-w-4xl w-full'} mx-2 md:mx-4`}>
         {/* Left Panel: Original Prescription UI */}
-        <div className={`bg-white dark:bg-slate-900 rounded-xl md:rounded-2xl shadow-2xl flex flex-col flex-shrink-0 transition-all duration-700 overflow-hidden ${isAddingNewMedicine ? 'w-full lg:w-[65%]' : 'w-full'}`}>
+        <div className={`bg-white dark:bg-slate-900 rounded-2xl shadow-2xl flex flex-col flex-shrink-0 transition-all duration-700 overflow-hidden ${isAddingNewMedicine ? 'w-full lg:w-[65%]' : 'w-full'}`}>
           <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-6 py-4">
             <div className="flex items-center gap-3">
-              <div className="bg-primary/10 p-2 rounded-lg">
-                <span className="material-symbols-outlined text-primary">description</span>
+              <div className="bg-primary/10 p-2 rounded-xl text-primary">
+                <span className="material-symbols-outlined font-medium">description</span>
               </div>
-              <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Kê đơn thuốc mới</h2>
+              <h2 className="text-[18px] font-bold tracking-tight text-slate-900 dark:text-white">Kê đơn thuốc mới</h2>
             </div>
             {!isAddingNewMedicine && (
               <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
@@ -109,10 +109,10 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
           <div className="flex-1 overflow-y-auto p-6 space-y-8 text-left custom-scrollbar bg-white dark:bg-slate-900">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2 text-left">
-                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Bệnh nhân</label>
+                <label className="text-[15px] font-medium text-slate-500 dark:text-slate-400">Bệnh nhân</label>
                 <div className="relative">
-                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
-                  <select className="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all appearance-none bg-none text-slate-900 dark:text-white font-medium">
+                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">search</span>
+                  <select className="w-full pl-10 pr-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all appearance-none bg-none text-slate-900 dark:text-white font-medium text-[15px]">
                     <option>{patientName}</option>
                     <option>Trần Thị B</option>
                   </select>
@@ -120,8 +120,8 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
                 </div>
               </div>
               <div className="space-y-2 text-left">
-                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Chẩn đoán hiện tại</label>
-                <input className="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all text-slate-900 dark:text-white font-medium" defaultValue="Viêm họng cấp / Theo dõi đái tháo đường" />
+                <label className="text-[15px] font-medium text-slate-500 dark:text-slate-400">Chẩn đoán hiện tại</label>
+                <input className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all text-slate-900 dark:text-white font-medium text-[15px]" defaultValue="Viêm họng cấp / Theo dõi đái tháo đường" />
               </div>
             </div>
 
@@ -141,13 +141,13 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
               </div>
               <div className="overflow-hidden border border-slate-100 dark:border-slate-800 rounded-xl shadow-sm bg-white dark:bg-slate-900/50">
                 <table className="w-full text-left">
-                  <thead className="bg-slate-50 dark:bg-slate-800/50 text-xs font-bold text-slate-500 dark:text-slate-400 tracking-wide">
+                  <thead className="bg-slate-50 dark:bg-slate-800/50 text-[14px] font-bold text-slate-500 dark:text-slate-400 tracking-wide">
                     <tr>
-                      <th className="px-4 py-3">Tên thuốc & Hàm lượng</th>
-                      <th className="px-4 py-3">Liều dùng</th>
-                      <th className="px-4 py-3">Tần suất</th>
-                      <th className="px-4 py-3">Thời gian</th>
-                      <th className="px-4 py-3 text-right">Thao tác</th>
+                      <th className="px-4 py-4">Tên thuốc & Hàm lượng</th>
+                      <th className="px-4 py-4">Liều dùng</th>
+                      <th className="px-4 py-4">Tần suất</th>
+                      <th className="px-4 py-4">Thời gian</th>
+                      <th className="px-4 py-4 text-right">Thao tác</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -162,7 +162,7 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
                         <td className="px-4 py-4 font-medium text-slate-900 dark:text-white">{med.duration}</td>
                         <td className="px-4 py-4 text-right">
                           <button onClick={() => removeMedication(med.id)} className="p-1.5 text-slate-400 hover:text-red-500 transition-colors active:scale-90">
-                            <span className="material-symbols-outlined text-lg">delete</span>
+                            <span className="material-symbols-outlined text-[22px]">delete</span>
                           </button>
                         </td>
                       </tr>
@@ -235,62 +235,63 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
 
         {/* Right Panel: Add Medicine */}
         {isAddingNewMedicine && (
-          <div className="flex-1 mt-6 lg:mt-0 lg:ml-6 bg-white dark:bg-slate-900 rounded-md shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-right-10 md:slide-in-from-bottom-10 lg:slide-in-from-right-10 duration-700 relative w-full">
+          <div className="flex-1 mt-6 lg:mt-0 lg:ml-6 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-right-10 md:slide-in-from-bottom-10 lg:slide-in-from-right-10 duration-700 relative w-full">
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-4 md:px-6 py-4">
               <div className="flex items-center gap-3">
-                <div className="bg-primary/10 p-2 rounded-lg text-primary">
-                  <span className="material-symbols-outlined">pill</span>
+                <div className="bg-primary/10 p-2.5 rounded-2xl text-primary">
+                  <span className="material-symbols-outlined font-medium">pill</span>
                 </div>
                 <div className="text-left">
-                  <h3 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">Thêm thuốc mới</h3>
+                  <h3 className="text-[18px] font-bold tracking-tight text-slate-900 dark:text-white">Thêm thuốc mới</h3>
                 </div>
               </div>
               <button onClick={() => setIsAddingNewMedicine(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
                 <span className="material-symbols-outlined font-bold">close</span>
               </button>
             </div>
-
+ 
             <div className="p-8 space-y-6 flex-1 overflow-y-auto text-left custom-scrollbar bg-white dark:bg-slate-900">
               <div className="space-y-2 text-left">
-                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Tên thuốc & Hàm lượng</label>
-                <input type="text" placeholder="VD: Augmentin 1g" className={`w-full px-4 py-3 rounded-lg border ${formErrors.name ? 'border-red-500 bg-red-50/50' : 'border-slate-200 dark:border-slate-700'} bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all text-slate-900 dark:text-white font-medium shadow-sm`} value={newMedForm.name} onChange={(e) => { setNewMedForm({ ...newMedForm, name: e.target.value }); setFormErrors({ ...formErrors, name: false }); }} />
+                <label className="text-[15px] font-medium text-slate-500 dark:text-slate-400">Tên thuốc & Hàm lượng</label>
+                <input type="text" placeholder="VD: Augmentin 1g" className={`w-full px-5 py-3.5 rounded-2xl border ${formErrors.name ? 'border-red-500 bg-red-50/50' : 'border-slate-200 dark:border-slate-700'} bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all text-slate-900 dark:text-white font-medium text-[15px] shadow-sm`} value={newMedForm.name} onChange={(e) => { setNewMedForm({ ...newMedForm, name: e.target.value }); setFormErrors({ ...formErrors, name: false }); }} />
                 {formErrors.name && <p className="text-[10px] text-red-500 font-bold tracking-wider pl-1">Vui lòng nhập tên thuốc</p>}
               </div>
-
+ 
               <div className="space-y-2 text-left">
-                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Hướng dẫn uống thuốc</label>
-                <input type="text" placeholder="VD: Uống sau khi ăn sáng 30p" className={`w-full px-4 py-3 rounded-lg border ${formErrors.intakeType ? 'border-red-500 bg-red-50/50' : 'border-slate-200 dark:border-slate-700'} bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all text-slate-900 dark:text-white font-medium shadow-sm`} value={newMedForm.intakeType} onChange={(e) => { setNewMedForm({ ...newMedForm, intakeType: e.target.value }); setFormErrors({ ...formErrors, intakeType: false }); }} />
+                <label className="text-[15px] font-medium text-slate-500 dark:text-slate-400">Hướng dẫn uống thuốc</label>
+                <input type="text" placeholder="VD: Uống sau khi ăn sáng 30p" className={`w-full px-5 py-3.5 rounded-2xl border ${formErrors.intakeType ? 'border-red-500 bg-red-50/50' : 'border-slate-200 dark:border-slate-700'} bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all text-slate-900 dark:text-white font-medium text-[15px] shadow-sm`} value={newMedForm.intakeType} onChange={(e) => { setNewMedForm({ ...newMedForm, intakeType: e.target.value }); setFormErrors({ ...formErrors, intakeType: false }); }} />
                 {formErrors.intakeType && <p className="text-[10px] text-red-500 font-bold tracking-wider pl-1">Vui lòng nhập hướng dẫn</p>}
               </div>
-
+ 
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-2 text-left">
-                  <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Liều dùng</label>
-                  <input type="text" placeholder="1 viên" className={`w-full px-4 py-3 rounded-lg border ${formErrors.dosage ? 'border-red-500 bg-red-50/50' : 'border-slate-200 dark:border-slate-700'} bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all text-slate-900 dark:text-white font-medium shadow-sm`} value={newMedForm.dosage} onChange={(e) => { setNewMedForm({ ...newMedForm, dosage: e.target.value }); setFormErrors({ ...formErrors, dosage: false }); }} />
+                  <label className="text-[15px] font-medium text-slate-500 dark:text-slate-400">Liều dùng</label>
+                  <input type="text" placeholder="1 viên" className={`w-full px-5 py-3.5 rounded-2xl border ${formErrors.dosage ? 'border-red-500 bg-red-50/50' : 'border-slate-200 dark:border-slate-700'} bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all text-slate-900 dark:text-white font-medium text-[15px] shadow-sm`} value={newMedForm.dosage} onChange={(e) => { setNewMedForm({ ...newMedForm, dosage: e.target.value }); setFormErrors({ ...formErrors, dosage: false }); }} />
                   {formErrors.dosage && <p className="text-[10px] text-red-500 font-bold tracking-wider pl-1">Trống</p>}
                 </div>
                 <div className="space-y-2 text-left">
-                  <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Thời gian</label>
-                  <input type="text" placeholder="7 ngày" className={`w-full px-4 py-3 rounded-lg border ${formErrors.duration ? 'border-red-500 bg-red-50/50' : 'border-slate-200 dark:border-slate-700'} bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all text-slate-900 dark:text-white font-medium shadow-sm`} value={newMedForm.duration} onChange={(e) => { setNewMedForm({ ...newMedForm, duration: e.target.value }); setFormErrors({ ...formErrors, duration: false }); }} />
+                  <label className="text-[15px] font-medium text-slate-500 dark:text-slate-400">Thời gian</label>
+                  <input type="text" placeholder="7 ngày" className={`w-full px-5 py-3.5 rounded-2xl border ${formErrors.duration ? 'border-red-500 bg-red-50/50' : 'border-slate-200 dark:border-slate-700'} bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all text-slate-900 dark:text-white font-medium text-[15px] shadow-sm`} value={newMedForm.duration} onChange={(e) => { setNewMedForm({ ...newMedForm, duration: e.target.value }); setFormErrors({ ...formErrors, duration: false }); }} />
                   {formErrors.duration && <p className="text-[10px] text-red-500 font-bold tracking-wider pl-1">Trống</p>}
                 </div>
               </div>
-
+ 
               <div className="space-y-2 text-left">
-                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Tần suất dùng</label>
-                <input type="text" placeholder="VD: Sáng 1, Trưa 1, Tối 1" className={`w-full px-4 py-3 rounded-lg border ${formErrors.frequency ? 'border-red-500 bg-red-50/50' : 'border-slate-200 dark:border-slate-700'} bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all text-slate-900 dark:text-white font-medium shadow-sm`} value={newMedForm.frequency} onChange={(e) => { setNewMedForm({ ...newMedForm, frequency: e.target.value }); setFormErrors({ ...formErrors, frequency: false }); }} />
-                {formErrors.frequency && <p className="text-[10px] text-red-500 font-bold tracking-wider pl-1">Vui lòng nhập tần suất</p>}
+                <label className="text-[15px] font-medium text-slate-500 dark:text-slate-400">Tần suất dùng</label>
+                <input type="text" placeholder="VD: Sáng 1, Trưa 1, Tối 1" className={`w-full px-5 py-3.5 rounded-2xl border ${formErrors.frequency ? 'border-red-500 bg-red-50/50' : 'border-slate-200 dark:border-slate-700'} bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all text-slate-900 dark:text-white font-medium text-[15px] shadow-sm`} value={newMedForm.frequency} onChange={(e) => { setNewMedForm({ ...newMedForm, frequency: e.target.value }); setFormErrors({ ...formErrors, frequency: false }); }} />
+                {formErrors.frequency && <p className="text-[10px] text-red-500 font-bold tracking-wider pl-1">Vui lòng nhập tuần suất</p>}
               </div>
             </div>
-
+ 
             <div className="sticky bottom-0 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 px-6 py-4 flex items-center justify-end z-10">
-              <button onClick={addMedicationToPrescription} className="w-full py-3.5 bg-primary text-slate-900 rounded-lg font-bold hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-95 flex items-center justify-center gap-2 shadow-md">
-                <span className="material-symbols-outlined text-lg">library_add</span>
+              <button onClick={addMedicationToPrescription} className="w-full py-4 bg-primary text-slate-900 rounded-2xl font-medium text-[15px] hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-95 flex items-center justify-center gap-2 shadow-md">
+                <span className="material-symbols-outlined text-[20px]">library_add</span>
                 Lưu vào đơn thuốc
               </button>
             </div>
           </div>
         )}
+
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import PrescriptionModal from '../components/PrescriptionModal';
 import AdviceModal from '../components/AdviceModal';
 import Toast from '../components/Toast';
@@ -7,6 +7,8 @@ import PatientDetailModal from '../components/PatientDetailModal';
 import MedicalHistoryModal from '../components/MedicalHistoryModal';
 
 export default function DoctorMessages() {
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const imageInputRef = useRef<HTMLInputElement>(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<'all' | 'unread'>('all');
     const [isAdviceModalOpen, setIsAdviceModalOpen] = useState(false);
@@ -185,12 +187,12 @@ export default function DoctorMessages() {
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex justify-between items-center mb-0.5">
-                                            <h3 className="text-base font-bold truncate">Nguyễn Văn A</h3>
+                                            <h3 className="text-[14px] font-bold truncate">Nguyễn Văn A</h3>
                                             <span className="text-xs text-slate-400">10:45</span>
                                         </div>
-                                        <p className="text-sm text-slate-600 dark:text-slate-400 truncate font-semibold">Bác sĩ ơi, chỉ số huyết áp...</p>
+                                        <p className="text-[12px] text-slate-600 dark:text-slate-400 truncate font-semibold">Bác sĩ ơi, chỉ số huyết áp...</p>
                                         <div className="flex items-center gap-2 mt-1">
-                                            <span className="px-2 py-0.5 bg-red-100 text-red-600 text-xs rounded-md font-bold uppercase tracking-tighter">Nguy cơ cao</span>
+                                            <span className="px-2 py-0.5 bg-red-100 text-red-600 text-xs rounded-md font-bold tracking-tighter">Nguy cơ cao</span>
                                         </div>
                                     </div>
                                     <div className="size-6 rounded-full bg-primary flex items-center justify-center text-xs text-white font-bold shadow-sm shadow-primary/30">2</div>
@@ -202,12 +204,12 @@ export default function DoctorMessages() {
                                         <img className="size-12 rounded-full object-cover grayscale opacity-70" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBhD6WWkEmCMteDAhlg1khjJmteYcqGR_yWPtw7M8cvkR3Pz1-1ppF9o5AMWC6HaT2f-5pYOc8QcYtyOYqIwns5BwN129P-TJ0KCcF__-O9EC29r_C_OwDHLBNK4gPhThgBbxZTnZh6_65fKk1BuXOPABOf5XFyVqBB3elRY41Rw1LVHLJb67lK83eFMaCHBlpb8wxLmEDLfeNEowQbIJP7cHp5YfLb_9os0KnEGIqfCwFAk7CcH4yVH_nP5tWbnE2ExIYImKwspU" alt="B" />
                                         <div className="flex-1 min-w-0">
                                             <div className="flex justify-between items-center mb-0.5">
-                                                <h3 className="text-base font-bold truncate text-slate-600 dark:text-slate-400">Trần Thị B</h3>
+                                                <h3 className="text-[14px] font-bold truncate text-slate-600 dark:text-slate-400">Trần Thị B</h3>
                                                 <span className="text-xs text-slate-400 font-medium">Hôm qua</span>
                                             </div>
-                                            <p className="text-sm text-slate-500 truncate font-medium">Vâng, tôi đã nhận được đơn thuốc.</p>
+                                            <p className="text-[13px] text-slate-500 truncate font-medium">Vâng, tôi đã nhận được đơn thuốc.</p>
                                             <div className="flex items-center gap-2 mt-1">
-                                                <span className="px-2 py-0.5 bg-green-100 text-green-600 text-xs rounded-md font-bold uppercase tracking-tighter">Bình thường</span>
+                                                <span className="px-2 py-0.5 bg-green-100 text-green-600 text-xs rounded-md font-bold tracking-tighter">Bình thường</span>
                                             </div>
                                         </div>
                                     </div>
@@ -219,12 +221,12 @@ export default function DoctorMessages() {
                                         <img className="size-12 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAc-MU_mpYw71RWBRumDqWQSpX2jT6lqY_yymf4_8OwEvcAeGZzV7l3yAxJ5MF7jROH6_6fdNdNvtucQdPatsAfzP-B49W4vIFviX6tGN97yhtJTuP3BrvS6YgON1wqQxZEmplohMDKvuNYebXLrTKsq0q12FH8pdkhC93H4v8cZNbJLFkBV_JVSSRhTFssTOzM27hXOpef5uBaFNc9JV_YDbeJBtL4rMTTD0AGoZ3LRXHFIL1qr8Avgse8OBgMCCLHYBPdo6QmmNo" alt="C" />
                                         <div className="flex-1 min-w-0">
                                             <div className="flex justify-between items-center mb-0.5">
-                                                <h3 className="text-base font-bold truncate text-slate-600 dark:text-slate-400">Lê Văn C</h3>
+                                                <h3 className="text-[14px] font-bold truncate text-slate-600 dark:text-slate-400">Lê Văn C</h3>
                                                 <span className="text-xs text-slate-400 font-medium">Thứ 2</span>
                                             </div>
-                                            <p className="text-sm text-slate-500 truncate font-medium">Cảm ơn bác sĩ nhiều lắm!</p>
+                                            <p className="text-[13px] text-slate-500 truncate font-medium">Cảm ơn bác sĩ nhiều lắm!</p>
                                             <div className="flex items-center gap-2 mt-1">
-                                                <span className="px-2 py-0.5 bg-green-100 text-green-600 text-xs rounded-md font-bold uppercase tracking-tighter">Bình thường</span>
+                                                <span className="px-2 py-0.5 bg-green-100 text-green-600 text-xs rounded-md font-bold tracking-tighter">Bình thường</span>
                                             </div>
                                         </div>
                                     </div>
@@ -242,10 +244,10 @@ export default function DoctorMessages() {
                                     <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdl4_kksFbT62gfvrg2CtlonSa7Z4-XZM2ZIIqD7GDwP0MfR5hA225V5R9ZKlvhjbsete2hJmTwvUHA_aosstZHoV6tM2vXEU5Q7nW9_5dd5svAhpeCbuKH5HmqayCaC04rkWo-EfotJUxEp69MkUz4mEdX8saH1A0UNs5zJJID7n-JJeGjmcq0eSP0Mso0S5aDqFBNhamVQmSpaLrCkNv4TaoqSZ06oNBkzC6TNiRCcAwxJsvIX-khxQ-w5pAG3Of0yZJFNenY1M" alt="A" />
                                 </div>
                                 <div>
-                                    <h3 className="text-sm font-bold leading-none">Nguyễn Văn A</h3>
+                                    <h3 className="text-[15px] font-bold leading-none">Nguyễn Văn A</h3>
                                     <div className="flex items-center gap-2 mt-1">
                                         <span className="size-2 rounded-full bg-green-500"></span>
-                                        <span className="text-xs text-slate-500">Đang hoạt động • 10:45 AM</span>
+                                        <span className="text-[13px] text-slate-500">Đang hoạt động, 10:45 AM</span>
                                     </div>
                                 </div>
                             </div>
@@ -258,59 +260,88 @@ export default function DoctorMessages() {
                         {/* Chat History */}
                         <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
                             <div className="flex justify-center">
-                                <span className="text-[13px] bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded-full text-slate-500 font-medium">Hôm nay</span>
+                                <span className="text-[12px] bg-slate-200 dark:bg-slate-800 px-3 py-1 rounded-full text-slate-500 font-medium tracking-tight">Hôm nay</span>
                             </div>
 
                             <div className="flex gap-3 max-w-[80%]">
                                 <img className="size-8 rounded-full self-end" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCugxZ95a_v-3AW68QiUMCSrPj_G-Cfl0ygNoDoBH7sjAURggNcXC4KC--moLZZMx3B4m2TOx_TS2VSfyS5bdD4YaETWmaqCLr3CZ7R9OdnTHG8Bgj9y_85jABmvPBkBLEG3k9NC8VUHMJaiWJj3VxNxeKgSWQO0R8WO6MAqJUiDUhV_5kwUUr6_pM0uyhB9LlpdE78cWs5v7fs5GdNu-IK_wZy9ueZZJtcxuEnj3qcCXD--kAUEoOF6ST-sWqLlqrhX0FhvBFloJs" alt="P" />
-                                <div className="bg-white dark:bg-slate-800 p-3 rounded-2xl rounded-bl-none shadow-sm border border-slate-100 dark:border-slate-700">
-                                    <p className="text-[15px]">Bác sĩ ơi, chỉ số huyết áp của tôi sáng nay đo là 160/95 mmHg. Tôi cảm thấy hơi chóng mặt, có cần điều chỉnh thuốc không ạ?</p>
-                                    <span className="text-[13px] text-slate-400 mt-1 block font-bold">10:42 AM</span>
+                                <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl rounded-bl-none shadow-sm border border-slate-100 dark:border-slate-700">
+                                    <p className="text-[15px] font-medium text-slate-700 dark:text-slate-200 leading-relaxed">Bác sĩ ơi, chỉ số huyết áp của tôi sáng nay đo là 160/95 mmHg. Tôi cảm thấy hơi chóng mặt, có cần điều chỉnh thuốc không ạ?</p>
+                                    <span className="text-[12px] text-slate-400 mt-1.5 block font-medium">10:42 AM</span>
                                 </div>
                             </div>
 
                             <div className="flex flex-row-reverse gap-3 max-w-[80%] ml-auto">
-                                <div className="bg-primary text-white p-3 rounded-2xl rounded-br-none shadow-md">
-                                    <p className="text-[15px]">Chào anh A, chỉ số 160/95 là khá cao. Anh hãy nghỉ ngơi tại chỗ trong 15-20 phút, tránh vận động mạnh và đo lại nhé.</p>
-                                    <span className="text-[13px] opacity-70 mt-1 block text-right font-bold uppercase tracking-tighter">10:44 AM</span>
+                                <div className="bg-primary text-slate-900 p-4 rounded-2xl rounded-br-none shadow-md">
+                                    <p className="text-[15px] font-medium leading-relaxed">Chào anh A, chỉ số 160/95 là khá cao. Anh hãy nghỉ ngơi tại chỗ trong 15-20 phút, tránh vận động mạnh và đo lại nhé.</p>
+                                    <span className="text-[12px] text-slate-900/60 mt-1.5 block text-right font-medium">10:44 AM</span>
                                 </div>
                             </div>
 
                             <div className="flex gap-3 max-w-[80%]">
                                 <img className="size-8 rounded-full self-end" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbj29KgBXLWBPKSZdaUeM5dWr-bzaBrxa3Dw06ijYcBv7WpYsmU9h9wHJI4ypLmiHnLjbeN_T8jHyd8Qhvi4Cj_v2O2TiOU06IqDmQ0GSixl8-bDsmQxuEgYA4Vfr4z0dld7KPJWUkoFonI5L0C3uYrACQqyPeSvoYFOj5lGL2m9-gAQbUit8mJzvKR7fBr9KqNks5Mlez4_BHEEe_Rr1mqNlJy6Er3yK2YSfLiI8LgKltFrE3Olj4Qx_LS47T4cc8LK8zvADUjmQ" alt="P" />
-                                <div className="bg-white dark:bg-slate-800 p-3 rounded-2xl rounded-bl-none shadow-sm border border-slate-100 dark:border-slate-700">
-                                    <p className="text-[15px]">Vâng, tôi đang nằm nghỉ rồi ạ. Tôi có nên uống thêm liều thuốc hạ áp dự phòng không?</p>
-                                    <span className="text-[13px] text-slate-400 mt-1 block font-bold">10:45 AM</span>
+                                <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl rounded-bl-none shadow-sm border border-slate-100 dark:border-slate-700">
+                                    <p className="text-[15px] font-medium text-slate-700 dark:text-slate-200 leading-relaxed">Vâng, tôi đang nằm nghỉ rồi ạ. Tôi có nên uống thêm liều thuốc hạ áp dự phòng không?</p>
+                                    <span className="text-[12px] text-slate-400 mt-1.5 block font-medium">10:45 AM</span>
                                 </div>
                             </div>
                         </div>
 
                         {/* Message Input Area */}
                         <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
-                            <div className="flex gap-2 mb-3 overflow-x-auto pb-1 no-scrollbar text-left">
+                            <div className="flex gap-2 mb-3 overflow-x-auto pb-1 no-scrollbar text-left font-medium">
                                 <button
                                     onClick={() => setIsAdviceModalOpen(true)}
                                     className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary text-xs font-extrabold rounded-full whitespace-nowrap hover:bg-primary hover:text-white transition-all">
-                                    <span className="material-symbols-outlined text-sm">recommend</span> Gửi khuyến nghị
+                                    <span className="material-symbols-outlined text-sm font-medium">recommend</span> Gửi khuyến nghị
                                 </button>
                                 <button className="flex items-center gap-1.5 px-3 py-1.5 bg-red-100 text-red-600 text-xs font-extrabold rounded-full whitespace-nowrap hover:bg-red-500 hover:text-white transition-all">
-                                    <span className="material-symbols-outlined text-sm">warning</span> Gửi cảnh báo
+                                    <span className="material-symbols-outlined text-sm font-medium">warning</span> Gửi cảnh báo
                                 </button>
                                 <button
                                     onClick={() => setIsPrescriptionModalOpen(true)}
                                     className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-blue-600 text-xs font-extrabold rounded-full whitespace-nowrap hover:bg-blue-500 hover:text-white transition-all">
-                                    <span className="material-symbols-outlined text-sm">medication</span> Đơn thuốc mới
+                                    <span className="material-symbols-outlined text-sm font-medium">medication</span> Đơn thuốc mới
                                 </button>
                             </div>
                             <div className="flex items-end gap-2 px-1">
-                                <div className="flex gap-1 mb-2">
-                                    <button className="p-2 text-slate-400 hover:text-primary transition-colors"><span className="material-symbols-outlined">image</span></button>
-                                    <button className="p-2 text-slate-400 hover:text-primary transition-colors"><span className="material-symbols-outlined">attach_file</span></button>
+                                <div className="flex gap-1 mb-1.5 font-medium">
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        className="hidden"
+                                        ref={imageInputRef}
+                                        onChange={(e) => {
+                                            if (e.target.files?.[0]) {
+                                                console.log("Selected image:", e.target.files[0]);
+                                            }
+                                        }}
+                                    />
+                                    <input
+                                        type="file"
+                                        className="hidden"
+                                        ref={fileInputRef}
+                                        onChange={(e) => {
+                                            if (e.target.files?.[0]) {
+                                                console.log("Selected file:", e.target.files[0]);
+                                            }
+                                        }}
+                                    />
+                                    <button
+                                        onClick={() => imageInputRef.current?.click()}
+                                        className="p-2 text-slate-400 hover:text-primary transition-all active:scale-90 active:bg-slate-50 dark:active:bg-slate-800 rounded-lg">
+                                        <span className="material-symbols-outlined">image</span>
+                                    </button>
+                                    <button
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="p-2 text-slate-400 hover:text-primary transition-all active:scale-90 active:bg-slate-50 dark:active:bg-slate-800 rounded-lg">
+                                        <span className="material-symbols-outlined">attach_file</span>
+                                    </button>
                                 </div>
                                 <div className="flex-1 relative">
-                                    <textarea rows={1} className="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/50 resize-none outline-none" placeholder="Nhập tin nhắn..." />
+                                    <textarea rows={1} className="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl py-3 px-4 text-[15px] font-medium focus:ring-2 focus:ring-primary/50 resize-none outline-none text-slate-700 dark:text-slate-200" placeholder="Nhập tin nhắn..." />
                                 </div>
-                                <button className="bg-primary hover:bg-primary/90 text-white p-3 rounded-xl shadow-lg transition-transform active:scale-95 flex items-center justify-center">
+                                <button className="bg-primary hover:bg-primary/90 text-slate-900 p-3 rounded-xl shadow-lg transition-transform active:scale-95 flex items-center justify-center">
                                     <span className="material-symbols-outlined font-bold">send</span>
                                 </button>
                             </div>
@@ -371,13 +402,11 @@ export default function DoctorMessages() {
                                     <button
                                         key={idx}
                                         onClick={item.action}
-                                        className="w-full flex items-center justify-between p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all group"
+                                        className="w-full flex items-center px-5 py-3 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-primary/30 hover:shadow-sm transition-all group active:scale-[0.98]"
                                     >
-                                        <div className="flex items-center gap-3">
-                                            <span className="material-symbols-outlined text-primary text-xl">{item.icon}</span>
-                                            <span className="text-[15px] font-medium text-slate-700 dark:text-slate-300 tracking-tight">{item.label}</span>
-                                        </div>
-                                        <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-all text-xl">chevron_right</span>
+                                        <span className="material-symbols-outlined text-primary text-[22px]">{item.icon}</span>
+                                        <span className="flex-1 text-center text-[15px] font-medium text-slate-700 dark:text-slate-200 group-hover:text-primary transition-colors pr-1">{item.label}</span>
+                                        <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-all text-[20px]">chevron_right</span>
                                     </button>
                                 ))}
                             </div>
