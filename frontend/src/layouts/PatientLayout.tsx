@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import PatientSidebar from '../components/PatientSidebar';
-import PatientHeader from '../components/PatientHeader';
+import PatientSidebar from '../components/common/PatientSidebar';
+import PatientHeader from '../components/common/PatientHeader';
 
 const PatientLayout: React.FC = () => {
     const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);

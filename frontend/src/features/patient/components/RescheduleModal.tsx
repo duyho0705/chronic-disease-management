@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import Dropdown from '../../../components/ui/Dropdown';
 
 interface RescheduleModalProps {
   isOpen: boolean;
@@ -29,6 +30,7 @@ const RescheduleModal: React.FC<RescheduleModalProps> = ({
   isSaving,
   onSave
 }) => {
+  const [selectedPatientId, setSelectedPatientId] = useState('1');
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -67,19 +69,16 @@ const RescheduleModal: React.FC<RescheduleModalProps> = ({
             <div className="space-y-6">
               <div className="space-y-2">
                 <label className="text-sm font-bold border-l-4 border-primary pl-2">Thông tin bệnh nhân</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                    <span className="material-symbols-outlined text-slate-400 text-sm">person</span>
-                  </div>
-                  <select className="w-full pl-12 pr-10 py-3.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-primary/50 text-slate-900 dark:text-white font-bold text-sm appearance-none bg-none outline-none shadow-sm transition-all">
-                    <option value="1">Nguyễn Văn A - ID: BN-8842</option>
-                    <option value="2">Trần Thị B - ID: BN-8839</option>
-                    <option value="3">Lê Văn C - ID: BN-2034</option>
-                  </select>
-                  <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-slate-400 font-bold">
-                    <span className="material-symbols-outlined">expand_more</span>
-                  </div>
-                </div>
+                  <Dropdown 
+                    options={[
+                      { label: 'Nguyễn Văn A - ID: BN-8842', value: '1' },
+                      { label: 'Trần Thị B - ID: BN-8839', value: '2' },
+                      { label: 'Lê Văn C - ID: BN-2034', value: '3' },
+                    ]}
+                    value={selectedPatientId}
+                    onChange={setSelectedPatientId}
+                    className="w-full"
+                  />
               </div>
 
               <div className="space-y-3">

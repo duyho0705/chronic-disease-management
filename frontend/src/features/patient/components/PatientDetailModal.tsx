@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import Dropdown from './Dropdown';
+import Dropdown from '../../../components/ui/Dropdown';
 
 interface PatientDetailModalProps {
   isOpen: boolean;

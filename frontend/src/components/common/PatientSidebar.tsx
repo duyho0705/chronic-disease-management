@@ -17,7 +17,7 @@ const PatientSidebar: React.FC<PatientSidebarProps> = ({ isSidebarOpen, setIsSid
     ];
 
     return (
-        <aside className={`fixed left-0 top-0 bottom-0 bg-white dark:bg-slate-900 border-r border-primary/10 flex flex-col z-[150] transition-transform duration-300 w-72 lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} shadow-2xl lg:shadow-none shadow-primary/10`}>
+        <aside className={`fixed left-0 top-0 bottom-0 bg-white dark:bg-slate-900 border-r border-primary/10 flex flex-col z-[150] transition-transform duration-300 w-72 lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} shadow-2xl lg:shadow-none shadow-primary/10 font-display`}>
             <div className="p-6 flex items-center gap-3 border-b border-primary/5">
                 <div className="w-10 h-10 bg-primary flex items-center justify-center rounded-xl text-white shadow-lg shadow-primary/20">
                     <span className="material-symbols-outlined fill-1">health_metrics</span>
@@ -26,7 +26,7 @@ const PatientSidebar: React.FC<PatientSidebarProps> = ({ isSidebarOpen, setIsSid
                     <h1 className="text-xl font-extrabold text-slate-900 dark:text-white leading-none">DamDiep</h1>
                 </div>
             </div>
-            
+
             <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar">
                 {navItems.map((item) => (
                     <NavLink
@@ -34,10 +34,9 @@ const PatientSidebar: React.FC<PatientSidebarProps> = ({ isSidebarOpen, setIsSid
                         to={item.path}
                         end={item.path === '/patient'}
                         className={({ isActive }) =>
-                            `flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition-all ${
-                                isActive
-                                    ? 'bg-primary text-white shadow-lg shadow-primary/10'
-                                    : 'text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary'
+                            `flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition-all ${isActive
+                                ? 'bg-primary text-white shadow-lg shadow-primary/10'
+                                : 'text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary'
                             }`
                         }
                     >
@@ -71,7 +70,7 @@ const PatientSidebar: React.FC<PatientSidebarProps> = ({ isSidebarOpen, setIsSid
                     </button>
                 </div>
             </div>
-            
+
             <style>{`
                 .custom-scrollbar::-webkit-scrollbar { width: 4px; }
                 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }

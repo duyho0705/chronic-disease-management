@@ -67,12 +67,12 @@ const PatientDashboard: React.FC = () => {
                             </div>
                             <div className="h-32 w-full">
                                 <svg className="h-full w-full" viewBox="0 0 400 100">
-                                    <path d="M0,80 Q50,60 100,70 T200,40 T300,50 T400,30" fill="none" stroke="#4ade80" strokeLinecap="round" strokeWidth="4"></path>
+                                    <path d="M0,80 Q50,60 100,70 T200,40 T300,50 T400,30" fill="none" stroke="#3bb9f3" strokeLinecap="round" strokeWidth="4"></path>
                                     <path d="M0,80 Q50,60 100,70 T200,40 T300,50 T400,30 V100 H0 Z" fill="url(#grad1)"></path>
                                     <defs>
                                         <linearGradient id="grad1" x1="0%" x2="0%" y1="0%" y2="100%">
-                                            <stop offset="0%" style={{ stopColor: '#4ade80', stopOpacity: 0.2 }}></stop>
-                                            <stop offset="100%" style={{ stopColor: '#4ade80', stopOpacity: 0 }}></stop>
+                                            <stop offset="0%" style={{ stopColor: '#3bb9f3', stopOpacity: 0.2 }}></stop>
+                                            <stop offset="100%" style={{ stopColor: '#3bb9f3', stopOpacity: 0 }}></stop>
                                         </linearGradient>
                                     </defs>
                                 </svg>

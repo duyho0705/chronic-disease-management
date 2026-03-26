@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import PrescriptionModal from '../components/PrescriptionModal';
-import AdviceModal from '../components/AdviceModal';
-import RescheduleModal from '../components/RescheduleModal';
-import Toast from '../components/Toast';
-import TopBar from '../components/TopBar';
-import FilterDropdown from '../components/FilterDropdown';
-import PatientDetailModal from '../components/PatientDetailModal';
-import AddPatientModal from '../components/AddPatientModal';
+import PrescriptionModal from '../features/prescription/components/PrescriptionModal';
+import AdviceModal from '../features/patient/components/AdviceModal';
+import RescheduleModal from '../features/patient/components/RescheduleModal';
+import Toast from '../components/ui/Toast';
+import TopBar from '../components/common/TopBar';
+import FilterDropdown from '../components/ui/FilterDropdown';
+import PatientDetailModal from '../features/patient/components/PatientDetailModal';
+import AddPatientModal from '../features/patient/components/AddPatientModal';
 
 export default function DoctorPatients() {
   const [notifications, setNotifications] = useState([

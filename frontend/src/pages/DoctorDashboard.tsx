@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import TopBar from '../components/TopBar';
-import PatientDetailModal from '../components/PatientDetailModal';
-import AdviceModal from '../components/AdviceModal';
-import Toast from '../components/Toast';
-import PrescriptionModal from '../components/PrescriptionModal';
-import RescheduleModal from '../components/RescheduleModal';
-import Dropdown from '../components/Dropdown';
+import TopBar from '../components/common/TopBar';
+import PatientDetailModal from '../features/patient/components/PatientDetailModal';
+import AdviceModal from '../features/patient/components/AdviceModal';
+import Toast from '../components/ui/Toast';
+import PrescriptionModal from '../features/prescription/components/PrescriptionModal';
+import RescheduleModal from '../features/patient/components/RescheduleModal';
+import Dropdown from '../components/ui/Dropdown';
+
+import { Link } from 'react-router-dom';
+import { ROUTES } from '../constants/routes';
 
 export default function DoctorDashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -131,31 +134,31 @@ export default function DoctorDashboard() {
             </div>
           </div>
           <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar">
-            <a className="flex items-center gap-3 px-4 py-3 bg-primary text-white rounded-2xl font-medium shadow-lg shadow-primary/10 transition-all" href="/doctor">
+            <Link className="flex items-center gap-3 px-4 py-3 bg-primary text-white rounded-2xl font-medium shadow-lg shadow-primary/10 transition-all" to={ROUTES.DOCTOR.DASHBOARD}>
               <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>dashboard</span>
               <span>Bảng điều khiển</span>
-            </a>
-            <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-2xl font-medium transition-all" href="/doctor/patients">
+            </Link>
+            <Link className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-2xl font-medium transition-all" to={ROUTES.DOCTOR.PATIENTS}>
               <span className="material-symbols-outlined">groups</span>
               <span>Danh sách bệnh nhân</span>
-            </a>
-            <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-2xl font-medium transition-all" href="/doctor/analytics">
+            </Link>
+            <Link className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-2xl font-medium transition-all" to={ROUTES.DOCTOR.ANALYTICS}>
               <span className="material-symbols-outlined">analytics</span>
               <span>Phân tích nguy cơ</span>
-            </a>
-            <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-2xl font-medium transition-all" href="/doctor/prescriptions">
+            </Link>
+            <Link className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-2xl font-medium transition-all" to={ROUTES.DOCTOR.PRESCRIPTIONS}>
               <span className="material-symbols-outlined">prescriptions</span>
               <span>Đơn thuốc điện tử</span>
-            </a>
-            <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-2xl font-medium transition-all" href="/doctor/appointments">
+            </Link>
+            <Link className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-2xl font-medium transition-all" to={ROUTES.DOCTOR.APPOINTMENTS}>
               <span className="material-symbols-outlined">calendar_today</span>
               <span>Lịch hẹn khám</span>
-            </a>
-            <a className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-2xl font-medium transition-all" href="/doctor/messages">
+            </Link>
+            <Link className="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-2xl font-medium transition-all" to={ROUTES.DOCTOR.MESSAGES}>
               <span className="material-symbols-outlined">chat</span>
               <span>Tin nhắn</span>
               <span className="ml-auto bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">5</span>
-            </a>
+            </Link>
           </nav>
           <div className="p-4 mt-auto">
             <div className="bg-primary/5 rounded-lg p-4 border border-primary/10">
@@ -245,7 +248,7 @@ export default function DoctorDashboard() {
                     <span className="material-symbols-outlined text-red-500">warning</span>
                     Phân tích nguy cơ cao
                   </h2>
-                  <a className="text-primary text-sm font-bold hover:underline cursor-pointer" href="/doctor/analytics">Xem tất cả</a>
+                  <Link className="text-primary text-sm font-bold hover:underline cursor-pointer" to={ROUTES.DOCTOR.ANALYTICS}>Xem tất cả</Link>
                 </div>
                 <div className="space-y-4">
                   {/* Patient Card 1 */}
@@ -278,9 +281,9 @@ export default function DoctorDashboard() {
                         style={{ backgroundColor: 'rgb(255, 197, 197)', borderColor: 'rgb(237, 152, 152)' }}
                         className="flex-1 sm:flex-none text-red-500 border text-[10px] font-bold px-3 py-1.5 rounded-full text-center">Nguy cấp</span>
                       <div className="flex gap-2">
-                        <a href="/doctor/messages" className="flex-1 sm:flex-none bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center">
+                        <Link to={ROUTES.DOCTOR.MESSAGES} className="flex-1 sm:flex-none bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center">
                           <span className="material-symbols-outlined text-base">chat</span>
-                        </a>
+                        </Link>
                         <button
                           onClick={() => { setIsAdviceModalOpen(true); setAdvicePatientName('Nguyễn Văn A'); }}
                           className="flex-1 sm:flex-none bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center">
@@ -315,9 +318,9 @@ export default function DoctorDashboard() {
                     <div className="flex flex-row sm:flex-col gap-2 w-full sm:w-auto">
                       <span className="flex-1 sm:flex-none bg-orange-50 text-orange-500 border border-orange-100 text-[10px] font-bold px-3 py-1.5 rounded-full text-center">Cần theo dõi</span>
                       <div className="flex gap-2">
-                        <a href="/doctor/messages" className="flex-1 sm:flex-none bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center">
+                        <Link to={ROUTES.DOCTOR.MESSAGES} className="flex-1 sm:flex-none bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center">
                           <span className="material-symbols-outlined text-base">chat</span>
-                        </a>
+                        </Link>
                         <button
                           onClick={() => { setIsAdviceModalOpen(true); setAdvicePatientName('Trần Thị B'); }}
                           className="flex-1 sm:flex-none bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center">
@@ -430,12 +433,12 @@ export default function DoctorDashboard() {
                       <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-all text-xl">chevron_right</span>
                     </div>
                   </div>
-                  <a
-                    href="/doctor/appointments"
+                  <Link
+                    to={ROUTES.DOCTOR.APPOINTMENTS}
                     className="w-full mt-4 py-3 border border-dashed border-primary/30 text-primary font-bold text-[14px] rounded-lg hover:bg-primary/5 transition-colors flex items-center justify-center"
                   >
                     Xem toàn bộ lịch trình
-                  </a>
+                  </Link>
                 </section>
               </aside>
             </div>

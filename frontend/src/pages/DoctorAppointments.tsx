@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import TopBar from '../components/TopBar';
-import RescheduleModal from '../components/RescheduleModal';
-import Toast from '../components/Toast';
+import TopBar from '../components/common/TopBar';
+import RescheduleModal from '../features/patient/components/RescheduleModal';
+import Toast from '../components/ui/Toast';
 
 export default function DoctorAppointments() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);

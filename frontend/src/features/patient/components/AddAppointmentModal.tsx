@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import Dropdown from './Dropdown';
+import Dropdown from '../../../components/ui/Dropdown';
 
 interface AddAppointmentModalProps {
     isOpen: boolean;

@@ -1,10 +1,10 @@
 import { useState, useRef } from 'react';
-import PrescriptionModal from '../components/PrescriptionModal';
-import AdviceModal from '../components/AdviceModal';
-import Toast from '../components/Toast';
-import TopBar from '../components/TopBar';
-import PatientDetailModal from '../components/PatientDetailModal';
-import MedicalHistoryModal from '../components/MedicalHistoryModal';
+import PrescriptionModal from '../features/prescription/components/PrescriptionModal';
+import AdviceModal from '../features/patient/components/AdviceModal';
+import Toast from '../components/ui/Toast';
+import TopBar from '../components/common/TopBar';
+import PatientDetailModal from '../features/patient/components/PatientDetailModal';
+import MedicalHistoryModal from '../features/patient/components/MedicalHistoryModal';
 
 export default function DoctorMessages() {
     const fileInputRef = useRef<HTMLInputElement>(null);

@@ -2,7 +2,7 @@ import React from 'react';
 
 const PatientMessages: React.FC = () => {
     return (
-        <div className="flex -m-8 h-[calc(100vh-80px)] overflow-hidden animate-in fade-in duration-700 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
+        <div className="flex -m-8 h-[calc(100vh-80px)] overflow-hidden animate-in fade-in duration-700 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 font-display">
             {/* Contact List Sidebar */}
             <div className="w-80 border-r border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 flex flex-col shrink-0">
                 <div className="p-6">
@@ -17,14 +17,14 @@ const PatientMessages: React.FC = () => {
                     <div className="flex items-center gap-3 p-4 bg-primary/10 rounded-xl cursor-pointer border border-primary/20 mb-2">
                         <div className="relative shrink-0">
                             <img className="w-12 h-12 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2y9wBw8SitILxg_TGGl3CwbmOQ4FE9TNGFjLhqjCzKbOlHyUwc_eXUv4FvbYp5E7bdqCiuuzDNOBZw4FkfttdL6ZkriSrWNH8OKrbFpz4JO6JaQef4zdnvmG4bVBQV5MPyVsWAk2MTWRbsTISbhHsf5WP_-ogb5fxbYoLwRdSslADbE2Iy38B03qJlm5PiiRnpEwESaxK19FHCpdyucpr8Wf5xWF4HicAdjge_EC9FceHVPdzgPygX-NvK7T4vdDhtIc2FDVgouQ" alt="Bác sĩ" />
-                            <div className="absolute bottom-0 right-0 w-3 h-3 bg-primary border-2 border-white rounded-full"></div>
+                            <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-slate-900 rounded-full"></div>
                         </div>
                         <div className="flex-1 overflow-hidden">
                             <div className="flex justify-between items-center">
-                                <h4 className="font-bold text-sm truncate text-slate-900 dark:text-white">BS. Nguyễn Văn An</h4>
-                                <span className="text-[10px] text-slate-500">2 phút</span>
+                                <h4 className="font-bold text-[15px] truncate text-slate-900 dark:text-white mb-0.5">BS. Nguyễn Văn An</h4>
+                                <span className="text-xs text-slate-500">2 phút</span>
                             </div>
-                            <p className="text-xs text-slate-600 dark:text-slate-400 truncate">Vâng, chỉ số này hơi cao...</p>
+                            <p className="text-sm text-slate-600 dark:text-slate-400 truncate">Vâng, chỉ số này hơi cao...</p>
                         </div>
                     </div>
 
@@ -36,14 +36,14 @@ const PatientMessages: React.FC = () => {
                         <div key={i} className="flex items-center gap-3 p-4 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer transition-colors mb-2 group">
                             <div className="relative shrink-0">
                                 <img className="w-12 h-12 rounded-full object-cover" src={item.img} alt={item.name} />
-                                <div className={`absolute bottom-0 right-0 w-3 h-3 border-2 border-white rounded-full ${item.active ? 'bg-primary' : 'bg-slate-300'}`}></div>
+                                <div className={`absolute bottom-0 right-0 w-3 h-3 border-2 border-white dark:border-slate-900 rounded-full ${item.active ? 'bg-green-500' : 'bg-slate-300'}`}></div>
                             </div>
                             <div className="flex-1 overflow-hidden">
-                                <div className="flex justify-between items-center">
-                                    <h4 className="font-bold text-sm truncate text-slate-800 dark:text-slate-200">{item.name}</h4>
-                                    <span className="text-[10px] text-slate-500">{item.time}</span>
+                                <div className="flex justify-between items-center mb-0.5">
+                                    <h4 className="font-bold text-[15px] truncate text-slate-800 dark:text-slate-200">{item.name}</h4>
+                                    <span className="text-xs text-slate-500">{item.time}</span>
                                 </div>
-                                <p className="text-xs text-slate-500 truncate">{item.msg}</p>
+                                <p className="text-sm text-slate-500 truncate">{item.msg}</p>
                             </div>
                         </div>
                     ))}
@@ -57,11 +57,10 @@ const PatientMessages: React.FC = () => {
                     <div className="flex items-center gap-3">
                         <div className="relative shrink-0">
                             <img className="w-10 h-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFi_ZAhdk0ljDOJPm4mUtZkpHBNTudLa8l2SuzII456-reZE6Q4vc2KE3H-3bKXU4eZq_gbOvfIY4JoVxUZ_Herg68mmmnVcL80c6EQiiuH9DYBLUK6HfMnDYnQ8YDRGV_zhwlOPEA7x05UmkRXW8fwD2rZ8chQu00kS1LcOebroDD6oFiEDN1E2pkzO_LKQY5rMQ_0Ov_ZxeOCgYARBHMKtlhwttPq7YwjXvK_2Vswzg-j38DfgbqD1yoLhZpgbCDrVKWKPK9OY0" alt="Bác sĩ" />
-                            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-primary border-2 border-white rounded-full"></div>
+                            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white dark:border-slate-900 rounded-full"></div>
                         </div>
                         <div>
-                            <h3 className="font-bold text-sm text-slate-900 dark:text-white">BS. Nguyễn Văn An</h3>
-                            <p className="text-[10px] text-primary font-medium uppercase tracking-wider">Đang trực tuyến</p>
+                            <h3 className="font-bold text-[15px] text-slate-900 dark:text-white">BS. Nguyễn Văn An</h3>
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -81,7 +80,7 @@ const PatientMessages: React.FC = () => {
                 <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
                     {/* Timestamp */}
                     <div className="flex justify-center">
-                        <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-full text-[10px] text-slate-500 uppercase font-bold">Hôm nay, 14:30</span>
+                        <span className="px-4 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-full text-xs text-slate-500 font-bold">Hôm nay, 14:30</span>
                     </div>
 
                     {/* Message Left (Doctor) */}
@@ -97,7 +96,7 @@ const PatientMessages: React.FC = () => {
                         <div className="bg-primary text-white p-4 rounded-2xl rounded-br-none shadow-md shadow-primary/20">
                             <p className="text-sm font-medium">Chào bác sĩ, sáng nay tôi đo được 165 mg/dL sau khi ăn sáng. Tôi thấy hơi chóng mặt nhẹ.</p>
                         </div>
-                        <span className="text-[10px] text-slate-400 font-bold">14:35</span>
+                        <span className="text-[12px] text-slate-400">14:35</span>
                     </div>
 
                     {/* Message Right (Patient Image) */}
@@ -121,7 +120,7 @@ const PatientMessages: React.FC = () => {
                                 <p className="text-sm">Chỉ số này hơi cao so với mức mục tiêu của chúng ta (dưới 140 mg/dL sau ăn). Bạn có quên dùng thuốc sáng nay không?</p>
                             </div>
                             <div className="bg-slate-100 dark:bg-slate-800 p-4 rounded-2xl rounded-bl-none shadow-sm text-slate-700 dark:text-slate-300">
-                                <p className="text-sm font-semibold text-primary">Vui lòng uống thêm nhiều nước lọc, nghỉ ngơi 30 phút và đo lại nhé. Nếu vẫn trên 160 kèm chóng mặt tăng dần, hãy nhắn tôi ngay.</p>
+                                <p className="text-sm">Vui lòng uống thêm nhiều nước lọc, nghỉ ngơi 30 phút và đo lại nhé. Nếu vẫn trên 160 kèm chóng mặt tăng dần, hãy nhắn tôi ngay.</p>
                             </div>
                         </div>
                     </div>
@@ -139,8 +138,8 @@ const PatientMessages: React.FC = () => {
                         <button className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl text-slate-500 transition-colors">
                             <span className="material-symbols-outlined">sentiment_satisfied</span>
                         </button>
-                        <input className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 text-slate-800 dark:text-white placeholder-slate-400" placeholder="Nhập tin nhắn..." type="text" />
-                        <button className="bg-primary text-white p-2.5 rounded-xl shadow-lg shadow-primary/30 flex items-center justify-center hover:bg-primary/90 transition-all active:scale-95">
+                        <input className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 text-slate-800 dark:text-white placeholder-slate-400 font-display" placeholder="Nhập tin nhắn..." type="text" />
+                        <button className="bg-primary text-white p-2.5 rounded-xl shadow-lg shadow-primary/30 flex items-center justify-center hover:bg-primary/90 transition-all active:scale-95 font-display">
                             <span className="material-symbols-outlined font-bold">send</span>
                         </button>
                     </div>
@@ -160,24 +159,24 @@ const PatientMessages: React.FC = () => {
                     <p className="text-slate-500 text-sm mt-1">Chuyên khoa Nội tiết & Đái tháo đường</p>
                     <div className="flex justify-center gap-2 mt-4">
                         <div className="bg-white dark:bg-slate-800 px-3 py-2 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm flex-1">
-                            <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Kinh nghiệm</p>
+                            <p className="text-[14px] text-slate-400 font-medium">Kinh nghiệm</p>
                             <p className="text-sm font-bold text-slate-900 dark:text-white">12 năm</p>
                         </div>
                         <div className="bg-white dark:bg-slate-800 px-3 py-2 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm flex-1">
-                            <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Đánh giá</p>
+                            <p className="text-[14px] text-slate-400 font-medium">Đánh giá</p>
                             <p className="text-sm font-bold flex items-center gap-1 justify-center text-slate-900 dark:text-white">4.9 <span className="material-symbols-outlined text-yellow-400 text-[14px] fill-1">star</span></p>
                         </div>
                     </div>
                 </div>
                 <div className="px-6 space-y-6 flex-1 py-4">
                     <div>
-                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Giới thiệu</h4>
+                        <h4 className="text-sm font-bold text-slate-500 mb-3">Giới thiệu</h4>
                         <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed italic">
                             Chuyên gia điều trị các bệnh lý mãn tính, đặc biệt là tiểu đường tuýp 2 và cao huyết áp. Tốt nghiệp Đại học Y Dược TP.HCM.
                         </p>
                     </div>
                     <div>
-                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Thông tin liên hệ</h4>
+                        <h4 className="text-sm font-bold text-slate-500 mb-3">Thông tin liên hệ</h4>
                         <ul className="space-y-3">
                             <li className="flex items-center gap-3 text-sm">
                                 <span className="material-symbols-outlined text-primary text-sm font-bold">location_on</span>
@@ -190,23 +189,14 @@ const PatientMessages: React.FC = () => {
                         </ul>
                     </div>
                     <div className="pt-4 border-t border-slate-200 dark:border-slate-800">
-                        <button className="w-full py-3 bg-primary text-slate-900 font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all mb-3 flex items-center justify-center gap-2 uppercase tracking-widest text-xs">
+                        <button className="w-full py-3 bg-primary text-slate-900 font-medium rounded-full shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all mb-3 flex items-center justify-center gap-2 text-sm">
                             <span className="material-symbols-outlined text-sm font-bold">event</span>
                             Đặt lịch hẹn ngay
                         </button>
-                        <button className="w-full py-3 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 transition-all text-xs uppercase tracking-widest">
+                        <button className="w-full py-3 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium rounded-full border border-slate-200 dark:border-slate-700 hover:bg-slate-50 transition-all text-sm">
                             Xem hồ sơ chi tiết
                         </button>
                     </div>
-                </div>
-                <div className="mt-auto p-6 bg-primary/5 dark:bg-primary/10 border-t border-primary/20">
-                    <div className="flex items-center gap-3 mb-2">
-                        <span className="material-symbols-outlined text-primary fill-1">security</span>
-                        <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-widest">Bảo mật thông tin</span>
-                    </div>
-                    <p className="text-[11px] text-slate-500 leading-tight italic">
-                        Cuộc trò chuyện này được mã hóa đầu cuối để đảm bảo an toàn cho dữ liệu y tế của bạn.
-                    </p>
                 </div>
             </div>
         </div>

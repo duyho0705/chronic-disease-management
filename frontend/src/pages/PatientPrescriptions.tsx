@@ -6,7 +6,7 @@ const PatientPrescriptions: React.FC = () => {
             {/* Header Section */}
             <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 text-left">
                 <div>
-                    <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">Đơn thuốc của tôi</h1>
+                    <h1 className="text-[26px] font-extrabold tracking-tight text-slate-900 dark:text-white">Đơn thuốc của tôi</h1>
                     <p className="text-slate-500 dark:text-slate-400 mt-1">Quản lý và theo dõi các loại thuốc đang sử dụng cho bệnh mãn tính</p>
                 </div>
                 <div className="flex gap-3">

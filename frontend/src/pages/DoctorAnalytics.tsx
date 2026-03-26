@@ -1,9 +1,9 @@
 
 import { useState } from 'react';
-import TopBar from '../components/TopBar';
-import PatientDetailModal from '../components/PatientDetailModal';
-import AdviceModal from '../components/AdviceModal';
-import Toast from '../components/Toast';
+import TopBar from '../components/common/TopBar';
+import PatientDetailModal from '../features/patient/components/PatientDetailModal';
+import AdviceModal from '../features/patient/components/AdviceModal';
+import Toast from '../components/ui/Toast';
 
 export default function DoctorAnalytics() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);

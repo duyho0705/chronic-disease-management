@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import Dropdown from './Dropdown';
+import Dropdown from '../../../components/ui/Dropdown';
 
 interface AddPatientModalProps {
   isOpen: boolean;
@@ -76,7 +76,7 @@ export default function AddPatientModal({ isOpen, onClose, onAdd, isSaving = fal
       ></div>
 
       {/* Modal Container: Matched with Scheduling Modal styling */}
-      <div className="relative w-full max-w-3xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh] animate-in zoom-in-95 duration-200 border border-primary/10">
+      <div className="relative w-full max-w-3xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh] animate-in zoom-in-95 duration-200 border border-primary/10 font-display">
 
         {/* Header from HTML: Primary/5 background */}
         <div className="px-8 py-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-primary/5">

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import PrescriptionModal from '../components/PrescriptionModal';
-import Toast from '../components/Toast';
-import TopBar from '../components/TopBar';
+import PrescriptionModal from '../features/prescription/components/PrescriptionModal';
+import Toast from '../components/ui/Toast';
+import TopBar from '../components/common/TopBar';
 
 export default function DoctorPrescriptions() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import AddAppointmentModal from '../components/AddAppointmentModal';
-import Toast from '../components/Toast';
+import AddAppointmentModal from '../features/patient/components/AddAppointmentModal';
+import Toast from '../components/ui/Toast';
 
 const PatientAppointments: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,26 +13,26 @@ const PatientAppointments: React.FC = () => {
         await new Promise(resolve => setTimeout(resolve, 1500));
         setIsSaving(false);
         setIsModalOpen(false);
-        setToast({ 
-            show: true, 
-            title: 'Đặt lịch khám thành công! Vui lòng chờ bác sĩ xác nhận.', 
-            type: 'success' 
+        setToast({
+            show: true,
+            title: 'Đặt lịch khám thành công! Vui lòng chờ bác sĩ xác nhận.',
+            type: 'success'
         });
     };
 
     return (
-        <div className="flex flex-col lg:flex-row -m-8 h-[calc(100vh-64px)] overflow-hidden animate-in fade-in duration-700">
+        <div className="flex flex-col lg:flex-row -m-8 h-[calc(100vh-64px)] overflow-hidden animate-in fade-in duration-700 font-display">
             {/* Main Content Area */}
             <div className="flex-1 p-8 space-y-8 overflow-y-auto custom-scrollbar">
                 {/* Header Section */}
                 <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Lịch hẹn</h2>
+                        <h2 className="text-[26px] font-bold tracking-tight text-slate-900 dark:text-white">Lịch hẹn</h2>
                         <p className="text-slate-500 dark:text-slate-400">Quản lý và theo dõi các buổi khám của bạn</p>
                     </div>
-                    <button 
+                    <button
                         onClick={() => setIsModalOpen(true)}
-                        className="bg-primary hover:bg-primary/90 text-slate-900 px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-primary/20 active:scale-95"
+                        className="bg-primary hover:bg-primary/90 text-slate-900 px-8 py-3 rounded-full font-bold flex items-center gap-2 transition-all shadow-lg shadow-primary/20 active:scale-95 font-display text-sm"
                     >
                         <span className="material-symbols-outlined">add_circle</span>
                         Đặt lịch mới
@@ -134,11 +134,11 @@ const PatientAppointments: React.FC = () => {
                             <table className="w-full text-left">
                                 <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
                                     <tr>
-                                        <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase tracking-wider">Ngày khám</th>
-                                        <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase tracking-wider">Bác sĩ</th>
-                                        <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase tracking-wider">Chẩn đoán</th>
-                                        <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase tracking-wider">Trạng thái</th>
-                                        <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase tracking-wider text-right">Hành động</th>
+                                        <th className="px-6 py-4 text-sm font-bold text-slate-500">Ngày khám</th>
+                                        <th className="px-6 py-4 text-sm font-bold text-slate-500">Bác sĩ</th>
+                                        <th className="px-6 py-4 text-sm font-bold text-slate-500">Chẩn đoán</th>
+                                        <th className="px-6 py-4 text-sm font-bold text-slate-500">Trạng thái</th>
+                                        <th className="px-6 py-4 text-sm font-bold text-slate-500 text-right">Hành động</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -194,10 +194,9 @@ const PatientAppointments: React.FC = () => {
                             ))}
                             {/* Days of Oct */}
                             {Array.from({ length: 30 }, (_, i) => i + 1).map(d => (
-                                <div key={d} className={`py-2 text-xs font-medium cursor-pointer hover:bg-primary/20 hover:text-primary rounded-full transition-all ${
-                                    d === 20 ? 'bg-primary text-slate-900 font-bold shadow-lg shadow-primary/20 scale-110' : 
-                                    d === 25 ? 'bg-primary/20 text-primary font-bold' : ''
-                                }`}>
+                                <div key={d} className={`py-2 text-xs font-medium cursor-pointer hover:bg-primary/20 hover:text-primary rounded-full transition-all ${d === 20 ? 'bg-primary text-slate-900 font-bold shadow-lg shadow-primary/20 scale-110' :
+                                        d === 25 ? 'bg-primary/20 text-primary font-bold' : ''
+                                    }`}>
                                     {d}
                                 </div>
                             ))}
@@ -240,13 +239,13 @@ const PatientAppointments: React.FC = () => {
                     <div className="absolute -right-4 -bottom-4 size-24 bg-primary/20 rounded-full blur-2xl group-hover:bg-primary/30 transition-all"></div>
                 </section>
             </aside>
-            <AddAppointmentModal 
-                isOpen={isModalOpen} 
-                onClose={() => setIsModalOpen(false)} 
+            <AddAppointmentModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
                 onSave={handleSaveAppointment}
                 isSaving={isSaving}
             />
-            <Toast 
+            <Toast
                 show={toast.show}
                 title={toast.title}
                 type={toast.type}

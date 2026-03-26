@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import Dropdown from '../../../components/ui/Dropdown';
 
 interface Medication {
   id: number;
@@ -66,6 +67,7 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
   onSave,
   patientName
 }) => {
+  const [selectedPatientName, setSelectedPatientName] = useState(patientName);
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -110,14 +112,15 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2 text-left">
                 <label className="text-[15px] font-medium text-slate-500 dark:text-slate-400">Bệnh nhân</label>
-                <div className="relative">
-                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">search</span>
-                  <select className="w-full pl-10 pr-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all appearance-none bg-none text-slate-900 dark:text-white font-medium text-[15px]">
-                    <option>{patientName}</option>
-                    <option>Trần Thị B</option>
-                  </select>
-                  <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">expand_more</span>
-                </div>
+                  <Dropdown 
+                    options={[
+                      patientName,
+                      'Trần Thị B'
+                    ]}
+                    value={selectedPatientName}
+                    onChange={setSelectedPatientName}
+                    className="w-full"
+                  />
               </div>
               <div className="space-y-2 text-left">
                 <label className="text-[15px] font-medium text-slate-500 dark:text-slate-400">Chẩn đoán hiện tại</label>
