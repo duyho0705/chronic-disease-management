@@ -128,12 +128,12 @@ const PatientDashboard: React.FC = () => {
                             </div>
                         </div>
                         <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center gap-4 shadow-sm">
-                            <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-xl text-orange-500">
-                                <span className="material-symbols-outlined filled">fitness_center</span>
+                            <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-xl text-purple-500">
+                                <span className="material-symbols-outlined filled">science</span>
                             </div>
                             <div>
-                                <p className="text-[14px] text-slate-500">Cân nặng</p>
-                                <p className="text-lg font-bold">68.5 kg</p>
+                                <p className="text-[14px] text-slate-500">HbA1c</p>
+                                <p className="text-lg font-bold">6.8%</p>
                             </div>
                         </div>
                     </div>

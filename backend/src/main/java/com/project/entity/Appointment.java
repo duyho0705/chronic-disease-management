@@ -28,9 +28,33 @@ public class Appointment extends BaseEntity {
     @Column(name = "appointment_time", nullable = false)
     private LocalDateTime appointmentTime;
 
+    @Column(name = "end_time")
+    private LocalDateTime endTime;
+
     @Column(nullable = false, length = 50)
     private String status; // SCHEDULED, COMPLETED, CANCELLED
 
     @Column(length = 255)
-    private String type; // Appointment type description
+    private String type; // IN_PERSON, ONLINE
+
+    @Column(length = 255)
+    private String location;
+
+    @Column(name = "meeting_link", length = 500)
+    private String meetingLink;
+
+    @Column(columnDefinition = "TEXT")
+    private String reason;
+
+    @Column(name = "diagnosis_summary", columnDefinition = "TEXT")
+    private String diagnosisSummary;
+
+    @Column(name = "doctor_name", length = 100)
+    private String doctorName;
+
+    @Column(name = "doctor_specialty", length = 100)
+    private String doctorSpecialty;
+
+    @Column(name = "doctor_avatar_url", length = 500)
+    private String doctorAvatarUrl;
 }

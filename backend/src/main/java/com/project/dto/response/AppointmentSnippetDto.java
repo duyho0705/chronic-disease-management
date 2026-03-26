@@ -8,7 +8,7 @@ import lombok.Data;
 public class AppointmentSnippetDto {
     private Long id;
     private String patientName;
-    private String displayTime; // Example: "Hôm nay 14:30"
+    private String displayTime; // Example: "Today 14:30"
     private String type;
     private boolean isPast;
 }

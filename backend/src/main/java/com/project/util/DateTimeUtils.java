@@ -12,7 +12,7 @@ public class DateTimeUtils {
 
     /**
      * Format a LocalDateTime to a human-readable "Today/Tomorrow" string used in DoctorDashboard.
-     * Example: "Hôm nay 14:30", "Mai 09:00", or "25/11 10:00"
+     * Example: "Today 14:30", "Tomorrow 09:00", or "25/11 10:00"
      */
     public static String formatForDashboard(LocalDateTime dateTime) {
         if (dateTime == null) return "";
@@ -22,9 +22,9 @@ public class DateTimeUtils {
         
         String dayPrefix;
         if (date.equals(today)) {
-            dayPrefix = "Hôm nay";
+            dayPrefix = "Today";
         } else if (date.equals(today.plusDays(1))) {
-            dayPrefix = "Mai";
+            dayPrefix = "Tomorrow";
         } else {
             dayPrefix = date.format(DATE_FORMATTER);
         }

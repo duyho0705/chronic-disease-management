@@ -37,11 +37,11 @@ public class PrescriptionMapper {
 
     private String mapStatusForUI(PrescriptionStatus status) {
         return switch (status) {
-            case ACTIVE -> "Đang hiệu lực";
-            case EXPIRED -> "Hết hạn";
-            case CANCELLED -> "Đã hủy";
-            case PENDING_RENEWAL -> "Chờ tái cấp";
-            case COMPLETED -> "Hoàn thành";
+            case ACTIVE -> "Active";
+            case EXPIRED -> "Expired";
+            case CANCELLED -> "Cancelled";
+            case PENDING_RENEWAL -> "Pending Renewal";
+            case COMPLETED -> "Completed";
         };
     }
     

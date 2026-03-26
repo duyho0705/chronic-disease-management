@@ -115,22 +115,22 @@ const PatientHealthMetrics: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Card: Cân nặng */}
+                {/* Card: HbA1c */}
                 <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-primary/10">
                     <div className="flex justify-between items-start mb-4">
-                        <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
-                            <span className="material-symbols-outlined text-xl font-bold">weight</span>
+                        <div className="p-2 bg-purple-100 text-purple-600 rounded-lg">
+                            <span className="material-symbols-outlined text-xl font-bold">science</span>
                         </div>
-                        <span className="text-[10px] font-bold px-2 py-0.5 bg-primary/10 text-primary rounded-full uppercase tracking-wider">ỔN ĐỊNH</span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 bg-orange-100 text-orange-600 rounded-full uppercase tracking-wider">Cận cao</span>
                     </div>
-                    <p className="text-slate-500 text-[14px] font-bold uppercase">Cân nặng</p>
+                    <p className="text-slate-500 text-[14px] font-bold uppercase">HbA1c</p>
                     <div className="flex items-baseline gap-1 mt-1">
-                        <span className="text-2xl font-black text-slate-900 dark:text-white">68.5</span>
-                        <span className="text-xs text-slate-400">kg</span>
+                        <span className="text-2xl font-black text-slate-900 dark:text-white">6.8</span>
+                        <span className="text-xs text-slate-400">%</span>
                     </div>
-                    <div className="mt-2 flex items-center gap-1 text-primary">
-                        <span className="material-symbols-outlined text-sm font-bold">trending_down</span>
-                        <span className="text-xs font-bold">-1% tuần này</span>
+                    <div className="mt-2 flex items-center gap-1 text-orange-600">
+                        <span className="material-symbols-outlined text-sm font-bold">trending_up</span>
+                        <span className="text-xs font-bold">+0.3% so với lần trước</span>
                     </div>
                 </div>
 
@@ -168,7 +168,7 @@ const PatientHealthMetrics: React.FC = () => {
                                 'Đường huyết (mmol/L)',
                                 'Huyết áp (mmHg)',
                                 'Nhịp tim (bpm)',
-                                'Cân nặng (kg)',
+                                'HbA1c (%)',
                                 'Nồng độ Oxy (SpO2)'
                             ]}
                             value={selectedMetric}
@@ -252,7 +252,7 @@ const PatientHealthMetrics: React.FC = () => {
                             {[
                                 { time: 'Hôm nay, 08:30', name: 'Đường huyết', icon: 'glucose', value: '5.6 mmol/L', status: 'BÌNH THƯỜNG', statusColor: 'primary', note: 'Đo sau khi ăn sáng 1 tiếng.' },
                                 { time: 'Hôm qua, 20:15', name: 'Huyết áp', icon: 'vital_signs', value: '125/85 mmHg', status: 'HƠI CAO', statusColor: 'orange' },
-                                { time: 'Hôm qua, 07:00', name: 'Cân nặng', icon: 'weight', value: '68.5 kg', status: 'ỔN ĐỊNH', statusColor: 'primary' },
+                                { time: 'Hôm qua, 07:00', name: 'HbA1c', icon: 'science', value: '6.8%', status: 'CẬN CAO', statusColor: 'orange' },
                                 { time: '15 Thg 10, 10:00', name: 'Nhịp tim', icon: 'favorite', value: '75 bpm', status: 'BÌNH THƯỜNG', statusColor: 'primary' }
                             ].map((row, idx) => (
                                 <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
