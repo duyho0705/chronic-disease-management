@@ -1,8 +1,13 @@
 import { useState } from 'react';
 import ClinicSidebar from '../components/common/ClinicSidebar';
+import TopBar from '../components/common/TopBar';
 
 export default function ClinicRiskAlerts() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [notifications, setNotifications] = useState([
+        { id: 1, title: 'Báo cáo mới', description: 'Có báo cáo tổng quát tháng 12 vừa được tạo.', time: '5 phút trước', read: false },
+        { id: 2, title: 'Cảnh báo nguy cơ', description: 'Bệnh nhân Nguyễn Văn An có chỉ số bất thường.', time: '1 giờ trước', read: false },
+    ]);
 
     return (
         <div className="flex min-h-screen font-display bg-[#f6f8f7] dark:bg-slate-950 text-slate-900 dark:text-slate-100 italic-none">
@@ -19,38 +24,22 @@ export default function ClinicRiskAlerts() {
                     ></div>
                 )}
 
-                {/* Top Header - Shared Style */}
-                <header className="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm dark:shadow-none px-8 py-4 flex justify-between items-center">
-                    <div className="flex items-center gap-6 flex-1">
-                        <div className="flex items-center gap-4 lg:hidden">
-                            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 -ml-2 text-slate-600 dark:text-slate-400">
-                                <span className="material-symbols-outlined">menu</span>
-                            </button>
+                {/* Header */}
+                <TopBar 
+                    setIsSidebarOpen={setIsSidebarOpen}
+                    notifications={notifications}
+                    setNotifications={setNotifications}
+                    userName="Admin Sarah"
+                    userRole="Senior Manager"
+                    userAvatar="https://lh3.googleusercontent.com/aida-public/AB6AXuDs9fuTZde7EUIINhAwZDAYbGdWhfZuvszHFDZODEHBxXo3hRWmKfCmGfg6Xgckf0DONyYs8LQEOXng1sISGQVj9ec2pSs--Gz-xPlj6elGIG3KtZTO9U-57mPPcUxuNMtJbLamHmXAsWrVwobD4Ai-pKgNGU0yfv596RmDCRUawQMx8gmW7E2J_we-R_YITLa95pCcbtDZf6tkb7C6bWKKzwepNG2pc4L5uji1KMHQetqk8390TVAlxrRao3qco3laKWLu0uA-BmQ"
+                    showSearch={true}
+                    actionButton={
+                        <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl gap-1 mr-4 border border-primary/5">
+                            <button className="px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all bg-white dark:bg-slate-700 shadow-sm text-primary">Hôm nay</button>
+                            <button className="px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all text-slate-500 hover:bg-white dark:hover:bg-slate-700">Tuần này</button>
                         </div>
-                        <div className="flex items-center gap-4">
-                            <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">Cảnh báo nguy cơ</h2>
-                            <div className="h-6 w-[1px] bg-slate-200 dark:bg-slate-700"></div>
-                            <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl gap-1">
-                                <button className="px-4 py-1.5 text-xs font-bold rounded-lg transition-all bg-white dark:bg-slate-700 shadow-sm text-emerald-600">Hôm nay</button>
-                                <button className="px-4 py-1.5 text-xs font-bold rounded-lg transition-all text-slate-500 hover:bg-white dark:hover:bg-slate-700">Tuần này</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <div className="relative group hidden md:block">
-                            <input className="bg-slate-100 dark:bg-slate-800 border-none rounded-full px-4 py-2 text-sm focus:ring-2 focus:ring-primary w-64 transition-all" placeholder="Tìm kiếm bệnh nhân..." type="text" />
-                            <span className="material-symbols-outlined absolute right-3 top-2 text-slate-400">search</span>
-                        </div>
-                        <div className="h-8 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2"></div>
-                        <div className="flex items-center gap-2">
-                            <button className="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors relative">
-                                <span className="material-symbols-outlined font-variation-settings: 'FILL' 1">notifications</span>
-                                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
-                            </button>
-                            <img alt="Manager Profile" className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDGjYIuSYp7DW1jpAZ9vD7op7gEIwRSfAVGcp9IMHUCV2y2NEZttUv8g72aAsVj6nLXq4ML38WuKKWYbxy94nSmkC5KiQUIfqUAyyFUr_89laFQY3oKjTGawWstmCiroviKt-PkwefqbwYkwk_95NBFrkKL8XZAdut5ikmVk4eXs106KAEYbQoOqqu9pbd3HCENpFNYQtEglWWMSwxgDHm62P358XDuQMTdTi8aCS_v6BwNiKsGF-x-kRs1aYBra37BiUXJuIiTs0" />
-                        </div>
-                    </div>
-                </header>
+                    }
+                />
 
                 {/* Content Area */}
                 <div className="p-8 space-y-8">

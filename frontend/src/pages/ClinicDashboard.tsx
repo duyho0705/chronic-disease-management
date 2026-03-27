@@ -1,8 +1,13 @@
 import { useState } from 'react';
 import ClinicSidebar from '../components/common/ClinicSidebar';
+import TopBar from '../components/common/TopBar';
 
 export default function ClinicDashboard() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [notifications, setNotifications] = useState([
+        { id: 1, title: 'Báo cáo mới', description: 'Có báo cáo tổng quát tháng 12 vừa được tạo.', time: '5 phút trước', read: false },
+        { id: 2, title: 'Cảnh báo nguy cơ', description: 'Bệnh nhân Nguyễn Văn An có chỉ số bất thường.', time: '1 giờ trước', read: false },
+    ]);
 
     return (
         <div className="flex min-h-screen font-display bg-[#f6f8f7] dark:bg-slate-950 text-slate-900 dark:text-slate-100">
@@ -19,36 +24,15 @@ export default function ClinicDashboard() {
                     ></div>
                 )}
                 {/* Header */}
-                <header className="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm dark:shadow-none px-8 py-4 flex justify-between items-center">
-                    <div className="flex items-center gap-6 flex-1">
-                        <div className="flex items-center gap-4 lg:hidden">
-                            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 -ml-2 text-slate-600 dark:text-slate-400">
-                                <span className="material-symbols-outlined">menu</span>
-                            </button>
-                        </div>
-                        <h2 className="font-bold tracking-tight text-emerald-600 dark:text-emerald-400 text-xl hidden md:block">Quản lý Tổng quan</h2>
-                        <div className="relative max-w-md w-full">
-                            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
-                            <input className="w-full bg-[#f1f4f2] dark:bg-slate-800 border-none rounded-full py-2.5 pl-10 pr-4 focus:ring-2 focus:ring-primary text-sm transition-all" placeholder="Tìm kiếm bệnh nhân, hồ sơ..." type="text" />
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <button className="w-10 h-10 flex items-center justify-center text-slate-500 hover:text-emerald-500 transition-colors">
-                            <span className="material-symbols-outlined">notifications</span>
-                        </button>
-                        <button className="w-10 h-10 flex items-center justify-center text-slate-500 hover:text-emerald-500 transition-colors">
-                            <span className="material-symbols-outlined">settings</span>
-                        </button>
-                        <div className="h-8 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2"></div>
-                        <div className="flex items-center gap-3">
-                            <div className="text-right hidden sm:block">
-                                <p className="text-sm font-bold">Admin Clinic</p>
-                                <p className="text-[10px] text-slate-500 font-semibold uppercase">Quản trị viên</p>
-                            </div>
-                            <img className="w-10 h-10 rounded-full object-cover border-2 border-primary-container" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKRheNnvmBdt0vMs8PDJ82odwDIq3C70mz_jQEqPOlWAs-tlb3IFQk2APyUgfJYyFwYYx5kXde7gPvRZZFUaNT9l3taOL1HmlwY1wBSdmIxyv1Wvs75bp0JKM1e6RFPbTTnZeEoVyF1gxLpeV2NuYCkd6Q5l589kp5AyD7xnSwnal69vp9Uwylvy5jukOKBZ7--67XQhjj2IIp1gIkHSMBrqZ4g3RKqpRbh9MHNrHXbjtkNKKJvn2DfPRK09BrU9nMeLhEb1YpKBI" alt="Avatar" />
-                        </div>
-                    </div>
-                </header>
+                <TopBar 
+                    setIsSidebarOpen={setIsSidebarOpen}
+                    notifications={notifications}
+                    setNotifications={setNotifications}
+                    userName="Admin Sarah"
+                    userRole="Senior Manager"
+                    userAvatar="https://lh3.googleusercontent.com/aida-public/AB6AXuDs9fuTZde7EUIINhAwZDAYbGdWhfZuvszHFDZODEHBxXo3hRWmKfCmGfg6Xgckf0DONyYs8LQEOXng1sISGQVj9ec2pSs--Gz-xPlj6elGIG3KtZTO9U-57mPPcUxuNMtJbLamHmXAsWrVwobD4Ai-pKgNGU0yfv596RmDCRUawQMx8gmW7E2J_we-R_YITLa95pCcbtDZf6tkb7C6bWKKzwepNG2pc4L5uji1KMHQetqk8390TVAlxrRao3qco3laKWLu0uA-BmQ"
+                    showSearch={true}
+                />
 
                 <div className="p-8 space-y-8">
                     {/* Welcome Section */}

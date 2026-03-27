@@ -1,8 +1,13 @@
 import { useState } from 'react';
 import ClinicSidebar from '../components/common/ClinicSidebar';
+import TopBar from '../components/common/TopBar';
 
 export default function ClinicReports() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [notifications, setNotifications] = useState([
+        { id: 1, title: 'Báo cáo mới', description: 'Có báo cáo tổng quát tháng 12 vừa được tạo.', time: '5 phút trước', read: false },
+        { id: 2, title: 'Cảnh báo nguy cơ', description: 'Bệnh nhân Nguyễn Văn An có chỉ số bất thường.', time: '1 giờ trước', read: false },
+    ]);
 
     return (
         <div className="flex min-h-screen font-display bg-[#f6f8f7] dark:bg-slate-950 text-slate-900 dark:text-slate-100 italic-none">
@@ -20,43 +25,33 @@ export default function ClinicReports() {
                 )}
 
                 {/* Top Header - Shared Style */}
-                <header className="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm dark:shadow-none px-8 py-4 flex justify-between items-center">
-                    <div className="flex items-center gap-6 flex-1">
-                        <div className="flex items-center gap-4 lg:hidden">
-                            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 -ml-2 text-slate-600 dark:text-slate-400">
-                                <span className="material-symbols-outlined">menu</span>
-                            </button>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">Báo cáo & Thống kê</h2>
-                            <div className="h-6 w-[1px] bg-slate-200 dark:bg-slate-700"></div>
-                            <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl gap-1">
-                                <button className="px-4 py-1.5 text-xs font-bold rounded-lg transition-all text-slate-500 hover:bg-white dark:hover:bg-slate-700">7 ngày qua</button>
-                                <button className="px-4 py-1.5 text-xs font-bold rounded-lg transition-all bg-white dark:bg-slate-700 shadow-sm text-emerald-600">30 ngày qua</button>
-                                <button className="px-4 py-1.5 text-xs font-bold rounded-lg transition-all text-slate-500 hover:bg-white dark:hover:bg-slate-700">Quý này</button>
+                {/* Header */}
+                <TopBar 
+                    setIsSidebarOpen={setIsSidebarOpen}
+                    notifications={notifications}
+                    setNotifications={setNotifications}
+                    userName="Admin Sarah"
+                    userRole="Senior Manager"
+                    userAvatar="https://lh3.googleusercontent.com/aida-public/AB6AXuDs9fuTZde7EUIINhAwZDAYbGdWhfZuvszHFDZODEHBxXo3hRWmKfCmGfg6Xgckf0DONyYs8LQEOXng1sISGQVj9ec2pSs--Gz-xPlj6elGIG3KtZTO9U-57mPPcUxuNMtJbLamHmXAsWrVwobD4Ai-pKgNGU0yfv596RmDCRUawQMx8gmW7E2J_we-R_YITLa95pCcbtDZf6tkb7C6bWKKzwepNG2pc4L5uji1KMHQetqk8390TVAlxrRao3qco3laKWLu0uA-BmQ"
+                    actionButton={
+                        <div className="flex items-center gap-4 mr-4">
+                            <div className="hidden lg:flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl gap-1 border border-primary/5">
+                                <button className="px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all text-slate-500 hover:bg-white dark:hover:bg-slate-700">7 ngày</button>
+                                <button className="px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all bg-white dark:bg-slate-700 shadow-sm text-primary">30 ngày</button>
+                            </div>
+                            <div className="flex gap-2">
+                                <button className="flex items-center gap-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-slate-200 dark:border-slate-800 hover:bg-slate-50 transition-colors shadow-sm whitespace-nowrap">
+                                    <span className="material-symbols-outlined text-sm">download</span>
+                                    Excel
+                                </button>
+                                <button className="flex items-center gap-2 bg-primary text-slate-900 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:shadow-lg hover:shadow-primary/20 transition-all shadow-sm whitespace-nowrap">
+                                    <span className="material-symbols-outlined text-sm">picture_as_pdf</span>
+                                    PDF
+                                </button>
                             </div>
                         </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <div className="flex gap-2">
-                            <button className="flex items-center gap-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-xl text-sm font-bold border border-slate-200 dark:border-slate-700 hover:bg-slate-50 transition-colors">
-                                <span className="material-symbols-outlined text-lg">download</span>
-                                Xuất Excel
-                            </button>
-                            <button className="flex items-center gap-2 bg-primary text-slate-900 px-4 py-2 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity">
-                                <span className="material-symbols-outlined text-lg">picture_as_pdf</span>
-                                Tải PDF
-                            </button>
-                        </div>
-                        <div className="h-8 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2"></div>
-                        <div className="flex items-center gap-2">
-                            <button className="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
-                                <span className="material-symbols-outlined">notifications</span>
-                            </button>
-                            <img alt="Manager Profile" className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCq5RTf0bTwBBa5Ez1ZJ3N45FciD9VB2kOBfbPjjA9dxE62xIT_OhHpylS5DZXycCwICZNzCVFXlzAItpaSfCXPMmVuN-74QFkgI9K1IErFlqRurCorhALNKByCGKEozS1KnlGIaUKzDoHbbiAxaIaC6c3FM3TKxpvfyidtI_VReykKdKIKNnIKrHz7HXj0MtoEVC1RDF5dZq9Bc7G_BhNjHSCGlNdidnkgg8c6XHSZDlYg1zqBy3A6ig14_1UlXdO3MfYw6nzMVM0" />
-                        </div>
-                    </div>
-                </header>
+                    }
+                />
 
                 {/* Content Area - Container from User Request */}
                 <div className="p-8 space-y-8">

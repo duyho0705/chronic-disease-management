@@ -10,7 +10,7 @@ const ClinicSidebar: React.FC<ClinicSidebarProps> = ({ isSidebarOpen }) => {
     const navItems = [
         { path: ROUTES.CLINIC.DASHBOARD, label: 'Tổng quan', icon: 'dashboard' },
         { path: ROUTES.CLINIC.PATIENTS, label: 'Bệnh nhân', icon: 'group' },
-        { path: '#', label: 'Bác sĩ', icon: 'medical_services' },
+        { path: ROUTES.CLINIC.DOCTORS, label: 'Bác sĩ', icon: 'medical_services' },
         { path: ROUTES.CLINIC.REPORTS, label: 'Báo cáo', icon: 'analytics' },
         { path: ROUTES.CLINIC.ALERTS, label: 'Cảnh báo nguy cơ', icon: 'emergency' },
     ];
@@ -33,8 +33,8 @@ const ClinicSidebar: React.FC<ClinicSidebarProps> = ({ isSidebarOpen }) => {
                         to={item.path}
                         end={item.path === ROUTES.CLINIC.DASHBOARD}
                         className={({ isActive }) =>
-                            `flex items-center gap-3 px-4 py-2 rounded-2xl font-medium transition-all ${isActive && item.path !== '#'
-                                ? 'bg-primary text-white shadow-lg shadow-primary/10'
+                            `flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition-all ${isActive && item.path !== '#'
+                                ? 'bg-primary text-white shadow-lg shadow-primary/20'
                                 : 'text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary'
                             }`
                         }
@@ -57,10 +57,10 @@ const ClinicSidebar: React.FC<ClinicSidebarProps> = ({ isSidebarOpen }) => {
                     <span className="text-xs uppercase tracking-widest">Xuất dữ liệu</span>
                 </button>
                 <div className="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-1">
-                    <NavLink className="text-slate-600 dark:text-slate-400 flex items-center px-4 py-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-xl transition-all text-xs font-bold uppercase tracking-wider" to="#">
+                    <NavLink className="text-slate-600 dark:text-slate-400 flex items-center px-4 py-2.5 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-xl transition-all text-xs font-bold uppercase tracking-wider" to="#">
                         <span className="material-symbols-outlined mr-3 text-lg">help</span> Hỗ trợ
                     </NavLink>
-                    <NavLink className="text-red-500 flex items-center px-4 py-2 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-all text-xs font-bold uppercase tracking-wider" to="/">
+                    <NavLink className="text-red-500 flex items-center px-4 py-2.5 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-all text-xs font-bold uppercase tracking-wider" to="/">
                         <span className="material-symbols-outlined mr-3 text-lg">logout</span> Đăng xuất
                     </NavLink>
                 </div>

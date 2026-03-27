@@ -1,8 +1,13 @@
 import { useState } from 'react';
 import ClinicSidebar from '../components/common/ClinicSidebar';
+import TopBar from '../components/common/TopBar';
 
 export default function ClinicPatients() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [notifications, setNotifications] = useState([
+        { id: 1, title: 'Báo cáo mới', description: 'Có báo cáo tổng quát tháng 12 vừa được tạo.', time: '5 phút trước', read: false },
+        { id: 2, title: 'Cảnh báo nguy cơ', description: 'Bệnh nhân Nguyễn Văn An có chỉ số bất thường.', time: '1 giờ trước', read: false },
+    ]);
 
     return (
         <div className="flex min-h-screen font-display bg-[#f6f8f7] dark:bg-slate-950 text-slate-900 dark:text-slate-100 italic-none">
@@ -19,33 +24,16 @@ export default function ClinicPatients() {
                     ></div>
                 )}
 
-                {/* Top Header */}
-                <header className="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm dark:shadow-none px-8 py-4 flex justify-between items-center">
-                    <div className="flex items-center gap-6 flex-1">
-                        <div className="flex items-center gap-4 lg:hidden">
-                            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 -ml-2 text-slate-600 dark:text-slate-400">
-                                <span className="material-symbols-outlined">menu</span>
-                            </button>
-                        </div>
-                        <h2 className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white hidden sm:block">
-                            Quản lý bệnh nhân
-                        </h2>
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                        <button className="p-2 text-slate-400 hover:text-primary transition-colors relative group">
-                            <span className="material-symbols-outlined">notifications</span>
-                            <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"></span>
-                        </button>
-                        <div className="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-slate-800">
-                            <div className="text-right hidden sm:block">
-                                <p className="text-sm font-bold text-slate-900 dark:text-white leading-none">Admin Phan</p>
-                                <p className="text-[10px] text-slate-500 font-semibold uppercase mt-1">Quản trị phòng khám</p>
-                            </div>
-                            <img alt="Profile" className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhz3jUpMXwMlfx4vkFE2PQocRa1fUZm_exfcZtNIO3omEOfJPzsmpoAUEta4pYlQCAGNbnMN60wtDwUBzeh6Skt6f2LftN1w5uYjdRkLWGGB6knT99igpO6d5k6SRNXRjbxKvEgAavokX42WwnAMV9StQBkWxamNSc5gQTzbCDvhUryU3G8QJRP-XMutLHlIyYSBAO6GZhvplKJaAlQMTdLlEqQQ7WjVyMtSe0BfK4F1DgrxVxPpouJzPGa6txZAPxvvDZnTmkZtw" />
-                        </div>
-                    </div>
-                </header>
+                {/* Header */}
+                <TopBar 
+                    setIsSidebarOpen={setIsSidebarOpen}
+                    notifications={notifications}
+                    setNotifications={setNotifications}
+                    userName="Admin Sarah"
+                    userRole="Senior Manager"
+                    userAvatar="https://lh3.googleusercontent.com/aida-public/AB6AXuDs9fuTZde7EUIINhAwZDAYbGdWhfZuvszHFDZODEHBxXo3hRWmKfCmGfg6Xgckf0DONyYs8LQEOXng1sISGQVj9ec2pSs--Gz-xPlj6elGIG3KtZTO9U-57mPPcUxuNMtJbLamHmXAsWrVwobD4Ai-pKgNGU0yfv596RmDCRUawQMx8gmW7E2J_we-R_YITLa95pCcbtDZf6tkb7C6bWKKzwepNG2pc4L5uji1KMHQetqk8390TVAlxrRao3qco3laKWLu0uA-BmQ"
+                    showSearch={true}
+                />
 
                 {/* Content Canvas */}
                 <div className="p-8 space-y-10">

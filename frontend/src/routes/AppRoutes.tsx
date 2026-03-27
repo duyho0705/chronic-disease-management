@@ -12,6 +12,7 @@ import ComingSoon from '../pages/ComingSoon';
 import ClinicReports from '../pages/ClinicReports';
 import ClinicRiskAlerts from '../pages/ClinicRiskAlerts';
 import ClinicPatients from '../pages/ClinicPatients';
+import ClinicDoctors from '../pages/ClinicDoctors';
 
 const AppRoutes = () => {
   return (
@@ -33,6 +34,7 @@ const AppRoutes = () => {
       <Route path={ROUTES.CLINIC.REPORTS} element={<ClinicReports />} />
       <Route path={ROUTES.CLINIC.ALERTS} element={<ClinicRiskAlerts />} />
       <Route path={ROUTES.CLINIC.PATIENTS} element={<ClinicPatients />} />
+      <Route path={ROUTES.CLINIC.DOCTORS} element={<ClinicDoctors />} />
       <Route path={ROUTES.ADMIN} element={<ComingSoon title="System Admin Dashboard" />} />
     </Routes>
   );

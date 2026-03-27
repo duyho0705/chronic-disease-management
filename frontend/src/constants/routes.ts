@@ -21,6 +21,7 @@ export const ROUTES = {
     REPORTS: '/clinic/reports',
     ALERTS: '/clinic/alerts',
     PATIENTS: '/clinic/patients',
+    DOCTORS: '/clinic/doctors',
   },
   ADMIN: '/admin',
 };
