@@ -16,6 +16,11 @@ export const ROUTES = {
     PATIENTS: '/doctor/patients',
     PRESCRIPTIONS: '/doctor/prescriptions',
   },
-  CLINIC: '/clinic',
+  CLINIC: {
+    DASHBOARD: '/clinic',
+    REPORTS: '/clinic/reports',
+    ALERTS: '/clinic/alerts',
+    PATIENTS: '/clinic/patients',
+  },
   ADMIN: '/admin',
 };

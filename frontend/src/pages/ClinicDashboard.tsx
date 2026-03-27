@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import ClinicSidebar from '../components/common/ClinicSidebar';
 
 export default function ClinicDashboard() {
@@ -160,7 +160,7 @@ export default function ClinicDashboard() {
                                 ].map((item, idx) => (
                                     <div key={idx} className="flex flex-col items-center flex-1 gap-4">
                                         <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-t-2xl relative overflow-hidden group h-48">
-                                            <div 
+                                            <div
                                                 style={{ height: item.height }}
                                                 className={`absolute bottom-0 w-full transition-all duration-700 ${item.active ? 'bg-primary shadow-[0_-10px_20px_rgba(74,222,128,0.3)]' : 'bg-primary/40 group-hover:bg-primary/60'}`}
                                             ></div>
@@ -231,15 +231,15 @@ export default function ClinicDashboard() {
                                 </thead>
                                 <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
                                     {[
-                                        { 
+                                        {
                                             name: 'BS. Lê Thị Mai', id: 'DR-1024', dept: 'Nội tiết', load: 124, progress: 'w-4/5', color: 'emerald', rating: '4.9', reviews: 420, status: 'Đang trực', active: true,
                                             img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAhOoC9URZAHCP9v9d_l_e-tyh66ffAtXVouqi4DZSNPa_eq_JzHX993csJtIXauOlPnmXYsPpVSyauZnWxcYV0fodnKzn8Ihjmni-69lwmEZo5ugMwzJXx9nSknt0kftRkYZBXvjHcMHbqgeNSCgeYlaPo_sDnjYWhL--uhL42_WuhgMEh-Iqfvnzf5OGRgKBbIeVMbzn_qr-uoS-9lmem5CY9sVQPDjZIw4w-2r_lhCaOmqMuY1GKus8fSstMQoPp2EDUQSklumY'
                                         },
-                                        { 
+                                        {
                                             name: 'BS. Nguyễn Văn Hùng', id: 'DR-1025', dept: 'Tim mạch', load: 98, progress: 'w-3/5', color: 'amber', rating: '4.7', reviews: 315, status: 'Nghỉ ca', active: false,
                                             img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDYDRWmp-LgjGpRKEb5U5aaxSuviEGGzdWXblGs06zhuwpWaZlFdSZwRT2bBxg6mk28k9IhyLFivR9v7kIzFi9BsQ5iyenuznuRy4WeKYvqDbbgdtig_kA2eVqY6q6ze5jElaX7E4cyXqg59-fMZc_Y_EJvSgAZw2Kz_Uc284VdQyqwMvZEUE6kdCYgSkePLdYKSeXpgGJ4gGuye7EP0h8WaOBKfRQsPZVZI-vVFKYCkcethQLzefVbnTo7d3bMBljYXQRbWQx7GIY'
                                         },
-                                        { 
+                                        {
                                             name: 'BS. Trần Thanh Vân', id: 'DR-1026', dept: 'Tổng quát', load: 145, progress: 'w-full', color: 'red', rating: '4.8', reviews: 512, status: 'Đang trực', active: true,
                                             img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCOFydsdqg-2jcC8qqhrnbKLzToNMCULCj8kyNLPwDJhnwypFWphQdC-LNlWhR1UURPvoXudthuFIUnREVvDR3eG6N2BuB4kRtmEs8P7hPC-nb4GN4GLkD2iQyMw8ZQN6P-P7ZkkPs6VQ-zUcMD8ePKPeTJ1xBewyRCscMbjGLyYx4c2jHqTvKkKND5EyOo6ASSzGZxcY2awgm30cYlHU7j6MKaqo_oUJlqbZGFhXOVrVoPW-QHdyVIqGTLynA71J9L8LXuIVqh4O0'
                                         }
@@ -286,11 +286,6 @@ export default function ClinicDashboard() {
                     </section>
                 </div>
             </main>
-
-            {/* Contextual FAB */}
-            <button className="fixed bottom-8 right-8 w-16 h-16 bg-primary text-slate-900 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50 shadow-primary/30">
-                <span className="material-symbols-outlined text-3xl font-bold">add</span>
-            </button>
         </div>
     );
 }

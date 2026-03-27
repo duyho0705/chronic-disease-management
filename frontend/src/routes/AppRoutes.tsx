@@ -6,37 +6,33 @@ import ClinicDashboard from '../pages/ClinicDashboard';
 import DoctorAnalytics from '../pages/DoctorAnalytics';
 import DoctorPatients from '../pages/DoctorPatients';
 import DoctorPrescriptions from '../pages/DoctorPrescriptions';
-import PatientHealthMetrics from '../pages/PatientHealthMetrics';
-import PatientDashboard from '../pages/PatientDashboard';
-import PatientAppointments from '../pages/PatientAppointments';
-import PatientPrescriptions from '../pages/PatientPrescriptions';
-import PatientMessages from '../pages/PatientMessages';
-import PatientProfile from '../pages/PatientProfile';
-import PatientLayout from '../layouts/PatientLayout';
 import { ROUTES } from '../constants/routes';
-
-import LandingPage from '../pages/LandingPage';
 import ComingSoon from '../pages/ComingSoon';
+
+import ClinicReports from '../pages/ClinicReports';
+import ClinicRiskAlerts from '../pages/ClinicRiskAlerts';
+import ClinicPatients from '../pages/ClinicPatients';
 
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path={ROUTES.HOME} element={<LandingPage />} />
-      <Route path="/patient" element={<PatientLayout />}>
-        <Route index element={<PatientDashboard />} />
-        <Route path="metrics" element={<PatientHealthMetrics />} />
-        <Route path="appointments" element={<PatientAppointments />} />
-        <Route path="prescriptions" element={<PatientPrescriptions />} />
-        <Route path="messages" element={<PatientMessages />} />
-        <Route path="profile" element={<PatientProfile />} />
-      </Route>
+      <Route path={ROUTES.HOME} element={<DoctorDashboard />} />
+      <Route path={ROUTES.PATIENT.DASHBOARD} element={<ComingSoon title="Patient Dashboard" />} />
+      <Route path={ROUTES.PATIENT.METRICS} element={<ComingSoon title="Patient Metrics" />} />
+      <Route path={ROUTES.PATIENT.APPOINTMENTS} element={<ComingSoon title="Patient Appointments" />} />
+      <Route path={ROUTES.PATIENT.PRESCRIPTIONS} element={<ComingSoon title="Patient Prescriptions" />} />
+      <Route path={ROUTES.PATIENT.MESSAGES} element={<ComingSoon title="Patient Messages" />} />
+      <Route path={ROUTES.PATIENT.PROFILE} element={<ComingSoon title="Patient Profile" />} />
       <Route path={ROUTES.DOCTOR.DASHBOARD} element={<DoctorDashboard />} />
       <Route path={ROUTES.DOCTOR.ANALYTICS} element={<DoctorAnalytics />} />
       <Route path={ROUTES.DOCTOR.APPOINTMENTS} element={<DoctorAppointments />} />
       <Route path={ROUTES.DOCTOR.MESSAGES} element={<DoctorMessages />} />
       <Route path={ROUTES.DOCTOR.PATIENTS} element={<DoctorPatients />} />
       <Route path={ROUTES.DOCTOR.PRESCRIPTIONS} element={<DoctorPrescriptions />} />
-      <Route path={ROUTES.CLINIC} element={<ClinicDashboard />} />
+      <Route path={ROUTES.CLINIC.DASHBOARD} element={<ClinicDashboard />} />
+      <Route path={ROUTES.CLINIC.REPORTS} element={<ClinicReports />} />
+      <Route path={ROUTES.CLINIC.ALERTS} element={<ClinicRiskAlerts />} />
+      <Route path={ROUTES.CLINIC.PATIENTS} element={<ClinicPatients />} />
       <Route path={ROUTES.ADMIN} element={<ComingSoon title="System Admin Dashboard" />} />
     </Routes>
   );

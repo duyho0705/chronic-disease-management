@@ -8,11 +8,11 @@ interface ClinicSidebarProps {
 
 const ClinicSidebar: React.FC<ClinicSidebarProps> = ({ isSidebarOpen }) => {
     const navItems = [
-        { path: ROUTES.CLINIC, label: 'Tổng quan', icon: 'dashboard' },
-        { path: '#', label: 'Bệnh nhân', icon: 'group' },
+        { path: ROUTES.CLINIC.DASHBOARD, label: 'Tổng quan', icon: 'dashboard' },
+        { path: ROUTES.CLINIC.PATIENTS, label: 'Bệnh nhân', icon: 'group' },
         { path: '#', label: 'Bác sĩ', icon: 'medical_services' },
-        { path: '#', label: 'Báo cáo', icon: 'description' },
-        { path: '#', label: 'Cảnh báo nguy cơ', icon: 'warning' },
+        { path: ROUTES.CLINIC.REPORTS, label: 'Báo cáo', icon: 'analytics' },
+        { path: ROUTES.CLINIC.ALERTS, label: 'Cảnh báo nguy cơ', icon: 'emergency' },
     ];
 
     return (
@@ -31,7 +31,7 @@ const ClinicSidebar: React.FC<ClinicSidebarProps> = ({ isSidebarOpen }) => {
                     <NavLink
                         key={idx}
                         to={item.path}
-                        end={item.path === ROUTES.CLINIC}
+                        end={item.path === ROUTES.CLINIC.DASHBOARD}
                         className={({ isActive }) =>
                             `flex items-center gap-3 px-4 py-2 rounded-2xl font-medium transition-all ${isActive && item.path !== '#'
                                 ? 'bg-primary text-white shadow-lg shadow-primary/10'
