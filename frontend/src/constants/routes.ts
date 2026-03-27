@@ -23,5 +23,11 @@ export const ROUTES = {
     PATIENTS: '/clinic/patients',
     DOCTORS: '/clinic/doctors',
   },
-  ADMIN: '/admin',
+  ADMIN: {
+    DASHBOARD: '/admin',
+    CLINICS: '/admin/clinics',
+    USERS: '/admin/users',
+    REPORTS: '/admin/reports',
+    SETTINGS: '/admin/settings',
+  },
 };

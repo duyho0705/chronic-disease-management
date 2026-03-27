@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import TopBar from '../components/common/TopBar';
 import PatientDetailModal from '../features/patient/components/PatientDetailModal';
 import AdviceModal from '../features/patient/components/AdviceModal';
@@ -28,7 +28,6 @@ export default function DoctorDashboard() {
   // Toast State
   const [showToast, setShowToast] = useState(false);
   const [toastTitle, setToastTitle] = useState('');
-  const [toastType, setToastType] = useState<'success' | 'error' | 'warning'>('success');
 
   const handleSaveAdvice = async () => {
     setIsAdviceSaving(true);
@@ -38,7 +37,6 @@ export default function DoctorDashboard() {
     setIsAdviceModalOpen(false);
     setAdviceContent('');
     setToastTitle(`Đã gửi lời khuyên đến ${advicePatientName} thành công!`);
-    setToastType('success');
     setShowToast(true);
   };
   const [medications, setMedications] = useState([

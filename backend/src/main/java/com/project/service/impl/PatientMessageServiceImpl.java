@@ -70,7 +70,6 @@ public class PatientMessageServiceImpl implements PatientMessageService {
     @Override
     @Transactional
     public MessageResponse sendMessage(SendMessageRequest request) {
-        Patient patient = getCurrentPatient();
         Long userId = SecurityUtils.getCurrentUserId().orElseThrow();
 
         Conversation conversation = conversationRepository.findById(request.getConversationId())

@@ -7,8 +7,11 @@ import DoctorAnalytics from '../pages/DoctorAnalytics';
 import DoctorPatients from '../pages/DoctorPatients';
 import DoctorPrescriptions from '../pages/DoctorPrescriptions';
 import { ROUTES } from '../constants/routes';
-import ComingSoon from '../pages/ComingSoon';
-
+import AdminDashboard from '../pages/AdminDashboard';
+import AdminClinics from '../pages/AdminClinics';
+import AdminUsers from '../pages/AdminUsers';
+import AdminReports from '../pages/AdminReports';
+import AdminSettings from '../pages/AdminSettings';
 import ClinicReports from '../pages/ClinicReports';
 import ClinicRiskAlerts from '../pages/ClinicRiskAlerts';
 import ClinicPatients from '../pages/ClinicPatients';
@@ -48,7 +51,11 @@ const AppRoutes = () => {
       <Route path={ROUTES.CLINIC.ALERTS} element={<ClinicRiskAlerts />} />
       <Route path={ROUTES.CLINIC.PATIENTS} element={<ClinicPatients />} />
       <Route path={ROUTES.CLINIC.DOCTORS} element={<ClinicDoctors />} />
-      <Route path={ROUTES.ADMIN} element={<ComingSoon title="System Admin Dashboard" />} />
+      <Route path={ROUTES.ADMIN.DASHBOARD} element={<AdminDashboard />} />
+      <Route path={ROUTES.ADMIN.CLINICS} element={<AdminClinics />} />
+      <Route path={ROUTES.ADMIN.USERS} element={<AdminUsers />} />
+      <Route path={ROUTES.ADMIN.REPORTS} element={<AdminReports />} />
+      <Route path={ROUTES.ADMIN.SETTINGS} element={<AdminSettings />} />
     </Routes>
   );
 };
