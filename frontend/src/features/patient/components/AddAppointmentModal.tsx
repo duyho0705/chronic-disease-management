@@ -67,12 +67,6 @@ const AddAppointmentModal: React.FC<AddAppointmentModalProps> = ({ isOpen, onClo
                             <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Đặt lịch khám mới</h2>
                             <p className="text-slate-500 text-sm mt-1 font-medium">Hoàn thành các bước dưới đây để đặt lịch hẹn</p>
                         </div>
-                        <button
-                            onClick={onClose}
-                            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-400"
-                        >
-                            <span className="material-symbols-outlined font-bold">close</span>
-                        </button>
                     </div>
                 </div>
 

@@ -54,12 +54,6 @@ const AdviceModal: React.FC<AdviceModalProps> = ({
               <h2 className="text-xl font-bold text-slate-900 dark:text-white leading-tight">Gửi lời khuyên sức khỏe</h2>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-slate-400 hover:text-red-500"
-          >
-            <span className="material-symbols-outlined font-bold">close</span>
-          </button>
         </div>
 
         {/* Advice Content Area */}

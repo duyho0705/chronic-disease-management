@@ -1,8 +1,8 @@
-import { Routes, Route, useNavigate } from 'react-router-dom';
-import { HeartPulse, Stethoscope, Building2, Shield, Activity } from 'lucide-react';
+import { Routes, Route } from 'react-router-dom';
 import DoctorDashboard from '../pages/DoctorDashboard';
 import DoctorAppointments from '../pages/DoctorAppointments';
 import DoctorMessages from '../pages/DoctorMessages';
+import ClinicDashboard from '../pages/ClinicDashboard';
 import DoctorAnalytics from '../pages/DoctorAnalytics';
 import DoctorPatients from '../pages/DoctorPatients';
 import DoctorPrescriptions from '../pages/DoctorPrescriptions';
@@ -36,7 +36,7 @@ const AppRoutes = () => {
       <Route path={ROUTES.DOCTOR.MESSAGES} element={<DoctorMessages />} />
       <Route path={ROUTES.DOCTOR.PATIENTS} element={<DoctorPatients />} />
       <Route path={ROUTES.DOCTOR.PRESCRIPTIONS} element={<DoctorPrescriptions />} />
-      <Route path={ROUTES.CLINIC} element={<ComingSoon title="Clinic Manager Dashboard" />} />
+      <Route path={ROUTES.CLINIC} element={<ClinicDashboard />} />
       <Route path={ROUTES.ADMIN} element={<ComingSoon title="System Admin Dashboard" />} />
     </Routes>
   );

@@ -56,12 +56,6 @@ const RescheduleModal: React.FC<RescheduleModalProps> = ({
           <div>
             <h2 className="text-xl md:text-2xl font-extrabold text-slate-900 dark:text-white">Đặt lịch tái khám</h2>
           </div>
-          <button
-            onClick={onClose}
-            className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all"
-          >
-            <span className="material-symbols-outlined font-bold">close</span>
-          </button>
         </div>
 
         <div className="p-6 md:p-10 overflow-y-auto custom-scrollbar text-left">

@@ -61,14 +61,8 @@ const AddHealthMetricModal: React.FC<AddHealthMetricModalProps> = ({ isOpen, onC
 
                 {/* Modal Header */}
                 <div className="px-8 py-6 border-b border-slate-100 dark:border-slate-800 text-left bg-primary/5 font-display">
-                    <div className="flex items-center justify-between mb-0">
+                    <div className="flex items-center mb-0">
                         <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Nhập chỉ số sức khỏe</h2>
-                        <button
-                            onClick={onClose}
-                            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
-                        >
-                            <span className="material-symbols-outlined font-bold">close</span>
-                        </button>
                     </div>
                 </div>
 

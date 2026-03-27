@@ -187,29 +187,29 @@ export default function DoctorMessages() {
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex justify-between items-center mb-0.5">
-                                            <h3 className="text-[14px] font-bold truncate">Nguyễn Văn A</h3>
-                                            <span className="text-xs text-slate-400">10:45</span>
+                                            <h3 className="text-sm font-bold truncate">Nguyễn Văn A</h3>
+                                            <span className="text-[10px] text-slate-400">10:45</span>
                                         </div>
-                                        <p className="text-[12px] text-slate-600 dark:text-slate-400 truncate font-semibold">Bác sĩ ơi, chỉ số huyết áp...</p>
+                                        <p className="text-xs text-slate-600 dark:text-slate-400 truncate">Bác sĩ ơi, chỉ số huyết áp...</p>
                                         <div className="flex items-center gap-2 mt-1">
-                                            <span className="px-2 py-0.5 bg-red-100 text-red-600 text-xs rounded-md font-bold tracking-tighter">Nguy cơ cao</span>
+                                            <span className="px-1.5 py-0.5 bg-red-100 text-red-600 text-[10px] rounded-md font-bold">Nguy cơ cao</span>
                                         </div>
                                     </div>
-                                    <div className="size-6 rounded-full bg-primary flex items-center justify-center text-xs text-white font-bold shadow-sm shadow-primary/30">2</div>
+                                    <div className="size-5 rounded-full bg-primary flex items-center justify-center text-[10px] text-white font-bold">2</div>
                                 </div>
 
                                 {/* Trần Thị B - Chỉ hiển thị khi tab là "Tất cả" */}
                                 {activeTab === 'all' && (
                                     <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer">
-                                        <img className="size-12 rounded-full object-cover grayscale opacity-70" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBhD6WWkEmCMteDAhlg1khjJmteYcqGR_yWPtw7M8cvkR3Pz1-1ppF9o5AMWC6HaT2f-5pYOc8QcYtyOYqIwns5BwN129P-TJ0KCcF__-O9EC29r_C_OwDHLBNK4gPhThgBbxZTnZh6_65fKk1BuXOPABOf5XFyVqBB3elRY41Rw1LVHLJb67lK83eFMaCHBlpb8wxLmEDLfeNEowQbIJP7cHp5YfLb_9os0KnEGIqfCwFAk7CcH4yVH_nP5tWbnE2ExIYImKwspU" alt="B" />
+                                        <img className="size-12 rounded-full object-cover grayscale" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBhD6WWkEmCMteDAhlg1khjJmteYcqGR_yWPtw7M8cvkR3Pz1-1ppF9o5AMWC6HaT2f-5pYOc8QcYtyOYqIwns5BwN129P-TJ0KCcF__-O9EC29r_C_OwDHLBNK4gPhThgBbxZTnZh6_65fKk1BuXOPABOf5XFyVqBB3elRY41Rw1LVHLJb67lK83eFMaCHBlpb8wxLmEDLfeNEowQbIJP7cHp5YfLb_9os0KnEGIqfCwFAk7CcH4yVH_nP5tWbnE2ExIYImKwspU" alt="B" />
                                         <div className="flex-1 min-w-0">
                                             <div className="flex justify-between items-center mb-0.5">
-                                                <h3 className="text-[14px] font-bold truncate text-slate-600 dark:text-slate-400">Trần Thị B</h3>
-                                                <span className="text-xs text-slate-400 font-medium">Hôm qua</span>
+                                                <h3 className="text-sm font-bold truncate">Trần Thị B</h3>
+                                                <span className="text-[10px] text-slate-400">Hôm qua</span>
                                             </div>
-                                            <p className="text-[13px] text-slate-500 truncate font-medium">Vâng, tôi đã nhận được đơn thuốc.</p>
+                                            <p className="text-xs text-slate-500 truncate">Vâng, tôi đã nhận được đơn thuốc.</p>
                                             <div className="flex items-center gap-2 mt-1">
-                                                <span className="px-2 py-0.5 bg-green-100 text-green-600 text-xs rounded-md font-bold tracking-tighter">Bình thường</span>
+                                                <span className="px-1.5 py-0.5 bg-green-100 text-green-600 text-[10px] rounded-md font-bold">Bình thường</span>
                                             </div>
                                         </div>
                                     </div>
@@ -244,10 +244,10 @@ export default function DoctorMessages() {
                                     <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdl4_kksFbT62gfvrg2CtlonSa7Z4-XZM2ZIIqD7GDwP0MfR5hA225V5R9ZKlvhjbsete2hJmTwvUHA_aosstZHoV6tM2vXEU5Q7nW9_5dd5svAhpeCbuKH5HmqayCaC04rkWo-EfotJUxEp69MkUz4mEdX8saH1A0UNs5zJJID7n-JJeGjmcq0eSP0Mso0S5aDqFBNhamVQmSpaLrCkNv4TaoqSZ06oNBkzC6TNiRCcAwxJsvIX-khxQ-w5pAG3Of0yZJFNenY1M" alt="A" />
                                 </div>
                                 <div>
-                                    <h3 className="text-[15px] font-bold leading-none">Nguyễn Văn A</h3>
+                                    <h3 className="text-sm font-bold leading-none">Nguyễn Văn A</h3>
                                     <div className="flex items-center gap-2 mt-1">
                                         <span className="size-2 rounded-full bg-green-500"></span>
-                                        <span className="text-[13px] text-slate-500">Đang hoạt động, 10:45 AM</span>
+                                        <span className="text-xs text-slate-500">Đang hoạt động • 10:45 AM</span>
                                     </div>
                                 </div>
                             </div>
@@ -395,35 +395,25 @@ export default function DoctorMessages() {
                             <div className="space-y-1.5">
                                 <h4 className="text-[15px] font-medium text-slate-700 pl-1 mb-3">Lối tắt</h4>
                                 {[
-                                    { icon: 'description', label: 'Hồ sơ đầy đủ', action: () => setIsDetailModalOpen(true) },
-                                    { icon: 'pill', label: 'Kê đơn thuốc', action: () => setIsPrescriptionModalOpen(true) },
-                                    { icon: 'history', label: 'Lịch sử khám', action: () => setIsHistoryModalOpen(true) }
-                                ].map((item, idx) => (
-                                    <button
-                                        key={idx}
-                                        onClick={item.action}
-                                        className="w-full flex items-center px-5 py-3 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-primary/30 hover:shadow-sm transition-all group active:scale-[0.98]"
-                                    >
-                                        <span className="material-symbols-outlined text-primary text-[22px]">{item.icon}</span>
-                                        <span className="flex-1 text-center text-[15px] font-medium text-slate-700 dark:text-slate-200 group-hover:text-primary transition-colors pr-1">{item.label}</span>
-                                        <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-all text-[20px]">chevron_right</span>
-                                    </button>
-                                ))}
-                            </div>
+                                { icon: 'description', label: 'Hồ sơ đầy đủ', action: () => setIsDetailModalOpen(true) },
+                                { icon: 'pill', label: 'Kê đơn thuốc', action: () => setIsPrescriptionModalOpen(true) },
+                                { icon: 'history', label: 'Lịch sử khám', action: () => setIsHistoryModalOpen(true) }
+                            ].map((item, idx) => (
+                                <button
+                                    key={idx}
+                                    onClick={item.action}
+                                    className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group"
+                                >
+                                    <span className="material-symbols-outlined text-primary">{item.icon}</span>
+                                    <span className="flex-1 text-center text-sm font-medium">{item.label}</span>
+                                    <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors">chevron_right</span>
+                                </button>
+                            ))}
                         </div>
-
-                        <div className="mt-8 p-4 bg-orange-50 dark:bg-orange-950/20 rounded-2xl border border-orange-100 dark:border-orange-900/30 relative overflow-hidden group">
-                            <div className="flex items-center gap-2 mb-2">
-                                <span className="material-symbols-outlined text-red-500 text-lg font-bold">info</span>
-                                <h5 className="text-[15px] font-medium text-slate-700">Ghi chú nhanh</h5>
-                            </div>
-                            <p className="text-[14px] text-slate-600 dark:text-slate-400 italic font-medium leading-relaxed">
-                                "Bệnh nhân có tiền sử cao huyết áp mãn tính, cần theo dõi sát sao vào buổi sáng."
-                            </p>
-                        </div>
-                    </section>
-                </div>
-            </main>
+                    </div>
+                </section>
+            </div>
+        </main>
 
             <AdviceModal
                 isOpen={isAdviceModalOpen}

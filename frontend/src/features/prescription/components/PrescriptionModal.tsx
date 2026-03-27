@@ -101,11 +101,6 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
               </div>
               <h2 className="text-[18px] font-bold tracking-tight text-slate-900 dark:text-white">Kê đơn thuốc mới</h2>
             </div>
-            {!isAddingNewMedicine && (
-              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
-                <span className="material-symbols-outlined font-bold">close</span>
-              </button>
-            )}
           </div>
 
           <div className="flex-1 overflow-y-auto p-6 space-y-8 text-left custom-scrollbar bg-white dark:bg-slate-900">
@@ -248,9 +243,6 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
                   <h3 className="text-[18px] font-bold tracking-tight text-slate-900 dark:text-white">Thêm thuốc mới</h3>
                 </div>
               </div>
-              <button onClick={() => setIsAddingNewMedicine(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
-                <span className="material-symbols-outlined font-bold">close</span>
-              </button>
             </div>
  
             <div className="p-8 space-y-6 flex-1 overflow-y-auto text-left custom-scrollbar bg-white dark:bg-slate-900">
@@ -286,8 +278,15 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
               </div>
             </div>
  
-            <div className="sticky bottom-0 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 px-6 py-4 flex items-center justify-end z-10">
-              <button onClick={addMedicationToPrescription} className="w-full py-4 bg-primary text-slate-900 rounded-2xl font-medium text-[15px] hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-95 flex items-center justify-center gap-2 shadow-md">
+            <div className="sticky bottom-0 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 px-6 py-4 flex items-center justify-end gap-3 z-10">
+              <button 
+                onClick={() => setIsAddingNewMedicine(false)}
+                className="px-6 py-4 rounded-2xl font-bold text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                type="button"
+              >
+                Bỏ qua
+              </button>
+              <button onClick={addMedicationToPrescription} className="flex-1 py-4 bg-primary text-slate-900 rounded-2xl font-medium text-[15px] hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-95 flex items-center justify-center gap-2 shadow-md">
                 <span className="material-symbols-outlined text-[20px]">library_add</span>
                 Lưu vào đơn thuốc
               </button>

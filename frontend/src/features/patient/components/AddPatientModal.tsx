@@ -83,12 +83,6 @@ export default function AddPatientModal({ isOpen, onClose, onAdd, isSaving = fal
           <div className="text-left">
             <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white">Thêm bệnh nhân mới</h2>
           </div>
-          <button
-            onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
-          >
-            <span className="material-symbols-outlined font-bold">close</span>
-          </button>
         </div>
 
         {/* Content: 3-column Grid for Width Optimization */}
