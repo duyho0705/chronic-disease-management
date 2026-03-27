@@ -4,6 +4,7 @@ import TopBar from '../components/common/TopBar';
 
 export default function ClinicReports() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [reportTimeRange, setReportTimeRange] = useState('30 ngày');
     const [notifications, setNotifications] = useState([
         { id: 1, title: 'Báo cáo mới', description: 'Có báo cáo tổng quát tháng 12 vừa được tạo.', time: '5 phút trước', read: false },
         { id: 2, title: 'Cảnh báo nguy cơ', description: 'Bệnh nhân Nguyễn Văn An có chỉ số bất thường.', time: '1 giờ trước', read: false },
@@ -15,7 +16,7 @@ export default function ClinicReports() {
             <ClinicSidebar isSidebarOpen={isSidebarOpen} />
 
             {/* Main Content Area */}
-            <main className="flex-1 lg:ml-72 min-h-screen flex flex-col">
+            <main className="flex-1 lg:ml-72 min-h-screen flex flex-col transition-all duration-300">
                 {/* Mobile Sidebar Overlay */}
                 {isSidebarOpen && (
                     <div
@@ -24,8 +25,7 @@ export default function ClinicReports() {
                     ></div>
                 )}
 
-                {/* Top Header - Shared Style */}
-                {/* Header */}
+                {/* Top Header */}
                 <TopBar 
                     setIsSidebarOpen={setIsSidebarOpen}
                     notifications={notifications}
@@ -35,16 +35,26 @@ export default function ClinicReports() {
                     userAvatar="https://lh3.googleusercontent.com/aida-public/AB6AXuDs9fuTZde7EUIINhAwZDAYbGdWhfZuvszHFDZODEHBxXo3hRWmKfCmGfg6Xgckf0DONyYs8LQEOXng1sISGQVj9ec2pSs--Gz-xPlj6elGIG3KtZTO9U-57mPPcUxuNMtJbLamHmXAsWrVwobD4Ai-pKgNGU0yfv596RmDCRUawQMx8gmW7E2J_we-R_YITLa95pCcbtDZf6tkb7C6bWKKzwepNG2pc4L5uji1KMHQetqk8390TVAlxrRao3qco3laKWLu0uA-BmQ"
                     actionButton={
                         <div className="flex items-center gap-4 mr-4">
-                            <div className="hidden lg:flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl gap-1 border border-primary/5">
-                                <button className="px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all text-slate-500 hover:bg-white dark:hover:bg-slate-700">7 ngày</button>
-                                <button className="px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all bg-white dark:bg-slate-700 shadow-sm text-primary">30 ngày</button>
+                            <div className="hidden lg:flex bg-slate-50 dark:bg-slate-800 p-1 rounded-xl gap-1 border border-primary/5 shadow-sm">
+                                <button 
+                                    onClick={() => setReportTimeRange('7 ngày')}
+                                    className={`px-4 py-2 text-[13px] font-bold rounded-lg transition-all ${reportTimeRange === '7 ngày' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-700'}`}
+                                >
+                                    7 ngày
+                                </button>
+                                <button 
+                                    onClick={() => setReportTimeRange('30 ngày')}
+                                    className={`px-4 py-2 text-[13px] font-bold rounded-lg transition-all ${reportTimeRange === '30 ngày' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-700'}`}
+                                >
+                                    30 ngày
+                                </button>
                             </div>
                             <div className="flex gap-2">
-                                <button className="flex items-center gap-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-slate-200 dark:border-slate-800 hover:bg-slate-50 transition-colors shadow-sm whitespace-nowrap">
+                                <button className="flex items-center gap-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-5 py-2.5 rounded-xl text-sm font-bold border border-slate-200 dark:border-slate-800 hover:bg-slate-50 transition-colors shadow-sm whitespace-nowrap">
                                     <span className="material-symbols-outlined text-sm">download</span>
                                     Excel
                                 </button>
-                                <button className="flex items-center gap-2 bg-primary text-slate-900 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:shadow-lg hover:shadow-primary/20 transition-all shadow-sm whitespace-nowrap">
+                                <button className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-primary/20 transition-all shadow-sm whitespace-nowrap">
                                     <span className="material-symbols-outlined text-sm">picture_as_pdf</span>
                                     PDF
                                 </button>
@@ -53,43 +63,43 @@ export default function ClinicReports() {
                     }
                 />
 
-                {/* Content Area - Container from User Request */}
+                {/* Content Area */}
                 <div className="p-8 space-y-8">
                     {/* Metric Cards (Bento Style) */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group border border-primary/5">
+                        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group border border-primary/5">
                             <div className="flex justify-between items-start mb-4">
-                                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
+                                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
                                     <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>groups</span>
                                 </div>
-                                <span className="text-green-500 font-bold text-sm">+4.2%</span>
+                                <span className="text-emerald-500 font-bold text-sm">+4.2%</span>
                             </div>
                             <h3 className="text-slate-500 text-sm font-medium">Tổng số bệnh nhân</h3>
-                            <p className="text-3xl font-extrabold mt-1 text-slate-900 dark:text-white">1,250</p>
+                            <p className="text-3xl font-black mt-1 text-slate-900 dark:text-white">1,250</p>
                             <div className="mt-4 h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                                 <div className="h-full bg-primary w-[75%]"></div>
                             </div>
                         </div>
-                        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group border border-primary/5">
+                        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group border border-primary/5">
                             <div className="flex justify-between items-start mb-4">
-                                <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center text-emerald-600">
+                                <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center text-emerald-600">
                                     <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>trending_up</span>
                                 </div>
-                                <span className="text-green-500 text-xs font-bold">Tháng này</span>
+                                <span className="text-emerald-500 text-xs font-bold">Tháng này</span>
                             </div>
                             <h3 className="text-slate-500 text-sm font-medium">Lượt khám mới</h3>
-                            <p className="text-3xl font-extrabold mt-1 text-slate-900 dark:text-white">+12%</p>
-                            <p className="text-[11px] text-slate-400 mt-2 font-medium">So với tháng trước</p>
+                            <p className="text-3xl font-black mt-1 text-slate-900 dark:text-white">+12%</p>
+                            <p className="text-[13px] text-slate-400 mt-2 font-medium">So với tháng trước</p>
                         </div>
-                        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group border border-primary/5">
+                        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group border border-primary/5">
                             <div className="flex justify-between items-start mb-4">
-                                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center text-blue-500">
+                                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center text-blue-500">
                                     <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>event_available</span>
                                 </div>
-                                <div className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-2 py-0.5 rounded text-[10px] font-bold">Ổn định</div>
+                                <div className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-3 py-1 rounded-full text-[12px] font-bold">Ổn định</div>
                             </div>
                             <h3 className="text-slate-500 text-sm font-medium">Tỷ lệ tái khám</h3>
-                            <p className="text-3xl font-extrabold mt-1 text-slate-900 dark:text-white">85%</p>
+                            <p className="text-3xl font-black mt-1 text-slate-900 dark:text-white">85%</p>
                             <div className="mt-4 flex gap-1">
                                 <div className="h-1.5 flex-1 bg-primary rounded-full"></div>
                                 <div className="h-1.5 flex-1 bg-primary rounded-full"></div>
@@ -98,27 +108,27 @@ export default function ClinicReports() {
                         </div>
                     </div>
 
-                    {/* Charts Section (Asymmetric) */}
+                    {/* Charts Section */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        {/* Main Line Chart */}
+                        {/* Xu hướng bệnh nhân */}
                         <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl p-8 shadow-sm border border-primary/5">
                             <div className="flex justify-between items-start mb-8">
                                 <div>
-                                    <h3 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Xu hướng bệnh nhân</h3>
-                                    <p className="text-sm text-slate-500 font-medium font-body italic-none">Lượng bệnh nhân nội trú & ngoại trú hàng ngày</p>
+                                    <h3 className="text-[22px] font-bold text-slate-900 dark:text-white tracking-tight">Xu hướng bệnh nhân</h3>
+                                    <p className="text-[15px] text-slate-500 font-medium italic-none">Lượng bệnh nhân nội trú & ngoại trú hàng ngày</p>
                                 </div>
                                 <div className="flex gap-4">
                                     <div className="flex items-center gap-2">
-                                        <div className="w-3 h-3 rounded-full bg-primary"></div>
-                                        <span className="text-xs font-bold text-slate-600 dark:text-slate-400">Ngoại trú</span>
+                                        <div className="w-2.5 h-2.5 rounded-full bg-primary"></div>
+                                        <span className="text-[13px] font-bold text-slate-600 dark:text-slate-400">Ngoại trú</span>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <div className="w-3 h-3 rounded-full bg-slate-300 dark:bg-slate-700"></div>
-                                        <span className="text-xs font-bold text-slate-600 dark:text-slate-400">Nội trú</span>
+                                        <div className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700"></div>
+                                        <span className="text-[13px] font-bold text-slate-600 dark:text-slate-400">Nội trú</span>
                                     </div>
                                 </div>
                             </div>
-                            {/* Simplified Visual Line Chart Representation */}
+                            
                             <div className="relative h-64 w-full mt-4 flex items-end justify-between px-2 italic-none">
                                 <div className="absolute inset-0 border-b-2 border-slate-100 dark:border-slate-800 flex flex-col justify-between">
                                     <div className="border-t border-slate-50 dark:border-slate-800 w-full h-0"></div>
@@ -126,35 +136,15 @@ export default function ClinicReports() {
                                     <div className="border-t border-slate-50 dark:border-slate-800 w-full h-0"></div>
                                     <div className="border-t border-slate-50 dark:border-slate-800 w-full h-0"></div>
                                 </div>
-                                {/* Chart Nodes Mockup */}
                                 <div className="z-10 w-full h-full relative flex items-end justify-around">
-                                    <div className="w-4 bg-primary/20 h-1/2 rounded-t-full relative group italic-none">
-                                        <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-primary rounded-full group-hover:scale-150 transition-transform"></div>
-                                        <div className="bg-primary w-full h-2/3 rounded-t-full"></div>
-                                    </div>
-                                    <div className="w-4 bg-primary/20 h-2/3 rounded-t-full relative group">
-                                        <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-primary rounded-full group-hover:scale-150 transition-transform"></div>
-                                        <div className="bg-primary w-full h-3/4 rounded-t-full"></div>
-                                    </div>
-                                    <div className="w-4 bg-primary/20 h-3/4 rounded-t-full relative group">
-                                        <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-primary rounded-full group-hover:scale-150 transition-transform"></div>
-                                        <div className="bg-primary w-full h-1/2 rounded-t-full"></div>
-                                    </div>
-                                    <div className="w-4 bg-primary/20 h-1/2 rounded-t-full relative group">
-                                        <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-primary rounded-full group-hover:scale-150 transition-transform"></div>
-                                        <div className="bg-primary w-full h-4/5 rounded-t-full"></div>
-                                    </div>
-                                    <div className="w-4 bg-primary/20 h-4/5 rounded-t-full relative group">
-                                        <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-primary rounded-full group-hover:scale-150 transition-transform"></div>
-                                        <div className="bg-primary w-full h-full rounded-t-full"></div>
-                                    </div>
-                                    <div className="w-4 bg-primary/20 h-3/5 rounded-t-full relative group">
-                                        <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-primary rounded-full group-hover:scale-150 transition-transform"></div>
-                                        <div className="bg-primary w-full h-2/3 rounded-t-full"></div>
-                                    </div>
+                                    {[50, 65, 75, 50, 95, 60].map((h, i) => (
+                                        <div key={i} className="w-4 bg-primary/20 h-full rounded-t-full relative group italic-none flex items-end overflow-hidden">
+                                            <div className="bg-primary w-full rounded-t-full transition-all duration-700" style={{ height: `${h}%` }}></div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
-                            <div className="flex justify-between mt-6 px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest italic-none">
+                            <div className="flex justify-between mt-6 px-4 text-[13px] font-medium text-slate-500 italic-none">
                                 <span>Thứ 2</span>
                                 <span>Thứ 3</span>
                                 <span>Thứ 4</span>
@@ -163,11 +153,12 @@ export default function ClinicReports() {
                                 <span>Thứ 7</span>
                             </div>
                         </div>
-                        {/* Donut Chart */}
+
+                        {/* Bệnh mãn tính Chart */}
                         <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 shadow-sm border border-primary/5 flex flex-col items-center">
                             <div className="w-full text-left mb-8">
-                                <h3 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Bệnh mãn tính</h3>
-                                <p className="text-sm text-slate-500 font-medium font-body italic-none">Phân loại theo chuẩn ICD-10</p>
+                                <h3 className="text-[22px] font-bold text-slate-900 dark:text-white tracking-tight">Bệnh mãn tính</h3>
+                                <p className="text-[15px] text-slate-500 font-medium italic-none">Phân loại theo chuẩn ICD-10</p>
                             </div>
                             <div className="relative w-48 h-48 flex items-center justify-center">
                                 <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
@@ -177,53 +168,45 @@ export default function ClinicReports() {
                                     <circle className="rotate-[270deg] origin-center" cx="50" cy="50" fill="transparent" r="40" stroke="#c9e9d3" strokeDasharray="251.2" strokeDashoffset="188.4" strokeWidth="12"></circle>
                                 </svg>
                                 <div className="absolute flex flex-col items-center">
-                                    <span className="text-3xl font-extrabold text-slate-900 dark:text-white italic-none">1.2k</span>
-                                    <span className="text-[10px] uppercase font-bold text-slate-400">Ca bệnh</span>
+                                    <span className="text-3xl font-black text-slate-900 dark:text-white italic-none">1.2k</span>
+                                    <span className="text-[12px] font-bold text-slate-400">Ca bệnh</span>
                                 </div>
                             </div>
                             <div className="mt-8 w-full space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-3 h-3 rounded-full bg-primary"></div>
-                                        <span className="text-sm font-bold text-slate-600 dark:text-slate-400">Tiểu đường</span>
+                                {[
+                                    { label: 'Tiểu đường', rate: '40%', color: 'bg-primary' },
+                                    { label: 'Cao huyết áp', rate: '35%', color: 'bg-[#3b6470]' },
+                                    { label: 'Tim mạch', rate: '25%', color: 'bg-[#c9e9d3]' }
+                                ].map((item, i) => (
+                                    <div key={i} className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className={`w-3 h-3 rounded-full ${item.color}`}></div>
+                                            <span className="text-sm font-bold text-slate-600 dark:text-slate-400">{item.label}</span>
+                                        </div>
+                                        <span className="text-sm font-black text-slate-900 dark:text-white">{item.rate}</span>
                                     </div>
-                                    <span className="text-sm font-extrabold text-slate-900 dark:text-white">40%</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-3 h-3 rounded-full bg-[#3b6470]"></div>
-                                        <span className="text-sm font-bold text-slate-600 dark:text-slate-400">Cao huyết áp</span>
-                                    </div>
-                                    <span className="text-sm font-extrabold text-slate-900 dark:text-white">35%</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-3 h-3 rounded-full bg-[#c9e9d3]"></div>
-                                        <span className="text-sm font-bold text-slate-600 dark:text-slate-400">Tim mạch</span>
-                                    </div>
-                                    <span className="text-sm font-extrabold text-slate-900 dark:text-white">25%</span>
-                                </div>
+                                ))}
                             </div>
                         </div>
                     </div>
 
                     {/* Doctor Performance Table */}
-                    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm overflow-hidden border border-primary/5">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-primary/5 overflow-hidden">
                         <div className="px-8 py-6 flex justify-between items-center border-b border-slate-50 dark:border-slate-800">
-                            <h3 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Hiệu suất bác sĩ</h3>
-                            <button className="text-sm font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 hover:underline">
+                            <h3 className="text-[20px] font-bold text-slate-900 dark:text-white tracking-tight">Hiệu suất bác sĩ</h3>
+                            <button className="text-sm font-bold text-primary flex items-center gap-1 hover:underline">
                                 Tất cả bác sĩ <span className="material-symbols-outlined text-sm">open_in_new</span>
                             </button>
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead>
-                                    <tr className="text-[11px] uppercase tracking-widest text-slate-400 font-extrabold bg-slate-50 dark:bg-slate-800/50">
-                                        <th className="px-8 py-4">Tên bác sĩ</th>
-                                        <th className="px-8 py-4">Số ca khám</th>
-                                        <th className="px-8 py-4">Điểm đánh giá</th>
-                                        <th className="px-8 py-4">Trạng thái</th>
-                                        <th className="px-8 py-4 text-right">Hành động</th>
+                                    <tr className="bg-slate-50 dark:bg-slate-800/50 font-display">
+                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500">Tên bác sĩ</th>
+                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500">Số ca khám</th>
+                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500">Điểm đánh giá</th>
+                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500">Trạng thái</th>
+                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500 text-right">Hành động</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
@@ -244,10 +227,10 @@ export default function ClinicReports() {
                                         <tr key={idx} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                                             <td className="px-8 py-5">
                                                 <div className="flex items-center gap-3">
-                                                    <img alt="Doctor Avatar" className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/10" src={dr.img} />
+                                                    <img alt="Doctor Avatar" className="w-10 h-10 rounded-xl object-cover ring-2 ring-primary/10" src={dr.img} />
                                                     <div>
-                                                        <p className="font-extrabold text-slate-900 dark:text-white group-hover:text-primary transition-colors">{dr.name}</p>
-                                                        <p className="text-xs text-slate-500 font-medium">{dr.dept}</p>
+                                                        <p className="font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">{dr.name}</p>
+                                                        <p className="text-[13px] text-slate-500 font-medium">{dr.dept}</p>
                                                     </div>
                                                 </div>
                                             </td>
@@ -255,11 +238,11 @@ export default function ClinicReports() {
                                             <td className="px-8 py-5">
                                                 <div className="flex items-center gap-1 text-amber-500">
                                                     <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                                    <span className="font-bold">{dr.rating}</span>
+                                                    <span className="font-bold text-slate-900 dark:text-white">{dr.rating}</span>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-5">
-                                                <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${dr.active ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
+                                                <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-[14px] font-bold text-white shadow-sm whitespace-nowrap ${dr.active ? 'bg-emerald-500' : 'bg-slate-400'}`}>
                                                     {dr.status}
                                                 </span>
                                             </td>
@@ -272,6 +255,25 @@ export default function ClinicReports() {
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+                        {/* Pagination Footer - Redesigned */}
+                        <div className="px-8 py-6 bg-slate-50/50 dark:bg-slate-800/20 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">
+                            <p className="text-[14px] font-medium text-slate-500">
+                                Trang <span className="font-bold text-slate-900 dark:text-white">1</span> trên <span className="font-bold text-slate-900 dark:text-white">12</span>
+                            </p>
+                            <div className="flex items-center gap-3">
+                                <button className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary transition-all hover:shadow-sm disabled:opacity-30 disabled:hover:text-slate-400" disabled>
+                                    <span className="material-symbols-outlined text-[20px]">chevron_left</span>
+                                </button>
+                                <div className="flex items-center gap-1.5">
+                                    <button className="w-10 h-10 rounded-xl bg-primary text-white text-sm font-black shadow-lg shadow-primary/20 transition-all">1</button>
+                                    <button className="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 text-slate-500 hover:text-primary border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-sm font-bold transition-all">2</button>
+                                    <button className="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 text-slate-500 hover:text-primary border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-sm font-bold transition-all">3</button>
+                                </div>
+                                <button className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary transition-all hover:shadow-sm">
+                                    <span className="material-symbols-outlined text-[20px]">chevron_right</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

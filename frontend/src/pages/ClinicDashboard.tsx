@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import ClinicSidebar from '../components/common/ClinicSidebar';
 import TopBar from '../components/common/TopBar';
+import Dropdown from '../components/ui/Dropdown';
 
 export default function ClinicDashboard() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -8,6 +9,7 @@ export default function ClinicDashboard() {
         { id: 1, title: 'Báo cáo mới', description: 'Có báo cáo tổng quát tháng 12 vừa được tạo.', time: '5 phút trước', read: false },
         { id: 2, title: 'Cảnh báo nguy cơ', description: 'Bệnh nhân Nguyễn Văn An có chỉ số bất thường.', time: '1 giờ trước', read: false },
     ]);
+    const [dashboardTimeRange, setDashboardTimeRange] = useState('Năm 2024');
 
     return (
         <div className="flex min-h-screen font-display bg-[#f6f8f7] dark:bg-slate-950 text-slate-900 dark:text-slate-100">
@@ -24,7 +26,7 @@ export default function ClinicDashboard() {
                     ></div>
                 )}
                 {/* Header */}
-                <TopBar 
+                <TopBar
                     setIsSidebarOpen={setIsSidebarOpen}
                     notifications={notifications}
                     setNotifications={setNotifications}
@@ -46,11 +48,11 @@ export default function ClinicDashboard() {
                                 <span className="material-symbols-outlined text-emerald-500">upload_file</span>
                                 Xuất báo cáo Excel
                             </button>
-                            <button className="bg-primary text-slate-900 px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all">
+                            <button className="bg-primary text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all">
                                 <span className="material-symbols-outlined">person_add</span>
                                 Thêm bác sĩ mới
                             </button>
-                            <button className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:brightness-95 transition-all">
+                            <button className="bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-teal-100 transition-all border border-teal-100/50 dark:border-teal-800/50">
                                 <span className="material-symbols-outlined">assignment_ind</span>
                                 Phân công bệnh nhân
                             </button>
@@ -60,54 +62,49 @@ export default function ClinicDashboard() {
                     {/* Stats Bento Grid */}
                     <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 font-display">
                         {/* Total Patients */}
-                        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
+                        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
                                     <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>groups</span>
                                 </div>
-                                <span className="text-emerald-500 text-xs font-bold flex items-center gap-1">+12% <span className="material-symbols-outlined text-xs">trending_up</span></span>
+                                <span className="text-emerald-500 text-[13px] font-bold flex items-center gap-1">+12% <span className="material-symbols-outlined text-xs">trending_up</span></span>
                             </div>
                             <h3 className="text-slate-500 text-sm font-medium">Tổng số bệnh nhân</h3>
                             <p className="text-3xl font-extrabold mt-1 italic-none">1,250</p>
-                            <div className="mt-4 h-1.5 w-full bg-slate-50 dark:bg-slate-800 rounded-full overflow-hidden">
-                                <div className="h-full bg-primary w-3/4"></div>
-                            </div>
                         </div>
 
                         {/* Disease Ratio */}
-                        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
+                        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center text-amber-500">
                                     <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>monitoring</span>
                                 </div>
-                                <span className="px-2 py-1 bg-amber-50 dark:bg-amber-900/50 text-amber-600 text-[10px] font-bold rounded-full">Tiểu đường 40%</span>
+                                <span className="px-2 py-1 bg-amber-50 dark:bg-amber-900/50 text-amber-600 text-[12px] font-bold rounded-full">Tiểu đường 40%</span>
                             </div>
                             <h3 className="text-slate-500 text-sm font-medium">Tỷ lệ bệnh theo loại</h3>
-                            <div className="flex items-end gap-2 mt-1">
+                            <div className="flex items-baseline gap-2 mt-1">
                                 <p className="text-3xl font-extrabold italic-none">40%</p>
-                                <span className="text-slate-400 text-xs font-medium mb-1">/ Cao huyết áp</span>
-                            </div>
-                            <div className="mt-4 flex gap-1">
-                                <div className="h-1.5 w-1/2 bg-amber-400 rounded-full"></div>
-                                <div className="h-1.5 w-1/3 bg-primary rounded-full"></div>
+                                <span className="text-slate-400 text-xs font-medium">/ Cao huyết áp</span>
                             </div>
                         </div>
 
                         {/* High Risk Alerts */}
-                        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
+                        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center text-red-500">
                                     <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>warning</span>
                                 </div>
-                                <span className="px-2 py-1 bg-red-500 text-white text-[10px] font-bold rounded-full animate-pulse">Cần chú ý</span>
+                                <span className="px-2 py-1 bg-red-500 text-white text-[12px] font-bold rounded-full animate-pulse">Cần chú ý</span>
                             </div>
                             <h3 className="text-slate-500 text-sm font-medium">Ca nguy cơ cao</h3>
-                            <p className="text-3xl font-extrabold mt-1 text-red-500 italic-none">24</p>
-                            <p className="text-[10px] text-red-400 font-bold mt-2">+4 ca so với hôm qua</p>
+                            <div className="flex items-baseline gap-2 mt-1">
+                                <p className="text-3xl font-extrabold text-red-500 italic-none">24</p>
+                                <p className="text-[13px] text-red-400 font-bold">+4 ca so với hôm qua</p>
+                            </div>
                         </div>
 
                         {/* Pending follow-up */}
-                        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
+                        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center text-blue-500">
                                     <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>event_busy</span>
@@ -115,48 +112,72 @@ export default function ClinicDashboard() {
                             </div>
                             <h3 className="text-slate-500 text-sm font-medium">Chưa tái khám</h3>
                             <p className="text-3xl font-extrabold mt-1 italic-none">45</p>
-                            <button className="mt-4 w-full py-2 bg-primary/5 text-primary rounded-xl text-xs font-bold hover:bg-primary/10 transition-colors">Xem danh sách</button>
                         </div>
                     </section>
 
                     {/* Charts Section */}
                     <section className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         {/* New Patients Chart */}
-                        <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-800">
-                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
-                                <div>
-                                    <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Bệnh nhân mới theo tháng</h3>
-                                    <p className="text-sm text-slate-500 font-medium mt-1">Thống kê dữ liệu trong 6 tháng gần nhất</p>
-                                </div>
-                                <select className="bg-slate-50 dark:bg-slate-800 text-xs font-bold rounded-lg border-slate-200 dark:border-slate-700 px-4 py-2 focus:ring-primary text-slate-900 dark:text-white outline-none">
-                                    <option>Năm 2024</option>
-                                    <option>Năm 2023</option>
-                                </select>
-                            </div>
-                            <div className="flex items-end justify-between h-64 gap-3 md:gap-6 px-4">
-                                {[
-                                    { month: 'T.1', height: '66px', active: false },
-                                    { month: 'T.2', height: '120px', active: false },
-                                    { month: 'T.3', height: '180px', active: true },
-                                    { month: 'T.4', height: '140px', active: false },
-                                    { month: 'T.5', height: '100px', active: false },
-                                    { month: 'T.6', height: '80px', active: false },
-                                ].map((item, idx) => (
-                                    <div key={idx} className="flex flex-col items-center flex-1 gap-4">
-                                        <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-t-2xl relative overflow-hidden group h-48">
-                                            <div
-                                                style={{ height: item.height }}
-                                                className={`absolute bottom-0 w-full transition-all duration-700 ${item.active ? 'bg-primary shadow-[0_-10px_20px_rgba(74,222,128,0.3)]' : 'bg-primary/40 group-hover:bg-primary/60'}`}
-                                            ></div>
-                                        </div>
-                                        <span className={`text-xs font-black ${item.active ? 'text-primary' : 'text-slate-400'}`}>{item.month}</span>
+                        <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
+                            <div>
+                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
+                                    <div>
+                                        <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Bệnh nhân mới theo tháng</h3>
+                                        <p className="text-sm text-slate-500 font-medium mt-1">Thống kê dữ liệu trong 6 tháng gần nhất</p>
                                     </div>
-                                ))}
+                                    <Dropdown
+                                        options={['Năm 2024', 'Năm 2023']}
+                                        value={dashboardTimeRange}
+                                        onChange={setDashboardTimeRange}
+                                        className="min-w-[140px]"
+                                    />
+                                </div>
+                                <div className="flex items-end justify-between h-64 gap-3 md:gap-6 px-4">
+                                    {[
+                                        { month: 'T.1', height: '35%', active: false },
+                                        { month: 'T.2', height: '65%', active: false },
+                                        { month: 'T.3', height: '90%', active: true },
+                                        { month: 'T.4', height: '75%', active: false },
+                                        { month: 'T.5', height: '55%', active: false },
+                                        { month: 'T.6', height: '45%', active: false },
+                                    ].map((item, idx) => (
+                                        <div key={idx} className="flex flex-col items-center flex-1 gap-4">
+                                            <div className="w-full bg-slate-50 dark:bg-slate-800 rounded-t-2xl relative overflow-hidden group h-48 border border-primary/5">
+                                                <div
+                                                    style={{ height: item.height }}
+                                                    className={`absolute bottom-0 w-full transition-all duration-700 rounded-t-2xl ${item.active ? 'bg-[#38bdf8] shadow-[0_-10px_20px_rgba(56,189,248,0.2)]' : 'bg-[#93e2fb] group-hover:bg-[#38bdf8]/60'}`}
+                                                >
+                                                    {item.active && <div className="absolute top-0 w-full h-2 bg-white/20"></div>}
+                                                </div>
+                                            </div>
+                                            <span className={`text-[11px] font-black tracking-tighter ${item.active ? 'text-[#0ea5e9]' : 'text-slate-400'}`}>{item.month}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Key Stats Bar at Bottom to Balance Height */}
+                            <div className="grid grid-cols-3 gap-4 pt-8 border-t border-slate-50 dark:border-slate-800/50 mt-6 pb-2">
+                                <div className="flex flex-col items-center">
+                                    <p className="text-[14px] font-medium text-slate-500 mb-1">Tăng trưởng</p>
+                                    <div className="flex items-center gap-1">
+                                        <span className="text-lg font-bold text-emerald-500">+12.5%</span>
+                                        <span className="material-symbols-outlined text-sm text-emerald-500">trending_up</span>
+                                    </div>
+                                </div>
+                                <div className="flex flex-col items-center border-x border-slate-100 dark:border-slate-800/50">
+                                    <p className="text-[14px] font-medium text-slate-500 mb-1">Trung bình</p>
+                                    <span className="text-lg font-bold text-slate-700 dark:text-slate-200">180 ca/tháng</span>
+                                </div>
+                                <div className="flex flex-col items-center">
+                                    <p className="text-[14px] font-medium text-slate-500 mb-1">Đỉnh điểm</p>
+                                    <span className="text-lg font-bold text-sky-500">Tháng 3 (224 ca)</span>
+                                </div>
                             </div>
                         </div>
 
                         {/* Pathology Pie Chart */}
-                        <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
+                        <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
                             <div>
                                 <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Cơ cấu bệnh lý</h3>
                                 <p className="text-sm text-slate-500 font-medium">Phân tích theo danh mục</p>
@@ -166,25 +187,25 @@ export default function ClinicDashboard() {
                                     <circle className="stroke-slate-50 dark:stroke-slate-800" cx="18" cy="18" fill="none" r="16" strokeWidth="4"></circle>
                                     <circle className="stroke-emerald-500" cx="18" cy="18" fill="none" r="16" strokeDasharray="40 100" strokeWidth="4"></circle>
                                     <circle className="stroke-amber-400" cx="18" cy="18" fill="none" r="16" strokeDasharray="35 100" strokeDashoffset="-40" strokeWidth="4"></circle>
-                                    <circle className="stroke-[#d1f9e1] dark:stroke-emerald-900" cx="18" cy="18" fill="none" r="16" strokeDasharray="25 100" strokeDashoffset="-75" strokeWidth="4"></circle>
+                                    <circle className="stroke-sky-400" cx="18" cy="18" fill="none" r="16" strokeDasharray="25 100" strokeDashoffset="-75" strokeWidth="4"></circle>
                                 </svg>
-                                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                    <span className="text-3xl font-black text-slate-900 dark:text-white">75%</span>
-                                    <span className="text-[10px] uppercase font-black text-slate-400 tracking-widest mt-1">Mãn tính</span>
+                                <div className="absolute inset-0 flex flex-col items-center justify-center font-display">
+                                    <span className="text-3xl font-bold text-slate-900 dark:text-white">75%</span>
+                                    <span className="text-[15px] font-medium text-slate-400 mt-1">Mãn tính</span>
                                 </div>
                             </div>
                             <div className="space-y-4">
                                 {[
                                     { color: 'bg-emerald-500', label: 'Tiểu đường', value: '40%' },
                                     { color: 'bg-amber-400', label: 'Cao huyết áp', value: '35%' },
-                                    { color: 'bg-[#d1f9e1]', label: 'Bệnh tim mạch', value: '25%' },
+                                    { color: 'bg-sky-400', label: 'Bệnh tim mạch', value: '25%' },
                                 ].map((item, idx) => (
                                     <div key={idx} className="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50">
                                         <div className="flex items-center gap-3">
                                             <div className={`w-3 h-3 rounded-full ${item.color}`}></div>
-                                            <span className="font-bold text-slate-600 dark:text-slate-300 text-xs">{item.label}</span>
+                                            <span className="font-bold text-slate-600 dark:text-slate-300 text-sm">{item.label}</span>
                                         </div>
-                                        <span className="font-black text-slate-900 dark:text-white text-xs">{item.value}</span>
+                                        <span className="font-black text-slate-900 dark:text-white text-sm">{item.value}</span>
                                     </div>
                                 ))}
                             </div>
@@ -192,7 +213,7 @@ export default function ClinicDashboard() {
                     </section>
 
                     {/* Doctor Performance Table */}
-                    <section className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-sm overflow-hidden border border-slate-100 dark:border-slate-800">
+                    <section className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm overflow-hidden border border-slate-100 dark:border-slate-800">
                         <div className="px-8 py-6 border-b border-slate-50 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                             <div>
                                 <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Hiệu suất Bác sĩ</h3>
@@ -205,12 +226,12 @@ export default function ClinicDashboard() {
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead>
-                                    <tr className="bg-slate-50 dark:bg-slate-800/50">
-                                        <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-500">Họ và Tên Bác sĩ</th>
-                                        <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-500">Chuyên khoa</th>
-                                        <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-500 text-center">Tải lượng</th>
-                                        <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-500">Đánh giá</th>
-                                        <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-500">Trạng thái</th>
+                                    <tr className="bg-slate-50 dark:bg-slate-800/50 font-display">
+                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500">Tên Bác sĩ</th>
+                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500">Chuyên khoa</th>
+                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500 text-center">Tải lượng</th>
+                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500">Đánh giá</th>
+                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500">Trạng thái</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
@@ -225,7 +246,7 @@ export default function ClinicDashboard() {
                                         },
                                         {
                                             name: 'BS. Trần Thanh Vân', id: 'DR-1026', dept: 'Tổng quát', load: 145, progress: 'w-full', color: 'red', rating: '4.8', reviews: 512, status: 'Đang trực', active: true,
-                                            img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCOFydsdqg-2jcC8qqhrnbKLzToNMCULCj8kyNLPwDJhnwypFWphQdC-LNlWhR1UURPvoXudthuFIUnREVvDR3eG6N2BuB4kRtmEs8P7hPC-nb4GN4GLkD2iQyMw8ZQN6P-P7ZkkPs6VQ-zUcMD8ePKPeTJ1xBewyRCscMbjGLyYx4c2jHqTvKkKND5EyOo6ASSzGZxcY2awgm30cYlHU7j6MKaqo_oUJlqbZGFhXOVrVoPW-QHdyVIqGTLynA71J9L8LXuIVqh4O0'
+                                            img: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=150&h=150'
                                         }
                                     ].map((dr, idx) => (
                                         <tr key={idx} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors group cursor-pointer">
@@ -233,11 +254,10 @@ export default function ClinicDashboard() {
                                                 <div className="flex items-center gap-4">
                                                     <div className="relative shrink-0">
                                                         <img className="size-11 rounded-full object-cover border-2 border-primary/10" src={dr.img} alt={dr.name} />
-                                                        {dr.active && <span className="absolute bottom-0 right-0 size-3 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full"></span>}
                                                     </div>
                                                     <div>
                                                         <p className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">{dr.name}</p>
-                                                        <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">{dr.id}</p>
+                                                        <p className="text-[13px] text-slate-500 font-medium">{dr.id}</p>
                                                     </div>
                                                 </div>
                                             </td>
@@ -254,11 +274,11 @@ export default function ClinicDashboard() {
                                                 <div className="flex items-center gap-1.5 text-amber-400">
                                                     <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
                                                     <span className="text-sm font-black text-slate-900 dark:text-white">{dr.rating}</span>
-                                                    <span className="text-[10px] text-slate-400 font-bold">({dr.reviews})</span>
+                                                    <span className="text-[13px] text-slate-400 font-medium">({dr.reviews})</span>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-5">
-                                                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${dr.active ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'}`}>
+                                                <span className={`px-4 py-1.5 rounded-full text-[13px] font-bold text-white shadow-sm whitespace-nowrap ${dr.active ? 'bg-emerald-500' : 'bg-slate-400'}`}>
                                                     {dr.status}
                                                 </span>
                                             </td>

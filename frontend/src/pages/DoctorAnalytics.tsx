@@ -314,29 +314,29 @@ export default function DoctorAnalytics() {
                                                         className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold">
                                                         {p.initials}</div>
                                                     <div>
-                                                        <p className="text-[15px] font-bold text-slate-900 dark:text-white">{p.name}</p>
-                                                        <p className="text-[13px] text-slate-400">Mã bệnh nhân: SK-{p.id}</p>
+                                                        <p className="text-[16px] font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors tracking-tight">{p.name}</p>
+                                                        <p className="text-[13px] text-slate-400 dark:text-slate-500 font-medium tracking-tight">Mã hồ sơ: SK-{p.id}</p>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-5">
                                                 <div className="flex items-center gap-2">
-                                                    <span className={`text-[14px] font-bold text-${p.color}-500`}>{p.bp}</span>
-                                                    <span className={`material-symbols-outlined text-${p.color}-500 text-[13px]`}>{p.icon}</span>
+                                                    <span className={`text-[15px] font-extrabold text-${p.color}-500`}>{p.bp}</span>
+                                                    <span className={`material-symbols-outlined text-${p.color}-500 text-[14px]`}>{p.icon}</span>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-5">
                                                 <span
-                                                    style={p.color === 'red' ? { backgroundColor: 'rgb(255, 197, 197)', borderColor: 'rgb(237, 152, 152)' } : {}}
-                                                    className={`inline-flex items-center px-4 py-2 rounded-lg text-[13px] font-bold gap-2 border ${p.color === 'red' ? 'text-red-500' :
-                                                        p.color === 'orange' ? 'bg-orange-50 text-orange-500 border-orange-100' :
-                                                            'bg-green-50 text-green-500 border-green-100'
-                                                        }`}>
-                                                    <span className="material-symbols-outlined text-[13px]" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
+                                                    className={`inline-flex items-center px-4 py-1.5 rounded-full text-[13px] font-bold gap-2 text-white shadow-sm whitespace-nowrap ${
+                                                        p.color === 'red' ? 'bg-red-500' :
+                                                        p.color === 'orange' ? 'bg-amber-500' :
+                                                        'bg-emerald-500'
+                                                    }`}>
+                                                    <span className="material-symbols-outlined text-[13px] font-variation-settings: 'FILL' 1" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
                                                     {p.alert}
                                                 </span>
                                             </td>
-                                            <td className="px-8 py-5">
+                                            <td className="px-8 py-5 text-right">
                                                 <div className="flex justify-end gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
                                                     <a
                                                         href="/doctor/messages"
@@ -350,7 +350,7 @@ export default function DoctorAnalytics() {
                                                         <span className="material-symbols-outlined text-xl">visibility</span>
                                                     </button>
                                                     <button
-                                                        className="p-2 text-red-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                                                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all"
                                                         onClick={() => {
                                                             setAdvicePatientName(p.name);
                                                             setIsAdviceModalOpen(true);
@@ -365,16 +365,22 @@ export default function DoctorAnalytics() {
                                 </tbody>
                             </table>
                         </div>
-                        <div className="px-8 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/30">
-                            <p className="text-[13px] font-bold text-slate-400">Hiển thị 3 trên 42 ca nguy cơ</p>
-                            <div className="flex items-center gap-1">
-                                <button className="p-2 rounded-lg hover:bg-white hover:shadow-sm transition-all text-slate-400 border border-transparent hover:border-slate-100">
-                                    <span className="material-symbols-outlined text-sm">chevron_left</span>
+                        {/* Pagination Footer - Redesigned */}
+                        <div className="px-8 py-6 bg-slate-50/50 dark:bg-slate-800/20 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">
+                            <p className="text-[14px] font-medium text-slate-500">
+                                Hiển thị <span className="font-bold text-slate-900 dark:text-white">1</span> đến <span className="font-bold text-slate-900 dark:text-white">3</span> trong số <span className="font-bold text-slate-900 dark:text-white">42</span> ca
+                            </p>
+                            <div className="flex items-center gap-3">
+                                <button className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary transition-all disabled:opacity-30" disabled>
+                                    <span className="material-symbols-outlined text-[20px]">chevron_left</span>
                                 </button>
-                                <button className="w-8 h-8 rounded-lg bg-primary text-white text-xs font-bold shadow-sm">1</button>
-                                <button className="w-8 h-8 rounded-lg hover:bg-white hover:shadow-sm text-slate-600 text-xs font-bold transition-all border border-transparent hover:border-slate-100">2</button>
-                                <button className="p-2 rounded-lg hover:bg-white hover:shadow-sm transition-all text-slate-400 border border-transparent hover:border-slate-100">
-                                    <span className="material-symbols-outlined text-sm">chevron_right</span>
+                                <div className="flex items-center gap-1.5">
+                                    <button className="w-10 h-10 rounded-xl bg-primary text-white text-sm font-black shadow-lg shadow-primary/20">1</button>
+                                    <button className="w-10 h-10 rounded-xl hover:bg-white dark:hover:bg-slate-900 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-sm font-bold text-slate-500 transition-all">2</button>
+                                    <button className="w-10 h-10 rounded-xl hover:bg-white dark:hover:bg-slate-900 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-sm font-bold text-slate-500 transition-all">3</button>
+                                </div>
+                                <button className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary transition-all">
+                                    <span className="material-symbols-outlined text-[20px]">chevron_right</span>
                                 </button>
                             </div>
                         </div>

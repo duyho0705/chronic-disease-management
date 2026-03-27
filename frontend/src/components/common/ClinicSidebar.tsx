@@ -51,21 +51,6 @@ const ClinicSidebar: React.FC<ClinicSidebarProps> = ({ isSidebarOpen }) => {
                 ))}
             </nav>
 
-            <div className="p-4 mt-auto">
-                <button className="w-full bg-primary text-slate-900 font-bold py-3 rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-2 mb-6">
-                    <span className="material-symbols-outlined text-sm">download</span>
-                    <span className="text-xs uppercase tracking-widest">Xuất dữ liệu</span>
-                </button>
-                <div className="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-1">
-                    <NavLink className="text-slate-600 dark:text-slate-400 flex items-center px-4 py-2.5 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-xl transition-all text-xs font-bold uppercase tracking-wider" to="#">
-                        <span className="material-symbols-outlined mr-3 text-lg">help</span> Hỗ trợ
-                    </NavLink>
-                    <NavLink className="text-red-500 flex items-center px-4 py-2.5 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-all text-xs font-bold uppercase tracking-wider" to="/">
-                        <span className="material-symbols-outlined mr-3 text-lg">logout</span> Đăng xuất
-                    </NavLink>
-                </div>
-            </div>
-
             <style>{`
                 .custom-scrollbar::-webkit-scrollbar { width: 4px; }
                 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }

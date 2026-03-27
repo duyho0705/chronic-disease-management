@@ -277,9 +277,7 @@ export default function DoctorDashboard() {
                       <p className="text-[10px] text-red-400 font-bold hidden sm:block">Tăng mạnh (+12)</p>
                     </div>
                     <div className="flex flex-row sm:flex-col gap-2 w-full sm:w-auto">
-                      <span
-                        style={{ backgroundColor: 'rgb(255, 197, 197)', borderColor: 'rgb(237, 152, 152)' }}
-                        className="flex-1 sm:flex-none text-red-500 border text-[10px] font-bold px-3 py-1.5 rounded-full text-center">Nguy cấp</span>
+                      <span className="flex-1 sm:flex-none bg-red-500 text-white text-[11px] font-bold px-4 py-1.5 rounded-full text-center shadow-sm shadow-red-500/20 uppercase tracking-wider whitespace-nowrap">Nguy cấp</span>
                       <div className="flex gap-2">
                         <Link to={ROUTES.DOCTOR.MESSAGES} className="flex-1 sm:flex-none bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center">
                           <span className="material-symbols-outlined text-base">chat</span>
@@ -316,7 +314,7 @@ export default function DoctorDashboard() {
                       <p className="text-[10px] text-amber-400 font-bold hidden sm:block">Không ổn định</p>
                     </div>
                     <div className="flex flex-row sm:flex-col gap-2 w-full sm:w-auto">
-                      <span className="flex-1 sm:flex-none bg-orange-50 text-orange-500 border border-orange-100 text-[10px] font-bold px-3 py-1.5 rounded-full text-center">Cần theo dõi</span>
+                      <span className="flex-1 sm:flex-none bg-amber-500 text-white text-[11px] font-bold px-4 py-1.5 rounded-full text-center shadow-sm shadow-amber-500/20 uppercase tracking-wider whitespace-nowrap">Cần theo dõi</span>
                       <div className="flex gap-2">
                         <Link to={ROUTES.DOCTOR.MESSAGES} className="flex-1 sm:flex-none bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center">
                           <span className="material-symbols-outlined text-base">chat</span>
@@ -475,38 +473,38 @@ export default function DoctorDashboard() {
                                 style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBJEsF1IgDAZeuRPhLHaETdduvDn0twzgerBYISsu1tmyhYPZUrXiZR1mfQ0OWEP-jGEPlV2VzQcbWcusjUKCa_2Dtm0-leXmrRQvCS2y_3HimgCcjd-B3S40Prl4L-3riU5-mixukjTxc51XQ8vKFAsOcUiotrLEN2amViOh_IXjuESo6OGTG_yqQ0kup5LPHi5wdUkRbGAwk1WTQtE1rxscpA2ZH7E_6XCLaXZM_tK9LzC5sQNdUIApT3pQ30RJM5n8bnHoo7qf0')" }}>
                               </div>
                               <div>
-                                <p className="text-[14px] font-bold text-slate-900 dark:text-white">Lê Văn C</p>
-                                <p className="text-xs text-slate-400 font-medium">Mã bệnh nhân: #SK-2034</p>
+                                <p className="text-[16px] font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors tracking-tight">Lê Văn C</p>
+                                <p className="text-[13px] text-slate-400 dark:text-slate-500 font-medium tracking-tight">Mã hồ sơ: #SK-2034</p>
                               </div>
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <div className="flex gap-3">
+                            <div className="flex gap-4">
                               <div className="text-[13px]">
-                                <p className="text-slate-400">Glucose</p>
-                                <p className="font-bold">7.2 mmol/L</p>
+                                <p className="text-slate-400 font-medium">Glucose</p>
+                                <p className="font-bold text-[14px] text-slate-700 dark:text-slate-200">7.2 mmol/L</p>
                               </div>
                               <div className="text-[13px]">
-                                <p className="text-slate-400">SpO2</p>
-                                <p className="font-bold">98%</p>
+                                <p className="text-slate-400 font-medium">SpO2</p>
+                                <p className="font-bold text-[14px] text-slate-700 dark:text-slate-200">98%</p>
                               </div>
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <span className="px-2 py-1 bg-green-50 text-green-500 border border-green-100 text-xs font-bold rounded-md">Ổn định</span>
+                            <span className="px-4 py-1.5 bg-emerald-500 text-white text-[13px] font-bold rounded-full shadow-sm whitespace-nowrap inline-flex">Ổn định</span>
                           </td>
-                          <td className="px-6 py-4 text-[13px] text-slate-500">10 phút trước</td>
+                          <td className="px-6 py-4 text-[14px] text-slate-500 font-medium">10 phút trước</td>
                           <td className="px-6 py-4 text-right relative">
                             <button
                               onClick={() => setActiveMenu(activeMenu === 'bn1' ? null : 'bn1')}
                               className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 rounded-full transition-all ml-auto">
-                              <span className="material-symbols-outlined">more_vert</span>
+                              <span className="material-symbols-outlined text-[22px]">more_vert</span>
                             </button>
 
                             {activeMenu === 'bn1' && (
                               <>
                                 <div className="fixed inset-0 z-[100]" onClick={() => setActiveMenu(null)}></div>
-                                <div className="absolute right-6 top-12 w-56 bg-white dark:bg-slate-900 rounded-lg shadow-2xl border border-slate-100 dark:border-slate-800 py-2 z-[110] animate-in fade-in slide-in-from-top-2 duration-200 overflow-hidden text-left">
+                                <div className="absolute right-6 top-12 w-56 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 py-2.5 z-[110] animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-200 overflow-hidden text-left">
                                   <button
                                     onClick={() => { setSelectedPatient({ name: 'Nguyễn Văn A', id: 'BN-001', risk: 'Bình thường' }); setIsPatientDetailModalOpen(true); setActiveMenu(null); }}
                                     className="w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-3 group">
@@ -537,34 +535,34 @@ export default function DoctorDashboard() {
                             )}
                           </td>
                         </tr>
-                        <tr className="hover:bg-primary/5 transition-colors">
+                        <tr className="hover:bg-primary/5 transition-colors group">
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
                               <div
-                                className="w-8 h-8 rounded-full bg-slate-200"
+                                className="w-9 h-9 md:w-11 md:h-11 rounded-xl bg-slate-200 shrink-0 object-cover ring-2 ring-primary/5"
                                 data-alt="Patient Phạm Minh H avatar"
                                 style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAVWHXZK60rwm9MmaiA29VqP8ASQil3c591s5uuDkVdKwjsRUz9RHL00AwcIvKfnm7sTOXzKNKN-nbUXzpn8_j5rS9-8y8-OLkWoG_bIJ-tvNu7kA5TN0IqYWvQTamN9pwGFHfvgkGuyil2rYepRAyvMBn9AzFgopcwac8GX4iwy5aaHqtE6N4CzrwJf_kIMQWAO0QGQRpmQCZwYxcMQqaUSBGFRzbKGyvoidiTokz-2varrt7wx1PwpL0TgtgO3T9xoYBE0wh875k')" }}>
                               </div>
                               <div>
-                                <p className="text-[15px] font-bold text-slate-900 dark:text-white">Phạm Minh H</p>
-                                <p className="text-xs text-slate-400 font-medium">Mã bệnh nhân: #SK-2155</p>
+                                <p className="text-[16px] font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors tracking-tight">Phạm Minh H</p>
+                                <p className="text-[13px] text-slate-400 dark:text-slate-500 font-medium tracking-tight">Mã hồ sơ: #SK-2155</p>
                               </div>
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <div className="flex gap-3">
+                            <div className="flex gap-4">
                               <div className="text-[13px]">
-                                <p className="text-slate-400">Huyết áp</p>
-                                <p className="font-bold">135/85</p>
+                                <p className="text-slate-400 font-medium">Huyết áp</p>
+                                <p className="font-bold text-[14px] text-slate-700 dark:text-slate-200">135/85</p>
                               </div>
                               <div className="text-[13px]">
-                                <p className="text-slate-400">BMI</p>
-                                <p className="font-bold">24.5</p>
+                                <p className="text-slate-400 font-medium">BMI</p>
+                                <p className="font-bold text-[14px] text-slate-700 dark:text-slate-200">24.5</p>
                               </div>
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <span className="px-2 py-1 bg-orange-50 text-orange-500 border border-orange-100 text-xs font-bold rounded-md">Cần kiểm tra</span>
+                            <span className="px-4 py-1.5 bg-amber-500 text-white text-[13px] font-bold rounded-full shadow-sm whitespace-nowrap inline-flex">Cần kiểm tra</span>
                           </td>
                           <td className="px-6 py-4 text-[13px] text-slate-500">2 giờ trước</td>
                           <td className="px-6 py-4 text-right relative">

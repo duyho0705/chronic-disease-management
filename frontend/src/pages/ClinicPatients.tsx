@@ -39,11 +39,11 @@ export default function ClinicPatients() {
                 <div className="p-8 space-y-10">
                     {/* Header Section */}
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                        <div>
-                            <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Danh sách bệnh nhân mãn tính</h3>
-                            <p className="text-slate-500 font-medium mt-1">Quản lý và theo dõi sức khỏe bệnh nhân trong toàn phòng khám</p>
+                        <div className="space-y-1">
+                            <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Danh sách bệnh nhân mãn tính</h3>
+                            <p className="text-slate-500 font-medium">Quản lý và theo dõi sức khỏe bệnh nhân trong toàn phòng khám</p>
                         </div>
-                        <button className="bg-primary text-slate-900 px-6 py-3 rounded-2xl font-bold flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-primary/20 hover:scale-[0.98] transition-all shadow-sm">
+                        <button className="bg-primary text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all font-display">
                             <span className="material-symbols-outlined">person_add</span>
                             <span>Thêm bệnh nhân mới</span>
                         </button>
@@ -52,18 +52,23 @@ export default function ClinicPatients() {
                     {/* Stats Bento Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {[
-                            { label: 'Tổng số bệnh nhân', val: '1,250', trend: '+12% so với tháng trước', icon: 'group', color: 'primary' },
-                            { label: 'Nguy cơ cao', val: '24', trend: 'Cần can thiệp ngay', icon: 'warning', color: 'red' },
-                            { label: 'Cần tái khám', val: '45', trend: 'Trong tuần này', icon: 'event_repeat', color: 'amber' },
-                            { label: 'Mới xuất viện', val: '12', trend: '24 giờ qua', icon: 'logout', color: 'slate' }
+                            { label: 'Tổng số bệnh nhân', val: '1,250', trend: '+12%', icon: 'groups', color: 'primary', trendIcon: 'trending_up', trendColor: 'text-emerald-500' },
+                            { label: 'Nguy cơ cao', val: '24', trend: 'Cần chú ý', icon: 'warning', color: 'red', trendColor: 'text-red-500' },
+                            { label: 'Cần tái khám', val: '45', trend: '45 ca', icon: 'event_repeat', color: 'amber', trendColor: 'text-amber-500' },
+                            { label: 'Mới xuất viện', val: '12', trend: 'Hôm nay', icon: 'logout', color: 'slate', trendColor: 'text-slate-400' }
                         ].map((stat, i) => (
-                            <div key={i} className={`bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-primary/5 hover:shadow-md transition-shadow relative overflow-hidden group`}>
-                                <div className="relative z-10">
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">{stat.label}</p>
-                                    <h4 className={`text-4xl font-black text-slate-900 dark:text-white leading-none ${stat.color === 'red' ? 'text-red-500 dark:text-red-400' : ''}`}>{stat.val}</h4>
-                                    <p className={`mt-4 text-[11px] font-bold ${stat.color === 'red' ? 'text-red-400 animate-pulse' : 'text-primary/80'} italic`}>{stat.trend}</p>
+                            <div key={i} className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className={`w-12 h-12 ${stat.color === 'primary' ? 'bg-primary/10 text-primary' : stat.color === 'red' ? 'bg-red-100 text-red-500' : stat.color === 'amber' ? 'bg-amber-100 text-amber-500' : 'bg-slate-100 text-slate-500'} rounded-lg flex items-center justify-center text-primary`}>
+                                        <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>{stat.icon}</span>
+                                    </div>
+                                    <span className={`${stat.trendColor} text-[13px] font-bold flex items-center gap-1`}>
+                                        {stat.trend}
+                                        {stat.trendIcon && <span className="material-symbols-outlined text-xs">trending_up</span>}
+                                    </span>
                                 </div>
-                                <span className={`material-symbols-outlined absolute -right-6 -bottom-6 text-9xl ${stat.color === 'red' ? 'text-red-500/5' : 'text-primary/5'} group-hover:scale-110 transition-transform`}>{stat.icon}</span>
+                                <h3 className="text-slate-500 text-sm font-medium">{stat.label}</h3>
+                                <p className={`text-3xl font-extrabold mt-1 ${stat.color === 'red' ? 'text-red-500' : ''}`}>{stat.val}</p>
                             </div>
                         ))}
                     </div>
@@ -98,18 +103,18 @@ export default function ClinicPatients() {
                     </div>
 
                     {/* Patients Table Card */}
-                    <div className="bg-white dark:bg-slate-900 rounded-[2rem] overflow-hidden shadow-sm border border-primary/5">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm border border-primary/5">
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead>
-                                    <tr className="bg-slate-50 dark:bg-slate-800/50">
-                                        <th className="px-8 py-5 text-[10px] uppercase font-black tracking-widest text-slate-400">Thông tin bệnh nhân</th>
-                                        <th className="px-8 py-5 text-[10px] uppercase font-black tracking-widest text-slate-400">Cơ bản</th>
-                                        <th className="px-8 py-5 text-[10px] uppercase font-black tracking-widest text-slate-400">Bệnh lý</th>
-                                        <th className="px-8 py-5 text-[10px] uppercase font-black tracking-widest text-slate-400">Chỉ số mới nhất</th>
-                                        <th className="px-8 py-5 text-[10px] uppercase font-black tracking-widest text-slate-400">Mức rủi ro</th>
-                                        <th className="px-8 py-5 text-[10px] uppercase font-black tracking-widest text-slate-400">Bác sĩ phụ trách</th>
-                                        <th className="px-8 py-5 text-[10px] uppercase font-black tracking-widest text-slate-400 text-right">Thao tác</th>
+                                    <tr className="bg-slate-50 dark:bg-slate-800/50 font-display">
+                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500">Thông tin bệnh nhân</th>
+                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500 text-center">Tuổi / Phái</th>
+                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500">Bệnh lý</th>
+                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500 text-center">Chỉ số mới nhất</th>
+                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500">Mức rủi ro</th>
+                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500">Bác sĩ phụ trách</th>
+                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500 text-right">Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -138,35 +143,32 @@ export default function ClinicPatients() {
                                                 <div className="flex items-center gap-4">
                                                     <img alt="Patient Photo" className="w-11 h-11 rounded-full object-cover ring-2 ring-primary/10" src={patient.img} />
                                                     <div>
-                                                        <p className="text-sm font-black text-slate-900 dark:text-white group-hover:text-primary transition-colors">{patient.name}</p>
-                                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">{patient.id}</p>
+                                                        <p className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">{patient.name}</p>
+                                                        <p className="text-[13px] text-slate-500 font-medium mt-0.5">{patient.id}</p>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-5 text-sm text-slate-600 dark:text-slate-400 font-bold">
+                                            <td className="px-8 py-5 text-sm text-slate-700 dark:text-slate-400 font-bold text-center">
                                                 {patient.age}t / {patient.gender}
                                             </td>
                                             <td className="px-8 py-5">
-                                                <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-black px-3 py-1.5 rounded-lg uppercase tracking-wider">
+                                                <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[12px] font-bold px-3 py-1.5 rounded-lg whitespace-nowrap">
                                                     {patient.condition}
                                                 </span>
                                             </td>
                                             <td className="px-8 py-5">
-                                                <div className="flex flex-col gap-0.5">
-                                                    <span className={`text-sm font-black ${patient.riskColor === 'red' ? 'text-red-500' : 'text-slate-900 dark:text-white'}`}>{patient.vitals}</span>
-                                                    <span className="text-[10px] text-slate-400 font-bold">{patient.extra}</span>
+                                                <div className="flex flex-col items-center gap-0.5 whitespace-nowrap">
+                                                    <span className={`text-sm font-bold ${patient.riskColor === 'red' ? 'text-red-500' : 'text-slate-900 dark:text-white'}`}>{patient.vitals}</span>
+                                                    <span className="text-[13px] text-slate-400 font-medium">{patient.extra}</span>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-5">
-                                                <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-tighter ${patient.riskColor === 'red' ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300' :
-                                                        patient.riskColor === 'amber' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-300' :
-                                                            'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-300'
-                                                    }`}>
-                                                    <span className={`w-1.5 h-1.5 rounded-full mr-2 ${patient.riskColor === 'red' ? 'bg-red-500 animate-pulse' :
-                                                            patient.riskColor === 'amber' ? 'bg-amber-500' :
-                                                                'bg-emerald-500'
-                                                        }`}></span>
-                                                    {patient.risk}
+                                                <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-[13px] font-bold text-white whitespace-nowrap shadow-sm ${
+                                                    patient.riskColor === 'red' ? 'bg-red-500' : 
+                                                    patient.riskColor === 'amber' ? 'bg-amber-500' : 
+                                                    'bg-emerald-500'
+                                                }`}>
+                                                    {patient.risk === 'MONITORING' ? 'Theo dõi' : patient.risk === 'HIGH RISK' ? 'Nguy cơ cao' : 'Ổn định'}
                                                 </span>
                                             </td>
                                             <td className="px-8 py-5">
@@ -178,13 +180,13 @@ export default function ClinicPatients() {
                                             <td className="px-8 py-5 text-right">
                                                 <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-1 group-hover:translate-x-0">
                                                     <button className="p-2 text-primary hover:bg-primary/10 rounded-xl transition-colors" title="Xem hồ sơ">
-                                                        <span className="material-symbols-outlined text-lg">visibility</span>
+                                                        <span className="material-symbols-outlined text-[22px]">visibility</span>
                                                     </button>
                                                     <button className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-xl transition-colors">
-                                                        <span className="material-symbols-outlined text-lg">edit</span>
+                                                        <span className="material-symbols-outlined text-[22px]">edit</span>
                                                     </button>
                                                     <button className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors">
-                                                        <span className="material-symbols-outlined text-lg">delete</span>
+                                                        <span className="material-symbols-outlined text-[22px]">delete</span>
                                                     </button>
                                                 </div>
                                             </td>
@@ -196,17 +198,17 @@ export default function ClinicPatients() {
 
                         {/* Pagination Footer */}
                         <div className="px-8 py-6 bg-slate-50 dark:bg-slate-800/30 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">
-                            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Hiển thị 1 đến 10 trong số 1,250 bệnh nhân</p>
+                            <p className="text-[13px] font-bold text-slate-400 uppercase ">Hiển thị 1 đến 10 trong số 1,250 bệnh nhân</p>
                             <div className="flex items-center gap-2">
                                 <button className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary transition-all disabled:opacity-30" disabled>
                                     <span className="material-symbols-outlined text-sm">chevron_left</span>
                                 </button>
                                 <div className="flex items-center gap-1.5">
-                                    <button className="w-10 h-10 rounded-xl bg-primary text-slate-900 text-xs font-black shadow-lg shadow-primary/20 transition-all">1</button>
-                                    <button className="w-10 h-10 rounded-xl hover:bg-white dark:hover:bg-slate-900 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-xs font-bold text-slate-500 transition-all">2</button>
-                                    <button className="w-10 h-10 rounded-xl hover:bg-white dark:hover:bg-slate-900 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-xs font-bold text-slate-500 transition-all">3</button>
+                                    <button className="w-10 h-10 rounded-xl bg-primary text-slate-900 text-sm font-black shadow-lg shadow-primary/20 transition-all">1</button>
+                                    <button className="w-10 h-10 rounded-xl hover:bg-white dark:hover:bg-slate-900 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-sm font-bold text-slate-500 transition-all">2</button>
+                                    <button className="w-10 h-10 rounded-xl hover:bg-white dark:hover:bg-slate-900 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-sm font-bold text-slate-500 transition-all">3</button>
                                     <span className="px-1 text-slate-300 dark:text-slate-600 font-bold">...</span>
-                                    <button className="w-10 h-10 rounded-xl hover:bg-white dark:hover:bg-slate-900 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-xs font-bold text-slate-500 transition-all">125</button>
+                                    <button className="w-10 h-10 rounded-xl hover:bg-white dark:hover:bg-slate-900 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-sm font-bold text-slate-500 transition-all">125</button>
                                 </div>
                                 <button className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary transition-all">
                                     <span className="material-symbols-outlined text-sm">chevron_right</span>

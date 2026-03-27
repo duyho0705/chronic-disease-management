@@ -250,27 +250,27 @@ export default function DoctorPatients() {
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-slate-200"></div>
                           <div>
-                            <p className="text-[14px] font-bold text-slate-900">{p.name}</p>
-                            <p className="text-[13px] text-slate-500">{p.disease}</p>
+                            <p className="text-[16px] font-bold text-slate-900 group-hover:text-primary transition-colors tracking-tight">{p.name}</p>
+                            <p className="text-[13px] text-slate-500 font-medium tracking-tight">{p.disease}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-5 text-[15px] font-medium text-slate-600">{p.id}</td>
-                      <td className="px-6 py-5 text-[15px] font-medium text-slate-600">{p.age}</td>
+                      <td className="px-6 py-5 text-[15px] font-bold text-slate-600">{p.id}</td>
+                      <td className="px-6 py-5 text-[15px] font-bold text-slate-600">{p.age}</td>
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-2">
-                          <span className="px-2.5 py-1 bg-slate-100/80 text-slate-800 text-[13px] font-bold rounded-[5px] border border-slate-200/50">{p.glucose} mmol/L</span>
-                          <span className="px-2.5 py-1 bg-slate-100/80 text-slate-800 text-[13px] font-bold rounded-[5px] border border-slate-200/50">{p.bp} mmHg</span>
+                          <span className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-[13px] font-bold rounded-lg border border-slate-100 dark:border-slate-700 shadow-sm">{p.glucose} <span className="text-[11px] font-medium text-slate-400">mmol/L</span></span>
+                          <span className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-[13px] font-bold rounded-lg border border-slate-100 dark:border-slate-700 shadow-sm">{p.bp} <span className="text-[11px] font-medium text-slate-400">mmHg</span></span>
                         </div>
                       </td>
                       <td className="px-6 py-5 text-[14px] text-slate-500 font-medium">{p.update}</td>
                       <td className="px-6 py-5">
                         <span
-                          style={p.riskColor === 'red' ? { backgroundColor: 'rgb(255, 197, 197)', borderColor: 'rgb(237, 152, 152)' } : {}}
-                          className={`px-3 py-1.5 text-[12px] font-extrabold rounded-[5px] border ${p.riskColor === 'red' ? 'text-red-500' :
-                              p.riskColor === 'orange' ? 'bg-orange-50 text-orange-500 border-orange-100' :
-                                'bg-green-50 text-green-500 border-green-100'
-                            }`}
+                          className={`px-4 py-1.5 text-[13px] font-bold rounded-full text-white shadow-sm whitespace-nowrap inline-flex ${
+                            p.riskColor === 'red' ? 'bg-red-500 shadow-red-500/10' :
+                            p.riskColor === 'orange' ? 'bg-amber-500 shadow-amber-500/10' :
+                            'bg-emerald-500 shadow-emerald-500/10'
+                          }`}
                         >
                           {p.risk}
                         </span>
@@ -279,13 +279,13 @@ export default function DoctorPatients() {
                         <button
                           onClick={() => setActiveMenu(activeMenu === p.id ? null : p.id)}
                           className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 rounded-full transition-all ml-auto">
-                          <span className="material-symbols-outlined">more_vert</span>
+                          <span className="material-symbols-outlined text-[22px]">more_vert</span>
                         </button>
 
                         {activeMenu === p.id && (
                           <>
                             <div className="fixed inset-0 z-[100]" onClick={() => setActiveMenu(null)}></div>
-                            <div className="absolute right-6 top-12 w-56 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 py-2 z-[110] animate-in fade-in slide-in-from-top-2 duration-200 overflow-hidden text-left">
+                            <div className="absolute right-6 top-12 w-56 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 py-2.5 z-[110] animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-200 overflow-hidden text-left">
                                 <button 
                                   onClick={() => { setSelectedPatient(p); setIsPatientDetailModalOpen(true); setActiveMenu(null); }}
                                   className="w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-3 group">
@@ -321,16 +321,25 @@ export default function DoctorPatients() {
               </table>
             </div>
 
-            {/* Pagination */}
-            <div className="px-8 py-6 flex items-center justify-between border-t border-slate-50">
-              <p className="text-xs text-slate-500 font-medium">Hiển thị <span className="text-slate-900 font-bold">1-10</span> trong số <span className="text-slate-900 font-bold">128</span> bệnh nhân</p>
-              <div className="flex items-center gap-1">
-                <button className="p-2 text-slate-400 hover:bg-slate-100 rounded-lg"><span className="material-symbols-outlined text-sm">chevron_left</span></button>
-                <button className="w-8 h-8 bg-primary text-slate-900 text-xs font-bold rounded-lg">1</button>
-                <button className="w-8 h-8 text-slate-500 hover:bg-slate-100 text-xs font-bold rounded-lg">2</button>
-                <button className="w-8 h-8 text-slate-500 hover:bg-slate-100 text-xs font-bold rounded-lg">3</button>
-                <span className="text-slate-300 mx-1">...</span>
-                <button className="p-2 text-slate-400 hover:bg-slate-100 rounded-lg"><span className="material-symbols-outlined text-sm">chevron_right</span></button>
+            {/* Pagination Redesigned */}
+            <div className="px-8 py-6 bg-slate-50/30 dark:bg-slate-800/20 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">
+              <p className="text-[14px] font-medium text-slate-500">
+                Hiển thị <span className="font-bold text-slate-900 dark:text-white">1</span> đến <span className="font-bold text-slate-900 dark:text-white">10</span> trong số <span className="font-bold text-slate-900 dark:text-white">128</span> bệnh nhân
+              </p>
+              <div className="flex items-center gap-3">
+                <button className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary transition-all disabled:opacity-30" disabled>
+                  <span className="material-symbols-outlined text-[20px]">chevron_left</span>
+                </button>
+                <div className="flex items-center gap-1.5">
+                  <button className="w-10 h-10 rounded-xl bg-primary text-slate-900 text-sm font-black shadow-lg shadow-primary/20">1</button>
+                  <button className="w-10 h-10 rounded-xl hover:bg-white dark:hover:bg-slate-900 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-sm font-bold text-slate-500 transition-all">2</button>
+                  <button className="w-10 h-10 rounded-xl hover:bg-white dark:hover:bg-slate-900 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-sm font-bold text-slate-500 transition-all">3</button>
+                  <span className="text-slate-300 mx-1">...</span>
+                  <button className="w-10 h-10 rounded-xl hover:bg-white dark:hover:bg-slate-900 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-sm font-bold text-slate-500 transition-all">13</button>
+                </div>
+                <button className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary transition-all">
+                  <span className="material-symbols-outlined text-[20px]">chevron_right</span>
+                </button>
               </div>
             </div>
           </div>

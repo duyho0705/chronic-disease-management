@@ -4,6 +4,7 @@ import TopBar from '../components/common/TopBar';
 
 export default function ClinicDoctors() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [doctorStatusFilter, setDoctorStatusFilter] = useState('Tất cả bác sĩ');
     const [notifications, setNotifications] = useState([
         { id: 1, title: 'Báo cáo mới', description: 'Có báo cáo tổng quát tháng 12 vừa được tạo.', time: '5 phút trước', read: false },
         { id: 2, title: 'Cảnh báo nguy cơ', description: 'Bệnh nhân Nguyễn Văn An có chỉ số bất thường.', time: '1 giờ trước', read: false },
@@ -34,7 +35,7 @@ export default function ClinicDoctors() {
                     userAvatar="https://lh3.googleusercontent.com/aida-public/AB6AXuDs9fuTZde7EUIINhAwZDAYbGdWhfZuvszHFDZODEHBxXo3hRWmKfCmGfg6Xgckf0DONyYs8LQEOXng1sISGQVj9ec2pSs--Gz-xPlj6elGIG3KtZTO9U-57mPPcUxuNMtJbLamHmXAsWrVwobD4Ai-pKgNGU0yfv596RmDCRUawQMx8gmW7E2J_we-R_YITLa95pCcbtDZf6tkb7C6bWKKzwepNG2pc4L5uji1KMHQetqk8390TVAlxrRao3qco3laKWLu0uA-BmQ"
                     showSearch={true}
                     actionButton={
-                        <button className="bg-primary text-slate-900 px-6 py-2.5 mr-4 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:shadow-lg hover:shadow-primary/20 hover:scale-[0.98] transition-all shadow-sm whitespace-nowrap">
+                        <button className="bg-primary text-white px-5 py-2.5 mr-4 rounded-xl font-bold text-sm flex items-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all font-display whitespace-nowrap">
                             <span className="material-symbols-outlined text-sm">add</span>
                             <span>Thêm bác sĩ</span>
                         </button>
@@ -46,54 +47,52 @@ export default function ClinicDoctors() {
                     {/* Filters & Summary Bento Grid */}
                     <div className="grid grid-cols-12 gap-6">
                         {/* Filter Actions */}
-                        <div className="col-span-12 lg:col-span-8 bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-primary/5 shadow-sm flex flex-wrap items-center gap-4">
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">Bộ lọc trạng thái:</span>
+                        <div className="col-span-12 lg:col-span-8 bg-white dark:bg-slate-900 rounded-2xl p-5 border border-primary/5 shadow-sm flex flex-wrap items-center gap-4 text-slate-500">
+                            <span className="text-sm font-bold px-2">Bộ lọc trạng thái:</span>
                             {[
-                                { label: 'Tất cả bác sĩ', active: true, pulse: true },
-                                { label: 'Đang hoạt động', active: false },
-                                { label: 'Nghỉ phép', active: false },
-                                { label: 'Đã đủ lịch', active: false }
-                            ].map((filter, i) => (
+                                'Tất cả bác sĩ',
+                                'Đang hoạt động',
+                                'Nghỉ phép',
+                                'Đã đủ lịch'
+                            ].map((label, i) => (
                                 <button
                                     key={i}
-                                    className={`px-6 py-2.5 rounded-2xl font-bold text-sm flex items-center gap-2 transition-all ${filter.active
-                                            ? 'bg-primary text-slate-900 shadow-lg shadow-primary/10'
-                                            : 'bg-slate-50 dark:bg-slate-800 text-slate-500 hover:text-primary'
+                                    onClick={() => setDoctorStatusFilter(label)}
+                                    className={`px-5 py-2 rounded-xl font-bold text-sm flex items-center gap-2 transition-all ${doctorStatusFilter === label
+                                            ? 'bg-primary text-white shadow-lg shadow-primary/10'
+                                            : 'bg-slate-50 dark:bg-slate-800 text-slate-500 hover:text-primary hover:bg-primary/5'
                                         }`}
                                 >
-                                    {filter.pulse && <span className="w-2 h-2 rounded-full bg-slate-900 animate-pulse"></span>}
-                                    {filter.label}
+                                    {label}
                                 </button>
                             ))}
                         </div>
 
                         {/* Stats Mini Card */}
-                        <div className="col-span-12 lg:col-span-4 bg-primary/10 rounded-[2rem] border border-primary/5 p-6 flex items-center justify-between overflow-hidden relative group shadow-sm transition-all hover:shadow-md">
+                        <div className="col-span-12 lg:col-span-4 bg-white dark:bg-slate-900 rounded-2xl border border-primary/5 p-5 flex items-center justify-between overflow-hidden relative group shadow-sm transition-all hover:shadow-md">
                             <div className="relative z-10">
-                                <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Tổng số bác sĩ</p>
-                                <h3 className="text-4xl font-black text-slate-900 dark:text-white">42</h3>
+                                <p className="text-sm font-medium text-slate-500 mb-1">Tổng số bác sĩ</p>
+                                <h3 className="text-3xl font-black text-slate-900 dark:text-white">42</h3>
                             </div>
-                            <div className="w-16 h-16 bg-primary text-slate-900 rounded-2xl flex items-center justify-center relative z-10 shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
-                                <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>medical_information</span>
+                            <div className="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center relative z-10 group-hover:scale-110 transition-transform">
+                                <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>medical_information</span>
                             </div>
-                            {/* Decorative background icon */}
-                            <span className="material-symbols-outlined absolute -right-6 -bottom-6 text-9xl text-primary/5 group-hover:scale-110 transition-transform">medical_services</span>
                         </div>
                     </div>
 
                     {/* Doctor Directory Table */}
-                    <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-sm border border-primary/5 overflow-hidden">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-primary/5 overflow-hidden">
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead>
-                                    <tr className="bg-slate-50 dark:bg-slate-800/50">
-                                        <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Thông tin bác sĩ</th>
-                                        <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Chuyên khoa</th>
-                                        <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Liên hệ</th>
-                                        <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Bệnh nhân</th>
-                                        <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Đánh giá</th>
-                                        <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Trạng thái</th>
-                                        <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Thao tác</th>
+                                    <tr className="bg-slate-50 dark:bg-slate-800/50 font-display">
+                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500">Thông tin bác sĩ</th>
+                                        <th className="px-6 py-5 text-[15px] font-medium text-slate-500">Chuyên khoa</th>
+                                        <th className="px-6 py-5 text-[15px] font-medium text-slate-500">Liên hệ</th>
+                                        <th className="px-6 py-5 text-[15px] font-medium text-slate-500 text-center">Bệnh nhân</th>
+                                        <th className="px-6 py-5 text-[15px] font-medium text-slate-500">Đánh giá</th>
+                                        <th className="px-6 py-5 text-[15px] font-medium text-slate-500">Trạng thái</th>
+                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500 text-right">Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -127,52 +126,52 @@ export default function ClinicDoctors() {
                                             <td className="px-8 py-5">
                                                 <div className="flex items-center gap-4">
                                                     <div className="relative">
-                                                        <img alt={dr.name} className="w-12 h-12 rounded-2xl object-cover ring-2 ring-primary/10" src={dr.img} />
-                                                        {dr.status === 'Đang hoạt động' && <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-primary border-2 border-white dark:border-slate-900 rounded-full animate-pulse shadow-sm"></span>}
+                                                        <img alt={dr.name} className="w-11 h-11 rounded-xl object-cover ring-2 ring-primary/10" src={dr.img} />
                                                     </div>
                                                     <div>
-                                                        <p className="text-sm font-black text-slate-900 dark:text-white group-hover:text-primary transition-colors">{dr.name}</p>
-                                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Mã số: {dr.id}</p>
+                                                        <p className="text-[16px] font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors tracking-tight">{dr.name}</p>
+                                                        <p className="text-[14px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">Mã số: {dr.id}</p>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-5">
-                                                <span className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-black rounded-lg uppercase tracking-wider">
+                                                <span className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[14px] font-bold rounded-lg whitespace-nowrap">
                                                     {dr.specialty}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-5">
-                                                <p className="text-[11px] font-bold text-slate-700 dark:text-slate-300">{dr.email}</p>
-                                                <p className="text-[10px] text-slate-400 font-medium tracking-tight whitespace-nowrap">{dr.phone}</p>
+                                                <p className="text-[14px] font-bold text-slate-700 dark:text-slate-300">{dr.email}</p>
+                                                <p className="text-[13px] text-slate-400 font-medium tracking-tight whitespace-nowrap">{dr.phone}</p>
                                             </td>
                                             <td className="px-6 py-5 text-center">
-                                                <span className="text-sm font-black text-slate-900 dark:text-white">{dr.load}</span>
+                                                <span className="text-sm font-bold text-slate-900 dark:text-white">{dr.load}</span>
                                             </td>
                                             <td className="px-6 py-5">
                                                 <div className="flex items-center gap-1.5 text-amber-400">
                                                     <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                                    <span className="text-sm font-black text-slate-900 dark:text-white">{dr.rating}</span>
-                                                    <span className="text-[10px] text-slate-400 font-bold">({dr.reviews})</span>
+                                                    <span className="text-[15px] font-bold text-slate-900 dark:text-white">{dr.rating}</span>
+                                                    <span className="text-[14px] text-slate-500 font-medium">({dr.reviews})</span>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-5">
-                                                <span className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-tighter ${dr.statusColor === 'primary' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-300' :
-                                                        dr.statusColor === 'amber' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-300' :
-                                                            'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
-                                                    }`}>
+                                                <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-[14px] font-bold text-white shadow-sm whitespace-nowrap ${
+                                                    dr.statusColor === 'primary' ? 'bg-emerald-500' : 
+                                                    dr.statusColor === 'amber' ? 'bg-amber-500' : 
+                                                    'bg-slate-400'
+                                                }`}>
                                                     {dr.status}
                                                 </span>
                                             </td>
                                             <td className="px-8 py-5 text-right whitespace-nowrap">
                                                 <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-1 group-hover:translate-x-0">
                                                     <button className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary hover:bg-primary/10 transition-all">
-                                                        <span className="material-symbols-outlined text-lg">edit</span>
+                                                        <span className="material-symbols-outlined text-[22px]">edit</span>
                                                     </button>
                                                     <button className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-tertiary hover:bg-tertiary/10 transition-all">
-                                                        <span className="material-symbols-outlined text-lg">assignment_ind</span>
+                                                        <span className="material-symbols-outlined text-[22px]">assignment_ind</span>
                                                     </button>
                                                     <button className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all">
-                                                        <span className="material-symbols-outlined text-lg">delete</span>
+                                                        <span className="material-symbols-outlined text-[22px]">delete</span>
                                                     </button>
                                                 </div>
                                             </td>
@@ -182,17 +181,25 @@ export default function ClinicDoctors() {
                             </table>
                         </div>
 
-                        {/* Pagination Footer */}
-                        <div className="px-8 py-6 bg-slate-50 dark:bg-slate-800/30 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">
-                            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Hiển thị 4 trong số 42 bác sĩ</p>
-                            <div className="flex items-center gap-2">
-                                <button className="px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-all disabled:opacity-30" disabled>Trước</button>
+                        {/* Pagination Footer - Redesigned */}
+                        <div className="px-8 py-6 bg-slate-50/50 dark:bg-slate-800/20 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">
+                            <p className="text-[14px] font-medium text-slate-500">
+                                Hiển thị <span className="font-bold text-slate-900 dark:text-white">1</span> đến <span className="font-bold text-slate-900 dark:text-white">4</span> trong số <span className="font-bold text-slate-900 dark:text-white">42</span> bác sĩ
+                            </p>
+                            <div className="flex items-center gap-3">
+                                <button className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary transition-all hover:shadow-sm disabled:opacity-30 disabled:hover:text-slate-400" disabled title="Trang trước">
+                                    <span className="material-symbols-outlined text-[20px]">chevron_left</span>
+                                </button>
                                 <div className="flex items-center gap-1.5">
-                                    <button className="w-10 h-10 rounded-xl bg-primary text-slate-900 text-xs font-black shadow-lg shadow-primary/20 transition-all">1</button>
-                                    <button className="w-10 h-10 rounded-xl hover:bg-white dark:hover:bg-slate-900 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-xs font-bold text-slate-500 transition-all">2</button>
-                                    <button className="w-10 h-10 rounded-xl hover:bg-white dark:hover:bg-slate-900 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-xs font-bold text-slate-500 transition-all">3</button>
+                                    <button className="w-10 h-10 rounded-xl bg-primary text-white text-sm font-black shadow-lg shadow-primary/20 transition-all">1</button>
+                                    <button className="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 text-slate-500 hover:text-primary border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-sm font-bold transition-all">2</button>
+                                    <button className="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 text-slate-500 hover:text-primary border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-sm font-bold transition-all">3</button>
+                                    <span className="px-2 text-slate-300 dark:text-slate-600 font-bold">...</span>
+                                    <button className="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 text-slate-500 hover:text-primary border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-sm font-bold transition-all">11</button>
                                 </div>
-                                <button className="px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest text-slate-900 dark:text-white hover:text-primary transition-all">Sau</button>
+                                <button className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary transition-all hover:shadow-sm" title="Trang sau">
+                                    <span className="material-symbols-outlined text-[20px]">chevron_right</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -204,14 +211,14 @@ export default function ClinicDoctors() {
                             { label: 'Đánh giá tiêu biểu', val: '4.85/5.0', sub: 'Chất lượng chuyên môn', icon: 'star', color: 'tertiary', stars: true },
                             { label: 'Lịch hẹn tuần này', val: '312', sub: '+12% so với tuần trước', icon: 'calendar_month', color: 'secondary' }
                         ].map((card, i) => (
-                            <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-primary/5 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+                            <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
                                 <div className="flex items-center gap-4 mb-6 relative z-10">
                                     <div className={`w-12 h-12 bg-${card.color}/10 rounded-2xl flex items-center justify-center text-${card.color}`}>
                                         <span className="material-symbols-outlined">{card.icon}</span>
                                     </div>
                                     <div>
                                         <h4 className="font-bold text-slate-900 dark:text-white">{card.label}</h4>
-                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{card.sub}</p>
+                                        <p className="text-[10px] text-slate-400 font-bold">{card.sub}</p>
                                     </div>
                                 </div>
                                 <div className="text-4xl font-black text-slate-900 dark:text-white mb-4 relative z-10 leading-none">
@@ -232,7 +239,7 @@ export default function ClinicDoctors() {
                                 )}
 
                                 {i === 2 && (
-                                    <div className="text-[11px] font-black text-primary flex items-center gap-1 relative z-10 uppercase tracking-tighter">
+                                    <div className="text-[11px] font-black text-primary flex items-center gap-1 relative z-10 tracking-tighter">
                                         <span className="material-symbols-outlined text-xs">arrow_upward</span>
                                         Tăng trưởng ổn định
                                     </div>

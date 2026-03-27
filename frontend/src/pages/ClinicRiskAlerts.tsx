@@ -4,6 +4,7 @@ import TopBar from '../components/common/TopBar';
 
 export default function ClinicRiskAlerts() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [alertTimeFilter, setAlertTimeFilter] = useState('Hôm nay');
     const [notifications, setNotifications] = useState([
         { id: 1, title: 'Báo cáo mới', description: 'Có báo cáo tổng quát tháng 12 vừa được tạo.', time: '5 phút trước', read: false },
         { id: 2, title: 'Cảnh báo nguy cơ', description: 'Bệnh nhân Nguyễn Văn An có chỉ số bất thường.', time: '1 giờ trước', read: false },
@@ -34,64 +35,64 @@ export default function ClinicRiskAlerts() {
                     userAvatar="https://lh3.googleusercontent.com/aida-public/AB6AXuDs9fuTZde7EUIINhAwZDAYbGdWhfZuvszHFDZODEHBxXo3hRWmKfCmGfg6Xgckf0DONyYs8LQEOXng1sISGQVj9ec2pSs--Gz-xPlj6elGIG3KtZTO9U-57mPPcUxuNMtJbLamHmXAsWrVwobD4Ai-pKgNGU0yfv596RmDCRUawQMx8gmW7E2J_we-R_YITLa95pCcbtDZf6tkb7C6bWKKzwepNG2pc4L5uji1KMHQetqk8390TVAlxrRao3qco3laKWLu0uA-BmQ"
                     showSearch={true}
                     actionButton={
-                        <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl gap-1 mr-4 border border-primary/5">
-                            <button className="px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all bg-white dark:bg-slate-700 shadow-sm text-primary">Hôm nay</button>
-                            <button className="px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all text-slate-500 hover:bg-white dark:hover:bg-slate-700">Tuần này</button>
+                        <div className="flex bg-slate-50 dark:bg-slate-800 p-1 rounded-xl gap-1 mr-4 border border-primary/5 shadow-sm">
+                            <button 
+                                onClick={() => setAlertTimeFilter('Hôm nay')}
+                                className={`px-5 py-2 text-[13px] font-bold rounded-lg transition-all ${alertTimeFilter === 'Hôm nay' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-700'}`}
+                            >
+                                Hôm nay
+                            </button>
+                            <button 
+                                onClick={() => setAlertTimeFilter('Tuần này')}
+                                className={`px-5 py-2 text-[13px] font-bold rounded-lg transition-all ${alertTimeFilter === 'Tuần này' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-700'}`}
+                            >
+                                Tuần này
+                            </button>
                         </div>
                     }
                 />
 
                 {/* Content Area */}
                 <div className="p-8 space-y-8">
-                    {/* Header info */}
-                    <div className="flex justify-between items-end mb-4">
-                        <div>
-                            <p className="text-slate-500 font-medium">Hệ thống giám sát chỉ số sinh tồn thời gian thực</p>
-                        </div>
-                    </div>
-
                     {/* Quick Stats Bento Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group border border-primary/5">
+                        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group border border-primary/5">
                             <div className="relative z-10">
-                                <p className="text-[10px] uppercase tracking-[0.15em] font-bold text-slate-400 mb-4">Tổng cảnh báo</p>
-                                <h3 className="text-5xl font-extrabold text-slate-900 dark:text-white leading-none">24</h3>
+                                <p className="text-sm font-medium text-slate-500 mb-4">Tổng cảnh báo</p>
+                                <h3 className="text-3xl font-black text-slate-900 dark:text-white leading-none">24</h3>
                             </div>
-                            <div className="mt-6 flex items-center text-primary text-xs font-bold gap-1">
+                            <div className="mt-6 flex items-center text-primary text-[13px] font-bold gap-1">
                                 <span className="material-symbols-outlined text-sm">trending_up</span>
                                 +12% so với hôm qua
                             </div>
-                            <div className="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:scale-110 transition-transform duration-500 text-slate-900 dark:text-white">
-                                <span className="material-symbols-outlined text-9xl">notifications</span>
-                            </div>
                         </div>
 
-                        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group border border-red-100 dark:border-red-900/30">
+                        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group border border-red-100 dark:border-red-900/30">
                             <div>
                                 <div className="flex items-center gap-2 mb-4">
-                                    <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-                                    <p className="text-[10px] uppercase tracking-[0.15em] font-bold text-red-500">Khẩn cấp</p>
+                                    <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
+                                    <p className="text-sm font-bold text-red-500">Khẩn cấp</p>
                                 </div>
-                                <h3 className="text-5xl font-extrabold text-red-500 leading-none">05</h3>
+                                <h3 className="text-3xl font-black text-red-500 leading-none">05</h3>
                             </div>
-                            <p className="text-red-400/70 text-[10px] font-medium mt-4 italic">Cần can thiệp ngay lập tức</p>
+                            <p className="text-red-400/70 text-[13px] font-medium mt-4">Cần can thiệp ngay lập tức</p>
                         </div>
 
-                        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group border border-amber-100 dark:border-amber-900/30">
+                        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group border border-amber-100 dark:border-amber-900/30">
                             <div>
                                 <div className="flex items-center gap-2 mb-4">
-                                    <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-                                    <p className="text-[10px] uppercase tracking-[0.15em] font-bold text-amber-600">Theo dõi</p>
+                                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                                    <p className="text-sm font-bold text-amber-600">Theo dõi</p>
                                 </div>
-                                <h3 className="text-5xl font-extrabold text-amber-600 leading-none">12</h3>
+                                <h3 className="text-3xl font-black text-amber-600 leading-none">12</h3>
                             </div>
-                            <p className="text-amber-500/60 text-[10px] font-medium mt-4 italic">Đang trong ngưỡng nguy cơ</p>
+                            <p className="text-amber-500/60 text-[13px] font-medium mt-4">Đang trong ngưỡng nguy cơ</p>
                         </div>
 
-                        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-primary/5">
+                        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-primary/5">
                             <div>
-                                <p className="text-[10px] uppercase tracking-[0.15em] font-bold text-slate-400 mb-4">Đã xử lý</p>
-                                <h3 className="text-5xl font-extrabold text-emerald-600 leading-none">07</h3>
+                                <p className="text-sm font-medium text-slate-500 mb-4">Đã xử lý</p>
+                                <h3 className="text-3xl font-black text-emerald-600 leading-none">07</h3>
                             </div>
                             <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full mt-6 overflow-hidden">
                                 <div className="bg-primary h-full w-[29%]"></div>
@@ -104,21 +105,21 @@ export default function ClinicRiskAlerts() {
                         <div className="lg:col-span-2 space-y-6">
                             <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm border border-primary/5">
                                 <div className="px-8 py-6 flex justify-between items-center border-b border-primary/5">
-                                    <h4 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">Danh sách bệnh nhân nguy cơ cao</h4>
+                                    <h4 className="text-[20px] font-bold text-slate-900 dark:text-white tracking-tight">Danh sách bệnh nhân nguy cơ cao</h4>
                                     <button className="text-primary text-sm font-bold flex items-center gap-1 hover:underline">
                                         Tải báo cáo <span className="material-symbols-outlined text-sm">download</span>
                                     </button>
                                 </div>
                                 <div className="overflow-x-auto">
-                                    <table className="w-full text-left border-collapse">
+                                    <table className="w-full text-left">
                                         <thead>
-                                            <tr className="text-[10px] uppercase tracking-wider text-slate-400 font-extrabold bg-slate-50 dark:bg-slate-800/50">
-                                                <th className="px-8 py-4">Bệnh nhân</th>
-                                                <th className="px-4 py-4">Mã hồ sơ</th>
-                                                <th className="px-4 py-4">Chỉ số sinh tồn</th>
-                                                <th className="px-4 py-4">Thời điểm</th>
-                                                <th className="px-4 py-4 text-center">Mức độ</th>
-                                                <th className="px-8 py-4 text-right">Hành động</th>
+                                            <tr className="bg-slate-50 dark:bg-slate-800/50 font-display">
+                                                <th className="px-8 py-5 text-[15px] font-medium text-slate-500">Bệnh nhân</th>
+                                                <th className="px-4 py-5 text-[15px] font-medium text-slate-500">Mã hồ sơ</th>
+                                                <th className="px-4 py-5 text-[15px] font-medium text-slate-500">Chỉ số sinh tồn</th>
+                                                <th className="px-4 py-5 text-[15px] font-medium text-slate-500">Thời điểm</th>
+                                                <th className="px-4 py-5 text-[15px] font-medium text-slate-500 text-center">Mức độ</th>
+                                                <th className="px-8 py-5 text-[15px] font-medium text-slate-500 text-right">Hành động</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
@@ -130,17 +131,17 @@ export default function ClinicRiskAlerts() {
                                                 <tr key={idx} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                                                     <td className="px-8 py-5">
                                                         <div className="flex items-center gap-3">
-                                                            <img alt="Bệnh nhân" className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/10" src={patient.img} />
+                                                            <img alt="Bệnh nhân" className="w-10 h-10 rounded-xl object-cover ring-2 ring-primary/10" src={patient.img} />
                                                             <div>
                                                                 <p className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">{patient.name}</p>
-                                                                <p className="text-[10px] text-slate-500 font-medium italic-none">{patient.age}</p>
+                                                                <p className="text-[13px] text-slate-500 font-medium">{patient.age}</p>
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td className="px-4 py-5 font-mono text-xs text-slate-500">{patient.id}</td>
+                                                    <td className="px-4 py-5 font-mono text-xs text-slate-500 font-medium">{patient.id}</td>
                                                     <td className="px-4 py-5">
                                                         <div className="flex flex-col">
-                                                            <span className={`text-sm font-extrabold ${patient.level === 'Đỏ' ? 'text-red-500' : 'text-amber-500'}`}>
+                                                            <span className={`text-sm font-bold ${patient.level === 'Đỏ' ? 'text-red-500' : 'text-amber-500'}`}>
                                                                 {patient.level === 'Đỏ' ? 'HA ' : 'Glu '}{patient.value}
                                                             </span>
                                                             <span className="text-[10px] text-slate-400 font-medium">{patient.unit}</span>
@@ -149,26 +150,44 @@ export default function ClinicRiskAlerts() {
                                                     <td className="px-4 py-5 text-xs text-slate-500 font-medium">{patient.time}</td>
                                                     <td className="px-4 py-5">
                                                         <div className="flex justify-center">
-                                                            <span className={`px-3 py-1 ${patient.color} text-white text-[10px] font-extrabold rounded-full uppercase shadow-sm`}>
-                                                                {patient.level}
+                                                            <span className={`inline-flex px-4 py-1.5 ${patient.color} text-white text-[13px] font-bold rounded-full shadow-sm whitespace-nowrap`}>
+                                                                {patient.level === 'Đỏ' ? 'Khẩn cấp' : 'Theo dõi'}
                                                             </span>
                                                         </div>
                                                     </td>
                                                     <td className="px-8 py-5 text-right space-x-1">
-                                                        <button className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all active:scale-90" title="Can thiệp gấp">
-                                                            <span className="material-symbols-outlined text-lg">call</span>
+                                                        <button className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all active:scale-95" title="Can thiệp gấp">
+                                                            <span className="material-symbols-outlined text-[22px]">call</span>
                                                         </button>
-                                                        <button className="p-2 text-primary hover:bg-primary/5 rounded-lg transition-all active:scale-90" title="Xem hồ sơ">
-                                                            <span className="material-symbols-outlined text-lg">visibility</span>
+                                                        <button className="p-2 text-primary hover:bg-primary/5 rounded-lg transition-all active:scale-95" title="Xem hồ sơ">
+                                                            <span className="material-symbols-outlined text-[22px]">visibility</span>
                                                         </button>
-                                                        <button className="p-2 text-slate-400 hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-90" title="Kê đơn nhanh">
-                                                            <span className="material-symbols-outlined text-lg">prescriptions</span>
+                                                        <button className="p-2 text-slate-400 hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95" title="Kê đơn nhanh">
+                                                            <span className="material-symbols-outlined text-[22px]">prescriptions</span>
                                                         </button>
                                                     </td>
                                                 </tr>
                                             ))}
                                         </tbody>
                                     </table>
+                                </div>
+                                {/* Pagination Footer - Redesigned */}
+                                <div className="px-8 py-6 bg-slate-50/50 dark:bg-slate-800/20 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">
+                                    <p className="text-[14px] font-medium text-slate-500">
+                                        Hiển thị <span className="font-bold text-slate-900 dark:text-white">1</span> đến <span className="font-bold text-slate-900 dark:text-white">3</span> trong số <span className="font-bold text-slate-900 dark:text-white">24</span> ca
+                                    </p>
+                                    <div className="flex items-center gap-3">
+                                        <button className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary transition-all disabled:opacity-30" disabled>
+                                            <span className="material-symbols-outlined text-[20px]">chevron_left</span>
+                                        </button>
+                                        <div className="flex items-center gap-1.5">
+                                            <button className="w-10 h-10 rounded-xl bg-primary text-white text-sm font-black shadow-lg shadow-primary/20 transition-all">1</button>
+                                            <button className="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 text-slate-500 hover:text-primary border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-sm font-bold transition-all">2</button>
+                                        </div>
+                                        <button className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary transition-all">
+                                            <span className="material-symbols-outlined text-[20px]">chevron_right</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -179,7 +198,7 @@ export default function ClinicRiskAlerts() {
                             <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-primary/10 shadow-sm relative overflow-hidden group">
                                 <div className="flex items-center gap-2 mb-4 text-emerald-600 dark:text-primary">
                                     <span className="material-symbols-outlined font-variation-settings: 'FILL' 1" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
-                                    <h5 className="text-xs font-bold uppercase tracking-widest">AI Insights</h5>
+                                    <h5 className="text-sm font-bold">AI Insights</h5>
                                 </div>
                                 <p className="text-slate-700 dark:text-slate-300 font-medium leading-relaxed mb-6 text-sm">
                                     "Phát hiện <span className="text-red-500 font-bold">3 bệnh nhân</span> có xu hướng tăng huyết áp liên tục. Khuyến nghị kiểm tra phác đồ điều trị."
@@ -192,12 +211,11 @@ export default function ClinicRiskAlerts() {
                                     </div>
                                     <button className="text-primary text-xs font-bold hover:underline">Xem chi tiết</button>
                                 </div>
-                                <div className="absolute -right-12 -top-12 w-32 h-32 bg-primary/5 blur-3xl rounded-full group-hover:scale-150 transition-transform duration-700"></div>
                             </div>
 
                             {/* Quick Actions Card */}
                             <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-primary/5">
-                                <h5 className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 mb-6">Truy cập nhanh</h5>
+                                <h5 className="text-sm font-bold text-slate-500 mb-6">Truy cập nhanh</h5>
                                 <div className="space-y-3">
                                     {[
                                         { icon: 'contact_phone', label: 'Trạm y tế gần nhất' },
@@ -217,7 +235,7 @@ export default function ClinicRiskAlerts() {
 
                             {/* Team Status Card */}
                             <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-primary/5">
-                                <h5 className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 mb-6">Trực cấp cứu</h5>
+                                <h5 className="text-sm font-bold text-slate-500 mb-6">Trực cấp cứu</h5>
                                 <div className="flex items-center gap-4">
                                     <div className="relative">
                                         <img alt="Trực ban" className="w-12 h-12 rounded-xl object-cover ring-2 ring-primary/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAblEzsD1Y4LmmLITIgNYTpxsVwTH-CuEIwKSyz2DiksI-eNLSYk1gZrmmqOVrcMKKM5jS7RPa_zzJz8mK_750j2GRZhTYhIwJ5ZsFDKSU2YJh8148ZzjqpUaDJpW-2FCH9ePgqjtR0J0okNk52zIt0VmcEuF9Jdgkxq32SfbJAoI8tmcGNm4EyWO-YasHos3g46VFbraimlZwxu9ZsDPQL5M2BVTYJo_ALwYMlxNUmvU_cE5dn9itLl5iLuaN2VukHSDXCWN41XNI" />
@@ -225,7 +243,7 @@ export default function ClinicRiskAlerts() {
                                     </div>
                                     <div>
                                         <p className="text-sm font-bold text-slate-900 dark:text-white">BS. Nguyễn Minh Anh</p>
-                                        <p className="text-[10px] text-slate-500 font-medium tracking-tight">Hệ thống phản ứng nhanh</p>
+                                        <p className="text-[11px] text-slate-500 font-medium tracking-tight">Hệ thống phản ứng nhanh</p>
                                     </div>
                                 </div>
                             </div>
