@@ -24,4 +24,20 @@ public class User extends BaseEntity {
 
     @Column(nullable = false, length = 50)
     private String role; // ADMIN, DOCTOR, CLINIC_MANAGER, PATIENT
+
+    @Column(name = "full_name", length = 100)
+    private String fullName;
+
+    @Column(length = 20)
+    private String phone;
+
+    @Column(name = "avatar_url", length = 500)
+    private String avatarUrl;
+
+    @Column(name = "clinic_id")
+    private Long clinicId;
+
+    @Column(nullable = false, length = 30)
+    @Builder.Default
+    private String status = "ACTIVE"; // ACTIVE, INACTIVE
 }
