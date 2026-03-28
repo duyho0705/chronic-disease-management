@@ -5,11 +5,77 @@ import Dropdown from '../components/ui/Dropdown';
 export default function AdminDashboard() {
   const [selectedChartMetric, setSelectedChartMetric] = useState('Lượng bệnh nhân');
 
+  const handleExportExcel = () => {
+    // Detailed Clinic Data for Export
+    const reportData = [
+      { id: 'TA-102', name: 'Phòng khám Đa khoa Tâm Anh', address: '108 Hoàng Như Tiếp, Long Biên, Hà Nội', doctors: 42, patients: 1240, growth: '+8.4%', status: 'Đang hoạt động' },
+      { id: 'ND-204', name: 'Phòng khám Nhi Đồng 1', address: '341 Sư Vạn Hạnh, Quận 10, TP.HCM', doctors: 28, patients: 892, growth: '+3.2%', status: 'Đang hoạt động' },
+      { id: 'VD-301', name: 'Vitality Dental Care', address: '25 Nguyễn Huệ, Quận 1, TP.HCM', doctors: 12, patients: 415, growth: '-1.5%', status: 'Tạm khóa' },
+      { id: 'ML-009', name: 'Mediscan Central Lab', address: '12 Nguyễn Trãi, Quận 5, TP.HCM', doctors: 15, patients: 156, growth: '+2.0%', status: 'Đang hoạt động' }
+    ];
+
+    const today = new Date().toLocaleDateString('vi-VN');
+
+    // Generating an HTML-based Excel format that tells Excel to auto-fit columns
+    const excelContent = `
+      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+      <head>
+        <meta charset="utf-8" />
+        <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Bao cao chi nhanh</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+        <style>
+          table { border-collapse: collapse; width: 100%; }
+          th { background: #3bb9f3; color: white; height: 35px; text-align: left; font-weight: bold; padding: 5px; }
+          td { border: 0.5pt solid #ccc; padding: 5px; mso-number-format:"\\@"; }
+          .header-row { height: 40px; background-color: #3bb9f3; }
+        </style>
+      </head>
+      <body>
+        <h3>BÁO CÁO CƠ SỞ Y TẾ VITALITY - NGÀY ${today}</h3>
+        <table>
+          <thead>
+            <tr class="header-row">
+              <th>Mã ID</th>
+              <th>Tên Cơ Sở/Phòng Khám</th>
+              <th>Địa Chỉ Chi Tiết</th>
+              <th>Đội Ngũ BS</th>
+              <th>Lượng Bệnh Nhân</th>
+              <th>Tăng Trưởng</th>
+              <th>Trạng Thái</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${reportData.map(item => `
+              <tr>
+                <td>${item.id}</td>
+                <td>${item.name}</td>
+                <td>${item.address}</td>
+                <td>${item.doctors}</td>
+                <td>${item.patients}</td>
+                <td>${item.growth}</td>
+                <td>${item.status}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </body>
+      </html>
+    `;
+
+    const blob = new Blob([excelContent], { type: 'application/vnd.ms-excel' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `Bao_cao_chi_nhanh_Vitality_${today.replace(/\//g, '-')}.xls`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <AdminLayout>
-      <main className="p-12 min-h-screen font-display">
+      <div className="p-4 md:p-8 space-y-8 animate-in fade-in duration-700 font-display">
         {/* Summary Cards Bento Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Card 1 */}
           <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
             <div className="flex justify-between items-start">
@@ -19,8 +85,8 @@ export default function AdminDashboard() {
               <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">+12.5%</span>
             </div>
             <div className="mt-4">
-              <p className="text-slate-500 text-[16px] font-medium mb-1 font-display">Tổng số bệnh nhân</p>
               <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">24,582</h3>
+              <p className="text-slate-500 text-[15px] font-medium mt-1 font-display">Tổng số bệnh nhân</p>
             </div>
           </div>
 
@@ -28,13 +94,13 @@ export default function AdminDashboard() {
           <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
             <div className="flex justify-between items-start">
               <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-xl flex items-center justify-center text-blue-600">
-                <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>medical_services</span>
+                <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>apartment</span>
               </div>
               <span className="text-[11px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-lg uppercase tracking-wider">Ổn định</span>
             </div>
             <div className="mt-4">
-              <p className="text-slate-500 text-[16px] font-medium mb-1 font-display">Phòng khám hoạt động</p>
               <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">42</h3>
+              <p className="text-slate-500 text-[15px] font-medium mt-1 font-display">Phòng khám hoạt động</p>
             </div>
           </div>
 
@@ -47,8 +113,8 @@ export default function AdminDashboard() {
               <span className="text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg">+4 mới</span>
             </div>
             <div className="mt-4">
-              <p className="text-slate-500 text-[16px] font-medium mb-1 font-display">Đội ngũ Bác sĩ</p>
               <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">186</h3>
+              <p className="text-slate-500 text-[15px] font-medium mt-1 font-display">Đội ngũ Bác sĩ</p>
             </div>
           </div>
 
@@ -61,14 +127,14 @@ export default function AdminDashboard() {
               <span className="px-2 py-1 bg-red-500 text-white text-[10px] font-bold rounded-full uppercase tracking-wider">Cần xử lý</span>
             </div>
             <div className="mt-4">
-              <p className="text-slate-500 text-[16px] font-medium mb-1 font-display">Cảnh báo rủi ro cao</p>
               <h3 className="text-3xl font-black text-red-600 tracking-tight">14</h3>
+              <p className="text-slate-500 text-[15px] font-medium mt-1 font-display">Cảnh báo rủi ro cao</p>
             </div>
           </div>
         </div>
 
         {/* Main Layout Section: Chart and Activity */}
-        <div className="grid grid-cols-12 gap-8 mb-8">
+        <div className="grid grid-cols-12 gap-8">
           {/* Line Chart Section */}
           <div className="col-span-12 lg:col-span-8 bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm relative group/chart overflow-hidden">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
@@ -200,8 +266,11 @@ export default function AdminDashboard() {
               <p className="text-[15px] text-slate-500 mt-1">Phân tích tải trọng và trạng thái vận hành</p>
             </div>
             <div className="flex items-center gap-4">
-              <button className="text-primary text-sm font-extrabold hover:underline flex items-center gap-1">
-                <span className="material-symbols-outlined text-sm">download</span>
+              <button
+                onClick={handleExportExcel}
+                className="text-primary text-[15px] font-bold hover:underline flex items-center gap-1.5"
+              >
+                <span className="material-symbols-outlined text-[18px]">download</span>
                 Xuất báo cáo
               </button>
             </div>
@@ -303,7 +372,7 @@ export default function AdminDashboard() {
             </table>
           </div>
         </div>
-      </main>
+      </div>
     </AdminLayout>
   );
 }

@@ -6,7 +6,7 @@ export default function AdminReports() {
 
   return (
     <AdminLayout>
-      <section className="p-12 space-y-6 md:space-y-8">
+      <section className="p-4 md:p-8 space-y-8 animate-in fade-in duration-700 font-display">
         {/* Header & Filters */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
@@ -45,27 +45,33 @@ export default function AdminReports() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {[
             { label: 'Chỉ số hài lòng (NPS)', value: '78.5', trend: '+2.4', trendType: 'up', icon: 'sentiment_very_satisfied', color: 'emerald' },
-            { label: 'Thời gian khám TB', value: '24', unit: 'phút', trend: '+3m', trendType: 'up-warning', icon: 'avg_time', color: 'blue' },
+            { label: 'Thời gian khám TB', value: '24', unit: 'phút', trend: '+3m', trendType: 'up-warning', icon: 'schedule', color: 'blue' },
             { label: 'Tỷ lệ tái khám', value: '92', unit: '%', trend: '+5%', trendType: 'up', icon: 'event_repeat', color: 'primary' },
-            { label: 'Tỷ lệ giữ chân', value: '84', unit: '%', trend: 'Ổn định', trendType: 'check', icon: 'favorite', color: 'emerald' }
+            { label: 'Tỷ lệ giữ chân', value: '84', unit: '%', trend: 'Ổn định', trendType: 'check', icon: 'favorite', color: 'red' }
           ].map((stat, idx) => (
-            <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm transition-all relative overflow-hidden group">
-              <div className="relative z-10">
-                <p className="text-slate-500 text-[16px] font-medium mb-4">{stat.label}</p>
-                <div className="flex items-center gap-3">
-                  <h3 className={`text-3xl font-extrabold ${stat.color === 'red' ? 'text-red-500' : 'text-slate-900 dark:text-white'} tracking-tight`}>
-                    {stat.value}
-                    {stat.unit && <span className="text-[14px] font-bold ml-1 opacity-50">{stat.unit}</span>}
-                  </h3>
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 ${
-                    stat.trendType === 'up' ? 'bg-emerald-500 text-white' : 
-                    stat.trendType === 'up-warning' ? 'bg-amber-500 text-white' :
-                    'bg-primary text-white'
+            <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm transition-all group hover:shadow-md">
+              <div className="flex justify-between items-start mb-4">
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.color === 'primary' ? 'bg-primary/10 text-primary' :
+                    stat.color === 'emerald' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600' :
+                      stat.color === 'blue' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600' :
+                        stat.color === 'amber' ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600' :
+                          stat.color === 'red' ? 'bg-red-50 dark:bg-red-900/20 text-red-600' :
+                            'bg-slate-100 dark:bg-slate-800 text-slate-600'
                   }`}>
-                    {stat.trend}
-                  </span>
+                  <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>{stat.icon}</span>
                 </div>
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 ${stat.trendType === 'up' ? 'bg-emerald-500 text-white' :
+                    stat.trendType === 'up-warning' ? 'bg-amber-500 text-white' :
+                      'bg-primary text-white'
+                  }`}>
+                  {stat.trend}
+                </span>
               </div>
+              <p className="text-slate-500 text-[15px] font-medium mt-1">{stat.label}</p>
+              <h3 className={`text-2xl font-black ${stat.color === 'red' && false ? 'text-red-500' : 'text-slate-900 dark:text-white'} tracking-tight mt-1`}>
+                {stat.value}
+                {stat.unit && <span className="text-[14px] font-bold ml-1 opacity-50">{stat.unit}</span>}
+              </h3>
             </div>
           ))}
         </div>
@@ -160,12 +166,12 @@ export default function AdminReports() {
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="bg-primary/5 text-sm font-bold text-slate-500 uppercase">
-                  <th className="px-8 py-5">Phòng khám</th>
-                  <th className="px-6 py-5">Số ca khám</th>
-                  <th className="px-6 py-5">Doanh thu TB/Ca</th>
-                  <th className="px-6 py-5">Chỉ số Adherence</th>
-                  <th className="px-6 py-5 text-right">Trạng thái</th>
+                <tr className="px-8 py-4 text-[15px] text-slate-500 leading-none">
+                  <th className="font-medium px-8 py-5">Phòng khám</th>
+                  <th className="font-medium px-6 py-5">Số ca khám</th>
+                  <th className="font-medium px-6 py-5">Doanh thu TB/Ca</th>
+                  <th className="font-medium px-6 py-5">Chỉ số Adherence</th>
+                  <th className="font-medium px-6 py-5 text-right">Trạng thái</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-primary/5">

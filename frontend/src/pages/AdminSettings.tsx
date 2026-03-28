@@ -11,7 +11,7 @@ export default function AdminSettings() {
 
   return (
     <AdminLayout>
-      <section className="p-12 space-y-6 md:space-y-8 relative">
+      <section className="p-4 md:p-8 space-y-8 animate-in fade-in duration-700 font-display">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
