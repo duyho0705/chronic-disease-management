@@ -20,7 +20,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { path: ROUTES.ADMIN.DASHBOARD, label: 'Tổng quan hệ thống', icon: 'dashboard' },
     { path: ROUTES.ADMIN.CLINICS, label: 'Quản lý Phòng khám', icon: 'medical_services' },
     { path: ROUTES.ADMIN.USERS, label: 'Quản lý Người dùng', icon: 'group' },
+    { path: ROUTES.ADMIN.SERVICES, label: 'Quản lý Dịch vụ', icon: 'medical_information' },
     { path: ROUTES.ADMIN.REPORTS, label: 'Báo cáo hợp nhất', icon: 'analytics' },
+    { path: ROUTES.ADMIN.SUPPORT, label: 'Trung tâm hỗ trợ', icon: 'support_agent' },
+    { path: ROUTES.ADMIN.AUDIT_LOGS, label: 'Nhật ký hệ thống', icon: 'history' },
     { path: ROUTES.ADMIN.SETTINGS, label: 'Cấu hình hệ thống', icon: 'settings' },
   ];
 

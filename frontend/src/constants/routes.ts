@@ -27,7 +27,10 @@ export const ROUTES = {
     DASHBOARD: '/admin',
     CLINICS: '/admin/clinics',
     USERS: '/admin/users',
+    SERVICES: '/admin/services',
     REPORTS: '/admin/reports',
     SETTINGS: '/admin/settings',
+    AUDIT_LOGS: '/admin/audit-logs',
+    SUPPORT: '/admin/support',
   },
 };

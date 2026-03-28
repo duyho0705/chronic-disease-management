@@ -317,7 +317,7 @@ export default function AdminClinics() {
                       </span>
                     </td>
                     <td className="px-8 py-5 text-right">
-                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-3 group-hover:translate-x-0">
+                      <div className="flex justify-end gap-2 transition-all">
                         <button
                           onClick={() => { setSelectedClinic(clinic); setIsEditModalOpen(true); }}
                           className="w-9 h-9 flex items-center justify-center rounded-xl bg-primary/5 text-primary hover:bg-primary/10 transition-all duration-300"

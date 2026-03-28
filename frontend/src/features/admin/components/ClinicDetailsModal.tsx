@@ -57,10 +57,10 @@ const ClinicDetailsModal: React.FC<ClinicDetailsModalProps> = ({
             </div>
             <div className="space-y-4 flex-1">
               <div className="space-y-1">
-                <span className={`px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-widest text-white ${clinic.status === 'Hoạt động' ? 'bg-emerald-500' : 'bg-red-500'}`}>
+                <span className={`px-3 py-1 rounded-full text-[13px] font-bold text-white ${clinic.status === 'Hoạt động' ? 'bg-emerald-500' : 'bg-red-500'}`}>
                   {clinic.status}
                 </span>
-                <h3 className="text-3xl font-black text-slate-900 dark:text-white leading-tight">{clinic.name}</h3>
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white leading-tight">{clinic.name}</h3>
                 <div className="flex items-center gap-2 text-slate-500 font-medium">
                   <span className="material-symbols-outlined text-sm">location_on</span>
                   <span className="text-sm">{clinic.address}</span>
@@ -122,8 +122,8 @@ const ClinicDetailsModal: React.FC<ClinicDetailsModalProps> = ({
                   <span className="material-symbols-outlined text-2xl">manage_accounts</span>
                 </div>
                 <div>
-                  <p className="text-sm font-black text-slate-900 dark:text-white">Nguyễn Văn Quản Lý</p>
-                  <p className="text-[13px] font-medium text-slate-500 italic">Quản lý cấp cao hệ thống</p>
+                  <p className="text-sm font-black text-slate-900 dark:text-white">Hồ Văn Duy</p>
+                  <p className="text-[13px] font-medium text-slate-500 italic">Quản lý phòng khám</p>
                 </div>
               </div>
             </div>

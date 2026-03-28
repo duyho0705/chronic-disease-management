@@ -10,8 +10,11 @@ import { ROUTES } from '../constants/routes';
 import AdminDashboard from '../pages/AdminDashboard';
 import AdminClinics from '../pages/AdminClinics';
 import AdminUsers from '../pages/AdminUsers';
+import AdminServices from '../pages/AdminServices';
 import AdminReports from '../pages/AdminReports';
 import AdminSettings from '../pages/AdminSettings';
+import AdminAuditLogs from '../pages/AdminAuditLogs';
+import AdminSupport from '../pages/AdminSupport';
 import ClinicReports from '../pages/ClinicReports';
 import ClinicRiskAlerts from '../pages/ClinicRiskAlerts';
 import ClinicPatients from '../pages/ClinicPatients';
@@ -54,7 +57,10 @@ const AppRoutes = () => {
       <Route path={ROUTES.ADMIN.DASHBOARD} element={<AdminDashboard />} />
       <Route path={ROUTES.ADMIN.CLINICS} element={<AdminClinics />} />
       <Route path={ROUTES.ADMIN.USERS} element={<AdminUsers />} />
+      <Route path={ROUTES.ADMIN.SERVICES} element={<AdminServices />} />
       <Route path={ROUTES.ADMIN.REPORTS} element={<AdminReports />} />
+      <Route path={ROUTES.ADMIN.AUDIT_LOGS} element={<AdminAuditLogs />} />
+      <Route path={ROUTES.ADMIN.SUPPORT} element={<AdminSupport />} />
       <Route path={ROUTES.ADMIN.SETTINGS} element={<AdminSettings />} />
     </Routes>
   );
