@@ -73,7 +73,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
     const errors: Record<string, string> = {};
     if (!formData.name) errors.name = 'Vui lòng nhập họ và tên';
     if (!formData.email) errors.email = 'Vui lòng nhập email';
-    
+
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -113,7 +113,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
               <div className="flex items-center gap-2 pb-2 border-primary/10 pl-1 border-l-4 border-l-primary">
                 <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-sm tracking-wide lowercase first-letter:uppercase">Thông tin cơ bản</h3>
               </div>
-              
+
               <div className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-[13px] font-bold text-slate-500 ml-1">Họ và tên <span className="text-red-500">*</span></label>
@@ -181,11 +181,10 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, status: 'ACTIVE' }))}
-                      className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 transition-all font-bold text-sm ${
-                        formData.status === 'ACTIVE'
+                      className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 transition-all font-bold text-sm ${formData.status === 'ACTIVE'
                           ? 'border-emerald-500 bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
                           : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-400 opacity-60'
-                      }`}
+                        }`}
                     >
                       <span className="material-symbols-outlined text-[18px]">check_circle</span>
                       Hoạt động
@@ -193,11 +192,10 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, status: 'INACTIVE' }))}
-                      className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 transition-all font-bold text-sm ${
-                        formData.status === 'INACTIVE'
+                      className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 transition-all font-bold text-sm ${formData.status === 'INACTIVE'
                           ? 'border-red-500 bg-red-500 text-white shadow-lg shadow-red-500/20'
                           : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-400 opacity-60'
-                      }`}
+                        }`}
                     >
                       <span className="material-symbols-outlined text-[18px]">block</span>
                       Tạm dừng

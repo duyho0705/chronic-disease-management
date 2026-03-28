@@ -131,14 +131,14 @@ export default function AdminUsers() {
   };
 
   const filteredUsers = userList.filter(u => {
-    const matchesSearch = u.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         u.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      u.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = selectedRole === 'Tất cả vai trò' || u.role === selectedRole;
     const matchesClinic = selectedClinic === 'Tất cả cơ sở' || u.clinic === selectedClinic;
-    const matchesStatus = selectedStatus === 'Tất cả trạng thái' || 
-                         (selectedStatus === 'Hoạt động' && u.status === 'Hoạt động') || 
-                         (selectedStatus === 'Đã khóa' && u.status === 'Ngưng hoạt động');
-    
+    const matchesStatus = selectedStatus === 'Tất cả trạng thái' ||
+      (selectedStatus === 'Hoạt động' && u.status === 'Hoạt động') ||
+      (selectedStatus === 'Đã khóa' && u.status === 'Ngưng hoạt động');
+
     return matchesSearch && matchesRole && matchesClinic && matchesStatus;
   });
 
@@ -161,7 +161,7 @@ export default function AdminUsers() {
               </button>
               <button
                 onClick={() => setIsCreateModalOpen(true)}
-                className="bg-primary text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all duration-200 text-[14px]"
+                className="bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all text-[14px]"
               >
                 <span className="material-symbols-outlined font-bold">person_add</span>
                 Thêm người dùng mới
@@ -202,10 +202,10 @@ export default function AdminUsers() {
                 <label className="text-[14px] font-medium text-slate-500  mb-2 block px-1">Tìm kiếm</label>
                 <div className="relative">
                   <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
-                  <input 
-                    className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl pl-10 pr-4 py-2.5 text-[14px] font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none" 
-                    placeholder="Tên hoặc Email..." 
-                    type="text" 
+                  <input
+                    className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl pl-10 pr-4 py-2.5 text-[14px] font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none"
+                    placeholder="Tên hoặc Email..."
+                    type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />

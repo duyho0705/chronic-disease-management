@@ -179,14 +179,14 @@ export default function AdminClinics() {
           <div className="flex gap-3">
             <button
               onClick={handleExport}
-              className="flex items-center gap-2 px-5 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl font-bold transition-all hover:bg-slate-200"
+              className="flex items-center gap-2 px-5 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl font-bold transition-all text-[14px]"
             >
               <span className="material-symbols-outlined text-xl">ios_share</span>
               Xuất báo cáo
             </button>
             <button
               onClick={() => setIsCreateModalOpen(true)}
-              className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-xl font-bold transition-all hover:opacity-90 shadow-lg shadow-primary/20"
+              className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white rounded-xl font-bold transition-all text-[14px]"
             >
               <span className="material-symbols-outlined text-xl">add</span>
               Thêm phòng khám mới
@@ -249,8 +249,8 @@ export default function AdminClinics() {
                         key={item.id}
                         onClick={() => { setStatusFilter(item.id as any); setIsFilterDropdownOpen(false); }}
                         className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${statusFilter === item.id
-                            ? 'bg-primary/10 text-primary'
-                            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                          ? 'bg-primary/10 text-primary'
+                          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
                           }`}
                       >
                         <span className={`material-symbols-outlined text-[18px] ${statusFilter === item.id ? 'text-primary' : 'text-slate-400'}`}>{item.icon}</span>
@@ -269,6 +269,7 @@ export default function AdminClinics() {
               <thead>
                 <tr className="bg-slate-50/50 dark:bg-slate-800/50">
                   <th className="px-8 py-4 text-[15px] font-medium text-slate-500 leading-none">Tên phòng khám</th>
+                  <th className="px-6 py-4 text-[15px] font-medium text-slate-500 leading-none">Mã phòng khám</th>
                   <th className="px-6 py-4 text-[15px] font-medium text-slate-500 leading-none">Địa chỉ</th>
                   <th className="px-6 py-4 text-[15px] font-medium text-slate-500 leading-none">Số điện thoại</th>
                   <th className="px-6 py-4 text-[15px] font-medium text-slate-500 leading-none text-center">Bác sĩ</th>
@@ -290,9 +291,11 @@ export default function AdminClinics() {
                         </div>
                         <div>
                           <span className="block font-bold text-slate-900 dark:text-white text-base leading-tight">{clinic.name}</span>
-                          <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tighter">{clinic.id}</span>
                         </div>
                       </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <code className="text-[15px] text-slate-600 dark:text-slate-500 font-bold">{clinic.id}</code>
                     </td>
                     <td className="px-6 py-5 relative group/address">
                       <p className="text-sm text-slate-600 dark:text-slate-400 font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-[220px]">

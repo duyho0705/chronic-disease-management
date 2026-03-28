@@ -60,7 +60,7 @@ const CreateClinicModal: React.FC<CreateClinicModalProps> = ({
     if (!formData.phone) errors.phone = 'Vui lòng nhập số điện thoại';
     if (!formData.adminFullName) errors.adminFullName = 'Vui lòng nhập tên người quản lý';
     if (!formData.adminEmail) errors.adminEmail = 'Vui lòng nhập email quản lý';
-    
+
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -92,14 +92,14 @@ const CreateClinicModal: React.FC<CreateClinicModalProps> = ({
 
         {/* Form Content */}
         <div className="p-6 md:p-8 space-y-8 overflow-y-auto custom-scrollbar flex-1 bg-white dark:bg-slate-900 text-left">
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
             {/* Left: Clinic Info */}
             <div className="space-y-6">
               <div className="flex items-center gap-2 pb-2 border-primary/10 pl-1 border-l-4 border-l-primary">
                 <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-sm tracking-wide lowercase first-letter:uppercase">Thông tin cơ sở</h3>
               </div>
-              
+
               <div className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-[13px] font-bold text-slate-500 ml-1">Tên phòng khám <span className="text-red-500">*</span></label>

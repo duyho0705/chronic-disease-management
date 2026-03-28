@@ -11,18 +11,20 @@ interface DropdownProps {
   value: string;
   onChange: (value: string) => void;
   className?: string;
+  variant?: 'default' | 'badge';
 }
 
 export default function Dropdown({
   options,
   value,
   onChange,
-  className = ""
+  className = "",
+  variant = 'default'
 }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const normalizedOptions: DropdownOption[] = options.map(opt => 
+  const normalizedOptions: DropdownOption[] = options.map(opt =>
     typeof opt === 'string' ? { label: opt, value: opt } : opt
   );
 
@@ -44,29 +46,32 @@ export default function Dropdown({
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={`
-          flex items-center justify-between gap-3 px-4 py-2 
-          w-full bg-white dark:bg-slate-900 
-          border-2 transition-all duration-300
-          rounded-2xl shadow-sm
-          ${isOpen 
-            ? 'border-primary shadow-lg shadow-primary/10 ring-4 ring-primary/5' 
-            : 'border-slate-100 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700'
+          flex items-center justify-between gap-3 transition-all duration-300
+          ${variant === 'badge' 
+            ? 'px-4 py-1.5 bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800' 
+            : 'px-4 py-2 bg-white dark:bg-slate-900 border-2 rounded-2xl shadow-sm'
           }
+          ${isOpen
+            ? 'border-primary shadow-lg shadow-primary/10 ring-4 ring-primary/5'
+            : variant !== 'badge' ? 'border-slate-100 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700' : ''
+          }
+          ${className}
+          w-full
         `}
       >
-        <span className="text-sm font-bold text-slate-700 dark:text-slate-200 font-display">
+        <span className={`text-[13px] font-bold font-display ${variant === 'badge' ? 'text-slate-600 dark:text-slate-300' : 'text-slate-700 dark:text-slate-200'}`}>
           {selectedOption?.label}
         </span>
-        <ChevronDown 
+        <ChevronDown
           className={`
             w-4 h-4 text-slate-400 transition-transform duration-300
             ${isOpen ? 'rotate-180 text-primary' : ''}
-          `} 
+          `}
         />
       </button>
 
       {/* Dropdown Menu */}
-      <div 
+      <div
         className={`
           absolute left-0 right-0 top-full mt-2
           bg-white dark:bg-slate-900
@@ -74,8 +79,8 @@ export default function Dropdown({
           rounded-2xl shadow-2xl shadow-slate-200/50 dark:shadow-black/50
           z-[110] overflow-hidden
           transition-all duration-200
-          ${isOpen 
-            ? 'opacity-100 translate-y-0 pointer-events-auto' 
+          ${isOpen
+            ? 'opacity-100 translate-y-0 pointer-events-auto'
             : 'opacity-0 -translate-y-2 pointer-events-none'
           }
         `}
@@ -94,8 +99,8 @@ export default function Dropdown({
                 className={`
                   w-full flex items-center justify-between px-4 py-2 
                   text-sm font-medium transition-colors
-                  ${isSelected 
-                    ? 'bg-primary/10 text-primary font-bold' 
+                  ${isSelected
+                    ? 'bg-primary/10 text-primary font-bold'
                     : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
                   }
                 `}

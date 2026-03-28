@@ -59,7 +59,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
     if (!formData.name) errors.name = 'Vui lòng nhập họ và tên';
     if (!formData.email) errors.email = 'Vui lòng nhập email';
     if (!formData.username) errors.username = 'Vui lòng nhập tên đăng nhập';
-    
+
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -96,7 +96,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
               <div className="flex items-center gap-2 pb-2 border-primary/10 pl-1 border-l-4 border-l-primary">
                 <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-sm tracking-wide lowercase first-letter:uppercase">Thông tin cá nhân</h3>
               </div>
-              
+
               <div className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-[13px] font-bold text-slate-500 ml-1">Họ và tên <span className="text-red-500">*</span></label>
