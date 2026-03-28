@@ -294,19 +294,17 @@ export default function AdminClinics() {
                         </div>
                       </div>
                     </td>
-                    <td className={`px-6 py-5 relative ${clinic.address.length > 35 ? 'group/address' : ''}`}>
+                    <td className="px-6 py-5 relative group/address">
                       <p className="text-sm text-slate-600 dark:text-slate-400 font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-[220px]">
                         {clinic.address}
                       </p>
-                      {/* Premium Tooltip - Only for long addresses */}
-                      {clinic.address.length > 35 && (
-                        <div className="absolute left-6 bottom-[80%] hidden group-hover/address:block z-50 animate-in fade-in zoom-in duration-200 pointer-events-none">
-                          <div className="bg-slate-900/95 dark:bg-slate-800/95 text-white text-[13px] font-medium px-4 py-2.5 rounded-xl shadow-2xl border border-white/10 backdrop-blur-md w-max max-w-[320px] leading-relaxed">
-                            {clinic.address}
-                            <div className="absolute top-full left-4 border-8 border-transparent border-t-slate-900/95 dark:border-t-slate-800/95"></div>
-                          </div>
+                      {/* Premium Tooltip */}
+                      <div className="absolute left-6 bottom-[80%] hidden group-hover/address:block z-50 animate-in fade-in zoom-in duration-200 pointer-events-none">
+                        <div className="bg-slate-900/95 dark:bg-slate-800/95 text-white text-[13px] font-medium px-4 py-2.5 rounded-xl shadow-2xl border border-white/10 backdrop-blur-md w-max max-w-[320px] leading-relaxed">
+                          {clinic.address}
+                          <div className="absolute top-full left-4 border-8 border-transparent border-t-slate-900/95 dark:border-t-slate-800/95"></div>
                         </div>
-                      )}
+                      </div>
                     </td>
                     <td className="px-6 py-5 text-sm text-slate-600 dark:text-slate-400 font-bold">{clinic.phone}</td>
                     <td className="px-6 py-5 text-center">
