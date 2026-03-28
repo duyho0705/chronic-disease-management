@@ -1,17 +1,23 @@
 import { useState } from 'react';
 import AdminLayout from '../layouts/AdminLayout';
+import CreateClinicModal from '../features/admin/components/CreateClinicModal';
+import EditClinicModal from '../features/admin/components/EditClinicModal';
+import ClinicDetailsModal from '../features/admin/components/ClinicDetailsModal';
+import Toast from '../components/ui/Toast';
 
 export default function AdminClinics() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [selectedClinic, setSelectedClinic] = useState<any>(null);
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'INACTIVE'>('ALL');
+  const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastTitle, setToastTitle] = useState('');
 
-  const stats = [
-    { title: 'Tổng số phòng khám', value: '24', change: '+4%', icon: 'apartment', color: 'primary' },
-    { title: 'Đang hoạt động', value: '22', icon: 'check_circle', color: 'emerald' },
-    { title: 'Phòng khám tạm khóa', value: '2', icon: 'lock_reset', color: 'red' },
-    { title: 'Tổng bác sĩ hệ thống', value: '156', icon: 'person', color: 'indigo' },
-  ];
-
-  const clinics = [
+  const [clinicList, setClinicList] = useState([
     {
       id: 'TA-102',
       name: 'Phòng khám Đa khoa Tâm Anh',
@@ -48,6 +54,13 @@ export default function AdminClinics() {
       status: 'Hoạt động',
       image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBUE6bdi3mbjtLGmlTlcWymdQZeI12a8Y93_YVHa_ntUKPDjmIZmLdPDFQ75TYg1G0d3W1Ks8DH2RGp30iZtBOddhlgHoSZ4YovuLDyHTFHeQj4A9lfXL5tMVJNanRU5TcLkDWEjx3Eu2rDcjLR5SNA4d2Vb0ZtXnDorUOQN-_ZOWHvBPGO-Jot_SGbGgABBc_N_d2ir_aSipxlnJym8-LDGOfqSBeO9g8PMW5dXXG9iwhuFJnoHaofPxHa1J4hZVRNIlFk7l6pF4w'
     }
+  ]);
+
+  const stats = [
+    { title: 'Tổng số phòng khám', value: clinicList.length.toString(), change: '+4%', icon: 'apartment', color: 'primary' },
+    { title: 'Đang hoạt động', value: clinicList.filter(c => c.status === 'Hoạt động').length.toString(), icon: 'check_circle', color: 'emerald' },
+    { title: 'Phòng khám tạm khóa', value: clinicList.filter(c => c.status === 'Ngưng hoạt động').length.toString(), icon: 'lock_reset', color: 'red' },
+    { title: 'Tổng bác sĩ hệ thống', value: '156', icon: 'stethoscope', color: 'indigo' },
   ];
 
   const handleExport = () => {
@@ -70,16 +83,12 @@ export default function AdminClinics() {
               <th>Tên Phòng Khám</th>
               <th>Địa Chỉ</th>
               <th>Số Điện Thoại</th>
-              <th>Người Quản Trị Phòng Khám</th>
               <th>Số Lượng Bác Sĩ</th>
-              <th>Số Lượng Bệnh Nhân</th>
-              <th>Số Lượng Bệnh Nhân Nguy Cơ Cao</th>
-              <th>Ngày tạo</th>
               <th>Trạng Thái</th>
             </tr>
           </thead>
           <tbody>
-            ${clinics.map(c => `
+            ${clinicList.map(c => `
               <tr>
                 <td>${c.id}</td>
                 <td>${c.name}</td>
@@ -105,6 +114,59 @@ export default function AdminClinics() {
     document.body.removeChild(link);
   };
 
+  const handleCreateClinic = async (data: any) => {
+    setIsSaving(true);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    const newClinic = {
+      ...data,
+      id: data.clinicCode,
+      image: data.imageUrl,
+      doctors: 0,
+      status: 'Hoạt động'
+    };
+    setClinicList([newClinic, ...clinicList]);
+    setIsSaving(false);
+    setIsCreateModalOpen(false);
+    setToastTitle(`Đã khởi tạo hệ thống cho ${data.name} thành công!`);
+    setShowToast(true);
+  };
+
+  const handleEditClinic = async (data: any) => {
+    setIsSaving(true);
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    setClinicList(clinicList.map(c => c.id === data.id ? {
+      ...c,
+      name: data.name,
+      address: data.address,
+      phone: data.phone,
+      status: data.status === 'ACTIVE' ? 'Hoạt động' : 'Ngưng hoạt động'
+    } : c));
+    setIsSaving(false);
+    setIsEditModalOpen(false);
+    setToastTitle(`Cập nhật thông tin ${data.name} thành công!`);
+    setShowToast(true);
+  };
+
+  const handleLockClinic = async (clinic: any) => {
+    const action = clinic.status === 'Hoạt động' ? 'khóa' : 'mở khóa';
+    const newStatus = clinic.status === 'Hoạt động' ? 'Ngưng hoạt động' : 'Hoạt động';
+
+    // Simulate API
+    setClinicList(clinicList.map(c => c.id === clinic.id ? { ...c, status: newStatus } : c));
+    setToastTitle(`Đã ${action} phòng khám ${clinic.name}`);
+    setShowToast(true);
+  };
+
+  const filteredClinics = clinicList.filter(c => {
+    const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.id.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'ALL' ||
+      (statusFilter === 'ACTIVE' && c.status === 'Hoạt động') ||
+      (statusFilter === 'INACTIVE' && c.status === 'Ngưng hoạt động');
+    return matchesSearch && matchesStatus;
+  });
+
+
   return (
     <AdminLayout>
       <section className="p-4 md:p-8 space-y-8 animate-in fade-in duration-700 font-display">
@@ -122,7 +184,10 @@ export default function AdminClinics() {
               <span className="material-symbols-outlined text-xl">ios_share</span>
               Xuất báo cáo
             </button>
-            <button className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-xl font-bold transition-all hover:opacity-90 shadow-lg shadow-primary/20">
+            <button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-xl font-bold transition-all hover:opacity-90 shadow-lg shadow-primary/20"
+            >
               <span className="material-symbols-outlined text-xl">add</span>
               Thêm phòng khám mới
             </button>
@@ -157,14 +222,46 @@ export default function AdminClinics() {
                 <input
                   type="text"
                   placeholder="Tìm kiếm..."
-                  className="bg-slate-50 dark:bg-slate-800 border-none rounded-xl py-2 pl-10 pr-4 w-64 text-sm focus:ring-2 focus:ring-primary/20 transition-all"
+                  className="bg-slate-50 dark:bg-slate-800 border-none rounded-xl py-2 pl-10 pr-4 w-64 text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <button className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 hover:text-primary transition-colors">
-                <span className="material-symbols-outlined">filter_list</span>
-              </button>
+              <div className="relative">
+                <button
+                  onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${statusFilter !== 'ALL' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary border-0'
+                    }`}
+                  title="Lọc danh sách"
+                >
+                  <span className="material-symbols-outlined text-[20px]">filter_list</span>
+                </button>
+
+                {isFilterDropdownOpen && (
+                  <>
+                    <div className="fixed inset-0 z-30" onClick={() => setIsFilterDropdownOpen(false)}></div>
+                    <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-primary/5 p-2 z-40 animate-in fade-in slide-in-from-top-2 duration-200">                      {[
+                      { id: 'ALL', label: 'Tất cả hệ thống', icon: 'apps' },
+                      { id: 'ACTIVE', label: 'Đang hoạt động', icon: 'check_circle' },
+                      { id: 'INACTIVE', label: 'Đang tạm dừng', icon: 'block' }
+                    ].map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => { setStatusFilter(item.id as any); setIsFilterDropdownOpen(false); }}
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${statusFilter === item.id
+                            ? 'bg-primary/10 text-primary'
+                            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                          }`}
+                      >
+                        <span className={`material-symbols-outlined text-[18px] ${statusFilter === item.id ? 'text-primary' : 'text-slate-400'}`}>{item.icon}</span>
+                        {item.label}
+                        {statusFilter === item.id && <span className="material-symbols-outlined text-sm ml-auto">check</span>}
+                      </button>
+                    ))}
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           </div>
           <div className="overflow-x-auto overflow-y-hidden">
@@ -180,20 +277,36 @@ export default function AdminClinics() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-primary/5">
-                {clinics.map((clinic, idx) => (
+                {filteredClinics.map((clinic, idx) => (
                   <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
                     <td className="px-8 py-5">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-xl bg-primary/5 flex items-center justify-center overflow-hidden border border-primary/10">
-                          <img className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src={clinic.image} alt={clinic.name} />
+                          {clinic.image ? (
+                            <img className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src={clinic.image} alt={clinic.name} />
+                          ) : (
+                            <span className="material-symbols-outlined text-primary/40">home_health</span>
+                          )}
                         </div>
                         <div>
                           <span className="block font-bold text-slate-900 dark:text-white text-base leading-tight">{clinic.name}</span>
+                          <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tighter">{clinic.id}</span>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-5">
-                      <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">{clinic.address}</p>
+                    <td className={`px-6 py-5 relative ${clinic.address.length > 35 ? 'group/address' : ''}`}>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-[220px]">
+                        {clinic.address}
+                      </p>
+                      {/* Premium Tooltip - Only for long addresses */}
+                      {clinic.address.length > 35 && (
+                        <div className="absolute left-6 bottom-[80%] hidden group-hover/address:block z-50 animate-in fade-in zoom-in duration-200 pointer-events-none">
+                          <div className="bg-slate-900/95 dark:bg-slate-800/95 text-white text-[13px] font-medium px-4 py-2.5 rounded-xl shadow-2xl border border-white/10 backdrop-blur-md w-max max-w-[320px] leading-relaxed">
+                            {clinic.address}
+                            <div className="absolute top-full left-4 border-8 border-transparent border-t-slate-900/95 dark:border-t-slate-800/95"></div>
+                          </div>
+                        </div>
+                      )}
                     </td>
                     <td className="px-6 py-5 text-sm text-slate-600 dark:text-slate-400 font-bold">{clinic.phone}</td>
                     <td className="px-6 py-5 text-center">
@@ -206,15 +319,29 @@ export default function AdminClinics() {
                       </span>
                     </td>
                     <td className="px-8 py-5 text-right">
-                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="p-2 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-400 hover:text-primary transition-colors" title="Chỉnh sửa">
-                          <span className="material-symbols-outlined text-xl">edit</span>
+                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-3 group-hover:translate-x-0">
+                        <button
+                          onClick={() => { setSelectedClinic(clinic); setIsEditModalOpen(true); }}
+                          className="w-9 h-9 flex items-center justify-center rounded-xl bg-primary/5 text-primary hover:bg-primary/10 transition-all duration-300"
+                          title="Chỉnh sửa"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">edit</span>
                         </button>
-                        <button className="p-2 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-400 hover:text-red-500 transition-colors" title="Khóa">
-                          <span className="material-symbols-outlined text-xl">lock</span>
+                        <button
+                          onClick={() => handleLockClinic(clinic)}
+                          className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-300 ${clinic.status === 'Hoạt động'
+                            ? 'bg-red-500/5 text-red-500 hover:bg-red-500/10'
+                            : 'bg-emerald-500/5 text-emerald-500 hover:bg-emerald-500/10'}`}
+                          title={clinic.status === 'Hoạt động' ? 'Khóa' : 'Mở khóa'}
+                        >
+                          <span className="material-symbols-outlined text-[18px]">{clinic.status === 'Hoạt động' ? 'lock' : 'lock_open'}</span>
                         </button>
-                        <button className="p-2 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-400 hover:text-indigo-500 transition-colors" title="Chi tiết">
-                          <span className="material-symbols-outlined text-xl">visibility</span>
+                        <button
+                          onClick={() => { setSelectedClinic(clinic); setIsDetailsModalOpen(true); }}
+                          className="w-9 h-9 flex items-center justify-center rounded-xl bg-indigo-500/5 text-indigo-500 hover:bg-indigo-500/10 transition-all duration-300"
+                          title="Chi tiết"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">visibility</span>
                         </button>
                       </div>
                     </td>
@@ -224,7 +351,7 @@ export default function AdminClinics() {
             </table>
           </div>
           <div className="px-8 py-6 bg-slate-50/50 dark:bg-slate-800/30 border-t border-primary/10 flex justify-between items-center">
-            <span className="text-[14px] text-slate-500 font-medium">Đang hiển thị 4 trong 24 phòng khám</span>
+            <span className="text-[14px] text-slate-500 font-medium">Đang hiển thị {filteredClinics.length}/{clinicList.length} phòng khám</span>
             <div className="flex gap-1">
               <button className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-white dark:hover:bg-slate-700 transition-colors">
                 <span className="material-symbols-outlined text-sm">chevron_left</span>
@@ -280,6 +407,33 @@ export default function AdminClinics() {
           </div>
         </div>
       </section>
+
+      <CreateClinicModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        isSaving={isSaving}
+        onSave={handleCreateClinic}
+      />
+
+      <EditClinicModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        clinic={selectedClinic}
+        isSaving={isSaving}
+        onSave={handleEditClinic}
+      />
+
+      <ClinicDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
+        clinic={selectedClinic}
+      />
+
+      <Toast
+        show={showToast}
+        title={toastTitle}
+        onClose={() => setShowToast(false)}
+      />
     </AdminLayout>
   );
 }

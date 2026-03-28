@@ -221,9 +221,9 @@ export default function AdminDashboard() {
                   <div className="absolute top-10 left-1/2 -translate-x-1/2 w-0.5 h-full bg-slate-200 dark:bg-slate-800 group-last:hidden"></div>
                 </div>
                 <div>
-                  <p className="text-[16px] font-bold text-slate-900 dark:text-white">Nâng cấp bảo mật</p>
-                  <p className="text-[15px] text-slate-500 font-medium mt-0.5 leading-relaxed">Cập nhật giao thức mã hóa cho hồ sơ bệnh án.</p>
-                  <span className="text-[12px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-2 inline-block">2 giờ trước</span>
+                  <p className="text-[15px] font-bold text-slate-900 dark:text-white">Nâng cấp bảo mật</p>
+                  <p className="text-[14px] text-slate-500 font-medium mt-0.5 leading-relaxed">Cập nhật giao thức mã hóa cho hồ sơ bệnh án.</p>
+                  <span className="text-[13px] font-medium text-slate-400 dark:text-slate-500 mt-2 inline-block">2 giờ trước</span>
                 </div>
               </div>
               {/* Activity Item 2 */}
@@ -235,9 +235,9 @@ export default function AdminDashboard() {
                   <div className="absolute top-10 left-1/2 -translate-x-1/2 w-0.5 h-full bg-slate-200 dark:bg-slate-800 group-last:hidden"></div>
                 </div>
                 <div>
-                  <p className="text-[16px] font-bold text-slate-900 dark:text-white">Phòng khám mới được thêm</p>
-                  <p className="text-[15px] text-slate-500 font-medium mt-0.5 leading-relaxed">Chi nhánh Sống Khỏe Quận 7 đã hoàn tất cấu hình.</p>
-                  <span className="text-[12px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-2 inline-block">5 giờ trước</span>
+                  <p className="text-[15px] font-bold text-slate-900 dark:text-white">Phòng khám mới được thêm</p>
+                  <p className="text-[14px] text-slate-500 font-medium mt-0.5 leading-relaxed">Chi nhánh Sống Khỏe Quận 7 đã hoàn tất cấu hình.</p>
+                  <span className="text-[13px] font-medium text-slate-400 dark:text-slate-500 mt-2 inline-block">5 giờ trước</span>
                 </div>
               </div>
               {/* Activity Item 3 */}
@@ -248,13 +248,13 @@ export default function AdminDashboard() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-[16px] font-bold text-slate-900 dark:text-white">Lỗi đồng bộ dữ liệu</p>
-                  <p className="text-[15px] text-slate-500 font-medium mt-0.5 leading-relaxed">Phát hiện xung đột ID bệnh nhân tại Chi nhánh Thủ Đức.</p>
-                  <span className="text-[12px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-2 inline-block">Hôm qua</span>
+                  <p className="text-[15px] font-bold text-slate-900 dark:text-white">Lỗi đồng bộ dữ liệu</p>
+                  <p className="text-[14px] text-slate-500 font-medium mt-0.5 leading-relaxed">Phát hiện xung đột ID bệnh nhân tại Chi nhánh Thủ Đức.</p>
+                  <span className="text-[13px] font-medium text-slate-400 dark:text-slate-500 mt-2 inline-block">Hôm qua</span>
                 </div>
               </div>
             </div>
-            <button className="w-full mt-6 py-3 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-bold rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm border border-slate-100 dark:border-slate-800">Xem tất cả nhật ký</button>
+            <button className="w-full mt-6 py-3 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-[13px] font-bold rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm border border-slate-100 dark:border-slate-800">Xem tất cả nhật ký</button>
           </div>
         </div>
 
