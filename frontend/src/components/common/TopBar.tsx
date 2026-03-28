@@ -54,7 +54,7 @@ const TopBar: React.FC<TopBarProps> = ({
               <polygon points="15,4 11.47,14.85 20.71,8.15 9.29,8.15 18.53,14.85" fill="#ffff00" />
             </svg>
           </div>
-          <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest hidden xs:inline">VN</span>
+          <span className="text-[10px] font-extrabold text-slate-500 uppercase hidden xs:inline">VN</span>
         </div>
 
         <div className="relative">
@@ -85,8 +85,8 @@ const TopBar: React.FC<TopBarProps> = ({
 
         <div className="flex items-center gap-3 pl-2">
           <div className="text-right hidden sm:block">
-            <p className="text-[15px] font-bold text-slate-900 dark:text-white leading-none">{userName}</p>
-            <p className="text-[10px] text-slate-500 font-semibold uppercase mt-1">{userRole}</p>
+            <p className="text-[15px] font-extrabold text-slate-900 dark:text-white leading-none">{userName}</p>
+            <p className="text-[10px] text-slate-500 font-bold uppercase mt-1">{userRole}</p>
           </div>
           <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-tr from-primary to-blue-400 border-2 border-white dark:border-slate-800 shadow-md shadow-primary/10 overflow-hidden cursor-pointer"
             style={{ backgroundImage: `url('${userAvatar}')`, backgroundSize: 'cover' }}>

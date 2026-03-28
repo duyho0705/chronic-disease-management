@@ -28,6 +28,7 @@ public class Conversation extends BaseEntity {
     @Column(name = "last_message_at")
     private LocalDateTime lastMessageAt;
 
+    @Builder.Default
     @Column(name = "is_active")
     private boolean isActive = true;
 }

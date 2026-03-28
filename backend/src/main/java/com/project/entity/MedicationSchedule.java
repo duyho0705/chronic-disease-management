@@ -48,6 +48,7 @@ public class MedicationSchedule extends BaseEntity {
     @Column(name = "end_date")
     private LocalDate endDate;
 
+    @Builder.Default
     @Column(name = "is_active")
     private boolean isActive = true;
 }

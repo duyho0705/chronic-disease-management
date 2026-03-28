@@ -33,7 +33,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             <span className="material-symbols-outlined fill-1" style={{ fontVariationSettings: "'FILL' 1" }}>health_metrics</span>
           </div>
           <div>
-            <h1 className="text-xl font-extrabold text-slate-900 dark:text-white leading-none">DamDiep</h1>
+            <h1 className="text-xl font-black text-slate-900 dark:text-white leading-none">DamDiep</h1>
           </div>
         </div>
 
@@ -43,9 +43,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             return (
               <Link
                 key={idx}
-                className={`flex items-center gap-3 px-4 py-3 rounded-2xl font-medium transition-all ${isActive
-                    ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                    : 'text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary'
+                className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all ${isActive
+                  ? 'bg-primary text-white shadow-lg shadow-primary/20 font-medium'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary font-medium'
                   }`}
                 to={item.path}
               >

@@ -29,3 +29,14 @@ springdoc:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+# AgentScope & AI Configuration
+agentscope:
+  model-configs:
+    - model_name: "qwen-max" # Hoặc qwen-plus, qwen-turbo
+      model_type: "dashscope_chat"
+      api_key: "PASTE_YOUR_DASH_SCOPE_API_KEY_HERE"
+  agui:
+    enabled: true
+    path-prefix: "/v1/ai"
+    cors-enable: true

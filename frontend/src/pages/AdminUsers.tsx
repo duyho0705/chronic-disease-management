@@ -11,17 +11,12 @@ export default function AdminUsers() {
 
   return (
     <AdminLayout>
-      <section className="p-4 md:p-8 space-y-6 md:space-y-8">
+      <section className="p-12 space-y-6 md:space-y-8">
         {/* Page Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <nav className="flex text-[11px] font-bold text-slate-400 gap-2 mb-2 uppercase tracking-widest">
-              <span>Cấu hình</span>
-              <span>/</span>
-              <span className="text-primary">Quản lý người dùng</span>
-            </nav>
             <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Quản lý người dùng</h2>
-            <p className="text-sm text-slate-500 mt-1 font-medium opacity-70">Phân quyền và quản lý tài khoản toàn hệ thống.</p>
+            <p className="text-[16px] text-slate-500 mt-1 font-medium">Phân quyền và quản lý tài khoản toàn hệ thống.</p>
           </div>
           <button className="bg-primary text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all duration-200 text-[14px]">
             <span className="material-symbols-outlined font-bold">person_add</span>
@@ -30,7 +25,7 @@ export default function AdminUsers() {
         </div>
 
         {/* Summary Bento Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-5">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-8">
           {[
             { label: 'Tổng người dùng', value: '1,284', icon: 'groups', color: 'primary' },
             { label: 'Admin', value: '12', icon: 'admin_panel_settings', color: 'slate' },
@@ -38,12 +33,14 @@ export default function AdminUsers() {
             { label: 'Quản lý', value: '24', icon: 'manage_accounts', color: 'amber' },
             { label: 'Bệnh nhân', value: '1,162', icon: 'person', color: 'emerald' }
           ].map((stat, idx) => (
-            <div key={idx} className={`bg-white dark:bg-slate-900 p-5 rounded-2xl border-b-4 border-${stat.color === 'primary' ? 'primary' : stat.color + '-500'} shadow-sm hover:shadow-md transition-all group`}>
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-sm font-bold text-slate-400 uppercase tracking-widest leading-none">{stat.label}</p>
-                <span className={`material-symbols-outlined text-lg text-${stat.color === 'primary' ? 'primary' : stat.color + '-500'} opacity-50 group-hover:opacity-100 transition-opacity`}>{stat.icon}</span>
+            <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm transition-all relative overflow-hidden group">
+              <div className="relative z-10">
+                <p className="text-slate-500 text-[16px] font-medium mb-4">{stat.label}</p>
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">{stat.value}</span>
+                  <span className="material-symbols-outlined text-slate-300 text-[18px]">{stat.icon}</span>
+                </div>
               </div>
-              <span className="text-3xl font-extrabold text-slate-900 dark:text-white">{stat.value}</span>
             </div>
           ))}
         </div>
@@ -52,14 +49,14 @@ export default function AdminUsers() {
         <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-primary/5 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="relative">
-              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2 block px-1">Tìm kiếm</label>
+              <label className="text-[11px] font-bold text-slate-400 uppercase mb-2 block px-1">Tìm kiếm</label>
               <div className="relative">
                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
-                <input className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl pl-10 pr-4 py-2.5 text-[14px] font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none" placeholder="Tên hoặc Email..." type="text"/>
+                <input className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl pl-10 pr-4 py-2.5 text-[14px] font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none" placeholder="Tên hoặc Email..." type="text" />
               </div>
             </div>
             <div>
-              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2 block px-1">Vai trò</label>
+              <label className="text-[11px] font-bold text-slate-400 uppercase mb-2 block px-1">Vai trò</label>
               <select className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl px-4 py-2.5 text-[14px] font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none appearance-none italic-none">
                 <option>Tất cả vai trò</option>
                 <option>Admin</option>
@@ -69,7 +66,7 @@ export default function AdminUsers() {
               </select>
             </div>
             <div>
-              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2 block px-1">Phòng khám</label>
+              <label className="text-[11px] font-bold text-slate-400 uppercase mb-2 block px-1">Phòng khám</label>
               <select className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl px-4 py-2.5 text-[14px] font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none appearance-none italic-none">
                 <option>Tất cả cơ sở</option>
                 <option>Vitality Quận 1</option>
@@ -78,7 +75,7 @@ export default function AdminUsers() {
               </select>
             </div>
             <div>
-              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2 block px-1">Trạng thái</label>
+              <label className="text-[11px] font-bold text-slate-400 uppercase mb-2 block px-1">Trạng thái</label>
               <select className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl px-4 py-2.5 text-[14px] font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none appearance-none italic-none">
                 <option>Tất cả trạng thái</option>
                 <option>Hoạt động</option>
@@ -93,7 +90,7 @@ export default function AdminUsers() {
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="bg-primary/5 text-sm font-bold text-slate-500 uppercase tracking-widest">
+                <tr className="bg-primary/5 text-sm font-bold text-slate-500 uppercase">
                   <th className="px-6 py-5">Họ và tên</th>
                   <th className="px-6 py-5">Email/SĐT</th>
                   <th className="px-6 py-5">Vai trò</th>
@@ -109,38 +106,36 @@ export default function AdminUsers() {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className={`w-10 h-10 rounded-full overflow-hidden shrink-0 ring-2 ring-primary/10 ${user.status === 'Đã khóa' ? 'grayscale opacity-70' : ''}`}>
-                          <img alt={user.name} className="w-full h-full object-cover" src={user.avatar}/>
+                          <img alt={user.name} className="w-full h-full object-cover" src={user.avatar} />
                         </div>
                         <div>
-                          <p className={`text-[16px] font-extrabold tracking-tight truncate max-w-[150px] ${user.status === 'Đã khóa' ? 'text-slate-400' : 'text-slate-900 dark:text-white group-hover:text-primary transition-colors'}`}>
+                          <p className={`text-[16px] font-black tracking-tight truncate max-w-[150px] ${user.status === 'Đã khóa' ? 'text-slate-400' : 'text-slate-900 dark:text-white group-hover:text-primary transition-colors'}`}>
                             {user.name}
                           </p>
-                          <p className="text-sm text-slate-400 font-bold uppercase tracking-tighter">ID: {user.id}</p>
+                          <p className="text-[11px] text-slate-400 font-bold uppercase">ID: {user.id}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <p className={`text-base font-bold ${user.status === 'Đã khóa' ? 'text-slate-400' : 'text-slate-700 dark:text-slate-300'}`}>{user.email}</p>
-                      <p className="text-sm text-slate-500 font-medium">{user.phone}</p>
+                      <p className={`text-base font-extrabold ${user.status === 'Đã khóa' ? 'text-slate-400' : 'text-slate-700 dark:text-slate-300'}`}>{user.email}</p>
+                      <p className="text-[12px] text-slate-500 font-bold opacity-70">{user.phone}</p>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-2.5 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-tight shadow-sm ${
-                        user.role === 'Bác sĩ' ? 'bg-blue-500 text-white' :
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter shadow-sm ${user.role === 'Bác sĩ' ? 'bg-blue-500 text-white' :
                         user.role === 'Admin' ? 'bg-primary text-white' :
-                        user.role === 'Quản lý' ? 'bg-amber-500 text-white' :
-                        'bg-slate-400 text-white'
-                      }`}>
+                          user.role === 'Quản lý' ? 'bg-amber-500 text-white' :
+                            'bg-slate-400 text-white'
+                        }`}>
                         {user.role}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <p className={`text-[14px] font-bold ${user.status === 'Đã khóa' ? 'text-slate-400' : 'text-slate-600 dark:text-slate-400'}`}>{user.clinic}</p>
+                      <p className={`text-[14px] font-extrabold ${user.status === 'Đã khóa' ? 'text-slate-400' : 'text-slate-600 dark:text-slate-400'}`}>{user.clinic}</p>
                     </td>
-                    <td className="px-6 py-4 text-[13px] text-slate-500 font-medium">{user.date}</td>
+                    <td className="px-6 py-4 text-[13px] text-slate-500 font-bold">{user.date}</td>
                     <td className="px-6 py-4">
-                      <span className={`px-4 py-1.5 rounded-full text-white text-[13px] font-bold shadow-sm whitespace-nowrap inline-flex ${
-                        user.status === 'Hoạt động' ? 'bg-emerald-500' : 'bg-red-500'
-                      }`}>
+                      <span className={`px-4 py-1.5 rounded-full text-white text-[12px] font-black shadow-sm whitespace-nowrap inline-flex uppercase tracking-tighter ${user.status === 'Hoạt động' ? 'bg-emerald-500' : 'bg-red-500'
+                        }`}>
                         {user.status}
                       </span>
                     </td>

@@ -11,14 +11,14 @@ export default function AdminSettings() {
 
   return (
     <AdminLayout>
-      <section className="p-4 md:p-8 space-y-6 md:space-y-8 relative">
+      <section className="p-12 space-y-6 md:space-y-8 relative">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
             <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Cấu hình Hệ thống</h2>
-            <p className="text-sm text-slate-500 mt-1 font-medium opacity-70">Thiết lập tham số vận hành, bảo mật và thông báo mạng lưới DamDiep.</p>
+            <p className="text-[16px] text-slate-500 mt-1 font-medium">Thiết lập tham số vận hành, bảo mật và thông báo mạng lưới DamDiep.</p>
           </div>
-          <button 
+          <button
             onClick={handleSave}
             className="bg-primary text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all text-[14px]"
           >
@@ -28,7 +28,7 @@ export default function AdminSettings() {
 
         {/* Bento Grid Layout */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-          
+
           {/* Section 1: Vital Signs Thresholds */}
           <section className="col-span-12 lg:col-span-8 bg-white dark:bg-slate-900 rounded-2xl p-8 shadow-sm border border-primary/5">
             <div className="flex items-center justify-between mb-8">
@@ -36,64 +36,64 @@ export default function AdminSettings() {
                 <div className="p-3 bg-primary/10 rounded-xl text-primary">
                   <span className="material-symbols-outlined font-bold">vital_signs</span>
                 </div>
-                <h3 className="text-xl font-extrabold tracking-tight">Ngưỡng cảnh báo sinh tồn</h3>
+                <h3 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Ngưỡng cảnh báo sinh tồn</h3>
               </div>
-              <button className="text-sm font-bold text-primary hover:underline uppercase tracking-widest">Khôi phục mặc định</button>
+              <button className="text-sm font-bold text-primary hover:underline uppercase">Khôi phục mặc định</button>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               {/* Blood Pressure */}
               <div className="space-y-4">
-                <label className="text-sm font-bold uppercase tracking-widest text-slate-400">Huyết áp (mmHg)</label>
+                <label className="text-sm font-bold uppercase text-slate-400">Huyết áp (mmHg)</label>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <span className="text-xs font-bold text-slate-400 uppercase">Tâm thu tối đa</span>
-                    <input className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl px-4 py-3 text-base font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none" type="number" defaultValue="140"/>
+                    <input className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl px-4 py-3 text-base font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none" type="number" defaultValue="140" />
                   </div>
                   <div className="space-y-2">
                     <span className="text-xs font-bold text-slate-400 uppercase">Tâm trương tối đa</span>
-                    <input className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl px-4 py-3 text-base font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none" type="number" defaultValue="90"/>
+                    <input className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl px-4 py-3 text-base font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none" type="number" defaultValue="90" />
                   </div>
                 </div>
               </div>
-              
+
               {/* Blood Sugar */}
               <div className="space-y-4">
-                <label className="text-sm font-bold uppercase tracking-widest text-slate-400">Đường huyết (mmol/L)</label>
+                <label className="text-sm font-bold uppercase text-slate-400">Đường huyết (mmol/L)</label>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <span className="text-xs font-bold text-slate-400 uppercase">Ngưỡng thấp</span>
-                    <input className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl px-4 py-3 text-base font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none" step="0.1" type="number" defaultValue="4.0"/>
+                    <input className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl px-4 py-3 text-base font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none" step="0.1" type="number" defaultValue="4.0" />
                   </div>
                   <div className="space-y-2">
                     <span className="text-xs font-bold text-slate-400 uppercase">Ngưỡng cao</span>
-                    <input className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl px-4 py-3 text-base font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none" step="0.1" type="number" defaultValue="7.8"/>
+                    <input className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl px-4 py-3 text-base font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none" step="0.1" type="number" defaultValue="7.8" />
                   </div>
                 </div>
               </div>
 
               {/* Heart Rate */}
               <div className="space-y-4">
-                <label className="text-sm font-bold uppercase tracking-widest text-slate-400">Nhịp tim (BPM)</label>
+                <label className="text-sm font-bold uppercase text-slate-400">Nhịp tim (BPM)</label>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <span className="text-xs font-bold text-slate-400 uppercase">Tối thiểu</span>
-                    <input className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl px-4 py-3 text-base font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none" type="number" defaultValue="60"/>
+                    <input className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl px-4 py-3 text-base font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none" type="number" defaultValue="60" />
                   </div>
                   <div className="space-y-2">
                     <span className="text-xs font-bold text-slate-400 uppercase">Tối đa</span>
-                    <input className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl px-4 py-3 text-base font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none" type="number" defaultValue="100"/>
+                    <input className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl px-4 py-3 text-base font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none" type="number" defaultValue="100" />
                   </div>
                 </div>
               </div>
 
               {/* SpO2 */}
               <div className="space-y-4">
-                <label className="text-sm font-bold uppercase tracking-widest text-slate-400">Oxy (SpO2 %)</label>
+                <label className="text-sm font-bold uppercase text-slate-400">Oxy (SpO2 %)</label>
                 <div className="space-y-2">
                   <span className="text-xs font-bold text-slate-400 uppercase">Cảnh báo khi dưới</span>
                   <div className="relative">
-                    <input className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl px-4 py-3 text-base font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none" type="number" defaultValue="94"/>
+                    <input className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl px-4 py-3 text-base font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none" type="number" defaultValue="94" />
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">%</span>
                   </div>
                 </div>
@@ -107,7 +107,7 @@ export default function AdminSettings() {
               <div className="p-3 bg-amber-500/10 rounded-xl text-amber-500">
                 <span className="material-symbols-outlined font-bold">lock_reset</span>
               </div>
-              <h3 className="text-xl font-extrabold tracking-tight">Chính sách bảo mật</h3>
+              <h3 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Chính sách bảo mật</h3>
             </div>
             <div className="space-y-8 flex-1">
               <div className="flex justify-between items-center">
@@ -115,9 +115,9 @@ export default function AdminSettings() {
                   <p className="text-base font-bold">Độ dài tối thiểu</p>
                   <p className="text-sm text-slate-500 font-medium opacity-70">Khuyến nghị: 12 ký tự</p>
                 </div>
-                <input className="w-16 bg-primary/5 dark:bg-slate-800 border-none rounded-xl p-2 text-center font-extrabold text-primary outline-none focus:ring-2 focus:ring-primary" type="number" defaultValue="8"/>
+                <input className="w-16 bg-primary/5 dark:bg-slate-800 border-none rounded-xl p-2 text-center font-extrabold text-primary outline-none focus:ring-2 focus:ring-primary" type="number" defaultValue="8" />
               </div>
-              
+
               <div className="space-y-4">
                 {[
                   { label: "Yêu cầu ký tự đặc biệt (!@#$)", checked: true },
@@ -126,13 +126,13 @@ export default function AdminSettings() {
                 ].map((item, idx) => (
                   <label key={idx} className="flex items-center justify-between group cursor-pointer p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl hover:bg-primary/5 transition-all">
                     <span className="text-sm font-bold text-slate-700 dark:text-slate-200">{item.label}</span>
-                    <input defaultChecked={item.checked} className="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary cursor-pointer" type="checkbox"/>
+                    <input defaultChecked={item.checked} className="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary cursor-pointer" type="checkbox" />
                   </label>
                 ))}
               </div>
 
               <div className="pt-6 border-t border-primary/5">
-                <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-3">Đổi mật khẩu định kỳ</p>
+                <p className="text-sm font-bold text-slate-400 uppercase mb-3">Đổi mật khẩu định kỳ</p>
                 <select className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl px-4 py-3 text-base font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none appearance-none cursor-pointer">
                   <option>Mỗi 30 ngày</option>
                   <option selected>Mỗi 90 ngày</option>
@@ -149,16 +149,16 @@ export default function AdminSettings() {
               <div className="p-3 bg-blue-500/10 rounded-xl text-blue-500">
                 <span className="material-symbols-outlined font-bold">mail</span>
               </div>
-              <h3 className="text-xl font-extrabold tracking-tight">Cấu hình thông báo</h3>
+              <h3 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Cấu hình thông báo</h3>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead>
                   <tr className="border-b border-primary/5">
-                    <th className="pb-4 text-sm font-bold uppercase tracking-widest text-slate-400">Sự kiện hệ thống</th>
-                    <th className="pb-4 text-sm font-bold uppercase tracking-widest text-slate-400 text-center">Email</th>
-                    <th className="pb-4 text-sm font-bold uppercase tracking-widest text-slate-400 text-center">SMS</th>
-                    <th className="pb-4 text-sm font-bold uppercase tracking-widest text-slate-400 text-center">Push</th>
+                    <th className="pb-4 text-sm font-bold uppercase text-slate-400">Sự kiện hệ thống</th>
+                    <th className="pb-4 text-sm font-bold uppercase text-slate-400 text-center">Email</th>
+                    <th className="pb-4 text-sm font-bold uppercase text-slate-400 text-center">SMS</th>
+                    <th className="pb-4 text-sm font-bold uppercase text-slate-400 text-center">Push</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-primary/5">
@@ -194,20 +194,20 @@ export default function AdminSettings() {
                 <div className="p-3 bg-white/10 rounded-xl">
                   <span className="material-symbols-outlined text-white font-bold">tune</span>
                 </div>
-                <h3 className="text-xl font-extrabold tracking-tight">Cấu hình chung</h3>
+                <h3 className="text-2xl font-black tracking-tight text-white/90">Cấu hình chung</h3>
               </div>
-              
+
               <div className="space-y-8">
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-slate-400">Ngôn ngữ</label>
+                    <label className="text-xs font-bold uppercase text-slate-400">Ngôn ngữ</label>
                     <select className="w-full bg-white/10 border-none rounded-xl px-4 py-3 text-sm font-bold text-white focus:ring-2 focus:ring-primary cursor-pointer appearance-none">
                       <option className="bg-slate-900 border-none">Tiếng Việt</option>
                       <option className="bg-slate-900 border-none">English</option>
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-slate-400">Múi giờ</label>
+                    <label className="text-xs font-bold uppercase text-slate-400">Múi giờ</label>
                     <select className="w-full bg-white/10 border-none rounded-xl px-4 py-3 text-sm font-bold text-white focus:ring-2 focus:ring-primary cursor-pointer appearance-none">
                       <option className="bg-slate-900 border-none">(GMT+07) Hanoi</option>
                       <option className="bg-slate-900 border-none">(GMT+00) UTC</option>
@@ -219,19 +219,19 @@ export default function AdminSettings() {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <span className="material-symbols-outlined text-primary text-[20px] font-bold">api</span>
-                      <span className="text-sm font-bold uppercase tracking-widest opacity-80">Quản lý API Key</span>
+                      <span className="text-sm font-bold uppercase opacity-80">Quản lý API Key</span>
                     </div>
                     <button className="text-[11px] font-extrabold uppercase bg-primary text-white px-3 py-1 rounded-full shadow-lg shadow-primary/20 hover:scale-105 transition-all">Làm mới</button>
                   </div>
                   <div className="flex gap-2 items-center bg-black/20 p-3 rounded-lg">
-                    <input className="flex-1 bg-transparent border-none text-primary font-mono text-sm focus:ring-0 truncate" readOnly type="password" value="sk_live_51MvR8kL6vJtE2X9_damdiep_key"/>
+                    <input className="flex-1 bg-transparent border-none text-primary font-mono text-sm focus:ring-0 truncate" readOnly type="password" value="sk_live_51MvR8kL6vJtE2X9_damdiep_key" />
                     <button className="p-2 hover:text-primary transition-all"><span className="material-symbols-outlined text-[18px]">content_copy</span></button>
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between p-6 bg-red-500/10 rounded-2xl border border-red-500/20">
                   <div>
-                    <p className="text-sm font-extrabold text-red-400 uppercase tracking-widest mb-1">Chế độ bảo trì</p>
+                    <p className="text-sm font-extrabold text-red-400 uppercase mb-1">Chế độ bảo trì</p>
                     <p className="text-[13px] text-white/60 font-medium">Khóa truy cập cho người dùng cuối</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
@@ -243,7 +243,7 @@ export default function AdminSettings() {
             </div>
 
             <div className="mt-10 p-4 border-t border-white/5 flex group cursor-pointer hover:text-primary transition-colors">
-              <span className="text-sm font-bold uppercase tracking-widest opacity-50 group-hover:opacity-100">Kiểm tra kết nối máy chủ</span>
+              <span className="text-sm font-bold uppercase opacity-50 group-hover:opacity-100">Kiểm tra kết nối máy chủ</span>
               <span className="material-symbols-outlined text-[18px] ml-auto">link</span>
             </div>
           </section>
@@ -251,8 +251,8 @@ export default function AdminSettings() {
 
         {/* Action Footer Mobile-friendly */}
         <div className="flex items-center justify-end gap-6 pt-10 px-4">
-          <button className="text-[14px] font-bold text-slate-400 hover:text-slate-600 uppercase tracking-widest transition-colors">Hủy bỏ</button>
-          <button 
+          <button className="text-[14px] font-bold text-slate-400 hover:text-slate-600 uppercase transition-colors">Hủy bỏ</button>
+          <button
             onClick={handleSave}
             className="px-10 py-4 bg-primary text-white rounded-xl font-extrabold shadow-xl shadow-primary/20 hover:scale-[1.03] active:scale-95 transition-all text-base"
           >
