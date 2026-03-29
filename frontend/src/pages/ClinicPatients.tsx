@@ -2,33 +2,100 @@ import { useState } from 'react';
 import ClinicSidebar from '../components/common/ClinicSidebar';
 import TopBar from '../components/common/TopBar';
 import CreatePatientModal from '../features/clinic/components/CreatePatientModal';
+import EditPatientModal from '../features/clinic/components/EditPatientModal';
+import DeletePatientModal from '../features/clinic/components/DeletePatientModal';
+import ClinicFilterDropdown from '../components/common/ClinicFilterDropdown';
+import Toast from '../components/ui/Toast';
 
 export default function ClinicPatients() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
-    // Mock available doctors for assignments
-    const availableDoctors = ['BS. Trần Vũ', 'BS. Lê Mai', 'BS. Minh Phan', 'BS. Nguyễn Văn Hùng'];
+    // Filter States
+    const [searchTerm, setSearchTerm] = useState('');
+    const [conditionFilter, setConditionFilter] = useState('Tất cả bệnh lý');
+    const [riskFilter, setRiskFilter] = useState('Mức độ rủi ro');
+
+    // Edit/Delete Modal States
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [selectedPatient, setSelectedPatient] = useState<any>(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    // Toast State
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+
+    // Mock patient data
+    const originalPatients = [
+        { id: 'BN-4092', name: 'Nguyễn Văn An', age: 54, phone: '0901.234.567', condition: 'Tiểu đường Type 2', riskLevel: 'Nguy cơ cao (HIGH RISK)', doctor: 'BS. Lê Thị Mai', location: 'Khu A - P.301', status: 'Đang điều trị', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBOCa1T_Z6YqfWzL2G57p_u-879P5Hw_-8p02pB_l5D7mK6s7387p89_vM_y8uL8v7_5-vS-LMXx9pY_Z_I=w150-h150' },
+        { id: 'BN-8832', name: 'Trần Thị Bình', age: 42, phone: '0932.888.999', condition: 'Cao huyết áp', riskLevel: 'Theo dõi (MONITORING)', doctor: 'BS. Nguyễn Văn Hùng', location: 'Ngoại trú', status: 'Ổn định', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDDUxtUCNo_eOW2i74f9dU2ke3O6DdFpNBqocx0VOIT6cKcbqDmYGlNCySrmpW4jb3yPPO0gvyNcggFq9jn0GsZXoCPmlZBJnP8aJUfU4v6lzivTFEc1ylw3JNb-sGeWVlEueNxMEuGrYnsb-nnyA84Oi5Sf336tH76LxB_vRKDHzz1FBJdVIgoJSfL9piK2ojcWK5DG7lxb8IoQapVNBHG8kMuLkEdXj5Q9wZx16HamSmVAQBXHG8kVj7N9ani-cxxqV-3mUBeWQLo=w150-h150' },
+        { id: 'BN-2184', name: 'Lê Hoàng Long', age: 67, phone: '0912.445.667', condition: 'Tiểu đường Type 1', riskLevel: 'Nguy cơ cao (HIGH RISK)', doctor: 'BS. Trần Thanh Vân', location: 'Khu B - P.105', status: 'Cấp cứu', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAboso0sxfLLQWXoAkyQ4PjrDzGtVk7eK9A5M0GARfNrFZo2qWjzE0dL0X0SVmT_iNZg4StUX18smTTwilILdTSs1KPADmQto-mphuFNckhqeFUCXDPYsu8U58Ax61i6698FZQi1PYDKwSIgdCXSBTM_KlijtOs3fNISYz3SaIIb3ttQJ-ssqPKMoPuDHNWKlTlaGU6jQ0jVdibdLxl_dZ5ewP6tnuGt8ByfYEgugWhUqDvJHydPhsYoPiygfdgy_4P9YF4YWIOnsc=w150-h150' },
+        { id: 'BN-5521', name: 'Phạm Minh Đức', age: 31, phone: '0988.777.666', condition: 'Hen suyễn', riskLevel: 'Bình thường (STABLE)', doctor: 'BS. Lê Thị Mai', location: 'Ngoại trú', status: 'Ổn định', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA9yLvMk6BUhpq4FLxSu2u9WQO1rBsyOYInapLQflgOtYBkOYv4CWpEmrU8s0M4CSk9HIjSi9K6OZKi9SwTImJfAdAN4pXHZX4b2_T5fjnkOjUC1yopuqQd7IEiyV32OcQuX4QI4BQ8D7UB_6h0ibu7w5C1KNIDC4TNKFZMajlLwvW4RKVeZTYCdVtkivG8AMdhCpIvCnMhC-CWoEFOkyY48X3MMsPcmIXSwu7rdl870KnZ25XKOoS_dpgNYfgwx-9i1mfQVEzXL-U=w150-h150' },
+        { id: 'BN-1102', name: 'Hoàng Kim Chi', age: 58, phone: '028.384.5555', condition: 'Tăng huyết áp', riskLevel: 'Theo dõi (MONITORING)', doctor: 'BS. Trần Thanh Vân', location: 'Khu A - P.305', status: 'Đang điều trị', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD8l1TSR8QqNUTZi_iBf5NDAWqMisZHLRu3j73Axu4SkhNhEXD2SAg6QXf-qaRl3wE204eABtqWh54oW72o3YdXvWqKIoEH5KTU_hpURc9hEmJIVfRScevIKpEAq26goehjMxlI-2iXQVecGYAo1kwPSR79P-clKbRNtLOd2KfJ5YNE4lAgi_-CWsiTOoQAd397gmPHCt04ABZ26GJnQklEiY4q-CjnZ1bVmUUkOAIxcVrKFY7Sl7JwLW7zh-E-Itsukxb1ID7JwL8=w150-h150' }
+    ];
+
+    const [patients, setPatients] = useState(originalPatients);
 
     const [notifications, setNotifications] = useState([
         { id: 1, title: 'Báo cáo mới', description: 'Có báo cáo tổng quát tháng 12 vừa được tạo.', time: '5 phút trước', read: false },
         { id: 2, title: 'Cảnh báo nguy cơ', description: 'Bệnh nhân Nguyễn Văn An có chỉ số bất thường.', time: '1 giờ trước', read: false },
     ]);
 
-    const handleCreatePatient = async (data: any) => {
+    const handleSavePatient = async (patientData: any) => {
         setIsSaving(true);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        console.log("New Patient Created:", data);
-        setIsSaving(false);
-        setIsCreateModalOpen(false);
-        // Toast notification could be triggered here
+        setTimeout(() => {
+            const newPatient = {
+                ...patientData,
+                id: `BN-${Math.floor(Math.random() * 9000) + 1000}`,
+                doctor: patientData.assignedDoctor,
+                location: 'Ngoại trú',
+                status: 'Mới hồ sơ',
+                img: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=150&h=150'
+            };
+            setPatients([newPatient, ...patients]);
+            setIsSaving(false);
+            setIsCreateModalOpen(false);
+            setToastMessage(`Đã thêm hồ sơ bệnh nhân ${patientData.name} thành công!`);
+            setShowToast(true);
+        }, 1500);
     };
+
+    const handleEditPatient = async (patientData: any) => {
+        setIsEditing(true);
+        setTimeout(() => {
+            setPatients(patients.map(p => p.id === patientData.id ? { ...p, ...patientData, doctor: patientData.assignedDoctor } : p));
+            setIsEditing(false);
+            setIsEditModalOpen(false);
+            setToastMessage(`Đã cập nhật hồ sơ bệnh nhân ${patientData.name}!`);
+            setShowToast(true);
+        }, 1500);
+    };
+
+    const handleDeletePatient = async (patientId: string) => {
+        setIsDeleting(true);
+        setTimeout(() => {
+            setPatients(patients.filter(p => p.id !== patientId));
+            setIsDeleting(false);
+            setIsDeleteModalOpen(false);
+            setToastMessage('Đã bỏ hồ sơ bệnh nhân khỏi danh sách theo dõi');
+            setShowToast(true);
+        }, 1500);
+    };
+
+    const filteredPatients = patients.filter(p => {
+        const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || p.id.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesCondition = conditionFilter === 'Tất cả bệnh lý' || p.condition.includes(conditionFilter);
+        const matchesRisk = riskFilter === 'Mức độ rủi ro' || p.riskLevel.includes(riskFilter.split(' (')[0]);
+        return matchesSearch && matchesCondition && matchesRisk;
+    });
+
+    const availableDoctors = ['BS. Lê Thị Mai', 'BS. Nguyễn Văn Hùng', 'BS. Trần Thanh Vân'];
 
     return (
         <div className="flex min-h-screen font-display bg-[#f6f8f7] dark:bg-slate-950 text-slate-900 dark:text-slate-100 italic-none">
-            {/* Sidebar Navigation */}
             <ClinicSidebar 
                 isSidebarOpen={isSidebarOpen} 
                 userName="Admin Sarah"
@@ -36,9 +103,7 @@ export default function ClinicPatients() {
                 userAvatar="https://lh3.googleusercontent.com/aida-public/AB6AXuDs9fuTZde7EUIINhAwZDAYbGdWhfZuvszHFDZODEHBxXo3hRWmKfCmGfg6Xgckf0DONyYs8LQEOXng1sISGQVj9ec2pSs--Gz-xPlj6elGIG3KtZTO9U-57mPPcUxuNMtJbLamHmXAsWrVwobD4Ai-pKgNGU0yfv596RmDCRUawQMx8gmW7E2J_we-R_YITLa95pCcbtDZf6tkb7C6bWKKzwepNG2pc4L5uji1KMHQetqk8390TVAlxrRao3qco3laKWLu0uA-BmQ"
             />
 
-            {/* Main Content Area */}
             <main className="flex-1 lg:ml-72 min-h-screen flex flex-col transition-all duration-300">
-                {/* Mobile Sidebar Overlay */}
                 {isSidebarOpen && (
                     <div
                         className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[140] lg:hidden animate-in fade-in duration-300"
@@ -46,205 +111,217 @@ export default function ClinicPatients() {
                     ></div>
                 )}
 
-                {/* Header */}
                 <TopBar
                     setIsSidebarOpen={setIsSidebarOpen}
                     notifications={notifications}
                     setNotifications={setNotifications}
                 />
 
-                {/* Content Canvas */}
                 <div className="p-8 space-y-10">
-                    {/* Header Section */}
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                         <div className="space-y-1">
-                            <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Danh sách bệnh nhân mãn tính</h3>
-                            <p className="text-slate-500 font-medium">Quản lý và theo dõi sức khỏe bệnh nhân trong toàn phòng khám</p>
+                            <h3 className="text-xl font-bold italic-none text-slate-900 dark:text-white tracking-tight">Hồ sơ bệnh nhân mãn tính</h3>
+                            <p className="text-slate-500 font-medium">Theo dõi và quản lý dữ liệu lâm sàng diện rộng</p>
                         </div>
                         <button
                             onClick={() => setIsCreateModalOpen(true)}
-                            className="bg-primary text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all font-display"
+                            className="bg-primary text-white px-6 py-3 rounded-2xl font-black text-[15px] flex items-center gap-3 hover:shadow-xl hover:shadow-primary/30 transition-all font-display whitespace-nowrap active:scale-95 group"
                         >
-                            <span className="material-symbols-outlined">person_add</span>
-                            <span>Thêm bệnh nhân mới</span>
+                            <span className="material-symbols-outlined font-black">add</span>
+                            Thêm bệnh nhân mới
                         </button>
                     </div>
 
-                    {/* Stats Bento Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {[
-                            { label: 'Tổng số bệnh nhân', val: '1,250', trend: '+12%', icon: 'groups', color: 'primary', trendIcon: 'trending_up', trendColor: 'text-emerald-500' },
-                            { label: 'Nguy cơ cao', val: '24', trend: 'Cần chú ý', icon: 'warning', color: 'red', trendColor: 'text-red-500' },
-                            { label: 'Cần tái khám', val: '45', trend: '45 ca', icon: 'event_repeat', color: 'amber', trendColor: 'text-amber-500' },
-                            { label: 'Mới xuất viện', val: '12', trend: 'Hôm nay', icon: 'logout', color: 'slate', trendColor: 'text-slate-400' }
-                        ].map((stat, i) => (
-                            <div key={i} className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className={`w-12 h-12 ${stat.color === 'primary' ? 'bg-primary/10 text-primary' : stat.color === 'red' ? 'bg-red-100 text-red-500' : stat.color === 'amber' ? 'bg-amber-100 text-amber-500' : 'bg-slate-100 text-slate-500'} rounded-lg flex items-center justify-center text-primary`}>
-                                        <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>{stat.icon}</span>
-                                    </div>
-                                    <span className={`${stat.trendColor} text-[13px] font-bold flex items-center gap-1`}>
-                                        {stat.trend}
-                                        {stat.trendIcon && <span className="material-symbols-outlined text-xs">trending_up</span>}
-                                    </span>
-                                </div>
-                                <h3 className="text-slate-500 text-sm font-medium">{stat.label}</h3>
-                                <p className={`text-3xl font-extrabold mt-1 ${stat.color === 'red' ? 'text-red-500' : ''}`}>{stat.val}</p>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Filters Bar */}
+                    {/* Filters Bar (Standardized) */}
                     <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-primary/5 shadow-sm flex flex-wrap items-center gap-6">
                         <div className="flex-1 min-w-[300px] relative group">
                             <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
                             <input
-                                className="w-full pl-12 pr-6 py-3.5 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-primary/30 text-sm font-bold placeholder:text-slate-400 transition-all"
-                                placeholder="Tìm kiếm theo tên hoặc mã bệnh nhân..."
+                                className="w-full pl-12 pr-6 py-3.5 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-primary/30 text-sm font-bold placeholder:text-slate-400 transition-all outline-none italic-none"
+                                placeholder="Tìm kiếm theo tên bệnh nhân hoặc mã số hồ sơ..."
                                 type="text"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
                         <div className="flex items-center gap-4 flex-wrap">
-                            <select className="bg-slate-50 dark:bg-slate-800 border-none rounded-2xl py-3.5 pl-5 pr-12 text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer">
-                                <option>Tất cả bệnh lý</option>
-                                <option>Tiểu đường (Diabetes)</option>
-                                <option>Cao huyết áp (Hypertension)</option>
-                                <option>Suy thận (CKD)</option>
-                            </select>
-                            <select className="bg-slate-50 dark:bg-slate-800 border-none rounded-2xl py-3.5 pl-5 pr-12 text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer">
-                                <option>Mức độ rủi ro</option>
-                                <option>Bình thường</option>
-                                <option>Theo dõi</option>
-                                <option>Nguy cơ cao</option>
-                            </select>
-                            <button className="bg-slate-50 dark:bg-slate-800 text-slate-500 hover:text-primary p-4 rounded-2xl transition-all hover:shadow-sm">
+                            <ClinicFilterDropdown
+                                value={conditionFilter}
+                                options={['Tất cả bệnh lý', 'Tiểu đường', 'Cao huyết áp', 'Hen suyễn']}
+                                onChange={setConditionFilter}
+                            />
+
+                            <ClinicFilterDropdown
+                                value={riskFilter}
+                                options={['Mức độ rủi ro', 'Bình thường', 'Theo dõi', 'Nguy cơ cao']}
+                                onChange={setRiskFilter}
+                            />
+
+                            <button className="bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary p-4 rounded-2xl transition-all hover:shadow-sm active:scale-95">
                                 <span className="material-symbols-outlined">tune</span>
                             </button>
                         </div>
                     </div>
 
-                    {/* Patients Table Card */}
-                    <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm border border-primary/5">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-primary/5 overflow-hidden font-display">
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead>
                                     <tr className="bg-slate-50 dark:bg-slate-800/50 font-display">
-                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500">Thông tin bệnh nhân</th>
-                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500 text-center">Tuổi / Phái</th>
-                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500">Bệnh lý</th>
-                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500 text-center">Chỉ số mới nhất</th>
-                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500">Mức rủi ro</th>
-                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500">Bác sĩ phụ trách</th>
-                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500 text-right">Thao tác</th>
+                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500">Người bệnh</th>
+                                        <th className="px-6 py-5 text-[15px] font-medium text-slate-500">Hồ sơ & Bệnh lý</th>
+                                        <th className="px-6 py-5 text-[15px] font-medium text-slate-500">Phụ trách</th>
+                                        <th className="px-6 py-5 text-[15px] font-medium text-slate-500">Rủi ro</th>
+                                        <th className="px-6 py-5 text-[15px] font-medium text-slate-500">Trạng thái</th>
+                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500 text-right font-display italic-none">Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                                    {[
-                                        {
-                                            name: 'Nguyễn Thị An', id: 'SK-2024-0012', age: 68, gender: 'Nữ', condition: 'Tiểu đường Type 2',
-                                            vitals: '135/85 mmHg', extra: 'Glu: 6.8 mmol/L', risk: 'MONITORING', riskColor: 'amber',
-                                            dr: 'BS. Trần Vũ', drImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDgpPcqqyf6Xh0LWcndTQbzCG5IsON-lMCoeJQCWBHRD_R1V24TkyhMT9X_jZcXLJv7Ezke1Zrj_mNQRQL-g2LVSKuK9esw6xNta9hH1ol4jPGX4D8f9NydFkHbiKPwJQc_WgsuOvCfSgQOSfqti8oP5RHzs8LJq2Yn8wqmi2QTtJiHF2soBRJNoQRVrL0pdfhz1ehu28EMlnYxJFTvVrIwK9S-CtdAz2OYnSahTxju9G0vQUG-TVq660rO9N3O9SI5lx0ZGnl94CA',
-                                            img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA6JY2xV6yW03cBHQsc_0V8lZdDia8hnAmqekP0qsH5BDigVbzFwES0eg9KzUjQWHM0kFwBKAUKjHKd5--DRMpJefyjNbnXF6MAsnPPZcdP7JxxsupnEFsBQmXHTlRCuehSqyBxTguz8KqNfSpfkeCIU9kcuR56aldq48f2spzI6ko9ndyNRoQC9iBURblqCv8x2VY0N0Y0Wm_5d4DmCG4D64mF7OdE3ONWx1JPnCGzryojkQqYOlLFXi6qYsu6EqoP3XMB39k3udI'
-                                        },
-                                        {
-                                            name: 'Phạm Văn Hùng', id: 'SK-2024-0459', age: 54, gender: 'Nam', condition: 'Cao huyết áp',
-                                            vitals: '165/105 mmHg', extra: 'Glu: 5.2 mmol/L', risk: 'HIGH RISK', riskColor: 'red',
-                                            dr: 'BS. Lê Mai', drImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDHi0v4zOji5MinB7wBQzU2Ze5e4KkFFcEgzlRGJeWG32reZ9_o9NE-2qprq_uYidnejLexJd1ciYERppNgwEE262IgLq8-q9ESy-O0FS_fA9n2PD4K-86X5LJwMx6DnlZl0gDX9-ytADFMwDPRWQB1CNoTAuh1NflrYEGrFTUcTDDQzw_nBvH3mzYsdPJYEVqHTjvcw_rYJUY0-ddIyXBq63O7vBF5Kpw3riLY6hQxFoLzq4o4M-ajsfXINzyrI0ZtWbfxf3nhcMk',
-                                            img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAmlVd4XHcBO80Rdv97APOR53L1BWNU0wkELXuJi5CW13gmVNAeTVSGQHjCOApZrrR5xskMFiqcfI6sGy1M36pRd8Tnob5QhdSZGEhcvKFIXd6L28rgW1wyCIA9XSQFcx1PAnOFcB1_XcrMmryMVdZY4i2YbrmPgWTXK56c1NuvW8pMOvq1pg9m-B-TCXs3xDHKnyLF42haeXAML_deUpPFR-kCsgMF_TWlmLIZwJiMkeQz2WTfIJeNQquMtF0pYd53ErUt0oGQ7g4'
-                                        },
-                                        {
-                                            name: 'Lê Hoàng Nam', id: 'SK-2024-0231', age: 32, gender: 'Nam', condition: 'Hen suyễn',
-                                            vitals: '118/75 mmHg', extra: 'SPO2: 98%', risk: 'STABLE', riskColor: 'emerald',
-                                            dr: 'BS. Minh Phan', drImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAZqn4gqUIjCMg_m7eiQrwu0OPmBVVLJXky6wixBI0wzckCRW1VZ0Akr29yJpyMgVzUmBhXsfuhaQGj832o7dIsZupqlw-s3a1zoRGyxsFhbAaMr4-OXxZP8lPq9zh1Tb2Ts8qCEMh4l8vOXSi10L6LVMEMpVS5_Z-8wPJ3D9zzfYzu6iG9hGxIA1thwwuyizs-53CGVN7ZGSsq8Gy_8PyLFvbxnajrzPzhO0POp06ZSmkqxnpgH2eSZRja0JuyIXA1X75GW_v9a-g',
-                                            img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuArYIacp7JXVXSsTrHAJtgzzJ_cRJp_AmOGzA-kZwKiebyScIUQeOpjVXST-t8851RqPwqrsibjKrpAX6quNwGsYuFB8eAN1_-25xXA0BV1T8PVG18tGaE8mR0Ko85uqX3nGD2doEy9Ha-mm2vGJYc9v7JhOjodMnV56oEidOXJtRBRJDjsv8r6e1DCNisi-_carOFNTdkPjRmH7SJ4YxvUxBPHm5iPbOh_VCtHwB3slfZg8H67HrFHFLjUOCVdb9QLwHJGRCmu98M'
-                                        }
-                                    ].map((patient, idx) => (
-                                        <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group">
+                                    {filteredPatients.length > 0 ? filteredPatients.map((p, idx) => (
+                                        <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-all group">
                                             <td className="px-8 py-5">
                                                 <div className="flex items-center gap-4">
-                                                    <img alt="Patient Photo" className="w-11 h-11 rounded-full object-cover ring-2 ring-primary/10" src={patient.img} />
+                                                    <img alt={p.name} className="w-11 h-11 rounded-xl object-cover ring-2 ring-primary/10" src={p.img} />
                                                     <div>
-                                                        <p className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">{patient.name}</p>
-                                                        <p className="text-[13px] text-slate-500 font-medium mt-0.5">{patient.id}</p>
+                                                        <p className="text-[16px] font-black text-slate-900 dark:text-white group-hover:text-primary transition-colors tracking-tight italic-none">{p.name}</p>
+                                                        <p className="text-[14px] text-slate-400 font-medium">{p.age} tuổi • {p.phone}</p>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-5 text-sm text-slate-700 dark:text-slate-400 font-bold text-center">
-                                                {patient.age}t / {patient.gender}
-                                            </td>
-                                            <td className="px-8 py-5">
-                                                <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[12px] font-bold px-3 py-1.5 rounded-lg whitespace-nowrap">
-                                                    {patient.condition}
-                                                </span>
-                                            </td>
-                                            <td className="px-8 py-5">
-                                                <div className="flex flex-col items-center gap-0.5 whitespace-nowrap">
-                                                    <span className={`text-sm font-bold ${patient.riskColor === 'red' ? 'text-red-500' : 'text-slate-900 dark:text-white'}`}>{patient.vitals}</span>
-                                                    <span className="text-[13px] text-slate-400 font-medium">{patient.extra}</span>
+                                            <td className="px-6 py-5">
+                                                <div className="space-y-1">
+                                                    <p className="text-sm font-black text-slate-700 dark:text-slate-300 italic-none">{p.id}</p>
+                                                    <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-[11px] font-bold rounded uppercase tracking-wider italic-none">{p.condition}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-5">
-                                                <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-[13px] font-bold text-white whitespace-nowrap shadow-sm ${patient.riskColor === 'red' ? 'bg-red-500' :
-                                                        patient.riskColor === 'amber' ? 'bg-amber-500' :
-                                                            'bg-emerald-500'
+                                            <td className="px-6 py-5">
+                                                <p className="text-[14px] font-bold text-slate-700 dark:text-slate-300">{p.doctor}</p>
+                                                <p className="text-[12px] text-slate-400 font-medium italic-none tracking-tight">{p.location}</p>
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <div className="flex flex-col gap-1.5">
+                                                    <span className={`text-[13px] font-bold italic-none ${p.riskLevel.includes('HIGH') ? 'text-red-500' : p.riskLevel.includes('MONITORING') ? 'text-amber-500' : 'text-emerald-500'}`}>
+                                                        {p.riskLevel.split(' (')[0]}
+                                                    </span>
+                                                    <div className="w-24 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                                        <div className={`h-full rounded-full ${p.riskLevel.includes('HIGH') ? 'bg-red-500 w-full' : p.riskLevel.includes('MONITORING') ? 'bg-amber-500 w-[60%]' : 'bg-emerald-500 w-[30%]'}`}></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <span className={`inline-flex px-4 py-1.5 rounded-full text-[13px] font-black italic-none shadow-sm ${p.status === 'Ổn định' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
+                                                        p.status === 'Cấp cứu' ? 'bg-red-50 text-red-600 border border-red-100 animate-pulse' :
+                                                            'bg-blue-50 text-blue-600 border border-blue-100'
                                                     }`}>
-                                                    {patient.risk === 'MONITORING' ? 'Theo dõi' : patient.risk === 'HIGH RISK' ? 'Nguy cơ cao' : 'Ổn định'}
+                                                    {p.status}
                                                 </span>
-                                            </td>
-                                            <td className="px-8 py-5">
-                                                <div className="flex items-center gap-3">
-                                                    <img alt="Doctor" className="w-8 h-8 rounded-full border border-primary/20" src={patient.drImg} />
-                                                    <span className="text-sm font-bold text-slate-600 dark:text-slate-400">{patient.dr}</span>
-                                                </div>
                                             </td>
                                             <td className="px-8 py-5 text-right">
                                                 <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-1 group-hover:translate-x-0">
-                                                    <button className="p-2 text-primary hover:bg-primary/10 rounded-xl transition-colors" title="Xem hồ sơ">
-                                                        <span className="material-symbols-outlined text-[22px]">visibility</span>
+                                                    <button className="p-2 text-primary hover:bg-primary/10 rounded-xl transition-colors active:scale-95" title="Xem hồ sơ">
+                                                        <span className="material-symbols-outlined text-[20px]">visibility</span>
                                                     </button>
-                                                    <button className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-xl transition-colors">
-                                                        <span className="material-symbols-outlined text-[22px]">edit</span>
+                                                    <button 
+                                                        onClick={() => { setSelectedPatient(p); setIsEditModalOpen(true); }}
+                                                        className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-xl transition-colors active:scale-95" 
+                                                        title="Chỉnh sửa"
+                                                    >
+                                                        <span className="material-symbols-outlined text-[20px]">edit</span>
                                                     </button>
-                                                    <button className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors">
-                                                        <span className="material-symbols-outlined text-[22px]">delete</span>
+                                                    <button 
+                                                        onClick={() => { setSelectedPatient(p); setIsDeleteModalOpen(true); }}
+                                                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors active:scale-95" 
+                                                        title="Loại bỏ"
+                                                    >
+                                                        <span className="material-symbols-outlined text-[20px]">delete</span>
                                                     </button>
                                                 </div>
                                             </td>
                                         </tr>
-                                    ))}
+                                    )) : (
+                                        <tr>
+                                            <td colSpan={6} className="px-8 py-20 text-center">
+                                                <div className="flex flex-col items-center gap-3 text-slate-400">
+                                                    <span className="material-symbols-outlined text-5xl opacity-20">person_off</span>
+                                                    <p className="text-sm font-bold italic-none tracking-tight">Không tìm thấy bệnh nhân phù hợp</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>
 
-                        {/* Pagination Footer */}
-                        <div className="px-8 py-6 bg-slate-50 dark:bg-slate-800/30 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">
-                            <p className="text-[13px] font-bold text-slate-400 uppercase ">Hiển thị 1 đến 10 trong số 1,250 bệnh nhân</p>
-                            <div className="flex items-center gap-2">
-                                <button className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary transition-all disabled:opacity-30" disabled>
-                                    <span className="material-symbols-outlined text-sm">chevron_left</span>
+                        <div className="px-8 py-6 bg-slate-50/50 dark:bg-slate-800/20 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">
+                            <p className="text-[14px] font-medium text-slate-500">
+                                Hiển thị <span className="font-bold text-slate-900 dark:text-white">{filteredPatients.length}</span> trên <span className="font-bold text-slate-900 dark:text-white">{patients.length}</span> hồ sơ
+                            </p>
+                            <div className="flex items-center gap-3">
+                                <button className="p-2 rounded-xl bg-white dark:bg-slate-100 border border-slate-200 text-slate-400 hover:text-primary transition-all disabled:opacity-30" disabled>
+                                    <span className="material-symbols-outlined text-[20px]">chevron_left</span>
                                 </button>
                                 <div className="flex items-center gap-1.5">
-                                    <button className="w-10 h-10 rounded-xl bg-primary text-slate-900 text-sm font-black shadow-lg shadow-primary/20 transition-all">1</button>
-                                    <button className="w-10 h-10 rounded-xl hover:bg-white dark:hover:bg-slate-900 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-sm font-bold text-slate-500 transition-all">2</button>
-                                    <button className="w-10 h-10 rounded-xl hover:bg-white dark:hover:bg-slate-900 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-sm font-bold text-slate-500 transition-all">3</button>
-                                    <span className="px-1 text-slate-300 dark:text-slate-600 font-bold">...</span>
-                                    <button className="w-10 h-10 rounded-xl hover:bg-white dark:hover:bg-slate-900 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-sm font-bold text-slate-500 transition-all">125</button>
+                                    <button className="w-10 h-10 rounded-xl bg-primary text-white text-sm font-black shadow-lg shadow-primary/20 transition-all">1</button>
                                 </div>
-                                <button className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary transition-all">
-                                    <span className="material-symbols-outlined text-sm">chevron_right</span>
+                                <button className="p-2 rounded-xl bg-white dark:bg-slate-100 border border-slate-200 text-slate-400 hover:text-primary transition-all">
+                                    <span className="material-symbols-outlined text-[20px]">chevron_right</span>
                                 </button>
                             </div>
                         </div>
                     </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {[
+                            { label: 'Tỉ trọng bệnh lý', val: 'Tiểu đường chiếm 40%', sub: 'Cao huyết áp xếp thứ 2 (35%)', icon: 'pie_chart', color: 'primary' },
+                            { label: 'Nguy cơ khẩn cấp', val: '24 ca cảnh báo', sub: 'Tăng 4 ca trong 24h qua', icon: 'priority_high', color: 'red' },
+                            { label: 'Phân công bác sĩ', val: '98% hoàn tất', sub: 'Còn 2 hồ sơ chờ chỉ định', icon: 'assignment_turned_in', color: 'emerald' }
+                        ].map((card, i) => (
+                            <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+                                <div className="flex items-start justify-between mb-4">
+                                    <div className={`w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-xl flex items-center justify-center text-slate-600 dark:text-slate-400 group-hover:bg-primary group-hover:text-white transition-all`}>
+                                        <span className="material-symbols-outlined">{card.icon}</span>
+                                    </div>
+                                    <div className={`px-3 py-1 ${card.color === 'red' ? 'bg-red-50 text-red-600' : card.color === 'emerald' ? 'bg-emerald-50 text-emerald-600' : 'bg-primary/5 text-primary'} text-[10px] font-bold rounded-lg uppercase tracking-wider`}>{card.sub}</div>
+                                </div>
+                                <h4 className="font-bold text-slate-500 text-[13px] mb-1 italic-none">{card.label}</h4>
+                                <div className="text-xl font-black text-slate-900 dark:text-white italic-none">{card.val}</div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
-                <CreatePatientModal
-                    isOpen={isCreateModalOpen}
-                    onClose={() => setIsCreateModalOpen(false)}
-                    isSaving={isSaving}
-                    onSave={handleCreatePatient}
+                {/* Modals */}
+                <CreatePatientModal 
+                    isOpen={isCreateModalOpen} 
+                    onClose={() => setIsCreateModalOpen(false)} 
+                    isSaving={isSaving} 
+                    onSave={handleSavePatient}
                     availableDoctors={availableDoctors}
                 />
+                
+                <EditPatientModal
+                    isOpen={isEditModalOpen}
+                    onClose={() => setIsEditModalOpen(false)}
+                    isSaving={isEditing}
+                    onSave={handleEditPatient}
+                    patientData={selectedPatient}
+                    availableDoctors={availableDoctors}
+                />
+                
+                <DeletePatientModal
+                    isOpen={isDeleteModalOpen}
+                    onClose={() => setIsDeleteModalOpen(false)}
+                    isDeleting={isDeleting}
+                    onDelete={handleDeletePatient}
+                    patientData={selectedPatient}
+                />
+
+                <Toast
+                    show={showToast}
+                    title={toastMessage}
+                    onClose={() => setShowToast(false)}
+                />
+
             </main>
         </div>
     );
