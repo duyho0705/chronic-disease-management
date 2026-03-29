@@ -13,7 +13,12 @@ export default function ClinicRiskAlerts() {
     return (
         <div className="flex min-h-screen font-display bg-[#f6f8f7] dark:bg-slate-950 text-slate-900 dark:text-slate-100 italic-none">
             {/* Sidebar Navigation - Shared Component */}
-            <ClinicSidebar isSidebarOpen={isSidebarOpen} />
+            <ClinicSidebar 
+                isSidebarOpen={isSidebarOpen} 
+                userName="Admin Sarah"
+                userRole="Senior Manager"
+                userAvatar="https://lh3.googleusercontent.com/aida-public/AB6AXuDs9fuTZde7EUIINhAwZDAYbGdWhfZuvszHFDZODEHBxXo3hRWmKfCmGfg6Xgckf0DONyYs8LQEOXng1sISGQVj9ec2pSs--Gz-xPlj6elGIG3KtZTO9U-57mPPcUxuNMtJbLamHmXAsWrVwobD4Ai-pKgNGU0yfv596RmDCRUawQMx8gmW7E2J_we-R_YITLa95pCcbtDZf6tkb7C6bWKKzwepNG2pc4L5uji1KMHQetqk8390TVAlxrRao3qco3laKWLu0uA-BmQ"
+            />
 
             {/* Main Content Area */}
             <main className="flex-1 lg:ml-72 min-h-screen flex flex-col transition-all duration-300">
@@ -26,34 +31,35 @@ export default function ClinicRiskAlerts() {
                 )}
 
                 {/* Header */}
-                <TopBar 
+                <TopBar
                     setIsSidebarOpen={setIsSidebarOpen}
                     notifications={notifications}
                     setNotifications={setNotifications}
-                    userName="Admin Sarah"
-                    userRole="Senior Manager"
-                    userAvatar="https://lh3.googleusercontent.com/aida-public/AB6AXuDs9fuTZde7EUIINhAwZDAYbGdWhfZuvszHFDZODEHBxXo3hRWmKfCmGfg6Xgckf0DONyYs8LQEOXng1sISGQVj9ec2pSs--Gz-xPlj6elGIG3KtZTO9U-57mPPcUxuNMtJbLamHmXAsWrVwobD4Ai-pKgNGU0yfv596RmDCRUawQMx8gmW7E2J_we-R_YITLa95pCcbtDZf6tkb7C6bWKKzwepNG2pc4L5uji1KMHQetqk8390TVAlxrRao3qco3laKWLu0uA-BmQ"
-                    showSearch={true}
-                    actionButton={
-                        <div className="flex bg-slate-50 dark:bg-slate-800 p-1 rounded-xl gap-1 mr-4 border border-primary/5 shadow-sm">
-                            <button 
-                                onClick={() => setAlertTimeFilter('Hôm nay')}
-                                className={`px-5 py-2 text-[13px] font-bold rounded-lg transition-all ${alertTimeFilter === 'Hôm nay' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-700'}`}
-                            >
-                                Hôm nay
-                            </button>
-                            <button 
-                                onClick={() => setAlertTimeFilter('Tuần này')}
-                                className={`px-5 py-2 text-[13px] font-bold rounded-lg transition-all ${alertTimeFilter === 'Tuần này' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-700'}`}
-                            >
-                                Tuần này
-                            </button>
-                        </div>
-                    }
                 />
 
                 {/* Content Area */}
                 <div className="p-8 space-y-8">
+                    {/* Header Controls */}
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 italic-none mb-6">
+                        <div className="space-y-1">
+                            <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight leading-tight">Cảnh báo Nguy cơ</h2>
+                            <p className="text-sm font-medium text-slate-500 italic-none">Theo dõi các chỉ số sinh tồn và cảnh báo khẩn cấp</p>
+                        </div>
+                        <div className="flex bg-slate-200/50 dark:bg-slate-800 p-1 rounded-xl gap-1 border border-primary/5">
+                            <button
+                                onClick={() => setAlertTimeFilter('Hôm nay')}
+                                className={`px-6 py-2 text-[13px] font-bold rounded-lg transition-all ${alertTimeFilter === 'Hôm nay' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-700'}`}
+                            >
+                                Hôm nay
+                            </button>
+                            <button
+                                onClick={() => setAlertTimeFilter('Tuần này')}
+                                className={`px-6 py-2 text-[13px] font-bold rounded-lg transition-all ${alertTimeFilter === 'Tuần này' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-700'}`}
+                            >
+                                Tuần này
+                            </button>
+                        </div>
+                    </div>
                     {/* Quick Stats Bento Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                         <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group border border-primary/5">

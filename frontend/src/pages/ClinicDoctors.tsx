@@ -37,7 +37,7 @@ export default function ClinicDoctors() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    
+
     // Edit Modal State
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -86,14 +86,19 @@ export default function ClinicDoctors() {
         }, 1500);
     };
 
-    const filteredDoctors = MOCK_DOCTORS.filter(dr => 
+    const filteredDoctors = MOCK_DOCTORS.filter(dr =>
         doctorStatusFilter === 'Tất cả bác sĩ' || dr.status === doctorStatusFilter
     );
 
     return (
         <div className="flex min-h-screen font-display bg-[#f6f8f7] dark:bg-slate-950 text-slate-900 dark:text-slate-100 italic-none">
             {/* Sidebar Navigation */}
-            <ClinicSidebar isSidebarOpen={isSidebarOpen} />
+            <ClinicSidebar 
+                isSidebarOpen={isSidebarOpen} 
+                userName="Admin Sarah"
+                userRole="Senior Manager"
+                userAvatar="https://lh3.googleusercontent.com/aida-public/AB6AXuDs9fuTZde7EUIINhAwZDAYbGdWhfZuvszHFDZODEHBxXo3hRWmKfCmGfg6Xgckf0DONyYs8LQEOXng1sISGQVj9ec2pSs--Gz-xPlj6elGIG3KtZTO9U-57mPPcUxuNMtJbLamHmXAsWrVwobD4Ai-pKgNGU0yfv596RmDCRUawQMx8gmW7E2J_we-R_YITLa95pCcbtDZf6tkb7C6bWKKzwepNG2pc4L5uji1KMHQetqk8390TVAlxrRao3qco3laKWLu0uA-BmQ"
+            />
 
             {/* Main Content Area */}
             <main className="flex-1 lg:ml-72 min-h-screen flex flex-col transition-all duration-300">
@@ -106,23 +111,10 @@ export default function ClinicDoctors() {
                 )}
 
                 {/* Header */}
-                <TopBar 
+                <TopBar
                     setIsSidebarOpen={setIsSidebarOpen}
                     notifications={notifications}
                     setNotifications={setNotifications}
-                    userName="Admin Sarah"
-                    userRole="Senior Manager"
-                    userAvatar="https://lh3.googleusercontent.com/aida-public/AB6AXuDs9fuTZde7EUIINhAwZDAYbGdWhfZuvszHFDZODEHBxXo3hRWmKfCmGfg6Xgckf0DONyYs8LQEOXng1sISGQVj9ec2pSs--Gz-xPlj6elGIG3KtZTO9U-57mPPcUxuNMtJbLamHmXAsWrVwobD4Ai-pKgNGU0yfv596RmDCRUawQMx8gmW7E2J_we-R_YITLa95pCcbtDZf6tkb7C6bWKKzwepNG2pc4L5uji1KMHQetqk8390TVAlxrRao3qco3laKWLu0uA-BmQ"
-                    showSearch={true}
-                    actionButton={
-                        <button 
-                            onClick={() => setIsCreateModalOpen(true)}
-                            className="bg-primary text-white px-5 py-2.5 mr-4 rounded-xl font-bold text-sm flex items-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all font-display whitespace-nowrap"
-                        >
-                            <span className="material-symbols-outlined text-sm">add</span>
-                            <span>Thêm bác sĩ</span>
-                        </button>
-                    }
                 />
 
                 {/* Content Canvas */}
@@ -142,8 +134,8 @@ export default function ClinicDoctors() {
                                     key={i}
                                     onClick={() => setDoctorStatusFilter(label)}
                                     className={`px-5 py-2 rounded-xl font-bold text-sm flex items-center gap-2 transition-all ${doctorStatusFilter === label
-                                            ? 'bg-primary text-white shadow-lg shadow-primary/10'
-                                            : 'bg-slate-50 dark:bg-slate-800 text-slate-500 hover:text-primary hover:bg-primary/5'
+                                        ? 'bg-primary text-white shadow-lg shadow-primary/10'
+                                        : 'bg-slate-50 dark:bg-slate-800 text-slate-500 hover:text-primary hover:bg-primary/5'
                                         }`}
                                 >
                                     {label}
@@ -152,14 +144,25 @@ export default function ClinicDoctors() {
                         </div>
 
                         {/* Stats Mini Card */}
-                        <div className="col-span-12 lg:col-span-4 bg-white dark:bg-slate-900 rounded-2xl border border-primary/5 p-5 flex items-center justify-between overflow-hidden relative group shadow-sm transition-all hover:shadow-md">
-                            <div className="relative z-10">
-                                <p className="text-sm font-medium text-slate-500 mb-1">Số lượng danh sách</p>
-                                <h3 className="text-3xl font-black text-slate-900 dark:text-white">{filteredDoctors.length}</h3>
+                        <div className="col-span-12 lg:col-span-4 flex items-center gap-4">
+                            <div className="flex-1 bg-white dark:bg-slate-900 rounded-2xl border border-primary/5 p-5 flex items-center justify-between overflow-hidden relative group shadow-sm transition-all hover:shadow-md">
+                                <div className="relative z-10">
+                                    <p className="text-sm font-medium text-slate-500 mb-1">Số lượng danh sách</p>
+                                    <h3 className="text-3xl font-black text-slate-900 dark:text-white">{filteredDoctors.length}</h3>
+                                </div>
+                                <div className="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center relative z-10 group-hover:scale-110 transition-transform">
+                                    <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>medical_information</span>
+                                </div>
                             </div>
-                            <div className="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center relative z-10 group-hover:scale-110 transition-transform">
-                                <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>medical_information</span>
-                            </div>
+                            <button
+                                onClick={() => setIsCreateModalOpen(true)}
+                                className="h-[78px] bg-primary text-white px-8 rounded-2xl font-black text-[15px] flex items-center gap-3 hover:shadow-xl hover:shadow-primary/30 transition-all font-display whitespace-nowrap active:scale-95 group"
+                            >
+                                <div className="bg-white/20 p-1.5 rounded-lg group-hover:bg-white/30 transition-colors">
+                                    <span className="material-symbols-outlined text-[20px] font-black">add</span>
+                                </div>
+                                Thêm bác sĩ
+                            </button>
                         </div>
                     </div>
 
@@ -212,30 +215,29 @@ export default function ClinicDoctors() {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-5">
-                                                <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-[14px] font-bold text-white shadow-sm whitespace-nowrap ${
-                                                    dr.statusColor === 'primary' ? 'bg-emerald-500' : 
-                                                    dr.statusColor === 'amber' ? 'bg-amber-500' : 
-                                                    'bg-slate-400'
-                                                }`}>
+                                                <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-[14px] font-bold text-white shadow-sm whitespace-nowrap ${dr.statusColor === 'primary' ? 'bg-emerald-500' :
+                                                        dr.statusColor === 'amber' ? 'bg-amber-500' :
+                                                            'bg-slate-400'
+                                                    }`}>
                                                     {dr.status}
                                                 </span>
                                             </td>
                                             <td className="px-8 py-5 text-right whitespace-nowrap">
                                                 <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-1 group-hover:translate-x-0">
-                                                    <button 
+                                                    <button
                                                         onClick={() => { setSelectedDoctor(dr); setIsEditModalOpen(true); }}
                                                         className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary hover:bg-primary/10 transition-all"
                                                     >
                                                         <span className="material-symbols-outlined text-[22px]">edit</span>
                                                     </button>
-                                                    <button 
+                                                    <button
                                                         onClick={() => { setSelectedDoctor(dr); setIsAssignmentModalOpen(true); }}
                                                         className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-tertiary hover:bg-tertiary/10 transition-all"
                                                         title="Phân công Bệnh nhân"
                                                     >
                                                         <span className="material-symbols-outlined text-[22px]">assignment_ind</span>
                                                     </button>
-                                                    <button 
+                                                    <button
                                                         onClick={() => { setSelectedDoctor(dr); setIsDeleteModalOpen(true); }}
                                                         className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all"
                                                         title="Xoá Bác sĩ"
@@ -304,7 +306,7 @@ export default function ClinicDoctors() {
                                         {card.val}
                                     </div>
                                 </div>
-                                
+
                                 {card.bar && (
                                     <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
                                         <div className={`bg-${card.color}-500 h-full rounded-full transition-all duration-1000 group-hover:brightness-110`} style={{ width: '94%' }}></div>

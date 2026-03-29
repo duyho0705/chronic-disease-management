@@ -2,6 +2,10 @@ import { useState } from 'react';
 import ClinicSidebar from '../components/common/ClinicSidebar';
 import TopBar from '../components/common/TopBar';
 import Dropdown from '../components/ui/Dropdown';
+import CreateDoctorModal from '../features/clinic/components/CreateDoctorModal';
+import DoctorAssignmentModal from '../features/clinic/components/DoctorAssignmentModal';
+import Toast from '../components/ui/Toast';
+import DevelopmentModal from '../features/admin/components/DevelopmentModal';
 
 export default function ClinicDashboard() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -11,10 +15,52 @@ export default function ClinicDashboard() {
     ]);
     const [dashboardTimeRange, setDashboardTimeRange] = useState('Năm 2024');
 
+    // Modal & Toast States
+    const [showCreateDoctorModal, setShowCreateDoctorModal] = useState(false);
+    const [isSavingDoctor, setIsSavingDoctor] = useState(false);
+    const [showAssignmentModal, setShowAssignmentModal] = useState(false);
+    const [showExportModal, setShowExportModal] = useState(false);
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+
+    const doctors = [
+        {
+            name: 'BS. Lê Thị Mai', id: 'DR-1024', dept: 'Nội tiết', load: 124, progress: 'w-4/5', color: 'emerald', rating: '4.9', reviews: 420, status: 'Đang trực', active: true, email: 'mai.le@clinic.vn', phone: '0901234567',
+            img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAhOoC9URZAHCP9v9d_l_e-tyh66ffAtXVouqi4DZSNPa_eq_JzHX993csJtIXauOlPnmXYsPpVSyauZnWxcYV0fodnKzn8Ihjmni-69lwmEZo5ugMwzJXx9nSknt0kftRkYZBXvjHcMHbqgeNSCgeYlaPo_sDnjYWhL--uhL42_WuhgMEh-Iqfvnzf5OGRgKBbIeVMbzn_qr-uoS-9lmem5CY9sVQPDjZIw4w-2r_lhCaOmqMuY1GKus8fSstMQoPp2EDUQSklumY'
+        },
+        {
+            name: 'BS. Nguyễn Văn Hùng', id: 'DR-1025', dept: 'Tim mạch', load: 98, progress: 'w-3/5', color: 'amber', rating: '4.7', reviews: 315, status: 'Nghỉ ca', active: false, email: 'hung.nguyen@clinic.vn', phone: '0907654321',
+            img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDYDRWmp-LgjGpRKEb5U5aaxSuviEGGzdWXblGs06zhuwpWaZlFdSZwRT2bBxg6mk28k9IhyLFivR9v7kIzFi9BsQ5iyenuznuRy4WeKYvqDbbgdtig_kA2eVqY6q6ze5jElaX7E4cyXqg59-fMZc_Y_EJvSgAZw2Kz_Uc284VdQyqwMvZEUE6kdCYgSkePLdYKSeXpgGJ4gGuye7EP0h8WaOBKfRQsPZVZI-vVFKYCkcethQLzefVbnTo7d3bMBljYXQRbWQx7GIY'
+        },
+        {
+            name: 'BS. Trần Thanh Vân', id: 'DR-1026', dept: 'Tổng quát', load: 145, progress: 'w-full', color: 'red', rating: '4.8', reviews: 512, status: 'Đang trực', active: true, email: 'van.tran@clinic.vn', phone: '0908889999',
+            img: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=150&h=150'
+        }
+    ];
+
+    const handleSaveDoctor = async (doctorData: any) => {
+        setIsSavingDoctor(true);
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        setIsSavingDoctor(false);
+        setShowCreateDoctorModal(false);
+        setToastMessage(`Đã thêm bác sĩ ${doctorData.name} thành công!`);
+        setShowToast(true);
+    };
+
+    const handleExportExcel = () => {
+        setShowExportModal(true);
+    };
+
     return (
         <div className="flex min-h-screen font-display bg-[#f6f8f7] dark:bg-slate-950 text-slate-900 dark:text-slate-100">
             {/* Sidebar Navigation */}
-            <ClinicSidebar isSidebarOpen={isSidebarOpen} />
+            <ClinicSidebar 
+                isSidebarOpen={isSidebarOpen} 
+                userName="Admin Sarah"
+                userRole="Senior Manager"
+                userAvatar="https://lh3.googleusercontent.com/aida-public/AB6AXuDs9fuTZde7EUIINhAwZDAYbGdWhfZuvszHFDZODEHBxXo3hRWmKfCmGfg6Xgckf0DONyYs8LQEOXng1sISGQVj9ec2pSs--Gz-xPlj6elGIG3KtZTO9U-57mPPcUxuNMtJbLamHmXAsWrVwobD4Ai-pKgNGU0yfv596RmDCRUawQMx8gmW7E2J_we-R_YITLa95pCcbtDZf6tkb7C6bWKKzwepNG2pc4L5uji1KMHQetqk8390TVAlxrRao3qco3laKWLu0uA-BmQ"
+            />
 
             {/* Main Content Area */}
             <main className="flex-1 lg:ml-72 min-h-screen flex flex-col">
@@ -30,29 +76,34 @@ export default function ClinicDashboard() {
                     setIsSidebarOpen={setIsSidebarOpen}
                     notifications={notifications}
                     setNotifications={setNotifications}
-                    userName="Admin Sarah"
-                    userRole="Senior Manager"
-                    userAvatar="https://lh3.googleusercontent.com/aida-public/AB6AXuDs9fuTZde7EUIINhAwZDAYbGdWhfZuvszHFDZODEHBxXo3hRWmKfCmGfg6Xgckf0DONyYs8LQEOXng1sISGQVj9ec2pSs--Gz-xPlj6elGIG3KtZTO9U-57mPPcUxuNMtJbLamHmXAsWrVwobD4Ai-pKgNGU0yfv596RmDCRUawQMx8gmW7E2J_we-R_YITLa95pCcbtDZf6tkb7C6bWKKzwepNG2pc4L5uji1KMHQetqk8390TVAlxrRao3qco3laKWLu0uA-BmQ"
-                    showSearch={true}
                 />
 
                 <div className="p-8 space-y-8">
                     {/* Welcome Section */}
                     <section className="flex flex-wrap items-center justify-between gap-4">
                         <div className="space-y-1">
-                            <h3 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Chào buổi sáng, Quản trị viên</h3>
+                            <h3 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Chào buổi sáng, Quản trị viên</h3>
                             <p className="text-slate-500 font-medium">Hôm nay có 45 bệnh nhân cần theo dõi tái khám.</p>
                         </div>
                         <div className="flex flex-wrap gap-3">
-                            <button className="bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-slate-50 transition-all">
+                            <button
+                                onClick={handleExportExcel}
+                                className="bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-slate-50 transition-all active:scale-95"
+                            >
                                 <span className="material-symbols-outlined text-emerald-500">upload_file</span>
                                 Xuất báo cáo Excel
                             </button>
-                            <button className="bg-primary text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all">
+                            <button
+                                onClick={() => setShowCreateDoctorModal(true)}
+                                className="bg-primary text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-95"
+                            >
                                 <span className="material-symbols-outlined">person_add</span>
                                 Thêm bác sĩ mới
                             </button>
-                            <button className="bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-teal-100 transition-all border border-teal-100/50 dark:border-teal-800/50">
+                            <button
+                                onClick={() => setShowAssignmentModal(true)}
+                                className="bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-teal-100 transition-all border border-teal-100/50 dark:border-teal-800/50 active:scale-95"
+                            >
                                 <span className="material-symbols-outlined">assignment_ind</span>
                                 Phân công bệnh nhân
                             </button>
@@ -235,20 +286,7 @@ export default function ClinicDashboard() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
-                                    {[
-                                        {
-                                            name: 'BS. Lê Thị Mai', id: 'DR-1024', dept: 'Nội tiết', load: 124, progress: 'w-4/5', color: 'emerald', rating: '4.9', reviews: 420, status: 'Đang trực', active: true,
-                                            img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAhOoC9URZAHCP9v9d_l_e-tyh66ffAtXVouqi4DZSNPa_eq_JzHX993csJtIXauOlPnmXYsPpVSyauZnWxcYV0fodnKzn8Ihjmni-69lwmEZo5ugMwzJXx9nSknt0kftRkYZBXvjHcMHbqgeNSCgeYlaPo_sDnjYWhL--uhL42_WuhgMEh-Iqfvnzf5OGRgKBbIeVMbzn_qr-uoS-9lmem5CY9sVQPDjZIw4w-2r_lhCaOmqMuY1GKus8fSstMQoPp2EDUQSklumY'
-                                        },
-                                        {
-                                            name: 'BS. Nguyễn Văn Hùng', id: 'DR-1025', dept: 'Tim mạch', load: 98, progress: 'w-3/5', color: 'amber', rating: '4.7', reviews: 315, status: 'Nghỉ ca', active: false,
-                                            img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDYDRWmp-LgjGpRKEb5U5aaxSuviEGGzdWXblGs06zhuwpWaZlFdSZwRT2bBxg6mk28k9IhyLFivR9v7kIzFi9BsQ5iyenuznuRy4WeKYvqDbbgdtig_kA2eVqY6q6ze5jElaX7E4cyXqg59-fMZc_Y_EJvSgAZw2Kz_Uc284VdQyqwMvZEUE6kdCYgSkePLdYKSeXpgGJ4gGuye7EP0h8WaOBKfRQsPZVZI-vVFKYCkcethQLzefVbnTo7d3bMBljYXQRbWQx7GIY'
-                                        },
-                                        {
-                                            name: 'BS. Trần Thanh Vân', id: 'DR-1026', dept: 'Tổng quát', load: 145, progress: 'w-full', color: 'red', rating: '4.8', reviews: 512, status: 'Đang trực', active: true,
-                                            img: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=150&h=150'
-                                        }
-                                    ].map((dr, idx) => (
+                                    {doctors.map((dr, idx) => (
                                         <tr key={idx} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors group cursor-pointer">
                                             <td className="px-8 py-5">
                                                 <div className="flex items-center gap-4">
@@ -289,6 +327,32 @@ export default function ClinicDashboard() {
                         </div>
                     </section>
                 </div>
+
+                {/* Modals & Toasts */}
+                <CreateDoctorModal
+                    isOpen={showCreateDoctorModal}
+                    onClose={() => setShowCreateDoctorModal(false)}
+                    isSaving={isSavingDoctor}
+                    onSave={handleSaveDoctor}
+                />
+
+                <DoctorAssignmentModal
+                    isOpen={showAssignmentModal}
+                    onClose={() => setShowAssignmentModal(false)}
+                    doctorData={doctors[0]} // Using first doctor as example for general assignment
+                />
+
+                <DevelopmentModal
+                    isOpen={showExportModal}
+                    onClose={() => setShowExportModal(false)}
+                    featureName="Xuất báo cáo Excel"
+                />
+
+                <Toast
+                    show={showToast}
+                    title={toastMessage}
+                    onClose={() => setShowToast(false)}
+                />
             </main>
         </div>
     );

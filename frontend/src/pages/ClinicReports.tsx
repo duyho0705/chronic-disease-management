@@ -13,7 +13,12 @@ export default function ClinicReports() {
     return (
         <div className="flex min-h-screen font-display bg-[#f6f8f7] dark:bg-slate-950 text-slate-900 dark:text-slate-100 italic-none">
             {/* Sidebar Navigation - Shared Component */}
-            <ClinicSidebar isSidebarOpen={isSidebarOpen} />
+            <ClinicSidebar 
+                isSidebarOpen={isSidebarOpen} 
+                userName="Admin Sarah"
+                userRole="Senior Manager"
+                userAvatar="https://lh3.googleusercontent.com/aida-public/AB6AXuDs9fuTZde7EUIINhAwZDAYbGdWhfZuvszHFDZODEHBxXo3hRWmKfCmGfg6Xgckf0DONyYs8LQEOXng1sISGQVj9ec2pSs--Gz-xPlj6elGIG3KtZTO9U-57mPPcUxuNMtJbLamHmXAsWrVwobD4Ai-pKgNGU0yfv596RmDCRUawQMx8gmW7E2J_we-R_YITLa95pCcbtDZf6tkb7C6bWKKzwepNG2pc4L5uji1KMHQetqk8390TVAlxrRao3qco3laKWLu0uA-BmQ"
+            />
 
             {/* Main Content Area */}
             <main className="flex-1 lg:ml-72 min-h-screen flex flex-col transition-all duration-300">
@@ -26,45 +31,47 @@ export default function ClinicReports() {
                 )}
 
                 {/* Top Header */}
-                <TopBar 
+                <TopBar
                     setIsSidebarOpen={setIsSidebarOpen}
                     notifications={notifications}
                     setNotifications={setNotifications}
-                    userName="Admin Sarah"
-                    userRole="Senior Manager"
-                    userAvatar="https://lh3.googleusercontent.com/aida-public/AB6AXuDs9fuTZde7EUIINhAwZDAYbGdWhfZuvszHFDZODEHBxXo3hRWmKfCmGfg6Xgckf0DONyYs8LQEOXng1sISGQVj9ec2pSs--Gz-xPlj6elGIG3KtZTO9U-57mPPcUxuNMtJbLamHmXAsWrVwobD4Ai-pKgNGU0yfv596RmDCRUawQMx8gmW7E2J_we-R_YITLa95pCcbtDZf6tkb7C6bWKKzwepNG2pc4L5uji1KMHQetqk8390TVAlxrRao3qco3laKWLu0uA-BmQ"
-                    actionButton={
-                        <div className="flex items-center gap-4 mr-4">
-                            <div className="hidden lg:flex bg-slate-50 dark:bg-slate-800 p-1 rounded-xl gap-1 border border-primary/5 shadow-sm">
-                                <button 
+                />
+
+                {/* Content Area */}
+                <div className="p-8 space-y-8">
+                    {/* Header Controls */}
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 italic-none">
+                        <div className="space-y-1">
+                            <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight leading-tight">Báo cáo Tổng hợp</h2>
+                            <p className="text-sm font-medium text-slate-500 italic-none">Xem và xuất dữ liệu báo cáo hoạt động phòng khám</p>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-4">
+                            <div className="flex bg-slate-200/50 dark:bg-slate-800 p-1 rounded-xl gap-1 border border-primary/5">
+                                <button
                                     onClick={() => setReportTimeRange('7 ngày')}
-                                    className={`px-4 py-2 text-[13px] font-bold rounded-lg transition-all ${reportTimeRange === '7 ngày' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-700'}`}
+                                    className={`px-5 py-2 text-[13px] font-bold rounded-lg transition-all ${reportTimeRange === '7 ngày' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-700'}`}
                                 >
                                     7 ngày
                                 </button>
-                                <button 
+                                <button
                                     onClick={() => setReportTimeRange('30 ngày')}
-                                    className={`px-4 py-2 text-[13px] font-bold rounded-lg transition-all ${reportTimeRange === '30 ngày' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-700'}`}
+                                    className={`px-5 py-2 text-[13px] font-bold rounded-lg transition-all ${reportTimeRange === '30 ngày' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-700'}`}
                                 >
                                     30 ngày
                                 </button>
                             </div>
                             <div className="flex gap-2">
-                                <button className="flex items-center gap-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-5 py-2.5 rounded-xl text-sm font-bold border border-slate-200 dark:border-slate-800 hover:bg-slate-50 transition-colors shadow-sm whitespace-nowrap">
-                                    <span className="material-symbols-outlined text-sm">download</span>
+                                <button className="flex items-center gap-2 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 px-5 py-2.5 rounded-xl text-sm font-bold border border-slate-200 dark:border-slate-800 hover:bg-slate-50 transition-colors shadow-sm whitespace-nowrap active:scale-95">
+                                    <span className="material-symbols-outlined text-[20px] text-emerald-500">upload_file</span>
                                     Excel
                                 </button>
-                                <button className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-primary/20 transition-all shadow-sm whitespace-nowrap">
-                                    <span className="material-symbols-outlined text-sm">picture_as_pdf</span>
+                                <button className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-primary/20 transition-all shadow-sm whitespace-nowrap active:scale-95">
+                                    <span className="material-symbols-outlined text-[20px]">picture_as_pdf</span>
                                     PDF
                                 </button>
                             </div>
                         </div>
-                    }
-                />
-
-                {/* Content Area */}
-                <div className="p-8 space-y-8">
+                    </div>
                     {/* Metric Cards (Bento Style) */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group border border-primary/5">
@@ -128,7 +135,7 @@ export default function ClinicReports() {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div className="relative h-64 w-full mt-4 flex items-end justify-between px-2 italic-none">
                                 <div className="absolute inset-0 border-b-2 border-slate-100 dark:border-slate-800 flex flex-col justify-between">
                                     <div className="border-t border-slate-50 dark:border-slate-800 w-full h-0"></div>

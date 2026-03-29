@@ -6,11 +6,6 @@ interface TopBarProps {
   notifications: any[];
   setNotifications: React.Dispatch<React.SetStateAction<any[]>>;
   actionButton?: React.ReactNode;
-  userName?: string;
-  userRole?: string;
-  userAvatar?: string;
-  showSearch?: boolean;
-  hideProfile?: boolean;
 }
 
 const TopBar: React.FC<TopBarProps> = ({
@@ -18,11 +13,6 @@ const TopBar: React.FC<TopBarProps> = ({
   notifications,
   setNotifications,
   actionButton,
-  userName = "BS. Lê Minh Tâm",
-  userRole = "Bác sĩ chuyên khoa",
-  userAvatar = "https://lh3.googleusercontent.com/aida-public/AB6AXuDvD1gNLm_sBMkVyq8FuYHA20LjP97yY90_RzaDO9mjZaL9ubIXYPTKQeV1FDlhsH3p7qndF3QILzvglilx1ly9Sb7AtePxkBlVz8-5HPGNI5wMlA1c27CCvjNz865bvs_Y9uYkK2245BaMa66pFJCTPXK2wTV6-A4oQjShYdPHNg1nx01j-yW7I48c8aShwiEDSx2B_FE04UGkIxELFaJ-Ho65BrMgC_LF9Yk0dKK7BGEGWjFX4zFwmnNWi44sq8khTm_Q-D-Iig4",
-  showSearch = false,
-  hideProfile = false
 }) => {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
@@ -35,17 +25,6 @@ const TopBar: React.FC<TopBarProps> = ({
         >
           <span className="material-symbols-outlined">menu</span>
         </button>
-
-        {showSearch && (
-          <div className="relative w-full max-w-md group hidden md:block ml-4">
-            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
-            <input 
-              className="w-full pl-12 pr-6 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-primary/20 text-sm font-bold placeholder:text-slate-400 transition-all shadow-sm" 
-              placeholder="Tìm kiếm..." 
-              type="text"
-            />
-          </div>
-        )}
       </div>
       <div className="flex items-center gap-2 md:gap-4 ml-4">
         {/* Animated Vietnam Flag */}
@@ -82,20 +61,7 @@ const TopBar: React.FC<TopBarProps> = ({
           <span className="material-symbols-outlined text-xl">settings</span>
         </button>
 
-        <div className="hidden xs:block h-8 w-px bg-slate-200 dark:bg-slate-700 mx-1 md:mx-2"></div>
         {actionButton}
-
-        {!hideProfile && (
-          <div className="flex items-center gap-3 pl-2">
-            <div className="text-right hidden sm:block">
-              <p className="text-[15px] font-extrabold text-slate-900 dark:text-white leading-none">{userName}</p>
-              <p className="text-[10px] text-slate-500 font-bold uppercase mt-1">{userRole}</p>
-            </div>
-            <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-tr from-primary to-blue-400 border-2 border-white dark:border-slate-800 shadow-md shadow-primary/10 overflow-hidden cursor-pointer"
-              style={{ backgroundImage: `url('${userAvatar}')`, backgroundSize: 'cover' }}>
-            </div>
-          </div>
-        )}
       </div>
       <style>{`
         @keyframes flag-wave {

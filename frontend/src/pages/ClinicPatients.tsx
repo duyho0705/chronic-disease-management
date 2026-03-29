@@ -7,7 +7,7 @@ export default function ClinicPatients() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    
+
     // Mock available doctors for assignments
     const availableDoctors = ['BS. Trần Vũ', 'BS. Lê Mai', 'BS. Minh Phan', 'BS. Nguyễn Văn Hùng'];
 
@@ -29,7 +29,12 @@ export default function ClinicPatients() {
     return (
         <div className="flex min-h-screen font-display bg-[#f6f8f7] dark:bg-slate-950 text-slate-900 dark:text-slate-100 italic-none">
             {/* Sidebar Navigation */}
-            <ClinicSidebar isSidebarOpen={isSidebarOpen} />
+            <ClinicSidebar 
+                isSidebarOpen={isSidebarOpen} 
+                userName="Admin Sarah"
+                userRole="Senior Manager"
+                userAvatar="https://lh3.googleusercontent.com/aida-public/AB6AXuDs9fuTZde7EUIINhAwZDAYbGdWhfZuvszHFDZODEHBxXo3hRWmKfCmGfg6Xgckf0DONyYs8LQEOXng1sISGQVj9ec2pSs--Gz-xPlj6elGIG3KtZTO9U-57mPPcUxuNMtJbLamHmXAsWrVwobD4Ai-pKgNGU0yfv596RmDCRUawQMx8gmW7E2J_we-R_YITLa95pCcbtDZf6tkb7C6bWKKzwepNG2pc4L5uji1KMHQetqk8390TVAlxrRao3qco3laKWLu0uA-BmQ"
+            />
 
             {/* Main Content Area */}
             <main className="flex-1 lg:ml-72 min-h-screen flex flex-col transition-all duration-300">
@@ -42,14 +47,10 @@ export default function ClinicPatients() {
                 )}
 
                 {/* Header */}
-                <TopBar 
+                <TopBar
                     setIsSidebarOpen={setIsSidebarOpen}
                     notifications={notifications}
                     setNotifications={setNotifications}
-                    userName="Admin Sarah"
-                    userRole="Senior Manager"
-                    userAvatar="https://lh3.googleusercontent.com/aida-public/AB6AXuDs9fuTZde7EUIINhAwZDAYbGdWhfZuvszHFDZODEHBxXo3hRWmKfCmGfg6Xgckf0DONyYs8LQEOXng1sISGQVj9ec2pSs--Gz-xPlj6elGIG3KtZTO9U-57mPPcUxuNMtJbLamHmXAsWrVwobD4Ai-pKgNGU0yfv596RmDCRUawQMx8gmW7E2J_we-R_YITLa95pCcbtDZf6tkb7C6bWKKzwepNG2pc4L5uji1KMHQetqk8390TVAlxrRao3qco3laKWLu0uA-BmQ"
-                    showSearch={true}
                 />
 
                 {/* Content Canvas */}
@@ -57,10 +58,10 @@ export default function ClinicPatients() {
                     {/* Header Section */}
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                         <div className="space-y-1">
-                            <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Danh sách bệnh nhân mãn tính</h3>
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Danh sách bệnh nhân mãn tính</h3>
                             <p className="text-slate-500 font-medium">Quản lý và theo dõi sức khỏe bệnh nhân trong toàn phòng khám</p>
                         </div>
-                        <button 
+                        <button
                             onClick={() => setIsCreateModalOpen(true)}
                             className="bg-primary text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all font-display"
                         >
@@ -183,11 +184,10 @@ export default function ClinicPatients() {
                                                 </div>
                                             </td>
                                             <td className="px-8 py-5">
-                                                <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-[13px] font-bold text-white whitespace-nowrap shadow-sm ${
-                                                    patient.riskColor === 'red' ? 'bg-red-500' : 
-                                                    patient.riskColor === 'amber' ? 'bg-amber-500' : 
-                                                    'bg-emerald-500'
-                                                }`}>
+                                                <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-[13px] font-bold text-white whitespace-nowrap shadow-sm ${patient.riskColor === 'red' ? 'bg-red-500' :
+                                                        patient.riskColor === 'amber' ? 'bg-amber-500' :
+                                                            'bg-emerald-500'
+                                                    }`}>
                                                     {patient.risk === 'MONITORING' ? 'Theo dõi' : patient.risk === 'HIGH RISK' ? 'Nguy cơ cao' : 'Ổn định'}
                                                 </span>
                                             </td>
@@ -238,7 +238,7 @@ export default function ClinicPatients() {
                     </div>
                 </div>
 
-                <CreatePatientModal 
+                <CreatePatientModal
                     isOpen={isCreateModalOpen}
                     onClose={() => setIsCreateModalOpen(false)}
                     isSaving={isSaving}
