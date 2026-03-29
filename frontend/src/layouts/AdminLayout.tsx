@@ -18,7 +18,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   const navItems = [
     { path: ROUTES.ADMIN.DASHBOARD, label: 'Tổng quan hệ thống', icon: 'dashboard' },
-    { path: ROUTES.ADMIN.CLINICS, label: 'Quản lý Phòng khám', icon: 'medical_services' },
+    { path: ROUTES.ADMIN.CLINICS, label: 'Quản lý Phòng khám', icon: 'home_health' },
     { path: ROUTES.ADMIN.USERS, label: 'Quản lý Người dùng', icon: 'group' },
     { path: ROUTES.ADMIN.SERVICES, label: 'Quản lý Dịch vụ', icon: 'medical_information' },
     { path: ROUTES.ADMIN.REPORTS, label: 'Báo cáo hợp nhất', icon: 'analytics' },

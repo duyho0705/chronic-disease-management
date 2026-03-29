@@ -1,5 +1,7 @@
 import AdminLayout from '../layouts/AdminLayout';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ROUTES } from '../constants/routes';
 import Dropdown from '../components/ui/Dropdown';
 
 export default function AdminReports() {
@@ -44,14 +46,7 @@ export default function AdminReports() {
               <span className="material-symbols-outlined text-[18px]">calendar_today</span>
               01/10/2023 - 31/10/2023
             </button>
-            <div className="flex gap-2">
-              <button className="w-10 h-10 flex items-center justify-center bg-white dark:bg-slate-900 border border-primary/10 text-slate-500 rounded-xl hover:text-primary transition-all shadow-sm">
-                <span className="material-symbols-outlined text-[20px]">picture_as_pdf</span>
-              </button>
-              <button className="w-10 h-10 flex items-center justify-center bg-white dark:bg-slate-900 border border-primary/10 text-slate-500 rounded-xl hover:text-primary transition-all shadow-sm">
-                <span className="material-symbols-outlined text-[20px]">description</span>
-              </button>
-            </div>
+
           </div>
         </div>
 
@@ -165,7 +160,7 @@ export default function AdminReports() {
                       <span className="text-[14px] font-medium text-slate-600">{item.label}</span>
                     </div>
                     <div className="flex items-baseline gap-2">
-                      <span className="text-[18px] font-black text-slate-900 dark:text-white leading-none tracking-tight">{item.val}</span>
+                      <span className="text-[15px] font-bold text-slate-900 dark:text-white leading-none tracking-tight">{item.val}</span>
                       <span className="text-[13px] font-bold text-slate-600 dark:text-slate-500">{item.sub}</span>
                     </div>
                   </div>
@@ -176,30 +171,41 @@ export default function AdminReports() {
 
           {/* Revenue Breakdown */}
           <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-primary/5 flex flex-col">
-            <h4 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white mb-2">Phân bổ doanh thu</h4>
+            <h4 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white mb-2">Phân bổ bệnh nhân</h4>
             <p className="text-[15px] font-medium text-slate-500 mb-10">Mạng lưới chi nhánh tháng 10</p>
-            <div className="space-y-8 flex-1">
+            <div className="space-y-6 flex-1">
               {[
-                { name: "Vitality Quận 1", val: "1.2 tỷ", p: "45%" },
-                { name: "Vitality Thảo Điền", val: "850 tr", p: "30%" },
-                { name: "Phú Mỹ Hưng", val: "600 tr", p: "20%" },
-                { name: "Cầu Giấy (Mới)", val: "150 tr", p: "5%" }
+                { name: "Vitality Quận 1", val: "1,240 Bệnh nhân", p: "45%", icon: 'home_health' },
+                { name: "Vitality Thảo Điền", val: "860 Bệnh nhân", p: "30%", icon: 'home_health' },
+                { name: "Phú Mỹ Hưng", val: "720 Bệnh nhân", p: "20%", icon: 'home_health' },
+                { name: "Cầu Giấy (Mới)", val: "310 Bệnh nhân", p: "5%", icon: 'home_health' }
               ].map((item, idx) => (
-                <div key={idx} className="space-y-3">
-                  <div className="flex justify-between items-end">
-                    <span className="text-[14px] font-bold text-slate-700 dark:text-slate-200">{item.name}</span>
-                    <span className="text-[14px] font-extrabold text-primary">{item.val}</span>
+                <div key={idx} className="group">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                      <span className="material-symbols-outlined text-[23px]">{item.icon}</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[15px] font-medium text-slate-600">{item.name}</span>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-[14px] font-bold text-slate-900 dark:text-white">{item.val}</span>
+                        <span className="text-[12px] font-medium text-slate-600">{item.p}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="w-full bg-slate-50 dark:bg-slate-800 h-2 rounded-full overflow-hidden shadow-inner">
-                    <div className="bg-primary h-full rounded-full shadow-[0_0_8px_rgba(59,185,243,0.3)]" style={{ width: item.p }}></div>
+                  <div className="w-full bg-slate-50 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                    <div className="bg-primary h-full rounded-full transition-all duration-1000" style={{ width: item.p }}></div>
                   </div>
                 </div>
               ))}
             </div>
-            <button className="mt-10 py-3.5 w-full bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-[13px] font-bold rounded-xl border border-primary/10 hover:bg-slate-50 transition-all flex items-center justify-center gap-2 group">
-              Xem chi tiết tài chính
+            <Link
+              to={ROUTES.ADMIN.USERS}
+              className="mt-10 py-3.5 w-full bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-[13px] font-bold rounded-xl border border-primary/10 hover:bg-slate-50 transition-all flex items-center justify-center gap-2 group"
+            >
+              Xem chi tiết bệnh nhân
               <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
-            </button>
+            </Link>
           </div>
         </div>
 

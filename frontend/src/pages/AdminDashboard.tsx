@@ -292,7 +292,7 @@ export default function AdminDashboard() {
                   <td className="px-8 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                        <span className="material-symbols-outlined text-lg">apartment</span>
+                        <span className="material-symbols-outlined text-[23px]">home_health</span>
                       </div>
                       <div>
                         <p className="text-sm font-bold text-slate-900 dark:text-white leading-none">Sống Khỏe - Quận 1</p>
@@ -319,7 +319,7 @@ export default function AdminDashboard() {
                   <td className="px-8 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                        <span className="material-symbols-outlined text-lg">apartment</span>
+                        <span className="material-symbols-outlined text-[23px]">home_health</span>
                       </div>
                       <div>
                         <p className="text-sm font-bold text-slate-900 dark:text-white leading-none">Sống Khỏe - Thủ Đức</p>
@@ -346,7 +346,7 @@ export default function AdminDashboard() {
                   <td className="px-8 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                        <span className="material-symbols-outlined text-lg">apartment</span>
+                        <span className="material-symbols-outlined text-[23px]">home_health</span>
                       </div>
                       <div>
                         <p className="text-sm font-bold text-slate-900 dark:text-white leading-none">Sống Khỏe - Bình Tân</p>
