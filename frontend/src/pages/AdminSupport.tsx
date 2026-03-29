@@ -55,12 +55,12 @@ export default function AdminSupport() {
       category: data.category,
       priority: data.priority,
       status: 'Mới',
-      date: new Date().toLocaleString('vi-VN', { 
-        day: '2-digit', 
-        month: '2-digit', 
-        year: 'numeric', 
-        hour: '2-digit', 
-        minute: '2-digit' 
+      date: new Date().toLocaleString('vi-VN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
       }),
       avatar: 'https://i.pravatar.cc/150?u=admin'
     };
@@ -102,7 +102,7 @@ export default function AdminSupport() {
             </h2>
             <p className="text-[16px] text-slate-500 mt-1 font-medium">Tiếp nhận và quản lý các yêu cầu kỹ thuật từ đội ngũ bác sĩ & phòng khám.</p>
           </div>
-          <button 
+          <button
             onClick={() => setIsCreateModalOpen(true)}
             className="bg-emerald-500 text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all text-[14px]"
           >
@@ -266,11 +266,11 @@ export default function AdminSupport() {
         {/* Support Alert Policy */}
         <div className="bg-primary/5 dark:bg-primary/20 p-8 rounded-3xl border border-primary/10 flex flex-col md:flex-row items-center gap-6">
           <div className="w-16 h-16 bg-white dark:bg-slate-900 rounded-2xl flex items-center justify-center text-primary shadow-xl shrink-0">
-            <span className="material-symbols-outlined text-3xl">verified_user</span>
+            <span className="material-symbols-outlined text-3xl">verified</span>
           </div>
           <div className="flex-1">
-            <h5 className="text-[17px] font-bold text-slate-900 dark:text-white mb-2 tracking-tight italic-none">Cam kết chất lượng phản hồi (SLA)</h5>
-            <p className="text-[14px] text-slate-500 font-medium leading-relaxed italic-none">Chúng tôi luôn ưu tiên các yêu cầu kỹ thuật ảnh hưởng đến quá trình khám chữa bệnh tại phòng khám. Các yêu cầu "Khẩn cấp" sẽ được kỹ thuật viên tiếp nhận trong vòng tối đa **15 phút**. Đội ngũ Admin kỹ thuật luôn túc trực 24/7 để đảm bảo hệ thống vận hành trơn tru.</p>
+            <h5 className="text-[17px] font-bold text-slate-900 dark:text-white mb-2 tracking-tight italic-none">Cam kết chất lượng phản hồi</h5>
+            <p className="text-[14px] text-slate-500 font-medium leading-relaxed italic-none">Chúng tôi luôn ưu tiên các yêu cầu kỹ thuật ảnh hưởng đến quá trình khám chữa bệnh tại phòng khám. Các yêu cầu "Khẩn cấp" sẽ được kỹ thuật viên tiếp nhận trong vòng tối đa 15 phút. Đội ngũ Admin kỹ thuật luôn túc trực 24/7 để đảm bảo hệ thống vận hành trơn tru.</p>
           </div>
           <button className="px-6 py-3 font-bold text-primary hover:underline text-sm shrink-0">Xem chi tiết SLA →</button>
         </div>

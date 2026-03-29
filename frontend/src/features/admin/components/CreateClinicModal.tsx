@@ -108,7 +108,7 @@ const CreateClinicModal: React.FC<CreateClinicModalProps> = ({
                     value={formData.name}
                     onChange={handleChange}
                     placeholder="VD: Phòng khám Đa khoa Tâm Anh"
-                    className={`w-full px-4 py-3 rounded-xl border-2 ${formErrors.name ? 'border-red-500/50' : 'border-slate-50 dark:border-slate-800'} bg-slate-50 dark:bg-slate-800/40 text-[14px] font-medium transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm`}
+                    className={`w-full px-4 py-2.5 rounded-xl border-2 ${formErrors.name ? 'border-red-500/50' : 'border-slate-50 dark:border-slate-800'} bg-slate-50 dark:bg-slate-800/40 text-[14px] font-medium transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm`}
                   />
                   {formErrors.name && <p className="text-[11px] font-bold text-red-500 ml-1">{formErrors.name}</p>}
                 </div>
@@ -121,7 +121,7 @@ const CreateClinicModal: React.FC<CreateClinicModalProps> = ({
                       value={formData.clinicCode}
                       onChange={handleChange}
                       placeholder="PK-TA-001"
-                      className={`w-full px-4 py-3 rounded-xl border-2 ${formErrors.clinicCode ? 'border-red-500/50' : 'border-slate-50 dark:border-slate-800'} bg-slate-50 dark:bg-slate-800/40 text-[14px] font-medium transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm`}
+                      className={`w-full px-4 py-2.5 rounded-xl border-2 ${formErrors.clinicCode ? 'border-red-500/50' : 'border-slate-50 dark:border-slate-800'} bg-slate-50 dark:bg-slate-800/40 text-[14px] font-medium transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm`}
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -131,7 +131,7 @@ const CreateClinicModal: React.FC<CreateClinicModalProps> = ({
                       value={formData.phone}
                       onChange={handleChange}
                       placeholder="024.xxx.xxx"
-                      className={`w-full px-4 py-3 rounded-xl border-2 ${formErrors.phone ? 'border-red-500/50' : 'border-slate-50 dark:border-slate-800'} bg-slate-50 dark:bg-slate-800/40 text-[14px] font-medium transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm`}
+                      className={`w-full px-4 py-2.5 rounded-xl border-2 ${formErrors.phone ? 'border-red-500/50' : 'border-slate-50 dark:border-slate-800'} bg-slate-50 dark:bg-slate-800/40 text-[14px] font-medium transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm`}
                     />
                   </div>
                 </div>
@@ -144,7 +144,7 @@ const CreateClinicModal: React.FC<CreateClinicModalProps> = ({
                     onChange={handleChange}
                     rows={3}
                     placeholder="Số nhà, tên đường, khu vực..."
-                    className={`w-full px-4 py-3 rounded-xl border-2 ${formErrors.address ? 'border-red-500/50' : 'border-slate-50 dark:border-slate-800'} bg-slate-50 dark:bg-slate-800/40 text-[14px] font-medium transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 resize-none shadow-sm shadow-slate-100/50`}
+                    className={`w-full px-4 py-2.5 rounded-xl border-2 ${formErrors.address ? 'border-red-500/50' : 'border-slate-50 dark:border-slate-800'} bg-slate-50 dark:bg-slate-800/40 text-[14px] font-medium transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 resize-none shadow-sm shadow-slate-100/50`}
                   />
                   {formErrors.address && <p className="text-[11px] font-bold text-red-500 ml-1">{formErrors.address}</p>}
                 </div>
@@ -165,7 +165,7 @@ const CreateClinicModal: React.FC<CreateClinicModalProps> = ({
                     value={formData.adminFullName}
                     onChange={handleChange}
                     placeholder="VD: Nguyễn Văn Anh"
-                    className={`w-full px-4 py-3 rounded-xl border-2 ${formErrors.adminFullName ? 'border-red-500/50' : 'border-slate-50 dark:border-slate-800'} bg-white dark:bg-slate-900 text-[14px] font-medium transition-all outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 shadow-sm`}
+                    className={`w-full px-4 py-2.5 rounded-xl border-2 ${formErrors.adminFullName ? 'border-red-500/50' : 'border-slate-50 dark:border-slate-800'} bg-white dark:bg-slate-900 text-[14px] font-medium transition-all outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 shadow-sm`}
                   />
                   {formErrors.adminFullName && <p className="text-[11px] font-bold text-red-500 ml-1">{formErrors.adminFullName}</p>}
                 </div>
@@ -177,7 +177,7 @@ const CreateClinicModal: React.FC<CreateClinicModalProps> = ({
                     value={formData.adminEmail}
                     onChange={handleChange}
                     placeholder="email@tamanh.com"
-                    className={`w-full px-4 py-3 rounded-xl border-2 ${formErrors.adminEmail ? 'border-red-500/50' : 'border-slate-50 dark:border-slate-800'} bg-white dark:bg-slate-900 text-[14px] font-medium transition-all outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 shadow-sm`}
+                    className={`w-full px-4 py-2.5 rounded-xl border-2 ${formErrors.adminEmail ? 'border-red-500/50' : 'border-slate-50 dark:border-slate-800'} bg-white dark:bg-slate-900 text-[14px] font-medium transition-all outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 shadow-sm`}
                   />
                   {formErrors.adminEmail && <p className="text-[11px] font-bold text-red-500 ml-1">{formErrors.adminEmail}</p>}
                 </div>
@@ -190,7 +190,7 @@ const CreateClinicModal: React.FC<CreateClinicModalProps> = ({
                         type="text"
                         readOnly
                         value={formData.adminPassword}
-                        className="w-full pl-4 pr-10 py-3 rounded-xl border-2 border-slate-50 dark:border-slate-800 bg-slate-100 dark:bg-slate-900/50 text-[13px] font-mono text-slate-500 outline-none"
+                        className="w-full pl-4 pr-10 py-2.5 rounded-xl border-2 border-slate-50 dark:border-slate-800 bg-slate-100 dark:bg-slate-900/50 text-[13px] font-mono text-slate-500 outline-none"
                       />
                       <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">lock</span>
                     </div>
@@ -202,7 +202,7 @@ const CreateClinicModal: React.FC<CreateClinicModalProps> = ({
                       value={formData.adminPhone}
                       onChange={handleChange}
                       placeholder="09xx.xxx.xxx"
-                      className="w-full px-4 py-3 rounded-xl border-2 border-slate-50 dark:border-slate-800 bg-white dark:bg-slate-900 text-[14px] font-medium transition-all outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 shadow-sm"
+                      className="w-full px-4 py-2.5 rounded-xl border-2 border-slate-50 dark:border-slate-800 bg-white dark:bg-slate-900 text-[14px] font-medium transition-all outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 shadow-sm"
                     />
                   </div>
                 </div>

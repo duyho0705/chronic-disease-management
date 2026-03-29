@@ -121,7 +121,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    className={`w-full px-4 py-3 rounded-xl border-2 ${formErrors.name ? 'border-red-500/50' : 'border-slate-50 dark:border-slate-800'} bg-slate-50 dark:bg-slate-800/40 text-[14px] font-bold transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm`}
+                    className={`w-full px-4 py-2.5 rounded-xl border-2 ${formErrors.name ? 'border-red-500/50' : 'border-slate-50 dark:border-slate-800'} bg-slate-50 dark:bg-slate-800/40 text-[14px] font-bold transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm`}
                   />
                   {formErrors.name && <p className="text-[11px] font-bold text-red-500 ml-1">{formErrors.name}</p>}
                 </div>
@@ -132,7 +132,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className={`w-full px-4 py-3 rounded-xl border-2 ${formErrors.email ? 'border-red-500/50' : 'border-slate-50 dark:border-slate-800'} bg-slate-50 dark:bg-slate-800/40 text-[14px] font-bold transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm`}
+                    className={`w-full px-4 py-2.5 rounded-xl border-2 ${formErrors.email ? 'border-red-500/50' : 'border-slate-50 dark:border-slate-800'} bg-slate-50 dark:bg-slate-800/40 text-[14px] font-bold transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm`}
                   />
                 </div>
 
@@ -142,7 +142,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-50 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 text-[14px] font-bold transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm"
+                    className="w-full px-4 py-2.5 rounded-xl border-2 border-slate-50 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 text-[14px] font-bold transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm"
                   />
                 </div>
               </div>

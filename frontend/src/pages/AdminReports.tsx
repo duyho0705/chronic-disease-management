@@ -19,7 +19,7 @@ export default function AdminReports() {
                 <button
                   key={type}
                   onClick={() => setReportType(type)}
-                  className={`px-5 py-2 text-[11px] font-extrabold uppercase rounded-lg transition-all ${reportType === type ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-700'
+                  className={`px-5 py-2 text-[14px] font-bold rounded-lg transition-all ${reportType === type ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-700'
                     }`}
                 >
                   Theo {type}
@@ -52,17 +52,17 @@ export default function AdminReports() {
             <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm transition-all group hover:shadow-md">
               <div className="flex justify-between items-start mb-4">
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.color === 'primary' ? 'bg-primary/10 text-primary' :
-                    stat.color === 'emerald' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600' :
-                      stat.color === 'blue' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600' :
-                        stat.color === 'amber' ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600' :
-                          stat.color === 'red' ? 'bg-red-50 dark:bg-red-900/20 text-red-600' :
-                            'bg-slate-100 dark:bg-slate-800 text-slate-600'
+                  stat.color === 'emerald' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600' :
+                    stat.color === 'blue' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600' :
+                      stat.color === 'amber' ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600' :
+                        stat.color === 'red' ? 'bg-red-50 dark:bg-red-900/20 text-red-600' :
+                          'bg-slate-100 dark:bg-slate-800 text-slate-600'
                   }`}>
                   <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>{stat.icon}</span>
                 </div>
                 <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 ${stat.trendType === 'up' ? 'bg-emerald-500 text-white' :
-                    stat.trendType === 'up-warning' ? 'bg-amber-500 text-white' :
-                      'bg-primary text-white'
+                  stat.trendType === 'up-warning' ? 'bg-amber-500 text-white' :
+                    'bg-primary text-white'
                   }`}>
                   {stat.trend}
                 </span>
@@ -82,8 +82,8 @@ export default function AdminReports() {
           <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-primary/5 relative overflow-hidden">
             <div className="flex items-center justify-between mb-10">
               <div>
-                <h4 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Xu hướng tăng trưởng hệ thống</h4>
-                <p className="text-[16px] font-medium text-slate-500 mt-1">Dữ liệu tổng hợp từ 4 chi nhánh chính toàn quốc</p>
+                <h4 className="text-xl font-black tracking-tight text-slate-900 dark:text-white">Xu hướng tăng trưởng hệ thống</h4>
+                <p className="text-[15px] font-medium text-slate-500 mt-1">Dữ liệu tổng hợp từ các chi nhánh</p>
               </div>
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-2">

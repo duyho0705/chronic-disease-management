@@ -105,7 +105,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                     value={formData.name}
                     onChange={handleChange}
                     placeholder="VD: Nguyễn Văn Anh"
-                    className={`w-full px-4 py-3 rounded-xl border-2 ${formErrors.name ? 'border-red-500/50' : 'border-slate-50 dark:border-slate-800'} bg-slate-50 dark:bg-slate-800/40 text-[14px] font-bold transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm`}
+                    className={`w-full px-4 py-2.5 rounded-xl border-2 ${formErrors.name ? 'border-red-500/50' : 'border-slate-50 dark:border-slate-800'} bg-slate-50 dark:bg-slate-800/40 text-[14px] font-bold transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm`}
                   />
                   {formErrors.name && <p className="text-[11px] font-bold text-red-500 ml-1">{formErrors.name}</p>}
                 </div>
@@ -117,7 +117,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="email@example.com"
-                    className={`w-full px-4 py-3 rounded-xl border-2 ${formErrors.email ? 'border-red-500/50' : 'border-slate-50 dark:border-slate-800'} bg-slate-50 dark:bg-slate-800/40 text-[14px] font-bold transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm`}
+                    className={`w-full px-4 py-2.5 rounded-xl border-2 ${formErrors.email ? 'border-red-500/50' : 'border-slate-50 dark:border-slate-800'} bg-slate-50 dark:bg-slate-800/40 text-[14px] font-bold transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm`}
                   />
                   {formErrors.email && <p className="text-[11px] font-bold text-red-500 ml-1">{formErrors.email}</p>}
                 </div>
@@ -129,7 +129,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                     value={formData.phone}
                     onChange={handleChange}
                     placeholder="09xx.xxx.xxx"
-                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-50 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 text-[14px] font-bold transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm"
+                    className="w-full px-4 py-2.5 rounded-xl border-2 border-slate-50 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 text-[14px] font-bold transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm"
                   />
                 </div>
               </div>
@@ -149,7 +149,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                     value={formData.username}
                     onChange={handleChange}
                     placeholder="vd: can_bo_01"
-                    className={`w-full px-4 py-3 rounded-xl border-2 ${formErrors.username ? 'border-red-500/50' : 'border-slate-50 dark:border-slate-800'} bg-white dark:bg-slate-900 text-[14px] font-bold transition-all outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 shadow-sm`}
+                    className={`w-full px-4 py-2.5 rounded-xl border-2 ${formErrors.username ? 'border-red-500/50' : 'border-slate-50 dark:border-slate-800'} bg-white dark:bg-slate-900 text-[14px] font-bold transition-all outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 shadow-sm`}
                   />
                   {formErrors.username && <p className="text-[11px] font-bold text-red-500 ml-1">{formErrors.username}</p>}
                 </div>
@@ -182,7 +182,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                       type="text"
                       readOnly
                       value={formData.password}
-                      className="w-full pl-4 pr-10 py-3 rounded-xl border-2 border-slate-50 dark:border-slate-800 bg-slate-100 dark:bg-slate-900/50 text-[13px] font-mono font-bold text-slate-500 outline-none"
+                      className="w-full pl-4 pr-10 py-2.5 rounded-xl border-2 border-slate-50 dark:border-slate-800 bg-slate-100 dark:bg-slate-900/50 text-[13px] font-mono font-bold text-slate-500 outline-none"
                     />
                     <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">lock</span>
                   </div>

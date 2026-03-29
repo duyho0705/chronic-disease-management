@@ -318,6 +318,11 @@ body {
 }
 
 /* Hide default arrow in all browsers for selects with appearance-none */
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24 !important;
+}
+
 select.appearance-none {
   -webkit-appearance: none;
   -moz-appearance: none;

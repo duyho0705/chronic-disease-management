@@ -122,7 +122,7 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    className={`w-full px-4 py-3 rounded-xl border-2 ${formErrors.name ? 'border-red-500/50' : 'border-slate-50 dark:border-slate-800'} bg-slate-50 dark:bg-slate-800/40 text-[14px] font-medium transition-all outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/5 shadow-sm`}
+                    className={`w-full px-4 py-2.5 rounded-xl border-2 ${formErrors.name ? 'border-red-500/50' : 'border-slate-50 dark:border-slate-800'} bg-slate-50 dark:bg-slate-800/40 text-[14px] font-medium transition-all outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/5 shadow-sm`}
                   />
                 </div>
 
@@ -132,7 +132,7 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
                     <input
                       readOnly
                       value={formData.clinicCode}
-                      className="w-full px-4 py-3 rounded-xl border-2 border-slate-50 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/20 text-[14px] font-bold text-slate-400 outline-none"
+                      className="w-full px-4 py-2.5 rounded-xl border-2 border-slate-50 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/20 text-[14px] font-bold text-slate-400 outline-none"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -141,7 +141,7 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
-                      className={`w-full px-4 py-3 rounded-xl border-2 ${formErrors.phone ? 'border-red-500/50' : 'border-slate-50 dark:border-slate-800'} bg-slate-50 dark:bg-slate-800/40 text-[14px] font-medium transition-all outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/5 shadow-sm`}
+                      className={`w-full px-4 py-2.5 rounded-xl border-2 ${formErrors.phone ? 'border-red-500/50' : 'border-slate-50 dark:border-slate-800'} bg-slate-50 dark:bg-slate-800/40 text-[14px] font-medium transition-all outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/5 shadow-sm`}
                     />
                   </div>
                 </div>
@@ -153,7 +153,7 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
                     value={formData.address}
                     onChange={handleChange}
                     rows={3}
-                    className={`w-full px-4 py-3 rounded-xl border-2 ${formErrors.address ? 'border-red-500/50' : 'border-slate-50 dark:border-slate-800'} bg-slate-50 dark:bg-slate-800/40 text-[14px] font-medium transition-all outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/5 resize-none shadow-sm`}
+                    className={`w-full px-4 py-2.5 rounded-xl border-2 ${formErrors.address ? 'border-red-500/50' : 'border-slate-50 dark:border-slate-800'} bg-slate-50 dark:bg-slate-800/40 text-[14px] font-medium transition-all outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/5 resize-none shadow-sm`}
                   />
                 </div>
               </div>
@@ -195,7 +195,7 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
                             name="adminEmail"
                             value={formData.adminEmail}
                             onChange={handleChange}
-                            className="w-full px-4 py-3 rounded-xl border-2 border-slate-50 dark:border-slate-800 bg-white dark:bg-slate-900 text-[14px] font-medium transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm"
+                            className="w-full px-4 py-2.5 rounded-xl border-2 border-slate-50 dark:border-slate-800 bg-white dark:bg-slate-900 text-[14px] font-medium transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm"
                         />
                     </div>
                     <div className="space-y-1.5">
@@ -204,7 +204,7 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
                             name="adminFullName"
                             value={formData.adminFullName}
                             onChange={handleChange}
-                            className="w-full px-4 py-3 rounded-xl border-2 border-slate-50 dark:border-slate-800 bg-white dark:bg-slate-900 text-[14px] font-medium transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm"
+                            className="w-full px-4 py-2.5 rounded-xl border-2 border-slate-50 dark:border-slate-800 bg-white dark:bg-slate-900 text-[14px] font-medium transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm"
                         />
                     </div>
                 </div>

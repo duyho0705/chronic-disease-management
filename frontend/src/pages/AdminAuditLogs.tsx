@@ -176,8 +176,8 @@ export default function AdminAuditLogs() {
         <div className="bg-slate-100/50 dark:bg-slate-900/50 p-6 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
           <div className="flex gap-4">
             <span className="material-symbols-outlined text-slate-400">gavel</span>
-            <p className="text-[13px] text-slate-500 font-medium leading-relaxed">
-              <span className="font-bold text-slate-900 dark:text-slate-300">Lưu ý:</span> Dữ liệu nhật ký hệ thống được lưu trữ trong 2 năm theo tiêu chuẩn bảo mật y tế. Mọi hành vi tự ý chỉnh sửa nhật ký sẽ bị hệ thống phát hiện và cảnh báo ngay lập tức.
+            <p className="text-[14px] text-slate-600 font-medium leading-relaxed">
+              <span className="font-medium text-slate-900 dark:text-slate-300">Lưu ý:</span> Dữ liệu nhật ký hệ thống được lưu trữ trong 2 năm theo tiêu chuẩn bảo mật y tế. Mọi hành vi tự ý chỉnh sửa nhật ký sẽ bị hệ thống phát hiện và cảnh báo ngay lập tức.
             </p>
           </div>
         </div>
