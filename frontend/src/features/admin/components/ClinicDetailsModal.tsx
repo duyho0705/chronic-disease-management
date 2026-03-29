@@ -134,7 +134,7 @@ const ClinicDetailsModal: React.FC<ClinicDetailsModalProps> = ({
         <div className="px-8 py-5 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3 sticky bottom-0 z-20">
           <button
             onClick={onClose}
-            className="px-10 py-2.5 text-sm font-extrabold text-white bg-slate-900 dark:bg-slate-800 hover:opacity-90 rounded-xl transition-all shadow-xl active:scale-95"
+            className="px-10 py-2.5 text-sm font-extrabold text-white bg-slate-900 dark:bg-slate-800 hover:opacity-90 rounded-xl transition-all shadow-xl"
             type="button"
           >
             Đóng thông tin

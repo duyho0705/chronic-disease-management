@@ -86,14 +86,14 @@ const MaintenanceConfirmModal: React.FC<MaintenanceConfirmModalProps> = ({
         <div className="px-8 py-5 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-md border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3 sticky bottom-0 z-20 transition-all rounded-b-3xl">
           <button
             onClick={onClose}
-            className="px-6 py-2.5 text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all active:scale-95"
+            className="px-6 py-2.5 text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all"
             type="button"
           >
             Hủy bỏ
           </button>
           <button
             onClick={onConfirm}
-            className={`px-10 py-2.5 text-sm font-extrabold text-white rounded-xl transition-all shadow-xl flex items-center gap-2 active:scale-95 transform ${isEnabling
+            className={`px-10 py-2.5 text-sm font-extrabold text-white rounded-xl transition-all shadow-xl flex items-center gap-2 transform ${isEnabling
               ? 'bg-amber-500 hover:bg-amber-600 shadow-amber-500/20'
               : 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20'
               }`}

@@ -225,7 +225,7 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
           <button
             onClick={handleSubmit}
             disabled={isSaving}
-            className="px-10 py-2.5 text-sm font-extrabold text-slate-900 bg-amber-500 hover:bg-amber-600 rounded-xl transition-all shadow-xl shadow-amber-500/20 flex items-center gap-2 active:scale-95 disabled:opacity-50"
+            className="px-10 py-2.5 text-sm font-extrabold text-slate-900 bg-amber-500 hover:bg-amber-600 rounded-xl transition-all shadow-xl shadow-amber-500/20 flex items-center gap-2 disabled:opacity-50"
             type="button"
           >
             {isSaving ? (

@@ -47,7 +47,7 @@ export default function AdminServices() {
             <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Quản lý Dịch vụ & Gói khám</h2>
             <p className="text-[16px] text-slate-500 mt-1 font-medium">Thiết lập các gói chăm sóc sức khỏe và phí dịch vụ y tế.</p>
           </div>
-          <button className="bg-primary text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all duration-200 text-[14px]">
+          <button className="bg-primary text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all duration-200 text-[14px]">
             <span className="material-symbols-outlined font-bold">add_box</span>
             Tạo dịch vụ mới
           </button>

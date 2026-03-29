@@ -101,7 +101,7 @@ export default function CreateTicketModal({ isOpen, onClose, onSave, isSaving }:
           <button
             onClick={() => onSave(formData)}
             disabled={isSaving || !formData.subject || !formData.message}
-            className="flex-[1.5] py-3 text-sm font-extrabold text-white bg-primary disabled:bg-slate-300 rounded-xl transition-all flex items-center justify-center gap-2 shadow-xl shadow-primary/20 active:scale-95"
+            className="flex-[1.5] py-3 text-sm font-extrabold text-white bg-primary disabled:bg-slate-300 rounded-xl transition-all flex items-center justify-center gap-2 shadow-xl shadow-primary/20"
           >
             {isSaving ? (
               <>

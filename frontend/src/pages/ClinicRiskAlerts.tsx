@@ -70,7 +70,6 @@ export default function ClinicRiskAlerts() {
                         <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group border border-red-100 dark:border-red-900/30">
                             <div>
                                 <div className="flex items-center gap-2 mb-4">
-                                    <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
                                     <p className="text-sm font-bold text-red-500">Khẩn cấp</p>
                                 </div>
                                 <h3 className="text-3xl font-black text-red-500 leading-none">05</h3>
@@ -81,7 +80,6 @@ export default function ClinicRiskAlerts() {
                         <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group border border-amber-100 dark:border-amber-900/30">
                             <div>
                                 <div className="flex items-center gap-2 mb-4">
-                                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
                                     <p className="text-sm font-bold text-amber-600">Theo dõi</p>
                                 </div>
                                 <h3 className="text-3xl font-black text-amber-600 leading-none">12</h3>

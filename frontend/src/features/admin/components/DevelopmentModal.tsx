@@ -70,7 +70,7 @@ const DevelopmentModal: React.FC<DevelopmentModalProps> = ({
         <div className="px-8 py-5 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3 rounded-b-3xl">
           <button
             onClick={onClose}
-            className="px-8 py-2.5 text-sm font-extrabold text-white bg-primary hover:bg-primary-dark rounded-xl transition-all shadow-lg shadow-primary/20 active:scale-95 transform"
+            className="px-8 py-2.5 text-sm font-extrabold text-white bg-primary hover:bg-primary-dark rounded-xl transition-all shadow-lg shadow-primary/20 transform"
             type="button"
           >
             Đã hiểu

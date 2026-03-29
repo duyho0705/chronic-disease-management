@@ -1,8 +1,22 @@
 import AdminLayout from '../layouts/AdminLayout';
 import { useState } from 'react';
+import Dropdown from '../components/ui/Dropdown';
 
 export default function AdminReports() {
   const [reportType, setReportType] = useState('Month');
+  const [performanceFilter, setPerformanceFilter] = useState('Tất cả kết quả');
+
+  const performanceData = [
+    { name: "Vitality Quận 1", cases: "1,240", appts: "842", ad: "95%", status: "Tốt", color: "emerald" },
+    { name: "Vitality Thảo Điền", cases: "860", appts: "624", ad: "91%", status: "Tốt", color: "emerald" },
+    { name: "Vitality Phú Mỹ Hưng", cases: "720", appts: "415", ad: "84%", status: "Ổn định", color: "primary" },
+    { name: "Vitality Cầu Giấy (Mới)", cases: "310", appts: "186", ad: "68%", status: "Cần lưu ý", color: "amber" }
+  ];
+
+  const filteredData = performanceData.filter(row => {
+    if (performanceFilter === 'Tất cả kết quả') return true;
+    return row.status === performanceFilter;
+  });
 
   return (
     <AdminLayout>
@@ -11,7 +25,7 @@ export default function AdminReports() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
             <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Báo cáo hợp nhất</h2>
-            <p className="text-[16px] text-slate-500 mt-1 font-medium">Phân tích dữ liệu vận hành toàn hệ thống Vitality DamDiep.</p>
+            <p className="text-[16px] text-slate-500 mt-1 font-medium">Phân tích dữ liệu vận hành toàn hệ thống</p>
           </div>
           <div className="flex flex-wrap items-center gap-4">
             <div className="bg-primary/5 dark:bg-slate-800 rounded-xl p-1 flex gap-1 border border-primary/5">
@@ -60,7 +74,7 @@ export default function AdminReports() {
                   }`}>
                   <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>{stat.icon}</span>
                 </div>
-                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 ${stat.trendType === 'up' ? 'bg-emerald-500 text-white' :
+                <span className={`px-2 py-0.5 rounded-full text-[13px] font-medium flex items-center gap-1 ${stat.trendType === 'up' ? 'bg-emerald-500 text-white' :
                   stat.trendType === 'up-warning' ? 'bg-amber-500 text-white' :
                     'bg-primary text-white'
                   }`}>
@@ -80,52 +94,90 @@ export default function AdminReports() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Patient Growth Trend Chart */}
           <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-primary/5 relative overflow-hidden">
-            <div className="flex items-center justify-between mb-10">
+            <div className="flex items-center justify-between mb-8">
               <div>
-                <h4 className="text-xl font-black tracking-tight text-slate-900 dark:text-white">Xu hướng tăng trưởng hệ thống</h4>
+                <h4 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Xu hướng tăng trưởng hệ thống</h4>
                 <p className="text-[15px] font-medium text-slate-500 mt-1">Dữ liệu tổng hợp từ các chi nhánh</p>
               </div>
-              <div className="flex items-center gap-6">
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-primary"></span>
-                  <span className="text-[11px] font-bold text-slate-400 uppercase">Mới</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-primary/20"></span>
-                  <span className="text-[11px] font-bold text-slate-400 uppercase">Cũ</span>
-                </div>
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-primary mb-0.5"></span>
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Lượng bệnh nhân</span>
               </div>
             </div>
 
-            <div className="relative h-64 w-full flex items-end gap-6 px-4">
-              <div className="absolute inset-0 flex flex-col justify-between text-[10px] font-bold text-slate-300 pointer-events-none opacity-50">
-                {[3000, 2000, 1000, 0].map(v => (
-                  <div key={v} className="border-b border-slate-100 dark:border-slate-800 w-full pb-1 flex justify-between">
-                    <span>{v}</span>
+            <div className="relative h-64 w-full">
+              <svg className="w-full h-full relative z-10" preserveAspectRatio="none" viewBox="0 0 800 240">
+                <defs>
+                  <linearGradient id="reportsChartGradient" x1="0%" x2="0%" y1="0%" y2="100%">
+                    <stop offset="0%" style={{ stopColor: '#3bb9f3', stopOpacity: 0.15 }}></stop>
+                    <stop offset="100%" style={{ stopColor: '#3bb9f3', stopOpacity: 0 }}></stop>
+                  </linearGradient>
+                </defs>
+                <path
+                  d="M0,180 Q60,165 120,195 T240,150 T360,165 T480,120 T600,135 T720,105 T800,85 L800,240 L0,240 Z"
+                  fill="url(#reportsChartGradient)"
+                />
+                <path
+                  d="M0,180 Q60,165 120,195 T240,150 T360,165 T480,120 T600,135 T720,105 T800,85"
+                  fill="none"
+                  stroke="#3bb9f3"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                />
+                {[
+                  { x: 120, y: 195 }, { x: 240, y: 150 }, { x: 360, y: 165 },
+                  { x: 480, y: 120 }, { x: 600, y: 135 }, { x: 720, y: 105 }, { x: 800, y: 85 }
+                ].map((pt, i) => (
+                  <circle
+                    key={i}
+                    cx={pt.x}
+                    cy={pt.y}
+                    r="6"
+                    fill="#3bb9f3"
+                    stroke="white"
+                    strokeWidth="3"
+                    className="drop-shadow-sm transition-transform hover:scale-125 cursor-pointer"
+                  />
+                ))}
+              </svg>
+              <div className="absolute bottom-0 w-full flex justify-between px-2 text-[10px] font-extrabold text-slate-300 dark:text-slate-600 pt-6 uppercase tracking-widest pointer-events-none">
+                <span>Tháng 5</span>
+                <span>Tháng 6</span>
+                <span>Tháng 7</span>
+                <span>Tháng 8</span>
+                <span>Tháng 9</span>
+                <span>Tháng 10</span>
+              </div>
+            </div>
+
+            {/* Quick Analytics Summary Bar */}
+            <div className="mt-12 pt-8 border-t border-slate-50 dark:border-slate-800">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+                {[
+                  { label: 'Tỷ lệ tăng trưởng', val: '+12.4%', icon: 'trending_up', color: 'emerald', sub: 'So với Tháng 5' },
+                  { label: 'Tháng cao điểm', val: 'Tháng 10', icon: 'event', color: 'primary', sub: '1,240 ca' },
+                  { label: 'Tỷ lệ quay lại', val: '84.2%', icon: 'replay', color: 'blue', sub: 'Bệnh nhân cũ' },
+                  { label: 'Dự báo T11', val: '+5.8%', icon: 'bolt', color: 'amber', sub: 'Dự đoán AI' }
+                ].map((item, i) => (
+                  <div key={i} className="flex flex-col">
+                    <div className="flex items-center gap-1.5 text-slate-400 dark:text-slate-500 mb-1.5">
+                      <span className={`material-symbols-outlined text-[18px] text-${item.color}-500`} style={{ fontVariationSettings: "'FILL' 1" }}>{item.icon}</span>
+                      <span className="text-[14px] font-medium text-slate-600">{item.label}</span>
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-[18px] font-black text-slate-900 dark:text-white leading-none tracking-tight">{item.val}</span>
+                      <span className="text-[13px] font-bold text-slate-600 dark:text-slate-500">{item.sub}</span>
+                    </div>
                   </div>
                 ))}
               </div>
-              {[
-                { m: 'T5', h1: '40%', h2: '20%' },
-                { m: 'T6', h1: '45%', h2: '25%' },
-                { m: 'T7', h1: '50%', h2: '30%' },
-                { m: 'T8', h1: '55%', h2: '28%' },
-                { m: 'T9', h1: '60%', h2: '35%' },
-                { m: 'T10', h1: '65%', h2: '42%' }
-              ].map((bar, idx) => (
-                <div key={idx} className="flex-1 group relative flex flex-col justify-end items-center gap-1.5 h-full z-10">
-                  <div className="w-full bg-primary/10 rounded-t-lg group-hover:bg-primary/20 transition-all cursor-pointer" style={{ height: bar.h1 }}></div>
-                  <div className="w-full bg-primary rounded-t-lg shadow-sm" style={{ height: bar.h2 }}></div>
-                  <span className="text-[11px] font-extrabold text-slate-400 mt-2">{bar.m}</span>
-                </div>
-              ))}
             </div>
           </div>
 
           {/* Revenue Breakdown */}
           <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-primary/5 flex flex-col">
-            <h4 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white mb-2">Phân bổ doanh thu</h4>
-            <p className="text-[16px] font-medium text-slate-500 mb-10">Mạng lưới chi nhánh tháng 10</p>
+            <h4 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white mb-2">Phân bổ doanh thu</h4>
+            <p className="text-[15px] font-medium text-slate-500 mb-10">Mạng lưới chi nhánh tháng 10</p>
             <div className="space-y-8 flex-1">
               {[
                 { name: "Vitality Quận 1", val: "1.2 tỷ", p: "45%" },
@@ -155,13 +207,16 @@ export default function AdminReports() {
         <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm border border-primary/5">
           <div className="p-8 border-b border-primary/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h4 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Chi tiết hiệu suất phòng khám</h4>
-              <p className="text-[16px] font-medium text-slate-500 mt-1">Phân tích tải trọng và trạng thái vận hành</p>
+              <h4 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Chi tiết hiệu suất phòng khám</h4>
+              <p className="text-[15px] font-medium text-slate-500 mt-1">Phân tích tải trọng và trạng thái vận hành</p>
             </div>
-            <button className="flex items-center gap-2 px-4 py-2 border border-primary/10 rounded-xl text-[13px] font-bold text-slate-600 hover:bg-slate-50 transition-all">
-              <span className="material-symbols-outlined text-[18px]">filter_list</span>
-              Lọc kết quả
-            </button>
+            <Dropdown
+              options={['Tất cả kết quả', 'Tốt', 'Ổn định', 'Cần lưu ý']}
+              value={performanceFilter}
+              onChange={setPerformanceFilter}
+              variant="badge"
+              className="w-44"
+            />
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
@@ -169,22 +224,17 @@ export default function AdminReports() {
                 <tr className="px-8 py-4 text-[15px] text-slate-500 leading-none">
                   <th className="font-medium px-8 py-5">Phòng khám</th>
                   <th className="font-medium px-6 py-5">Số ca khám</th>
-                  <th className="font-medium px-6 py-5">Doanh thu TB/Ca</th>
-                  <th className="font-medium px-6 py-5">Chỉ số Adherence</th>
+                  <th className="font-medium px-6 py-5">Lượt đặt lịch mới</th>
+                  <th className="font-medium px-6 py-5">Tuân thủ điều trị</th>
                   <th className="font-medium px-6 py-5 text-right">Trạng thái</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-primary/5">
-                {[
-                  { name: "Vitality Quận 1", cases: "1,240", rev: "980,000đ", ad: "95%", status: "Tốt", color: "emerald" },
-                  { name: "Vitality Thảo Điền", cases: "860", rev: "1,150,000đ", ad: "91%", status: "Tốt", color: "emerald" },
-                  { name: "Vitality Phú Mỹ Hưng", cases: "720", rev: "820,000đ", ad: "84%", status: "Ổn định", color: "primary" },
-                  { name: "Vitality Cầu Giấy (Mới)", cases: "310", rev: "1,050,000đ", ad: "68%", status: "Cần lưu ý", color: "amber" }
-                ].map((row, idx) => (
+                {filteredData.map((row, idx) => (
                   <tr key={idx} className="hover:bg-primary/5 transition-colors group">
-                    <td className="px-8 py-5 text-[16px] font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors tracking-tight">{row.name}</td>
+                    <td className="px-8 py-5 text-[15px] font-bold text-slate-900 dark:text-white transition-colors tracking-tight">{row.name}</td>
                     <td className="px-6 py-5 text-[15px] font-extrabold text-slate-700 dark:text-slate-300">{row.cases}</td>
-                    <td className="px-6 py-5 text-[14px] font-medium text-slate-500">{row.rev}</td>
+                    <td className="px-6 py-5 text-[15px] font-black text-emerald-600 dark:text-emerald-400">{row.appts}</td>
                     <td className="px-6 py-5">
                       <span className={`px-4 py-1 rounded-full text-[13px] font-bold shadow-sm inline-flex ${parseInt(row.ad) >= 90 ? 'bg-emerald-500 text-white' :
                         parseInt(row.ad) >= 80 ? 'bg-primary text-white' :
@@ -195,7 +245,6 @@ export default function AdminReports() {
                     </td>
                     <td className="px-6 py-5 text-right">
                       <div className={`inline-flex items-center gap-2 text-${row.color === 'emerald' ? 'emerald-500' : row.color === 'amber' ? 'amber-500' : 'primary'} font-extrabold text-[14px]`}>
-                        <span className={`w-2 h-2 rounded-full bg-${row.color === 'emerald' ? 'emerald-500' : row.color === 'amber' ? 'amber-500' : 'primary'} animate-pulse`}></span>
                         {row.status}
                       </div>
                     </td>
@@ -204,16 +253,9 @@ export default function AdminReports() {
               </tbody>
             </table>
           </div>
-          <div className="p-6 bg-primary/5 text-center">
-            <button className="text-[13px] font-bold text-primary hover:underline underline-offset-4 uppercase">Tải xuống toàn bộ báo cáo phân tích (CSV)</button>
-          </div>
         </div>
       </section>
 
-      {/* Absolute FAB - Standard insights call */}
-      <button className="fixed bottom-8 right-8 w-14 h-14 bg-primary text-white rounded-2xl shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-[160] group border-4 border-white dark:border-slate-900">
-        <span className="material-symbols-outlined text-[24px] group-hover:rotate-12 transition-transform">insights</span>
-      </button>
     </AdminLayout>
   );
 }

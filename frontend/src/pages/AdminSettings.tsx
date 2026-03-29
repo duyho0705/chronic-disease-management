@@ -74,7 +74,7 @@ export default function AdminSettings() {
             </div>
             <button
               onClick={handleSave}
-              className="px-6 py-2.5 bg-emerald-500 text-white rounded-xl font-bold transition-all text-[14px] flex items-center gap-2 whitespace-nowrap"
+              className="px-6 py-2.5 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 hover:bg-emerald-500 hover:text-white rounded-xl font-bold transition-all text-[14px] flex items-center gap-2 whitespace-nowrap shadow-lg shadow-emerald-500/5 hover:shadow-emerald-500/20"
             >
               <span className="material-symbols-outlined font-bold text-[20px]">cloud_sync</span>
               Lưu thay đổi ngay
@@ -96,7 +96,7 @@ export default function AdminSettings() {
                 </div>
                 <button 
                   onClick={handleRestoreDefaults}
-                  className="bg-primary/10 text-primary border border-primary/20 hover:bg-primary hover:text-white px-4 py-2 rounded-xl text-[14px] font-bold shadow-lg shadow-primary/5 transition-all italic-none active:scale-95"
+                  className="bg-primary/10 text-primary border border-primary/20 hover:bg-primary hover:text-white px-4 py-2 rounded-xl text-[14px] font-bold shadow-lg shadow-primary/5 transition-all italic-none"
                 >
                   Khôi phục mặc định
                 </button>

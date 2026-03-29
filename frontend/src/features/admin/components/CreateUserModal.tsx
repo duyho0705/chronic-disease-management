@@ -196,7 +196,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
         <div className="px-8 py-5 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3 sticky bottom-0 z-20 transition-all">
           <button
             onClick={onClose}
-            className="px-6 py-2.5 text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all active:scale-95"
+            className="px-6 py-2.5 text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all"
             type="button"
           >
             Hủy bỏ
@@ -204,7 +204,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
           <button
             onClick={handleSubmit}
             disabled={isSaving}
-            className="px-10 py-2.5 text-sm font-extrabold text-white bg-indigo-500 hover:bg-indigo-600 rounded-xl transition-all shadow-xl shadow-indigo-500/20 flex items-center gap-2 active:scale-95 transform disabled:opacity-50 disabled:cursor-wait"
+            className="px-10 py-2.5 text-sm font-extrabold text-white bg-indigo-500 hover:bg-indigo-600 rounded-xl transition-all shadow-xl shadow-indigo-500/20 flex items-center gap-2 transform disabled:opacity-50 disabled:cursor-wait"
             type="button"
           >
             {isSaving ? (
