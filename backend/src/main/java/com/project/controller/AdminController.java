@@ -138,4 +138,17 @@ public class AdminController {
         adminService.toggleUserStatus(id);
         return ApiResponse.success("User status toggled successfully", null);
     }
+
+    // ========================
+    // REPORTS
+    // ========================
+
+    @GetMapping("/reports")
+    @Operation(summary = "Get admin reports data", description = "Returns system performance, breakdown, and patient growth data")
+    public ApiResponse<AdminReportsResponse> getReports(
+            @Parameter(description = "Report duration type (Day, Month, Quarter)") @RequestParam(defaultValue = "Month") String reportType,
+            @Parameter(description = "Clinic performance filter") @RequestParam(defaultValue = "Tất cả kết quả") String performanceFilter
+    ) {
+        return ApiResponse.success("Reports data fetched successfully", adminService.getReportsData(reportType, performanceFilter));
+    }
 }

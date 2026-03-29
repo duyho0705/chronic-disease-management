@@ -272,6 +272,67 @@ public class AdminServiceImpl implements AdminService {
     }
 
     // ========================
+    // REPORTS
+    // ========================
+
+    @Override
+    @Transactional(readOnly = true)
+    public AdminReportsResponse getReportsData(String reportType, String performanceFilter) {
+        // Mock data to match the UI precisely
+        AdminReportsResponse.ReportSummary summary = AdminReportsResponse.ReportSummary.builder()
+                .nps("78.5")
+                .avgTime("24")
+                .returnRate("92")
+                .retentionRate("84")
+                .build();
+
+        List<AdminReportsResponse.ChartPoint> growthTrend = List.of(
+                AdminReportsResponse.ChartPoint.builder().label("Tháng 5").value(165).build(),
+                AdminReportsResponse.ChartPoint.builder().label("Tháng 6").value(195).build(),
+                AdminReportsResponse.ChartPoint.builder().label("Tháng 7").value(150).build(),
+                AdminReportsResponse.ChartPoint.builder().label("Tháng 8").value(165).build(),
+                AdminReportsResponse.ChartPoint.builder().label("Tháng 9").value(120).build(),
+                AdminReportsResponse.ChartPoint.builder().label("Tháng 10").value(135).build()
+        );
+
+        AdminReportsResponse.AnalyticsSummary analytics = AdminReportsResponse.AnalyticsSummary.builder()
+                .growthRate("+12.4%")
+                .peakMonth("Tháng 10")
+                .returnRate("84.2%")
+                .forecast("+5.8%")
+                .build();
+
+        List<AdminReportsResponse.ClinicBreakdown> breakdowns = List.of(
+                AdminReportsResponse.ClinicBreakdown.builder().name("Vitality Quận 1").value("1,240 Bệnh nhân").percentage("45%").icon("home_health").build(),
+                AdminReportsResponse.ClinicBreakdown.builder().name("Vitality Thảo Điền").value("860 Bệnh nhân").percentage("30%").icon("home_health").build(),
+                AdminReportsResponse.ClinicBreakdown.builder().name("Phú Mỹ Hưng").value("720 Bệnh nhân").percentage("20%").icon("home_health").build(),
+                AdminReportsResponse.ClinicBreakdown.builder().name("Cầu Giấy (Mới)").value("310 Bệnh nhân").percentage("5%").icon("add_business").build()
+        );
+
+        List<AdminReportsResponse.ClinicPerformance> performances = List.of(
+                AdminReportsResponse.ClinicPerformance.builder().name("Vitality Quận 1").cases("1,240").appointments("842").adherence("95%").status("Tốt").color("emerald").build(),
+                AdminReportsResponse.ClinicPerformance.builder().name("Vitality Thảo Điền").cases("860").appointments("624").adherence("91%").status("Tốt").color("emerald").build(),
+                AdminReportsResponse.ClinicPerformance.builder().name("Vitality Phú Mỹ Hưng").cases("720").appointments("415").adherence("84%").status("Ổn định").color("primary").build(),
+                AdminReportsResponse.ClinicPerformance.builder().name("Vitality Cầu Giấy (Mới)").cases("310").appointments("186").adherence("68%").status("Cần lưu ý").color("amber").build()
+        );
+
+        // Applying the simple frontend filter logically
+        if (performanceFilter != null && !performanceFilter.equals("Tất cả kết quả")) {
+            performances = performances.stream()
+                    .filter(p -> p.getStatus().equals(performanceFilter))
+                    .toList();
+        }
+
+        return AdminReportsResponse.builder()
+                .summary(summary)
+                .growthTrend(growthTrend)
+                .analytics(analytics)
+                .clinicBreakdown(breakdowns)
+                .clinicPerformances(performances)
+                .build();
+    }
+
+    // ========================
     // PRIVATE MAPPERS
     // ========================
 

@@ -1,13 +1,30 @@
 import { useState } from 'react';
 import ClinicSidebar from '../components/common/ClinicSidebar';
 import TopBar from '../components/common/TopBar';
+import CreatePatientModal from '../features/clinic/components/CreatePatientModal';
 
 export default function ClinicPatients() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    
+    // Mock available doctors for assignments
+    const availableDoctors = ['BS. Trần Vũ', 'BS. Lê Mai', 'BS. Minh Phan', 'BS. Nguyễn Văn Hùng'];
+
     const [notifications, setNotifications] = useState([
         { id: 1, title: 'Báo cáo mới', description: 'Có báo cáo tổng quát tháng 12 vừa được tạo.', time: '5 phút trước', read: false },
         { id: 2, title: 'Cảnh báo nguy cơ', description: 'Bệnh nhân Nguyễn Văn An có chỉ số bất thường.', time: '1 giờ trước', read: false },
     ]);
+
+    const handleCreatePatient = async (data: any) => {
+        setIsSaving(true);
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        console.log("New Patient Created:", data);
+        setIsSaving(false);
+        setIsCreateModalOpen(false);
+        // Toast notification could be triggered here
+    };
 
     return (
         <div className="flex min-h-screen font-display bg-[#f6f8f7] dark:bg-slate-950 text-slate-900 dark:text-slate-100 italic-none">
@@ -43,7 +60,10 @@ export default function ClinicPatients() {
                             <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Danh sách bệnh nhân mãn tính</h3>
                             <p className="text-slate-500 font-medium">Quản lý và theo dõi sức khỏe bệnh nhân trong toàn phòng khám</p>
                         </div>
-                        <button className="bg-primary text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all font-display">
+                        <button 
+                            onClick={() => setIsCreateModalOpen(true)}
+                            className="bg-primary text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all font-display"
+                        >
                             <span className="material-symbols-outlined">person_add</span>
                             <span>Thêm bệnh nhân mới</span>
                         </button>
@@ -217,6 +237,14 @@ export default function ClinicPatients() {
                         </div>
                     </div>
                 </div>
+
+                <CreatePatientModal 
+                    isOpen={isCreateModalOpen}
+                    onClose={() => setIsCreateModalOpen(false)}
+                    isSaving={isSaving}
+                    onSave={handleCreatePatient}
+                    availableDoctors={availableDoctors}
+                />
             </main>
         </div>
     );

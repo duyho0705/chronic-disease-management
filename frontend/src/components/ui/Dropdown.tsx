@@ -77,7 +77,7 @@ export default function Dropdown({
           bg-white dark:bg-slate-900
           border border-slate-100 dark:border-slate-800
           rounded-2xl shadow-2xl shadow-slate-200/50 dark:shadow-black/50
-          z-[110] overflow-hidden
+          z-[110] max-h-60 overflow-y-auto custom-scrollbar
           transition-all duration-200
           ${isOpen
             ? 'opacity-100 translate-y-0 pointer-events-auto'

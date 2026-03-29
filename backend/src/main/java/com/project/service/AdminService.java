@@ -38,4 +38,7 @@ public interface AdminService {
     AdminUserResponse updateUser(Long id, UpdateUserRequest request);
 
     void toggleUserStatus(Long id);
+
+    // === Reports ===
+    AdminReportsResponse getReportsData(String reportType, String performanceFilter);
 }
