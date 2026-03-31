@@ -11,6 +11,10 @@ public class CreateClinicRequest {
     @Size(max = 200, message = "Tên phòng khám không được quá 200 ký tự")
     private String name;
 
+    @NotBlank(message = "Mã định danh không được để trống")
+    @Size(max = 20, message = "Mã định danh không được quá 20 ký tự")
+    private String clinicCode;
+
     private String address;
 
     @Size(max = 20, message = "Số điện thoại không được quá 20 ký tự")
@@ -18,5 +22,13 @@ public class CreateClinicRequest {
 
     private String imageUrl;
 
-    private Long managerId;
+    // Admin Account Information (Clinic Manager)
+    @NotBlank(message = "Họ và tên người quản lý không được để trống")
+    private String adminFullName;
+
+    @NotBlank(message = "Email đăng nhập không được để trống")
+    private String adminEmail;
+
+    @NotBlank(message = "Mật khẩu không được để trống")
+    private String adminPassword;
 }

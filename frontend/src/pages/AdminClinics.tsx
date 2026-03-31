@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import React from 'react';
 import AdminLayout from '../layouts/AdminLayout';
 import CreateClinicModal from '../features/admin/components/CreateClinicModal';
 import EditClinicModal from '../features/admin/components/EditClinicModal';
 import ClinicDetailsModal from '../features/admin/components/ClinicDetailsModal';
 import Toast from '../components/ui/Toast';
+import { clinicApi } from '../api/clinic';
 
 export default function AdminClinics() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -17,51 +19,49 @@ export default function AdminClinics() {
   const [showToast, setShowToast] = useState(false);
   const [toastTitle, setToastTitle] = useState('');
 
-  const [clinicList, setClinicList] = useState([
-    {
-      id: 'TA-102',
-      name: 'Phòng khám Đa khoa Tâm Anh',
-      address: '108 Hoàng Như Tiếp, Long Biên, Hà Nội',
-      phone: '02438723872',
-      doctors: 42,
-      status: 'Hoạt động',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA0Ii3-LGAIeON1-nk04Zi4Eu2x9EVZ6mFMZ_Dnw0uvY2SL69Hf3NspoaNsLTIoaGambXk8wS59kmGui7ZsRbODIs7z1oaei91X5nNg33Brcu9joYi8A8adAytn1RKXOkxugZM_qc3-tKGkKgceAJHyjUVRDLAzh8PwEk4tLQXdtryIlcAGyBAuJ1dAM_XtzS5CwcjQAsl2jAN2GWDYg722SQihQSP3BY4bd8obcjoudbjweW2zZtHGvG5w6TdjHyuo6VC53Dpxygg'
-    },
-    {
-      id: 'ND-204',
-      name: 'Phòng khám Nhi Đồng 1',
-      address: '341 Sư Vạn Hạnh, Quận 10, TP.HCM',
-      phone: '02839271119',
-      doctors: 28,
-      status: 'Hoạt động',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuASIMfKqCxOGTG9uAabZNTIM_sDfKR1h7YtRcQzn_97GnEva9ZtVzXMr_FO0aPHZCTDzT3FjRaOUH_gRdD9N3yfa7sJcDRDllCD6K6N5_-xKrT88ozPNM-ffXS27g-a4UEmAYPRzONw8CdWHj1Ylz08UPYyx4VsPr6SMOLovdbpQTHWiCv6VAcxbbI0hr6ec0bbqTSpS3rc2yGS7D23xR10eUO4r8inNxPC9lgURQ9zS71feqYtD-l1-0L-F2foQYtCzeLzJUWU92Y'
-    },
-    {
-      id: 'VD-301',
-      name: 'Vitality Dental Care',
-      address: '25 Nguyễn Huệ, Quận 1, TP.HCM',
-      phone: '02838211122',
-      doctors: 12,
-      status: 'Ngưng hoạt động',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBDMO02q5y8AcWuVlVoZvVB67uulWro0vTjt6aIUYF1NKHS3GmSaMq06ANB2SwJE2kRufQb89fdaQ9MbMTDErnxvPQ1P9nn0VhgsJdkocIlAYWExvzDT60SQw6cRmuJ1sLNJw9FVQeqSMe_a4zubor4BYdvaSmJWd5ZXWiHZpA32K_Z5bq-93vM7yB3koc--HuB5ePtrAYWSE9UgF00kKzsjO5auuiDTuMiO8-Ho7VU4DZSzNvUpn7h5V7MKYtn9U15Zn7k50YO-Jk'
-    },
-    {
-      id: 'ML-009',
-      name: 'Mediscan Central Lab',
-      address: '12 Nguyễn Trãi, Quận 5, TP.HCM',
-      phone: '02866778899',
-      doctors: 15,
-      status: 'Hoạt động',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBUE6bdi3mbjtLGmlTlcWymdQZeI12a8Y93_YVHa_ntUKPDjmIZmLdPDFQ75TYg1G0d3W1Ks8DH2RGp30iZtBOddhlgHoSZ4YovuLDyHTFHeQj4A9lfXL5tMVJNanRU5TcLkDWEjx3Eu2rDcjLR5SNA4d2Vb0ZtXnDorUOQN-_ZOWHvBPGO-Jot_SGbGgABBc_N_d2ir_aSipxlnJym8-LDGOfqSBeO9g8PMW5dXXG9iwhuFJnoHaofPxHa1J4hZVRNIlFk7l6pF4w'
-    }
+  const [clinicList, setClinicList] = useState<any[]>([]);
+  const [stats, setStats] = useState([
+    { title: 'Tổng số phòng khám', value: '0', change: '+0%', icon: 'apartment', color: 'primary' },
+    { title: 'Đang hoạt động', value: '0', icon: 'check_circle', color: 'emerald' },
+    { title: 'Phòng khám tạm khóa', value: '0', icon: 'lock_reset', color: 'red' },
+    { title: 'Tổng bác sĩ hệ thống', value: '0', icon: 'stethoscope', color: 'indigo' },
   ]);
 
-  const stats = [
-    { title: 'Tổng số phòng khám', value: clinicList.length.toString(), change: '+4%', icon: 'apartment', color: 'primary' },
-    { title: 'Đang hoạt động', value: clinicList.filter(c => c.status === 'Hoạt động').length.toString(), icon: 'check_circle', color: 'emerald' },
-    { title: 'Phòng khám tạm khóa', value: clinicList.filter(c => c.status === 'Ngưng hoạt động').length.toString(), icon: 'lock_reset', color: 'red' },
-    { title: 'Tổng bác sĩ hệ thống', value: '156', icon: 'stethoscope', color: 'indigo' },
-  ];
+  const fetchClinics = async () => {
+    try {
+      const response = await clinicApi.getClinics({
+        keyword: searchTerm,
+        status: statusFilter === 'ALL' ? undefined : statusFilter
+      });
+      const clinics = response.data.content;
+      setClinicList(clinics.map((c: any) => ({
+        id: c.clinicCode,
+        realId: c.id,
+        name: c.name,
+        address: c.address,
+        phone: c.phone,
+        doctors: c.doctorCount || 0,
+        status: c.status === 'ACTIVE' ? 'Hoạt động' : 'Ngưng hoạt động',
+        image: c.imageUrl,
+        adminFullName: c.managerName,
+        adminEmail: c.managerEmail
+      })));
+      
+      // Basic aggregation for stats
+      setStats([
+        { title: 'Tổng số phòng khám', value: response.data.totalElements.toString(), change: '+0%', icon: 'apartment', color: 'primary' },
+        { title: 'Đang hoạt động', value: clinics.filter((c: any) => c.status === 'ACTIVE').length.toString(), icon: 'check_circle', color: 'emerald' },
+        { title: 'Phòng khám tạm khóa', value: clinics.filter((c: any) => c.status === 'INACTIVE').length.toString(), icon: 'lock_reset', color: 'red' },
+        { title: 'Tổng bác sĩ hệ thống', value: '156', icon: 'stethoscope', color: 'indigo' },
+      ]);
+    } catch (error) {
+      console.error('Failed to fetch clinics:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchClinics();
+  }, [searchTerm, statusFilter]);
 
   const handleExport = () => {
     const today = new Date().toLocaleDateString('vi-VN');
@@ -116,45 +116,68 @@ export default function AdminClinics() {
 
   const handleCreateClinic = async (data: any) => {
     setIsSaving(true);
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    const newClinic = {
-      ...data,
-      id: data.clinicCode,
-      image: data.imageUrl,
-      doctors: 0,
-      status: 'Hoạt động'
-    };
-    setClinicList([newClinic, ...clinicList]);
-    setIsSaving(false);
-    setIsCreateModalOpen(false);
-    setToastTitle(`Đã khởi tạo hệ thống cho ${data.name} thành công!`);
-    setShowToast(true);
+    try {
+      await clinicApi.createClinic({
+        name: data.name,
+        address: data.address,
+        phone: data.phone,
+        clinicCode: data.clinicCode,
+        adminFullName: data.adminFullName,
+        adminEmail: data.adminEmail,
+        adminPassword: data.adminPassword,
+        imageUrl: data.imageUrl
+      });
+
+      setToastTitle(`Đã khởi tạo hệ thống cho ${data.name} thành công!`);
+      fetchClinics();
+    } catch (error: any) {
+      console.error('Failed to create clinic:', error);
+      const msg = error.response?.data?.message || 'Lỗi hệ thống';
+      setToastTitle(msg);
+    } finally {
+      setIsSaving(false);
+      setIsCreateModalOpen(false);
+      setShowToast(true);
+    }
   };
 
   const handleEditClinic = async (data: any) => {
     setIsSaving(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setClinicList(clinicList.map(c => c.id === data.id ? {
-      ...c,
-      name: data.name,
-      address: data.address,
-      phone: data.phone,
-      status: data.status === 'ACTIVE' ? 'Hoạt động' : 'Ngưng hoạt động'
-    } : c));
-    setIsSaving(false);
-    setIsEditModalOpen(false);
-    setToastTitle(`Cập nhật thông tin ${data.name} thành công!`);
-    setShowToast(true);
+    try {
+      await clinicApi.updateClinic(data.realId, {
+        name: data.name,
+        address: data.address,
+        phone: data.phone,
+        status: data.status, // ACTIVE or INACTIVE
+        imageUrl: data.imageUrl,
+        adminFullName: data.adminFullName,
+        adminEmail: data.adminEmail
+      });
+
+      setToastTitle(`Cập nhật thông tin ${data.name} thành công!`);
+      fetchClinics(); // Sync with DB
+    } catch (error) {
+      console.error('Failed to update clinic:', error);
+      setToastTitle(`Lỗi khi cập nhật ${data.name}`);
+    } finally {
+      setIsSaving(false);
+      setIsEditModalOpen(false);
+      setShowToast(true);
+    }
   };
 
   const handleLockClinic = async (clinic: any) => {
     const action = clinic.status === 'Hoạt động' ? 'khóa' : 'mở khóa';
-    const newStatus = clinic.status === 'Hoạt động' ? 'Ngưng hoạt động' : 'Hoạt động';
-
-    // Simulate API
-    setClinicList(clinicList.map(c => c.id === clinic.id ? { ...c, status: newStatus } : c));
-    setToastTitle(`Đã ${action} phòng khám ${clinic.name}`);
-    setShowToast(true);
+    try {
+      await clinicApi.toggleStatus(clinic.realId);
+      setToastTitle(`Đã ${action} phòng khám ${clinic.name} thành công!`);
+      fetchClinics(); // Sync with DB
+    } catch (error) {
+      console.error('Failed to toggle status:', error);
+      setToastTitle(`Lỗi khi ${action} phòng khám`);
+    } finally {
+      setShowToast(true);
+    }
   };
 
   const filteredClinics = clinicList.filter(c => {

@@ -18,5 +18,9 @@ public class UpdateClinicRequest {
 
     private Long managerId;
 
+    private String adminFullName;
+
+    private String adminEmail;
+
     private String status; // ACTIVE, INACTIVE
 }

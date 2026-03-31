@@ -38,6 +38,7 @@ const CreateClinicModal: React.FC<CreateClinicModalProps> = ({
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -80,6 +81,17 @@ const CreateClinicModal: React.FC<CreateClinicModalProps> = ({
         delete newErrors[name];
         return newErrors;
       });
+    }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, imageUrl: reader.result as string }));
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -165,6 +177,32 @@ const CreateClinicModal: React.FC<CreateClinicModalProps> = ({
 
         {/* Form Content */}
         <div className="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-1 bg-white dark:bg-slate-900">
+
+          {/* Avatar Section */}
+          <div className="flex flex-col items-center mb-8 relative group">
+            <div className="relative w-28 h-28 rounded-2xl overflow-hidden border-4 border-white dark:border-slate-800 shadow-xl group-hover:shadow-primary/20 transition-all duration-300">
+              <img
+                src={formData.imageUrl || 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=200'}
+                alt="Clinic Avatar"
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+              <div
+                className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <span className="material-symbols-outlined text-white text-3xl">photo_camera</span>
+              </div>
+            </div>
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              accept="image/*"
+              onChange={handleImageChange}
+            />
+            <p className="text-[15px] font-bold text-slate-500 mt-3">Ảnh đại diện phòng khám</p>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-stretch">
             {/* Left: Clinic Info */}
             <div className="flex flex-col space-y-4">

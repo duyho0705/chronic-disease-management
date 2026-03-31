@@ -15,6 +15,7 @@ public class AdminClinicResponse {
     private String phone;
     private String imageUrl;
     private String managerName;
+    private String managerEmail;
     private int doctorCount;
     private int patientCount;
     private int highRiskPatientCount;

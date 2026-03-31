@@ -27,6 +27,7 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
   });
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen && clinic) {
@@ -68,12 +69,23 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
     }
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, imageUrl: reader.result as string }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const validateForm = () => {
     const errors: Record<string, string> = {};
     if (!formData.name) errors.name = 'Vui lòng nhập tên phòng khám';
     if (!formData.address) errors.address = 'Vui lòng nhập địa chỉ';
     if (!formData.phone) errors.phone = 'Vui lòng nhập số điện thoại';
-    
+
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -100,21 +112,45 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
             </div>
             <div>
               <h2 className="text-[20px] font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">Chỉnh sửa phòng khám</h2>
-              <p className="text-[12px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Mã hệ thống: {clinic?.id}</p>
             </div>
           </div>
         </div>
 
         {/* Form Content */}
         <div className="p-6 md:p-8 space-y-8 overflow-y-auto custom-scrollbar flex-1 bg-white dark:bg-slate-900 text-left">
-          
+
+          {/* Avatar Section */}
+          <div className="flex flex-col items-center mb-8 relative group">
+            <div className="relative w-28 h-28 rounded-2xl overflow-hidden border-4 border-white dark:border-slate-800 shadow-xl group-hover:shadow-amber-500/20 transition-all duration-300">
+              <img
+                src={formData.imageUrl || 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=200'}
+                alt="Clinic Avatar"
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+              <div
+                className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <span className="material-symbols-outlined text-white text-3xl">photo_camera</span>
+              </div>
+            </div>
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              accept="image/*"
+              onChange={handleImageChange}
+            />
+            <p className="text-[16px] font-bold text-slate-500 mt-3">Ảnh đại diện phòng khám</p>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
             {/* Left: Clinic Info */}
             <div className="space-y-6">
               <div className="flex items-center gap-2 pb-2 border-primary/10 pl-1 border-l-4 border-l-amber-500">
                 <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-sm tracking-wide">Thông tin cơ sở</h3>
               </div>
-              
+
               <div className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-[13px] font-bold text-slate-500 ml-1">Tên phòng khám</label>
@@ -128,7 +164,7 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-[13px] font-bold text-slate-500 ml-1">Mã định danh (Read-only)</label>
+                    <label className="text-[13px] font-bold text-slate-500 ml-1">Mã định danh</label>
                     <input
                       readOnly
                       value={formData.clinicCode}
@@ -166,47 +202,46 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
               </div>
 
               <div className="p-6 bg-slate-50/50 dark:bg-slate-800/30 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-6">
-                 <div className="space-y-2">
-                    <label className="text-[13px] font-bold text-slate-500 ml-1">Trạng thái hoạt động</label>
-                    <div className="flex gap-2">
-                        {['ACTIVE', 'INACTIVE'].map((status) => (
-                            <button
-                                key={status}
-                                type="button"
-                                onClick={() => setFormData({...formData, status})}
-                                className={`flex-1 py-2.5 rounded-xl border-2 font-bold text-sm transition-all ${
-                                    formData.status === status 
-                                    ? status === 'ACTIVE' 
-                                        ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20' 
-                                        : 'bg-red-500 border-red-500 text-white shadow-lg shadow-red-500/20'
-                                    : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-400 hover:border-slate-200'
-                                }`}
-                            >
-                                {status === 'ACTIVE' ? 'Hoạt động' : 'Tạm dừng'}
-                            </button>
-                        ))}
-                    </div>
+                <div className="space-y-2">
+                  <label className="text-[13px] font-bold text-slate-500 ml-1">Trạng thái hoạt động</label>
+                  <div className="flex gap-2">
+                    {['ACTIVE', 'INACTIVE'].map((status) => (
+                      <button
+                        key={status}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, status })}
+                        className={`flex-1 py-2.5 rounded-xl border-2 font-bold text-sm transition-all ${formData.status === status
+                          ? status === 'ACTIVE'
+                            ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20'
+                            : 'bg-red-500 border-red-500 text-white shadow-lg shadow-red-500/20'
+                          : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-400 hover:border-slate-200'
+                          }`}
+                      >
+                        {status === 'ACTIVE' ? 'Hoạt động' : 'Tạm dừng'}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="space-y-4 pt-2">
-                    <div className="space-y-1.5">
-                        <label className="text-[13px] font-bold text-slate-500 ml-1">Email quản lý (Primary)</label>
-                        <input
-                            name="adminEmail"
-                            value={formData.adminEmail}
-                            onChange={handleChange}
-                            className="w-full px-4 py-2.5 rounded-xl border-2 border-slate-50 dark:border-slate-800 bg-white dark:bg-slate-900 text-[14px] font-medium transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm"
-                        />
-                    </div>
-                    <div className="space-y-1.5">
-                        <label className="text-[13px] font-bold text-slate-500 ml-1">Họ tên quản lý</label>
-                        <input
-                            name="adminFullName"
-                            value={formData.adminFullName}
-                            onChange={handleChange}
-                            className="w-full px-4 py-2.5 rounded-xl border-2 border-slate-50 dark:border-slate-800 bg-white dark:bg-slate-900 text-[14px] font-medium transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm"
-                        />
-                    </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[13px] font-bold text-slate-500 ml-1">Email phòng khám</label>
+                    <input
+                      name="adminEmail"
+                      value={formData.adminEmail}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2.5 rounded-xl border-2 border-slate-50 dark:border-slate-800 bg-white dark:bg-slate-900 text-[14px] font-medium transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[13px] font-bold text-slate-500 ml-1">Người quản lý phòng khám</label>
+                    <input
+                      name="adminFullName"
+                      value={formData.adminFullName}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2.5 rounded-xl border-2 border-slate-50 dark:border-slate-800 bg-white dark:bg-slate-900 text-[14px] font-medium transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

@@ -1,9 +1,16 @@
 import { useState } from 'react';
 import AdminLayout from '../layouts/AdminLayout';
 import Dropdown from '../components/ui/Dropdown';
+import CreateClinicModal from '../features/admin/components/CreateClinicModal';
+import Toast from '../components/ui/Toast';
+import { clinicApi } from '../api/clinic';
 
 export default function AdminDashboard() {
   const [selectedChartMetric, setSelectedChartMetric] = useState('Lượng bệnh nhân');
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastTitle, setToastTitle] = useState('');
 
   const handleExportExcel = () => {
     // Detailed Clinic Data for Export
@@ -71,9 +78,59 @@ export default function AdminDashboard() {
     document.body.removeChild(link);
   };
 
+  const handleCreateClinic = async (data: any) => {
+    setIsSaving(true);
+    try {
+      // Call Real API
+      await clinicApi.createClinic({
+        name: data.name,
+        address: data.address,
+        phone: data.phone,
+        clinicCode: data.clinicCode,
+        adminFullName: data.adminFullName,
+        adminEmail: data.adminEmail,
+        adminPassword: data.adminPassword,
+        imageUrl: data.imageUrl
+      });
+
+      setToastTitle(`Đã khởi tạo hệ thống cho ${data.name} thành công!`);
+    } catch (error) {
+      console.error('Failed to create clinic:', error);
+      setToastTitle(`Lỗi tạo phòng khám (Chế độ Mock được kích hoạt)`);
+    } finally {
+      setIsSaving(false);
+      setIsCreateModalOpen(false);
+      setShowToast(true);
+    }
+  };
+
   return (
     <AdminLayout>
-      <div className="p-4 md:p-8 space-y-8 animate-in fade-in duration-700 font-display">
+      <div className="p-4 md:p-8 space-y-8 animate-in fade-in duration-700 font-display text-left">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Tổng quan hệ thống</h2>
+            <p className="text-[16px] text-slate-500 mt-1 font-medium italic-none">Theo dõi hiệu suất vận hành toàn mạng lưới Vitality</p>
+          </div>
+          <div className="flex gap-3">
+             <button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="flex items-center gap-2 px-6 py-2.5 bg-emerald-500 text-white rounded-xl font-bold transition-all text-[14px] shadow-lg shadow-emerald-500/20 active:scale-95"
+            >
+              <span className="material-symbols-outlined text-xl">add</span>
+              Thêm phòng khám
+            </button>
+            <button
+              onClick={handleExportExcel}
+              className="flex items-center gap-2 px-6 py-2.5 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-xl font-bold transition-all text-[14px] border border-primary/10 active:scale-95 shadow-sm"
+            >
+              <span className="material-symbols-outlined text-xl">ios_share</span>
+              Xuất báo cáo
+            </button>
+          </div>
+        </div>
+
         {/* Summary Cards Bento Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Card 1 */}
@@ -373,6 +430,19 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
+
+      <CreateClinicModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        isSaving={isSaving}
+        onSave={handleCreateClinic}
+      />
+
+      <Toast
+        show={showToast}
+        title={toastTitle}
+        onClose={() => setShowToast(false)}
+      />
     </AdminLayout>
   );
 }

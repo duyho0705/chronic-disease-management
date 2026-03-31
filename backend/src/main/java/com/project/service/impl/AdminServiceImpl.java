@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -136,22 +135,51 @@ public class AdminServiceImpl implements AdminService {
     @Override
     @Transactional
     public AdminClinicResponse createClinic(CreateClinicRequest request) {
+        // Validate clinic code uniqueness
+        if (clinicRepository.findByClinicCode(request.getClinicCode()).isPresent()) {
+            throw new RuntimeException("Mã phòng khám [" + request.getClinicCode() + "] đã tồn tại trên hệ thống.");
+        }
+
+        // Validate manager email uniqueness
+        if (userRepository.findByEmail(request.getAdminEmail()).isPresent()) {
+            throw new RuntimeException("Email [" + request.getAdminEmail() + "] đã được đăng ký bởi một người dùng khác.");
+        }
+
+        // 1. Create Clinic Entity (temporarily without managerId)
         Clinic clinic = Clinic.builder()
-                .clinicCode(generateClinicCode())
+                .clinicCode(request.getClinicCode())
                 .name(request.getName())
                 .address(request.getAddress())
                 .phone(request.getPhone())
                 .imageUrl(request.getImageUrl())
-                .managerId(request.getManagerId())
                 .status("ACTIVE")
                 .doctorCount(0)
                 .patientCount(0)
                 .highRiskPatientCount(0)
                 .build();
 
-        Clinic saved = clinicRepository.save(clinic);
-        log.info("Created new clinic: {} ({})", saved.getName(), saved.getClinicCode());
-        return mapClinicToResponse(saved);
+        Clinic savedClinic = clinicRepository.save(clinic);
+
+        // 2. Create Manager User Entity
+        User manager = User.builder()
+                .fullName(request.getAdminFullName())
+                .email(request.getAdminEmail())
+                .password(passwordEncoder.encode(request.getAdminPassword()))
+                .role("CLINIC_MANAGER")
+                .clinicId(savedClinic.getId())
+                .status("ACTIVE")
+                .build();
+
+        User savedManager = userRepository.save(manager);
+
+        // 3. Link Manager ID back to Clinic
+        savedClinic.setManagerId(savedManager.getId());
+        clinicRepository.save(savedClinic);
+
+        log.info("Successfully created clinic: {} ({}) and assigned manager: {}", 
+                savedClinic.getName(), savedClinic.getClinicCode(), savedManager.getEmail());
+
+        return mapClinicToResponse(savedClinic);
     }
 
     @Override
@@ -166,6 +194,16 @@ public class AdminServiceImpl implements AdminService {
         if (request.getImageUrl() != null) clinic.setImageUrl(request.getImageUrl());
         if (request.getManagerId() != null) clinic.setManagerId(request.getManagerId());
         if (request.getStatus() != null) clinic.setStatus(request.getStatus());
+        
+        // Update Manager User if admin info provided
+        if (clinic.getManagerId() != null && (request.getAdminFullName() != null || request.getAdminEmail() != null)) {
+            userRepository.findById(clinic.getManagerId()).ifPresent(manager -> {
+                if (request.getAdminFullName() != null) manager.setFullName(request.getAdminFullName());
+                if (request.getAdminEmail() != null) manager.setEmail(request.getAdminEmail());
+                userRepository.save(manager);
+                log.info("Updated manager details for managerId: {}", manager.getId());
+            });
+        }
 
         Clinic saved = clinicRepository.save(clinic);
         log.info("Updated clinic: {} (ID: {})", saved.getName(), saved.getId());
@@ -338,10 +376,13 @@ public class AdminServiceImpl implements AdminService {
 
     private AdminClinicResponse mapClinicToResponse(Clinic clinic) {
         String managerName = null;
+        String managerEmail = null;
         if (clinic.getManagerId() != null) {
-            managerName = userRepository.findById(clinic.getManagerId())
-                    .map(User::getFullName)
-                    .orElse(null);
+            User manager = userRepository.findById(clinic.getManagerId()).orElse(null);
+            if (manager != null) {
+                managerName = manager.getFullName();
+                managerEmail = manager.getEmail();
+            }
         }
 
         return AdminClinicResponse.builder()
@@ -352,10 +393,11 @@ public class AdminServiceImpl implements AdminService {
                 .phone(clinic.getPhone())
                 .imageUrl(clinic.getImageUrl())
                 .managerName(managerName)
+                .managerEmail(managerEmail)
                 .doctorCount(clinic.getDoctorCount())
                 .patientCount(clinic.getPatientCount())
                 .highRiskPatientCount(clinic.getHighRiskPatientCount())
-                .status(clinic.getStatus().equals("ACTIVE") ? "Hoạt động" : "Ngưng hoạt động")
+                .status(clinic.getStatus())
                 .createdAt(clinic.getCreatedAt())
                 .build();
     }
@@ -390,9 +432,5 @@ public class AdminServiceImpl implements AdminService {
             case "PATIENT" -> "Bệnh nhân";
             default -> role;
         };
-    }
-
-    private String generateClinicCode() {
-        return "CL-" + UUID.randomUUID().toString().substring(0, 6).toUpperCase();
     }
 }
