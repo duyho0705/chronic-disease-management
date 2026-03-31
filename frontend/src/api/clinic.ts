@@ -11,6 +11,11 @@ export const clinicApi = {
     return response.data;
   },
 
+  getClinicStats: async () => {
+    const response = await axiosInstance.get('/v1/admin/clinics/stats');
+    return response.data;
+  },
+
   updateClinic: async (id: string, clinicData: any) => {
     const response = await axiosInstance.put(`/v1/admin/clinics/${id}`, clinicData);
     return response.data;

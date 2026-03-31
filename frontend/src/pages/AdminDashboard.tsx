@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AdminLayout from '../layouts/AdminLayout';
 import Dropdown from '../components/ui/Dropdown';
 import CreateClinicModal from '../features/admin/components/CreateClinicModal';
@@ -11,6 +11,25 @@ export default function AdminDashboard() {
   const [isSaving, setIsSaving] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastTitle, setToastTitle] = useState('');
+  const [stats, setStats] = useState<any>(null);
+  const [clinics, setClinics] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      const [statsRes, clinicsRes] = await Promise.all([
+        clinicApi.getClinicStats(),
+        clinicApi.getClinics({ size: 5 }) // Get latest 5
+      ]);
+      setStats(statsRes.data);
+      setClinics(clinicsRes.data.content);
+    } catch (error) {
+      console.error('Failed to fetch dashboard data:', error);
+    }
+  };
 
   const handleExportExcel = () => {
     // Detailed Clinic Data for Export
@@ -139,10 +158,10 @@ export default function AdminDashboard() {
               <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl flex items-center justify-center text-emerald-600">
                 <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>groups</span>
               </div>
-              <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">+12.5%</span>
+              <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">+0%</span>
             </div>
             <div className="mt-4">
-              <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">24,582</h3>
+              <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{stats?.totalPatients || 0}</h3>
               <p className="text-slate-500 text-[15px] font-medium mt-1 font-display">Tổng số bệnh nhân</p>
             </div>
           </div>
@@ -156,7 +175,7 @@ export default function AdminDashboard() {
               <span className="text-[11px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-lg uppercase tracking-wider">Ổn định</span>
             </div>
             <div className="mt-4">
-              <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">42</h3>
+              <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{stats?.activeClinics || 0}</h3>
               <p className="text-slate-500 text-[15px] font-medium mt-1 font-display">Phòng khám hoạt động</p>
             </div>
           </div>
@@ -167,10 +186,10 @@ export default function AdminDashboard() {
               <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl flex items-center justify-center text-indigo-600">
                 <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>stethoscope</span>
               </div>
-              <span className="text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg">+4 mới</span>
+              <span className="text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg">+0 mới</span>
             </div>
             <div className="mt-4">
-              <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">186</h3>
+              <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{stats?.totalDoctors || 0}</h3>
               <p className="text-slate-500 text-[15px] font-medium mt-1 font-display">Đội ngũ Bác sĩ</p>
             </div>
           </div>
@@ -181,10 +200,10 @@ export default function AdminDashboard() {
               <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center text-red-600">
                 <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>warning</span>
               </div>
-              <span className="px-2 py-1 bg-red-500 text-white text-[10px] font-bold rounded-full uppercase tracking-wider">Cần xử lý</span>
+              <span className="px-2 py-1 bg-red-500 text-white text-[10px] font-bold rounded-full uppercase tracking-wider">Theo dõi</span>
             </div>
             <div className="mt-4">
-              <h3 className="text-3xl font-black text-red-600 tracking-tight">14</h3>
+              <h3 className="text-3xl font-black text-red-600 tracking-tight">{stats?.highRiskPatients || 0}</h3>
               <p className="text-slate-500 text-[15px] font-medium mt-1 font-display">Cảnh báo rủi ro cao</p>
             </div>
           </div>
@@ -192,8 +211,8 @@ export default function AdminDashboard() {
 
         {/* Main Layout Section: Chart and Activity */}
         <div className="grid grid-cols-12 gap-8">
-          {/* Line Chart Section */}
-          <div className="col-span-12 lg:col-span-8 bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm relative group/chart overflow-hidden">
+          {/* Chart Section (Placeholder for real charts) */}
+          <div className="col-span-12 lg:col-span-8 bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm relative group/chart overflow-hidden text-left">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
               <div>
                 <h2 className="text-[19px] font-bold text-slate-900 dark:text-white tracking-tight">Thống kê vận hành hệ thống</h2>
@@ -211,7 +230,6 @@ export default function AdminDashboard() {
 
             {/* Visual Chart with Dots and Smooth Line */}
             <div className="h-[300px] w-full relative">
-
               <svg className="w-full h-full relative z-10" preserveAspectRatio="none" viewBox="0 0 800 240">
                 <defs>
                   <linearGradient id="adminChartGradient" x1="0%" x2="0%" y1="0%" y2="100%">
@@ -219,212 +237,88 @@ export default function AdminDashboard() {
                     <stop offset="100%" style={{ stopColor: '#3bb9f3', stopOpacity: 0 }}></stop>
                   </linearGradient>
                 </defs>
-                {/* Area under curve */}
-                <path
-                  d="M0,180 Q60,165 120,195 T240,150 T360,165 T480,120 T600,135 T720,105 T800,85 L800,240 L0,240 Z"
-                  fill="url(#adminChartGradient)"
-                />
-                {/* Smooth line */}
-                <path
-                  d="M0,180 Q60,165 120,195 T240,150 T360,165 T480,120 T600,135 T720,105 T800,85"
-                  fill="none"
-                  stroke="#3bb9f3"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                />
-                {/* Dots on points */}
+                <path d="M0,180 Q60,165 120,195 T240,150 T360,165 T480,120 T600,135 T720,105 T800,85 L800,240 L0,240 Z" fill="url(#adminChartGradient)" />
+                <path d="M0,180 Q60,165 120,195 T240,150 T360,165 T480,120 T600,135 T720,105 T800,85" fill="none" stroke="#3bb9f3" strokeWidth="4" strokeLinecap="round" />
                 {[
                   { x: 120, y: 195 }, { x: 240, y: 150 }, { x: 360, y: 165 },
                   { x: 480, y: 120 }, { x: 600, y: 135 }, { x: 720, y: 105 }, { x: 800, y: 85 }
                 ].map((pt, i) => (
-                  <circle
-                    key={i}
-                    cx={pt.x}
-                    cy={pt.y}
-                    r="6"
-                    fill="#3bb9f3"
-                    stroke="white"
-                    strokeWidth="3"
-                    className="drop-shadow-sm transition-transform hover:scale-125"
-                  />
+                  <circle key={i} cx={pt.x} cy={pt.y} r="6" fill="#3bb9f3" stroke="white" strokeWidth="3" className="drop-shadow-sm transition-transform hover:scale-125" />
                 ))}
               </svg>
 
               <div className="absolute bottom-0 w-full flex justify-between px-2 text-[10px] font-extrabold text-slate-400 pt-4 uppercase tracking-[0.15em]">
-                <span>Thứ 2</span>
-                <span>Thứ 3</span>
-                <span>Thứ 4</span>
-                <span>Thứ 5</span>
-                <span>Thứ 6</span>
-                <span>Thứ 7</span>
-                <span>CN</span>
+                <span>Thứ 2</span><span>Thứ 3</span><span>Thứ 4</span><span>Thứ 5</span><span>Thứ 6</span><span>Thứ 7</span><span>CN</span>
               </div>
             </div>
           </div>
 
-          {/* Recent Activity Section */}
-          <div className="col-span-12 lg:col-span-4 bg-slate-50 dark:bg-slate-900/50 p-8 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col">
+          {/* Recent Activity (Placeholder logic) */}
+          <div className="col-span-12 lg:col-span-4 bg-slate-50 dark:bg-slate-900/50 p-8 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col text-left">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-[19px] font-bold text-slate-900 dark:text-white tracking-tight">Hoạt động hệ thống</h2>
               <span className="material-symbols-outlined text-slate-400">history</span>
             </div>
             <div className="space-y-6 flex-1">
-              {/* Activity Item 1 */}
               <div className="flex gap-4 group">
                 <div className="relative">
                   <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 z-10 relative">
                     <span className="material-symbols-outlined text-lg">security</span>
                   </div>
-                  <div className="absolute top-10 left-1/2 -translate-x-1/2 w-0.5 h-full bg-slate-200 dark:bg-slate-800 group-last:hidden"></div>
+                  <div className="absolute top-10 left-1/2 -translate-x-1/2 w-0.5 h-full bg-slate-200 dark:bg-slate-800"></div>
                 </div>
                 <div>
-                  <p className="text-[15px] font-bold text-slate-900 dark:text-white">Nâng cấp bảo mật</p>
-                  <p className="text-[14px] text-slate-500 font-medium mt-0.5 leading-relaxed">Cập nhật giao thức mã hóa cho hồ sơ bệnh án.</p>
-                  <span className="text-[13px] font-medium text-slate-400 dark:text-slate-500 mt-2 inline-block">2 giờ trước</span>
-                </div>
-              </div>
-              {/* Activity Item 2 */}
-              <div className="flex gap-4 group">
-                <div className="relative">
-                  <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 z-10 relative">
-                    <span className="material-symbols-outlined text-lg">add_business</span>
-                  </div>
-                  <div className="absolute top-10 left-1/2 -translate-x-1/2 w-0.5 h-full bg-slate-200 dark:bg-slate-800 group-last:hidden"></div>
-                </div>
-                <div>
-                  <p className="text-[15px] font-bold text-slate-900 dark:text-white">Phòng khám mới được thêm</p>
-                  <p className="text-[14px] text-slate-500 font-medium mt-0.5 leading-relaxed">Chi nhánh Sống Khỏe Quận 7 đã hoàn tất cấu hình.</p>
-                  <span className="text-[13px] font-medium text-slate-400 dark:text-slate-500 mt-2 inline-block">5 giờ trước</span>
-                </div>
-              </div>
-              {/* Activity Item 3 */}
-              <div className="flex gap-4 group">
-                <div className="relative">
-                  <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400 z-10 relative">
-                    <span className="material-symbols-outlined text-lg">sync_problem</span>
-                  </div>
-                </div>
-                <div>
-                  <p className="text-[15px] font-bold text-slate-900 dark:text-white">Lỗi đồng bộ dữ liệu</p>
-                  <p className="text-[14px] text-slate-500 font-medium mt-0.5 leading-relaxed">Phát hiện xung đột ID bệnh nhân tại Chi nhánh Thủ Đức.</p>
-                  <span className="text-[13px] font-medium text-slate-400 dark:text-slate-500 mt-2 inline-block">Hôm qua</span>
+                  <p className="text-[15px] font-bold text-slate-900 dark:text-white">Dữ liệu thực tế</p>
+                  <p className="text-[14px] text-slate-500 font-medium mt-0.5 leading-relaxed">Hệ thống chuyển sang chế độ dữ liệu thực từ Postgres.</p>
+                  <span className="text-[13px] font-medium text-slate-400 dark:text-slate-500 mt-2 inline-block">Vừa xong</span>
                 </div>
               </div>
             </div>
-            <button className="w-full mt-6 py-3 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-[13px] font-bold rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm border border-slate-100 dark:border-slate-800">Xem tất cả nhật ký</button>
           </div>
         </div>
 
         {/* Performance Table Section */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-primary/10 overflow-hidden shadow-sm font-display">
-          <div className="p-6 border-b border-primary/10 flex items-center justify-between bg-white dark:bg-slate-900">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-primary/10 overflow-hidden shadow-sm font-display text-left">
+          <div className="p-6 border-b border-primary/10 flex items-center justify-between">
             <div>
-              <h3 className="text-[19px] font-bold text-slate-900 dark:text-white">Hiệu suất các chi nhánh</h3>
-              <p className="text-[15px] text-slate-500 mt-1">Phân tích tải trọng và trạng thái vận hành</p>
-            </div>
-            <div className="flex items-center gap-4">
-              <button
-                onClick={handleExportExcel}
-                className="text-primary text-[15px] font-bold hover:underline flex items-center gap-1.5"
-              >
-                <span className="material-symbols-outlined text-[18px]">download</span>
-                Xuất báo cáo
-              </button>
+              <h3 className="text-[19px] font-bold text-slate-900 dark:text-white">Danh sách chi nhánh mới</h3>
+              <p className="text-[15px] text-slate-500 mt-1">Lấy dữ liệu trực tiếp từ các phòng khám</p>
             </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="bg-background-light dark:bg-slate-800/50">
+                <tr className="bg-slate-50/50 dark:bg-slate-800/50">
                   <th className="px-8 py-4 text-[15px] font-medium text-slate-500">Tên Phòng Khám</th>
                   <th className="px-8 py-4 text-[15px] font-medium text-slate-500">Lượng Bệnh Nhân</th>
                   <th className="px-8 py-4 text-[15px] font-medium text-slate-500 text-center">Tăng Trưởng</th>
                   <th className="px-8 py-4 text-[15px] font-medium text-slate-500 text-center">Trạng Thái</th>
-                  <th className="px-8 py-4 text-[15px] font-medium text-slate-500 text-right">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
-                {/* Row 1 */}
-                <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
-                  <td className="px-8 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                        <span className="material-symbols-outlined text-[23px]">home_health</span>
+                {clinics.map((clinic) => (
+                  <tr key={clinic.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
+                    <td className="px-8 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[#3bb9f3]">
+                          <span className="material-symbols-outlined text-[23px]">home_health</span>
+                        </div>
+                        <p className="text-sm font-bold text-slate-900 dark:text-white leading-none">{clinic.name}</p>
                       </div>
-                      <div>
-                        <p className="text-sm font-bold text-slate-900 dark:text-white leading-none">Sống Khỏe - Quận 1</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-8 py-4 whitespace-nowrap">
-                    <span className="text-sm font-black text-slate-900 dark:text-white tracking-tight">1,240</span>
-                  </td>
-                  <td className="px-8 py-4 text-center">
-                    <span className="text-sm font-bold text-primary">+8.4%</span>
-                  </td>
-                  <td className="px-8 py-4 text-center">
-                    <span className="px-3 py-1 bg-emerald-500 text-white text-[13px] font-bold rounded-full">Hoạt động</span>
-                  </td>
-                  <td className="px-8 py-4 text-right">
-                    <button className="text-slate-400 hover:text-primary transition-colors">
-                      <span className="material-symbols-outlined text-xl">chevron_right</span>
-                    </button>
-                  </td>
-                </tr>
-                {/* Row 2 */}
-                <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
-                  <td className="px-8 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                        <span className="material-symbols-outlined text-[23px]">home_health</span>
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-slate-900 dark:text-white leading-none">Sống Khỏe - Thủ Đức</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-8 py-4 whitespace-nowrap">
-                    <span className="text-sm font-black text-slate-900 dark:text-white tracking-tight">892</span>
-                  </td>
-                  <td className="px-8 py-4 text-center">
-                    <span className="text-sm font-bold text-primary">+3.2%</span>
-                  </td>
-                  <td className="px-8 py-4 text-center">
-                    <span className="px-3 py-1 bg-emerald-500 text-white text-[13px] font-bold rounded-full">Hoạt động</span>
-                  </td>
-                  <td className="px-8 py-4 text-right">
-                    <button className="text-slate-400 hover:text-primary transition-colors">
-                      <span className="material-symbols-outlined text-xl">chevron_right</span>
-                    </button>
-                  </td>
-                </tr>
-                {/* Row 3 */}
-                <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
-                  <td className="px-8 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                        <span className="material-symbols-outlined text-[23px]">home_health</span>
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-slate-900 dark:text-white leading-none">Sống Khỏe - Bình Tân</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-8 py-4 whitespace-nowrap">
-                    <span className="text-sm font-black text-slate-900 dark:text-white tracking-tight">415</span>
-                  </td>
-                  <td className="px-8 py-4 text-center">
-                    <span className="text-sm font-bold text-red-500">-1.5%</span>
-                  </td>
-                  <td className="px-8 py-4 text-center">
-                    <span className="px-3 py-1 bg-red-500 text-white text-[13px] font-bold rounded-full">Ngưng hoạt động</span>
-                  </td>
-                  <td className="px-8 py-4 text-right">
-                    <button className="text-slate-400 hover:text-primary transition-colors">
-                      <span className="material-symbols-outlined text-xl">chevron_right</span>
-                    </button>
-                  </td>
-                </tr>
+                    </td>
+                    <td className="px-8 py-4 whitespace-nowrap">
+                      <span className="text-sm font-black text-slate-900 dark:text-white tracking-tight">{clinic.patientCount || 0}</span>
+                    </td>
+                    <td className="px-8 py-4 text-center">
+                      <span className="text-sm font-bold text-[#3bb9f3]">+0%</span>
+                    </td>
+                    <td className="px-8 py-4 text-center">
+                      <span className={`px-3 py-1 text-white text-[13px] font-bold rounded-full ${clinic.status === 'ACTIVE' ? 'bg-emerald-500' : 'bg-red-500'}`}>
+                        {clinic.status === 'ACTIVE' ? 'Hoạt động' : 'Tạm dừng'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

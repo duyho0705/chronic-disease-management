@@ -247,7 +247,8 @@ public class AdminServiceImpl implements AdminService {
     @Override
     @Transactional(readOnly = true)
     public Page<AdminUserResponse> getUsers(String role, String status, Long clinicId, String keyword, Pageable pageable) {
-        Page<User> page = userRepository.findByFilters(role, status, clinicId, keyword, pageable);
+        String search = (keyword != null && !keyword.isBlank()) ? "%" + keyword.toLowerCase().trim() + "%" : null;
+        Page<User> page = userRepository.findByFilters(role, status, clinicId, search, pageable);
         return page.map(this::mapUserToResponse);
     }
 
@@ -404,10 +405,23 @@ public class AdminServiceImpl implements AdminService {
 
     private AdminUserResponse mapUserToResponse(User user) {
         String clinicName = null;
+        String clinicPhone = null;
         if (user.getClinicId() != null) {
-            clinicName = clinicRepository.findById(user.getClinicId())
-                    .map(Clinic::getName)
-                    .orElse(null);
+            clinicRepository.findById(user.getClinicId()).ifPresent(c -> {
+                // clinicName = c.getName(); // Wait, clinicName is outside
+            });
+            // Re-fetch to be safe and clear
+            Clinic clinic = clinicRepository.findById(user.getClinicId()).orElse(null);
+            if (clinic != null) {
+                clinicName = clinic.getName();
+                clinicPhone = clinic.getPhone();
+            }
+        }
+
+        String status = user.getStatus();
+        String displayStatus = "Hoạt động";
+        if (status != null) {
+            displayStatus = status.equals("ACTIVE") ? "Hoạt động" : "Ngưng hoạt động";
         }
 
         return AdminUserResponse.builder()
@@ -418,8 +432,9 @@ public class AdminServiceImpl implements AdminService {
                 .role(user.getRole())
                 .roleName(mapRoleName(user.getRole()))
                 .clinicName(clinicName)
+                .clinicPhone(clinicPhone)
                 .avatarUrl(user.getAvatarUrl())
-                .status(user.getStatus().equals("ACTIVE") ? "Hoạt động" : "Ngưng hoạt động")
+                .status(displayStatus)
                 .createdAt(user.getCreatedAt())
                 .build();
     }

@@ -107,7 +107,7 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
         {/* Modal Header */}
         <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 sticky top-0 z-20">
           <div className="flex items-center gap-3">
-            <div className="bg-amber-500/10 p-2.5 rounded-xl text-amber-500 flex items-center justify-center">
+            <div className="bg-[#3bb9f3]/10 p-2.5 rounded-xl text-[#3bb9f3] flex items-center justify-center">
               <span className="material-symbols-outlined font-bold">edit_note</span>
             </div>
             <div>
@@ -260,7 +260,7 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
           <button
             onClick={handleSubmit}
             disabled={isSaving}
-            className="px-10 py-2.5 text-sm font-extrabold text-slate-900 bg-amber-500 hover:bg-amber-600 rounded-xl transition-all shadow-xl shadow-amber-500/20 flex items-center gap-2 disabled:opacity-50"
+            className="px-10 py-2.5 text-sm font-extrabold text-white bg-[#3bb9f3] hover:bg-[#32a8dd] rounded-xl transition-all shadow-xl shadow-[#3bb9f3]/20 flex items-center gap-2 disabled:opacity-50"
             type="button"
           >
             {isSaving ? (
@@ -270,7 +270,6 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
               </>
             ) : (
               <>
-                <span className="material-symbols-outlined font-bold">save</span>
                 Cập nhật thay đổi
               </>
             )}

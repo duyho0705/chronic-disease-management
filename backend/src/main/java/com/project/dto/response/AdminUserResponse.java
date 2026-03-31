@@ -15,6 +15,7 @@ public class AdminUserResponse {
     private String role;
     private String roleName;
     private String clinicName;
+    private String clinicPhone;
     private String avatarUrl;
     private String status;
     private LocalDateTime createdAt;

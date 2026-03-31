@@ -22,7 +22,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
            "(:role IS NULL OR u.role = :role) AND " +
            "(:status IS NULL OR u.status = :status) AND " +
            "(:clinicId IS NULL OR u.clinicId = :clinicId) AND " +
-           "(:keyword IS NULL OR LOWER(u.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-           "OR LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+           "(:keyword IS NULL OR :keyword = '' OR LOWER(u.fullName) LIKE :keyword " +
+           "OR LOWER(u.email) LIKE :keyword)")
     Page<User> findByFilters(String role, String status, Long clinicId, String keyword, Pageable pageable);
 }

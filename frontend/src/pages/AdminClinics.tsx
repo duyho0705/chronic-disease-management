@@ -47,12 +47,14 @@ export default function AdminClinics() {
         adminEmail: c.managerEmail
       })));
       
-      // Basic aggregation for stats
+      // Fetch REAL stats from API
+      const statsRes = await clinicApi.getClinicStats();
+      const s = statsRes.data;
       setStats([
-        { title: 'Tổng số phòng khám', value: response.data.totalElements.toString(), change: '+0%', icon: 'apartment', color: 'primary' },
-        { title: 'Đang hoạt động', value: clinics.filter((c: any) => c.status === 'ACTIVE').length.toString(), icon: 'check_circle', color: 'emerald' },
-        { title: 'Phòng khám tạm khóa', value: clinics.filter((c: any) => c.status === 'INACTIVE').length.toString(), icon: 'lock_reset', color: 'red' },
-        { title: 'Tổng bác sĩ hệ thống', value: '156', icon: 'stethoscope', color: 'indigo' },
+        { title: 'Tổng số phòng khám', value: s.totalClinics.toString(), change: '+0%', icon: 'apartment', color: 'primary' },
+        { title: 'Đang hoạt động', value: s.activeClinics.toString(), icon: 'check_circle', color: 'emerald' },
+        { title: 'Phòng khám tạm khóa', value: s.inactiveClinics.toString(), icon: 'lock_reset', color: 'red' },
+        { title: 'Tổng bác sĩ hệ thống', value: s.totalDoctors.toString(), icon: 'stethoscope', color: 'indigo' },
       ]);
     } catch (error) {
       console.error('Failed to fetch clinics:', error);
@@ -271,7 +273,7 @@ export default function AdminClinics() {
                       <button
                         key={item.id}
                         onClick={() => { setStatusFilter(item.id as any); setIsFilterDropdownOpen(false); }}
-                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${statusFilter === item.id
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${statusFilter === item.id
                           ? 'bg-primary/10 text-primary'
                           : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
                           }`}
@@ -354,11 +356,11 @@ export default function AdminClinics() {
                         <button
                           onClick={() => handleLockClinic(clinic)}
                           className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-300 ${clinic.status === 'Hoạt động'
-                            ? 'bg-red-500/5 text-red-500 hover:bg-red-500/10'
-                            : 'bg-emerald-500/5 text-emerald-500 hover:bg-emerald-500/10'}`}
-                          title={clinic.status === 'Hoạt động' ? 'Khóa' : 'Mở khóa'}
+                            ? 'bg-blue-500/5 text-blue-500 hover:bg-blue-500/10'
+                            : 'bg-red-500/5 text-red-500 hover:bg-red-500/10'}`}
+                          title={clinic.status === 'Hoạt động' ? 'Khóa phòng khám' : 'Mở khóa phòng khám'}
                         >
-                          <span className="material-symbols-outlined text-[18px]">{clinic.status === 'Hoạt động' ? 'lock' : 'lock_open'}</span>
+                          <span className="material-symbols-outlined text-[18px]">{clinic.status === 'Hoạt động' ? 'lock_open' : 'lock'}</span>
                         </button>
                         <button
                           onClick={() => { setSelectedClinic(clinic); setIsDetailsModalOpen(true); }}
@@ -380,9 +382,7 @@ export default function AdminClinics() {
               <button className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-white dark:hover:bg-slate-700 transition-colors">
                 <span className="material-symbols-outlined text-sm">chevron_left</span>
               </button>
-              <button className="w-8 h-8 rounded-lg flex items-center justify-center bg-primary text-white font-bold text-xs ring-2 ring-primary/20">1</button>
-              <button className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-600 dark:text-slate-400 font-bold text-xs hover:bg-white dark:hover:bg-slate-700">2</button>
-              <button className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-600 dark:text-slate-400 font-bold text-xs hover:bg-white dark:hover:bg-slate-700">3</button>
+              <button className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#3bb9f3] text-white font-bold text-xs ring-2 ring-[#3bb9f3]/20">1</button>
               <button className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-white dark:hover:bg-slate-700 transition-colors">
                 <span className="material-symbols-outlined text-sm">chevron_right</span>
               </button>

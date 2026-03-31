@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AdminLayout from '../layouts/AdminLayout';
 import Dropdown from '../components/ui/Dropdown';
 import CreateUserModal from '../features/admin/components/CreateUserModal';
 import EditUserModal from '../features/admin/components/EditUserModal';
 import Toast from '../components/ui/Toast';
+import { clinicApi } from '../api/clinic';
+import { userApi } from '../api/user';
 
 export default function AdminUsers() {
   const [selectedRole, setSelectedRole] = useState('Tất cả vai trò');
@@ -16,15 +18,94 @@ export default function AdminUsers() {
   const [showToast, setShowToast] = useState(false);
   const [toastTitle, setToastTitle] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [clinics, setClinics] = useState<any[]>([]);
+  const [userList, setUserList] = useState<any[]>([]);
+  const [userStats, setUserStats] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [pagination, setPagination] = useState({ page: 0, size: 10, total: 0 });
 
-  const [userList, setUserList] = useState([
-    { id: 'SK-202401', name: 'Nguyễn Văn An', email: 'an.nguyen@songkhoe.vn', phone: '0901234567', role: 'Bác sĩ', clinic: 'Vitality Quận 1', date: '12/05/2024', status: 'Hoạt động', color: 'blue', avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBwvB0WwbnVoeuJkIw7NRUsoXlEvtFtZR8QA9sXidmwtenN6gmtKZO5gIurtfirDUCksL7br7n-DB_u7J7PJlITPKcoSwXb2kvSJUHtIubJKV01CyxPPmL9EtHHYSYUr64V9KpS1G4MdVozFkbuNuFaZeYMd1wKzVWDB6LFZ2YjGoIHHwSxsTXFRHxpBAbCkzaQUFfjRDpiIQihMFfxnF7ac2zsSP0NqIIOea1DL8JQKX_SOyXO2GdPCrVG0o8owhoM106qX3jeDek' },
-    { id: 'SK-202405', name: 'Trần Thị Bình', email: 'binh.tran@songkhoe.vn', phone: '0918889999', role: 'Quản lý phòng khám', clinic: 'Thảo Điền', date: '10/05/2024', status: 'Hoạt động', color: 'amber', avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD5O8MGbSxtvPubnHb89An3LT3eBFH5swdYtgWJxvGSmG7_8jEtjrU3aDEf9yyHGXNqgkIXWEmRxXwXumzOdCETmDZ7ZtQj2AuinHLnAx5wM9XClAJj0a-QarnY3ewtAelNxGruHaRvmylmcJxqmRBTEOtGmgH0QKuT83Tqp7yW9_ie3Yn41wrcYF7hgGAfVHsgw0V29MBMwrZsQrzaX08ZI95ZlvNjpupttsAivb60dIz38orC-JDEnKI8deTA7WS4vjyYd4wq99Q' },
-    { id: 'SK-202398', name: 'Lê Văn Cường', email: 'cuong.le@gmail.com', phone: '0934445555', role: 'Bệnh nhân', clinic: 'Quận 7', date: '28/12/2023', status: 'Ngưng hoạt động', color: 'slate', avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBKVWeZkKcLGygF5LAwka1yLtX0zhmFm18XZz750oHOVwvNCLOJiJ9RjX3hUpeKad7QhM8BdzYSc5yuHbca4ihXZzPoQvMZaWbPELY1EwyGpDSoL2JmjpSikfciT6HnsJ35mPz0LU4nFhAUTgSBEh4GztHP-DpLGNAfAi9Nau2LvzwIT_NeT1OPv94px9nnPFAFg5UmSgu_EsJrWIwzlAezQSfGxvBOZFm4HKyfxFtnXz1znZYhbqUu9iDGsZQyjgdJ0nFa9zZq6TM' },
-    { id: 'SK-202412', name: 'Phạm Minh Đức', email: 'duc.pham@songkhoe.vn', phone: '0983654321', role: 'Quản trị viên', clinic: 'Hệ thống chính', date: '15/05/2024', status: 'Hoạt động', color: 'primary', avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAhY6l6FKOkVALT_c64u73RTtf4-MnTe9fNirXAqIcMy_lqum8VGh8eQsdvX_yoDAVdMcr-2CgHkzsnJ_LzDNq4hYG7PwXyyrDTdtxLo5ye39FhMB_510ZQrnQuw9TIlq3QNIeRmie7x7u66rHjY6k_HTLeKBzxAlQIUIk9pkZ5HO4PN6YL-JG3uESihBhdIs9J31_PM4hx3oRxx635_5klQWxChBB5pPbfoTrFm3ypmbbeDVZx0dbpcDWzImqYGrdAr9RTnIaC314' }
-  ]);
+  useEffect(() => {
+    fetchClinics();
+    fetchStats();
+  }, []);
 
-  const availableClinics = ['Tất cả cơ sở', 'Hệ thống chính', 'Vitality Quận 1', 'Thảo Điền', 'Quận 7', 'Mediscan Central Lab'];
+  useEffect(() => {
+    fetchUsers();
+  }, [selectedRole, selectedClinic, selectedStatus, searchTerm, pagination.page]);
+
+  const fetchClinics = async () => {
+    try {
+      const res = await clinicApi.getClinics({ size: 100 });
+      setClinics(res.data.content || []);
+    } catch (error) {
+      console.error('Failed to fetch clinics:', error);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const res = await userApi.getUserStats();
+      setUserStats(res.data);
+    } catch (error) {
+      console.error('Failed to fetch user stats:', error);
+    }
+  };
+
+  const fetchUsers = async () => {
+    setIsLoading(true);
+    try {
+      const roleMapping: any = {
+        'Quản trị viên': 'ADMIN',
+        'Bác sĩ': 'DOCTOR',
+        'Quản lý phòng khám': 'CLINIC_MANAGER',
+        'Bệnh nhân': 'PATIENT'
+      };
+
+      const statusMapping: any = {
+        'Hoạt động': 'ACTIVE',
+        'Đã khóa': 'INACTIVE'
+      };
+
+      const selectedClinicObj = clinics.find(c => c.name === selectedClinic);
+
+      const params = {
+        role: selectedRole !== 'Tất cả vai trò' ? roleMapping[selectedRole] : null,
+        status: selectedStatus !== 'Tất cả trạng thái' ? statusMapping[selectedStatus] : null,
+        clinicId: selectedClinicObj ? selectedClinicObj.id : null,
+        keyword: searchTerm || null,
+        page: pagination.page,
+        size: pagination.size
+      };
+
+      const res = await userApi.getUsers(params);
+      if (res && res.data) {
+        // Map backend data to local structure
+        const mappedUsers = (res.data.content || []).map((u: any) => ({
+          id: u.id,
+          name: u.fullName,
+          email: u.email,
+          phone: u.phone || '--',
+          role: u.roleName,
+          clinic: u.clinicName || 'Hệ thống chính',
+          clinicPhone: u.clinicPhone,
+          date: new Date(u.createdAt).toLocaleDateString('vi-VN'),
+          status: u.status, // Managed by backend as "Hoạt động" or "Ngưng hoạt động"
+          avatar: u.avatarUrl || `https://i.pravatar.cc/150?u=${u.email}`,
+          rawRole: u.role,
+          rawStatus: u.status === 'Hoạt động' ? 'ACTIVE' : 'INACTIVE'
+        }));
+        setUserList(mappedUsers);
+        setPagination(prev => ({ ...prev, total: res.data.totalElements || 0 }));
+      }
+    } catch (error) {
+      console.error('Failed to fetch users:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const clinicOptions = clinics.map(c => c.name);
+  const filterClinicOptions = ['Tất cả cơ sở', ...clinicOptions];
 
   const handleExport = () => {
     const today = new Date().toLocaleDateString('vi-VN');
@@ -32,10 +113,6 @@ export default function AdminUsers() {
       <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
       <head>
         <meta charset="utf-8" />
-        <style>
-          th { background: #3bb9f3; color: white; font-weight: bold; border: 0.5pt solid #ccc; }
-          td { border: 0.5pt solid #ccc; mso-number-format:"\\@"; }
-        </style>
       </head>
       <body>
         <h3>DANH SÁCH NGƯỜI DÙNG HỆ THỐNG - ${today}</h3>
@@ -81,66 +158,52 @@ export default function AdminUsers() {
     document.body.removeChild(link);
   };
 
-  const handleCreateUser = async (data: any) => {
+  const handleCreateUser = async (apiData: any) => {
     setIsSaving(true);
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    const newUser = {
-      id: `SK-${new Date().getFullYear()}${Math.floor(Math.random() * 900) + 100}`,
-      name: data.name,
-      email: data.email,
-      phone: data.phone,
-      role: data.role,
-      clinic: data.clinic,
-      date: new Date().toLocaleDateString('vi-VN'),
-      status: 'Hoạt động',
-      color: 'primary',
-      avatar: 'https://i.pravatar.cc/150?u=' + data.email
-    };
-    setUserList([newUser, ...userList]);
-    setIsSaving(false);
-    setIsCreateModalOpen(false);
-    setToastTitle(`Tài khoản ${data.name} đã được khởi tạo!`);
-    setShowToast(true);
+    try {
+      await userApi.createUser(apiData);
+      setIsCreateModalOpen(false);
+      setToastTitle(`Tài khoản ${apiData.fullName} đã được khởi tạo!`);
+      setShowToast(true);
+      fetchUsers();
+      fetchStats();
+    } catch (error: any) {
+      console.error('Failed to create user:', error);
+      alert('Không thể tạo tài khoản: ' + (error.response?.data?.message || 'Có lỗi xảy ra'));
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleEditUser = async (data: any) => {
     setIsSaving(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setUserList(userList.map(u => u.id === data.id ? {
-      ...u,
-      name: data.name,
-      email: data.email,
-      phone: data.phone,
-      role: data.role,
-      clinic: data.clinic,
-      status: data.status === 'ACTIVE' ? 'Hoạt động' : 'Ngưng hoạt động'
-    } : u));
-    setIsSaving(false);
-    setIsEditModalOpen(false);
-    setToastTitle(`Cập nhật tài khoản ${data.name} thành công!`);
-    setShowToast(true);
+    try {
+      await userApi.updateUser(selectedUser.id, data);
+      setIsEditModalOpen(false);
+      setToastTitle(`Cập nhật tài khoản ${data.fullName} thành công!`);
+      setShowToast(true);
+      fetchUsers();
+    } catch (error: any) {
+      console.error('Failed to update user:', error);
+      alert('Lỗi cập nhật: ' + (error.response?.data?.message || 'Có lỗi xảy ra'));
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleLockUser = async (user: any) => {
-    const action = user.status === 'Hoạt động' ? 'khóa' : 'mở khóa';
-    const newStatus = user.status === 'Hoạt động' ? 'Ngưng hoạt động' : 'Hoạt động';
-
-    setUserList(userList.map(u => u.id === user.id ? { ...u, status: newStatus } : u));
-    setToastTitle(`Đã ${action} tài khoản ${user.name}`);
-    setShowToast(true);
+    try {
+      await userApi.toggleStatus(user.id);
+      const isCurrentlyActive = user.status === 'Hoạt động';
+      const action = isCurrentlyActive ? 'khóa' : 'mở khóa';
+      setToastTitle(`Đã ${action} tài khoản ${user.name}`);
+      setShowToast(true);
+      fetchUsers();
+      fetchStats();
+    } catch (error) {
+      console.error('Failed to toggle status:', error);
+    }
   };
-
-  const filteredUsers = userList.filter(u => {
-    const matchesSearch = u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = selectedRole === 'Tất cả vai trò' || u.role === selectedRole;
-    const matchesClinic = selectedClinic === 'Tất cả cơ sở' || u.clinic === selectedClinic;
-    const matchesStatus = selectedStatus === 'Tất cả trạng thái' ||
-      (selectedStatus === 'Hoạt động' && u.status === 'Hoạt động') ||
-      (selectedStatus === 'Đã khóa' && u.status === 'Ngưng hoạt động');
-
-    return matchesSearch && matchesRole && matchesClinic && matchesStatus;
-  });
 
   return (
     <>
@@ -172,11 +235,11 @@ export default function AdminUsers() {
           {/* Summary Bento Grid */}
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-8">
             {[
-              { label: 'Tổng người dùng', value: userList.length.toString(), icon: 'groups', color: 'primary' },
-              { label: 'Quản trị viên', value: userList.filter(u => u.role === 'Quản trị viên').length.toString(), icon: 'admin_panel_settings', color: 'slate' },
-              { label: 'Bác sĩ', value: userList.filter(u => u.role === 'Bác sĩ').length.toString(), icon: 'medical_services', color: 'blue' },
-              { label: 'Quản lý phòng khám', value: userList.filter(u => u.role === 'Quản lý phòng khám').length.toString(), icon: 'manage_accounts', color: 'amber' },
-              { label: 'Bệnh nhân', value: userList.filter(u => u.role === 'Bệnh nhân').length.toString(), icon: 'person', color: 'emerald' }
+              { label: 'Tổng người dùng', value: userStats?.totalUsers?.toString() || '0', icon: 'groups', color: 'primary' },
+              { label: 'Quản trị viên', value: userStats?.adminCount?.toString() || '0', icon: 'admin_panel_settings', color: 'slate' },
+              { label: 'Bác sĩ', value: userStats?.doctorCount?.toString() || '0', icon: 'medical_services', color: 'blue' },
+              { label: 'Quản lý phòng khám', value: userStats?.clinicManagerCount?.toString() || '0', icon: 'manage_accounts', color: 'amber' },
+              { label: 'Bệnh nhân', value: userStats?.patientCount?.toString() || '0', icon: 'person', color: 'emerald' }
             ].map((stat, idx) => (
               <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm transition-all group hover:shadow-md">
                 <div className="flex justify-between items-start mb-4">
@@ -203,7 +266,7 @@ export default function AdminUsers() {
                 <div className="relative">
                   <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
                   <input
-                    className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl pl-10 pr-4 py-2.5 text-[14px] font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none"
+                    className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl pl-10 pr-4 py-2.5 text-[14px] font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none text-slate-900 dark:text-white"
                     placeholder="Tên hoặc Email..."
                     type="text"
                     value={searchTerm}
@@ -222,7 +285,7 @@ export default function AdminUsers() {
               <div>
                 <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">Phòng khám</label>
                 <Dropdown
-                  options={availableClinics}
+                  options={filterClinicOptions}
                   value={selectedClinic}
                   onChange={setSelectedClinic}
                 />
@@ -239,7 +302,12 @@ export default function AdminUsers() {
           </div>
 
           {/* Data Table */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm border border-primary/5">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm border border-primary/5 relative">
+            {isLoading && (
+              <div className="absolute inset-0 bg-white/50 dark:bg-slate-900/50 backdrop-blur-[1px] z-10 flex items-center justify-center">
+                <div className="w-10 h-10 border-4 border-[#3bb9f3]/20 border-t-[#3bb9f3] rounded-full animate-spin"></div>
+              </div>
+            )}
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead>
@@ -254,79 +322,115 @@ export default function AdminUsers() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-primary/5">
-                  {filteredUsers.map((user, idx) => (
-                    <tr key={idx} className={`hover:bg-primary/5 transition-colors group ${user.status === 'Ngưng hoạt động' ? 'bg-slate-50/50' : ''}`}>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-full overflow-hidden shrink-0 ring-2 ring-primary/10 ${user.status === 'Ngưng hoạt động' ? 'grayscale opacity-70' : ''}`}>
-                            <img alt={user.name} className="w-full h-full object-cover" src={user.avatar} />
-                          </div>
-                          <div>
-                            <p className={`text-[16px] font-black tracking-tight truncate max-w-[150px] ${user.status === 'Ngưng hoạt động' ? 'text-slate-400' : 'text-slate-900 dark:text-white group-hover:text-primary transition-colors'}`}>
-                              {user.name}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <p className={`text-base font-bold ${user.status === 'Ngưng hoạt động' ? 'text-slate-400' : 'text-slate-700 dark:text-slate-300'}`}>{user.phone}</p>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`px-2.5 py-1 rounded-full text-[14px] font-bold tracking-tighter shadow-sm ${user.role === 'Bác sĩ' ? 'bg-blue-500 text-white' :
-                          user.role === 'Quản trị viên' ? 'bg-primary text-white' :
-                            user.role === 'Quản lý phòng khám' ? 'bg-amber-500 text-white' :
-                              'bg-slate-400 text-white'
-                          }`}>
-                          {user.role}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <p className={`text-[14px] font-extrabold ${user.status === 'Ngưng hoạt động' ? 'text-slate-400' : 'text-slate-600 dark:text-slate-400'}`}>{user.clinic}</p>
-                      </td>
-                      <td className="px-6 py-4 text-[13px] text-slate-500 font-bold">{user.date}</td>
-                      <td className="px-6 py-4">
-                        <span className={`px-4 py-1.5 rounded-full text-white text-[13px] font-black shadow-sm whitespace-nowrap inline-flex tracking-tighter ${user.status === 'Hoạt động' ? 'bg-emerald-500' : 'bg-red-500'
-                          }`}>
-                          {user.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex justify-end gap-2 transition-all">
-                          <button
-                            onClick={() => { setSelectedUser(user); setIsEditModalOpen(true); }}
-                            className="w-9 h-9 flex items-center justify-center rounded-xl bg-primary/5 text-primary hover:bg-primary/10 transition-all duration-300"
-                            title="Chỉnh sửa"
-                          >
-                            <span className="material-symbols-outlined text-[18px]">edit</span>
-                          </button>
-                          <button
-                            onClick={() => handleLockUser(user)}
-                            className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-300 ${user.status === 'Hoạt động'
-                              ? 'bg-red-500/5 text-red-500 hover:bg-red-500/10'
-                              : 'bg-emerald-500/5 text-emerald-500 hover:bg-emerald-500/10'}`}
-                            title={user.status === 'Hoạt động' ? 'Khóa' : 'Mở khóa'}
-                          >
-                            <span className="material-symbols-outlined text-[18px]">{user.status === 'Hoạt động' ? 'lock' : 'lock_open'}</span>
-                          </button>
+                  {!isLoading && userList.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="px-6 py-20 text-center">
+                        <div className="flex flex-col items-center gap-2 text-slate-400">
+                          <span className="material-symbols-outlined text-5xl">person_search</span>
+                          <p className="font-bold text-lg">Không tìm thấy người dùng phù hợp</p>
                         </div>
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    userList.map((user, idx) => {
+                      const isActive = user.status === 'Hoạt động';
+                      return (
+                        <tr key={idx} className={`hover:bg-primary/5 transition-colors group ${!isActive ? 'bg-slate-50/50' : ''}`}>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className={`w-10 h-10 rounded-full overflow-hidden shrink-0 ring-2 ring-primary/10 ${!isActive ? 'grayscale opacity-70' : ''}`}>
+                                <img alt={user.name} className="w-full h-full object-cover" src={user.avatar} />
+                              </div>
+                              <div>
+                                <p className={`text-[16px] font-black tracking-tight truncate max-w-[150px] ${!isActive ? 'text-slate-400' : 'text-slate-900 dark:text-white group-hover:text-primary transition-colors'}`}>
+                                  {user.name}
+                                </p>
+                                <p className="text-[12px] text-slate-400 font-medium truncate max-w-[150px]">{user.email}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <p className={`text-base font-bold ${!isActive ? 'text-slate-400' : 'text-slate-700 dark:text-slate-300'}`}>{user.phone}</p>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={`px-2.5 py-1 rounded-full text-[14px] font-bold tracking-tighter shadow-sm ${
+                              user.rawRole === 'DOCTOR' ? 'bg-blue-500 text-white' :
+                              user.rawRole === 'ADMIN' ? 'bg-primary text-white' :
+                              user.rawRole === 'CLINIC_MANAGER' ? 'bg-amber-500 text-white' :
+                              'bg-emerald-500 text-white'
+                            }`}>
+                              {user.role}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <p className={`text-[14px] font-extrabold leading-tight ${!isActive ? 'text-slate-400' : 'text-slate-600 dark:text-slate-400'}`}>{user.clinic}</p>
+                            {user.clinicPhone && (
+                              <p className="text-[12px] text-slate-400 font-bold mt-0.5">{user.clinicPhone}</p>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 text-[13px] text-slate-500 font-bold">{user.date}</td>
+                          <td className="px-6 py-4">
+                            <span className={`px-4 py-1.5 rounded-full text-white text-[13px] font-black shadow-sm whitespace-nowrap inline-flex tracking-tighter ${isActive ? 'bg-emerald-500' : 'bg-red-500'
+                              }`}>
+                              {user.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <div className="flex justify-end gap-2 transition-all">
+                              <button
+                                onClick={() => { setSelectedUser({ ...user, fullName: user.name }); setIsEditModalOpen(true); }}
+                                className="w-9 h-9 flex items-center justify-center rounded-xl bg-primary/5 text-primary hover:bg-primary/10 transition-all duration-300"
+                                title="Chỉnh sửa"
+                              >
+                                <span className="material-symbols-outlined text-[18px]">edit</span>
+                              </button>
+                              <button
+                                onClick={() => handleLockUser(user)}
+                                className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-300 ${isActive
+                                  ? 'bg-slate-100 text-slate-400 hover:bg-red-500/10 hover:text-red-500'
+                                  : 'bg-red-500/10 text-red-500 hover:bg-emerald-500/10 hover:text-emerald-500'}`}
+                                title={isActive ? 'Khóa' : 'Mở khóa'}
+                              >
+                                <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: isActive ? "'FILL' 0" : "'FILL' 1" }}>
+                                  {isActive ? 'lock_open' : 'lock'}
+                                </span>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
                 </tbody>
               </table>
             </div>
 
-            {/* Pagination */}
-            <div className="px-6 py-5 bg-primary/5 flex flex-col md:flex-row items-center justify-between gap-4">
-              <p className="text-[14px] font-medium text-slate-600">Hiển thị <span className="text-slate-900 font-extrabold">{filteredUsers.length}</span> / <span className="text-slate-900 font-extrabold">{userList.length}</span> tài khoản</p>
-              <div className="flex items-center gap-1">
-                <button className="p-2 rounded-lg text-slate-400 hover:bg-white hover:text-primary transition-all">
-                  <span className="material-symbols-outlined">chevron_left</span>
-                </button>
-                <button className="w-8 h-8 rounded-lg bg-primary text-white text-[13px] font-extrabold shadow-md">1</button>
-                <button className="p-2 rounded-lg text-slate-400 hover:bg-white hover:text-primary transition-all">
-                  <span className="material-symbols-outlined">chevron_right</span>
-                </button>
+            {/* Pagination Box */}
+            <div className="bg-primary/5 border-t border-primary/5 py-4">
+              <div className="px-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-1 order-2 md:order-2">
+                  <button 
+                    disabled={pagination.page === 0}
+                    onClick={() => setPagination(prev => ({...prev, page: prev.page - 1}))}
+                    className="p-2 rounded-lg text-slate-400 hover:bg-white hover:text-primary transition-all disabled:opacity-30 disabled:hover:bg-transparent"
+                  >
+                    <span className="material-symbols-outlined">chevron_left</span>
+                  </button>
+                  <button className="w-8 h-8 rounded-lg bg-primary text-white text-[13px] font-extrabold shadow-md">{pagination.page + 1}</button>
+                  <button 
+                    disabled={(pagination.page + 1) * pagination.size >= pagination.total}
+                    onClick={() => setPagination(prev => ({...prev, page: prev.page + 1}))}
+                    className="p-2 rounded-lg text-slate-400 hover:bg-white hover:text-primary transition-all disabled:opacity-30 disabled:hover:bg-transparent"
+                  >
+                    <span className="material-symbols-outlined">chevron_right</span>
+                  </button>
+                </div>
+                
+                <div className="order-3 md:order-1">
+                  <p className="text-[14px] font-medium text-slate-500">
+                    Hiển thị <span className="text-slate-900 font-black">{userList.length}</span> / <span className="text-slate-900 font-black">{pagination.total}</span> tài khoản
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -338,7 +442,7 @@ export default function AdminUsers() {
         onClose={() => setIsCreateModalOpen(false)}
         isSaving={isSaving}
         onSave={handleCreateUser}
-        availableClinics={availableClinics}
+        availableClinics={clinics}
       />
 
       <EditUserModal
@@ -347,7 +451,7 @@ export default function AdminUsers() {
         user={selectedUser}
         isSaving={isSaving}
         onSave={handleEditUser}
-        availableClinics={availableClinics}
+        availableClinics={clinics}
       />
 
       <Toast
