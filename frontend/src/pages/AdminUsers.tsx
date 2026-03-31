@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import AdminLayout from '../layouts/AdminLayout';
 import Dropdown from '../components/ui/Dropdown';
 import CreateUserModal from '../features/admin/components/CreateUserModal';
@@ -29,30 +29,8 @@ export default function AdminUsers() {
     fetchStats();
   }, []);
 
-  useEffect(() => {
-    fetchUsers();
-  }, [selectedRole, selectedClinic, selectedStatus, searchTerm, pagination.page]);
-
-  const fetchClinics = async () => {
-    try {
-      const res = await clinicApi.getClinics({ size: 100 });
-      setClinics(res.data.content || []);
-    } catch (error) {
-      console.error('Failed to fetch clinics:', error);
-    }
-  };
-
-  const fetchStats = async () => {
-    try {
-      const res = await userApi.getUserStats();
-      setUserStats(res.data);
-    } catch (error) {
-      console.error('Failed to fetch user stats:', error);
-    }
-  };
-
-  const fetchUsers = async () => {
-    setIsLoading(true);
+  const fetchUsers = useCallback(async (isSilent = false) => {
+    if (!isSilent) setIsLoading(true);
     try {
       const roleMapping: any = {
         'Quản trị viên': 'ADMIN',
@@ -79,7 +57,6 @@ export default function AdminUsers() {
 
       const res = await userApi.getUsers(params);
       if (res && res.data) {
-        // Map backend data to local structure
         const mappedUsers = (res.data.content || []).map((u: any) => ({
           id: u.id,
           name: u.fullName,
@@ -89,10 +66,9 @@ export default function AdminUsers() {
           clinic: u.clinicName || 'Hệ thống chính',
           clinicPhone: u.clinicPhone,
           date: new Date(u.createdAt).toLocaleDateString('vi-VN'),
-          status: u.status, // Managed by backend as "Hoạt động" or "Ngưng hoạt động"
+          status: u.status,
           avatar: u.avatarUrl || `https://i.pravatar.cc/150?u=${u.email}`,
           rawRole: u.role,
-          rawStatus: u.status === 'Hoạt động' ? 'ACTIVE' : 'INACTIVE'
         }));
         setUserList(mappedUsers);
         setPagination(prev => ({ ...prev, total: res.data.totalElements || 0 }));
@@ -100,7 +76,29 @@ export default function AdminUsers() {
     } catch (error) {
       console.error('Failed to fetch users:', error);
     } finally {
-      setIsLoading(false);
+      if (!isSilent) setIsLoading(false);
+    }
+  }, [selectedRole, selectedClinic, selectedStatus, searchTerm, pagination.page, pagination.size, clinics]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
+
+  const fetchClinics = async () => {
+    try {
+      const res = await clinicApi.getClinics({ size: 100 });
+      setClinics(res.data.content || []);
+    } catch (error) {
+      console.error('Failed to fetch clinics:', error);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const res = await userApi.getUserStats();
+      setUserStats(res.data);
+    } catch (error) {
+      console.error('Failed to fetch user stats:', error);
     }
   };
 
@@ -183,6 +181,7 @@ export default function AdminUsers() {
       setToastTitle(`Cập nhật tài khoản ${data.fullName} thành công!`);
       setShowToast(true);
       fetchUsers();
+      fetchStats();
     } catch (error: any) {
       console.error('Failed to update user:', error);
       alert('Lỗi cập nhật: ' + (error.response?.data?.message || 'Có lỗi xảy ra'));
@@ -192,15 +191,24 @@ export default function AdminUsers() {
   };
 
   const handleLockUser = async (user: any) => {
+    const isCurrentlyActive = user.status === 'Hoạt động';
+    const newStatusLabel = isCurrentlyActive ? 'Ngưng hoạt động' : 'Hoạt động';
+
+    // 1. Optimistic UI update (Instant)
+    setUserList(prev => prev.map(u => u.id === user.id ? { ...u, status: newStatusLabel } : u));
+
     try {
+      // 2. Secret background update
       await userApi.toggleStatus(user.id);
-      const isCurrentlyActive = user.status === 'Hoạt động';
       const action = isCurrentlyActive ? 'khóa' : 'mở khóa';
       setToastTitle(`Đã ${action} tài khoản ${user.name}`);
       setShowToast(true);
-      fetchUsers();
+
+      // 3. Silent sync (Update statistics quietly)
       fetchStats();
     } catch (error) {
+      // Revert if error occurs
+      setUserList(prev => prev.map(u => u.id === user.id ? { ...u, status: user.status } : u));
       console.error('Failed to toggle status:', error);
     }
   };
@@ -305,7 +313,7 @@ export default function AdminUsers() {
           <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm border border-primary/5 relative">
             {isLoading && (
               <div className="absolute inset-0 bg-white/50 dark:bg-slate-900/50 backdrop-blur-[1px] z-10 flex items-center justify-center">
-                <div className="w-10 h-10 border-4 border-[#3bb9f3]/20 border-t-[#3bb9f3] rounded-full animate-spin"></div>
+                <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
               </div>
             )}
             <div className="overflow-x-auto">
@@ -335,14 +343,14 @@ export default function AdminUsers() {
                     userList.map((user, idx) => {
                       const isActive = user.status === 'Hoạt động';
                       return (
-                        <tr key={idx} className={`hover:bg-primary/5 transition-colors group ${!isActive ? 'bg-slate-50/50' : ''}`}>
+                        <tr key={idx} className="hover:bg-primary/5 transition-colors group">
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
-                              <div className={`w-10 h-10 rounded-full overflow-hidden shrink-0 ring-2 ring-primary/10 ${!isActive ? 'grayscale opacity-70' : ''}`}>
+                              <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 ring-2 ring-primary/10">
                                 <img alt={user.name} className="w-full h-full object-cover" src={user.avatar} />
                               </div>
                               <div>
-                                <p className={`text-[16px] font-black tracking-tight truncate max-w-[150px] ${!isActive ? 'text-slate-400' : 'text-slate-900 dark:text-white group-hover:text-primary transition-colors'}`}>
+                                <p className="text-[16px] font-black tracking-tight truncate max-w-[150px] text-slate-900 dark:text-white group-hover:text-primary transition-colors">
                                   {user.name}
                                 </p>
                                 <p className="text-[12px] text-slate-400 font-medium truncate max-w-[150px]">{user.email}</p>
@@ -350,20 +358,19 @@ export default function AdminUsers() {
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <p className={`text-base font-bold ${!isActive ? 'text-slate-400' : 'text-slate-700 dark:text-slate-300'}`}>{user.phone}</p>
+                            <p className="text-base font-bold text-slate-700 dark:text-slate-300">{user.phone}</p>
                           </td>
                           <td className="px-6 py-4">
-                            <span className={`px-2.5 py-1 rounded-full text-[14px] font-bold tracking-tighter shadow-sm ${
-                              user.rawRole === 'DOCTOR' ? 'bg-blue-500 text-white' :
+                            <span className={`px-2.5 py-1 rounded-full text-[14px] font-bold tracking-tighter shadow-sm ${user.rawRole === 'DOCTOR' ? 'bg-blue-500 text-white' :
                               user.rawRole === 'ADMIN' ? 'bg-primary text-white' :
-                              user.rawRole === 'CLINIC_MANAGER' ? 'bg-amber-500 text-white' :
-                              'bg-emerald-500 text-white'
-                            }`}>
+                                user.rawRole === 'CLINIC_MANAGER' ? 'bg-amber-500 text-white' :
+                                  'bg-emerald-500 text-white'
+                              }`}>
                               {user.role}
                             </span>
                           </td>
                           <td className="px-6 py-4">
-                            <p className={`text-[14px] font-extrabold leading-tight ${!isActive ? 'text-slate-400' : 'text-slate-600 dark:text-slate-400'}`}>{user.clinic}</p>
+                            <p className="text-[14px] font-extrabold leading-tight text-slate-600 dark:text-slate-400">{user.clinic}</p>
                             {user.clinicPhone && (
                               <p className="text-[12px] text-slate-400 font-bold mt-0.5">{user.clinicPhone}</p>
                             )}
@@ -409,26 +416,26 @@ export default function AdminUsers() {
             <div className="bg-primary/5 border-t border-primary/5 py-4">
               <div className="px-8 flex flex-col md:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-1 order-2 md:order-2">
-                  <button 
+                  <button
                     disabled={pagination.page === 0}
-                    onClick={() => setPagination(prev => ({...prev, page: prev.page - 1}))}
+                    onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
                     className="p-2 rounded-lg text-slate-400 hover:bg-white hover:text-primary transition-all disabled:opacity-30 disabled:hover:bg-transparent"
                   >
                     <span className="material-symbols-outlined">chevron_left</span>
                   </button>
                   <button className="w-8 h-8 rounded-lg bg-primary text-white text-[13px] font-extrabold shadow-md">{pagination.page + 1}</button>
-                  <button 
+                  <button
                     disabled={(pagination.page + 1) * pagination.size >= pagination.total}
-                    onClick={() => setPagination(prev => ({...prev, page: prev.page + 1}))}
+                    onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
                     className="p-2 rounded-lg text-slate-400 hover:bg-white hover:text-primary transition-all disabled:opacity-30 disabled:hover:bg-transparent"
                   >
                     <span className="material-symbols-outlined">chevron_right</span>
                   </button>
                 </div>
-                
+
                 <div className="order-3 md:order-1">
                   <p className="text-[14px] font-medium text-slate-500">
-                    Hiển thị <span className="text-slate-900 font-black">{userList.length}</span> / <span className="text-slate-900 font-black">{pagination.total}</span> tài khoản
+                    Hiển thị <span className="text-slate-500 font-medium">{userList.length}</span>/<span className="text-slate-500 font-medium">{pagination.total}</span> tài khoản
                   </p>
                 </div>
               </div>
