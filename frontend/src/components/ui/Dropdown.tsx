@@ -49,11 +49,11 @@ export default function Dropdown({
           flex items-center justify-between gap-3 transition-all duration-300
           ${variant === 'badge' 
             ? 'px-4 py-1.5 bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800' 
-            : 'px-4 py-2 bg-white dark:bg-slate-900 border-2 rounded-2xl shadow-sm'
+            : 'px-4 h-[40px] bg-white dark:bg-slate-900 border rounded-xl shadow-sm'
           }
           ${isOpen
             ? 'border-primary shadow-lg shadow-primary/10 ring-4 ring-primary/5'
-            : variant !== 'badge' ? 'border-slate-100 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700' : ''
+            : variant !== 'badge' ? 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600' : ''
           }
           ${className}
           w-full

@@ -252,7 +252,7 @@ const PatientHealthMetrics: React.FC = () => {
                                     {item.latestValue}
                                     {item.latestValueSecondary ? `/${item.latestValueSecondary}` : ''}
                                 </span>
-                                <span className="text-xs text-slate-400">{item.unit}</span>
+                                <span className="text-[13px] text-slate-500 font-medium">{item.unit}</span>
                             </div>
                             <div className={`mt-2 flex items-center gap-1 ${item.trend === 'UP' ? 'text-orange-600' : item.trend === 'DOWN' ? 'text-primary' : 'text-slate-400'}`}>
                                 <span className="material-symbols-outlined text-sm font-bold">
@@ -551,6 +551,13 @@ const PatientHealthMetrics: React.FC = () => {
                 onSave={handleSaveMetric}
                 isSaving={isSaving}
                 initialType={selectedMetric}
+                lastValues={summary.reduce((acc, item) => {
+                    acc[item.metricType] = { 
+                        value: item.latestValue, 
+                        valueSecondary: item.latestValueSecondary 
+                    };
+                    return acc;
+                }, {} as any)}
             />
 
             <Toast
