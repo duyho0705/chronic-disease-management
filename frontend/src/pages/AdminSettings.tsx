@@ -1,25 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AdminLayout from '../layouts/AdminLayout';
 import Dropdown from '../components/ui/Dropdown';
 import Toast from '../components/ui/Toast';
 import MaintenanceConfirmModal from '../features/admin/components/MaintenanceConfirmModal';
-import DevelopmentModal from '../features/admin/components/DevelopmentModal';
+import { configApi } from '../api/config';
 
 export default function AdminSettings() {
   const [showToast, setShowToast] = useState(false);
   const [toastTitle, setToastTitle] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const [language, setLanguage] = useState('Tiếng Việt');
   const [timezone, setTimezone] = useState('(GMT+07) Hanoi');
   const [isMaintenance, setIsMaintenance] = useState(false);
-  const [devFeature, setDevFeature] = useState('');
+  const [apiKey, setApiKey] = useState('sk_live_51MvR8kL6vJtE2X9_damdiep_key');
   const [securitySettings, setSecuritySettings] = useState({
     specialChar: true,
     upperNumber: true,
     twoFactor: false
   });
   const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
-  const [showDevModal, setShowDevModal] = useState(false);
 
   const [thresholds, setThresholds] = useState({
     bp_sys: "140",
@@ -33,6 +33,35 @@ export default function AdminSettings() {
     support: true,
     revenue: true
   });
+
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const res = await configApi.getConfig();
+        if (res && res.data) {
+          const cfg = res.data;
+          setLanguage(cfg.language);
+          setTimezone(cfg.timezone);
+          setIsMaintenance(cfg.maintenanceMode);
+          if (cfg.security) {
+            setSecuritySettings(prev => ({ ...prev, specialChar: cfg.security.specialChar, upperNumber: cfg.security.upperNumber }));
+          }
+          if (cfg.thresholds) {
+            setThresholds(cfg.thresholds);
+          }
+          if (cfg.notifications) {
+            setNotifications(cfg.notifications);
+          }
+          if (cfg.apiKey) {
+            setApiKey(cfg.apiKey);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch config:', error);
+      }
+    };
+    fetchConfig();
+  }, []);
 
   const handleRestoreDefaults = () => {
     setLanguage('Tiếng Việt');
@@ -53,13 +82,47 @@ export default function AdminSettings() {
       support: true,
       revenue: true
     });
-    setToastTitle('Khôi phục thành công');
+    setToastTitle('Khôi phục thành công (vui lòng Lưu để áp dụng)');
     setShowToast(true);
   };
 
-  const handleSave = () => {
-    setToastTitle('Lưu thành công');
-    setShowToast(true);
+  const handleSave = async () => {
+    setIsLoading(true);
+    try {
+      const data = {
+        language,
+        timezone,
+        maintenanceMode: isMaintenance,
+        security: {
+          specialChar: securitySettings.specialChar,
+          upperNumber: securitySettings.upperNumber
+        },
+        thresholds,
+        notifications
+      };
+      await configApi.updateConfig(data);
+      setToastTitle('Lưu cấu hình hệ thống thành công');
+      setShowToast(true);
+    } catch (error) {
+      console.error('Failed to save config:', error);
+      setToastTitle('Lỗi khi lưu cấu hình');
+      setShowToast(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRegenerateKey = async () => {
+    try {
+      const res = await configApi.regenerateApiKey();
+      if (res && res.data) {
+        setApiKey(res.data);
+        setToastTitle('Đã làm mới mã khóa API');
+        setShowToast(true);
+      }
+    } catch (error) {
+      console.error('Failed to regenerate key:', error);
+    }
   };
 
   return (
@@ -74,10 +137,13 @@ export default function AdminSettings() {
             </div>
             <button
               onClick={handleSave}
-              className="px-6 py-2.5 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 hover:bg-emerald-500 hover:text-white rounded-xl font-bold transition-all text-[14px] flex items-center gap-2 whitespace-nowrap shadow-lg shadow-emerald-500/5 hover:shadow-emerald-500/20"
+              disabled={isLoading}
+              className={`px-6 py-2.5 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 hover:bg-emerald-500 hover:text-white rounded-xl font-bold transition-all text-[14px] flex items-center gap-2 whitespace-nowrap shadow-lg shadow-emerald-500/5 hover:shadow-emerald-500/20 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              <span className="material-symbols-outlined font-bold text-[20px]">cloud_sync</span>
-              Lưu thay đổi ngay
+              <span className={`material-symbols-outlined font-bold text-[20px] ${isLoading ? 'animate-spin' : ''}`}>
+                {isLoading ? 'progress_activity' : 'cloud_sync'}
+              </span>
+              {isLoading ? 'Đang lưu...' : 'Lưu thay đổi ngay'}
             </button>
           </div>
         </div>
@@ -154,15 +220,14 @@ export default function AdminSettings() {
                   <thead>
                     <tr className="border-b border-primary/5 bg-slate-50/30 dark:bg-slate-800/20">
                       <th className="px-8 py-4 text-[15px] font-bold  text-slate-800  italic-none">Sự kiện</th>
-                      <th className="px-6 py-4 text-[15px] font-bold  text-slate-800  text-center italic-none">Email</th>
-                      <th className="px-6 py-4 text-[15px] font-bold  text-slate-800  text-center italic-none">App</th>
+                      <th className="px-6 py-4 text-[15px] font-bold  text-slate-800  text-center italic-none">Gửi qua Email</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-primary/5">
                     {[
-                      { key: "vital", label: "Cảnh báo sinh tồn", e: notifications.vital, p: true },
-                      { key: "support", label: "Yêu cầu hỗ trợ mới", e: notifications.support, p: true },
-                      { key: "revenue", label: "Báo cáo doanh thu", e: notifications.revenue, p: false },
+                      { key: "vital", label: "Cảnh báo sinh tồn", e: notifications.vital },
+                      { key: "support", label: "Yêu cầu hỗ trợ mới", e: notifications.support },
+                      { key: "revenue", label: "Báo cáo doanh thu", e: notifications.revenue },
                     ].map((row, idx) => (
                       <tr key={idx} className="hover:bg-primary/5 transition-colors">
                         <td className="px-8 py-5">
@@ -176,19 +241,6 @@ export default function AdminSettings() {
                               onChange={(e) => setNotifications({ ...notifications, [row.key]: e.target.checked })}
                               className="sr-only peer" 
                             />
-                            <div className="w-11 h-6 bg-slate-200 dark:bg-slate-800 rounded-full peer peer-checked:after:translate-x-5 after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary border border-transparent dark:border-slate-700"></div>
-                          </label>
-                        </td>
-                        <td className="px-6 py-5 text-center">
-                          <label 
-                            className="relative inline-flex items-center cursor-pointer"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              setDevFeature('Thông báo qua App');
-                              setShowDevModal(true);
-                            }}
-                          >
-                            <input type="checkbox" checked={false} readOnly className="sr-only peer" />
                             <div className="w-11 h-6 bg-slate-200 dark:bg-slate-800 rounded-full peer peer-checked:after:translate-x-5 after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary border border-transparent dark:border-slate-700"></div>
                           </label>
                         </td>
@@ -269,10 +321,26 @@ export default function AdminSettings() {
                 <div className="pt-2">
                   <label className="text-[15px] font-bold text-slate-700 ml-1 mb-2 block italic-none tracking-tight">Mã khóa API hệ thống</label>
                   <div className="bg-slate-50 dark:bg-slate-800/50 py-1.5 px-4 rounded-2xl flex items-center justify-between border border-primary/5">
-                    <input className="flex-1 bg-transparent border-none text-[13px] font-mono font-bold text-slate-400 focus:ring-0 truncate" readOnly type="password" value="sk_live_51MvR8kL6vJtE2X9_damdiep_key" />
+                    <input className="flex-1 bg-transparent border-none text-[13px] font-mono font-bold text-slate-400 focus:ring-0 truncate" readOnly type="password" value={apiKey} />
                     <div className="flex items-center gap-3 ml-2">
-                      <span className="material-symbols-outlined text-slate-400 text-[18px] cursor-pointer hover:text-primary transition-all" title="Sao chép mã">content_copy</span>
-                      <span className="material-symbols-outlined text-slate-400 text-[18px] cursor-pointer hover:text-amber-500 transition-all font-bold" title="Làm mới mã">refresh</span>
+                      <span 
+                        className="material-symbols-outlined text-slate-400 text-[18px] cursor-pointer hover:text-primary transition-all" 
+                        title="Sao chép mã"
+                        onClick={() => {
+                          navigator.clipboard.writeText(apiKey);
+                          setToastTitle('Đã sao chép mã API vào bộ nhớ tạm');
+                          setShowToast(true);
+                        }}
+                      >
+                        content_copy
+                      </span>
+                      <span 
+                        className="material-symbols-outlined text-slate-400 text-[18px] cursor-pointer hover:text-amber-500 transition-all font-bold" 
+                        title="Làm mới mã"
+                        onClick={handleRegenerateKey}
+                      >
+                        refresh
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -308,12 +376,6 @@ export default function AdminSettings() {
             setShowToast(true);
           }}
           isEnabling={!isMaintenance}
-        />
-
-        <DevelopmentModal
-          isOpen={showDevModal}
-          onClose={() => setShowDevModal(false)}
-          featureName={devFeature}
         />
 
         <Toast

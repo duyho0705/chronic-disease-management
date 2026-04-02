@@ -61,9 +61,9 @@ export default function AdminUsers() {
           id: u.id,
           name: u.fullName,
           email: u.email,
-          phone: u.phone || '--',
+          phone: u.phone || u.clinicPhone || '--',
           role: u.roleName,
-          clinic: u.clinicName || 'Hệ thống chính',
+          clinic: u.clinicName || '--',
           clinicPhone: u.clinicPhone,
           date: new Date(u.createdAt).toLocaleDateString('vi-VN'),
           status: u.status,
@@ -274,7 +274,7 @@ export default function AdminUsers() {
                 <div className="relative">
                   <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
                   <input
-                    className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl pl-10 pr-4 py-2.5 text-[14px] font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none text-slate-900 dark:text-white"
+                    className="w-full bg-slate-100/80 dark:bg-slate-800 border-none rounded-xl pl-10 pr-4 py-2.5 text-[14px] font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none text-slate-900 dark:text-white"
                     placeholder="Tên hoặc Email..."
                     type="text"
                     value={searchTerm}
@@ -320,13 +320,13 @@ export default function AdminUsers() {
               <table className="w-full text-left">
                 <thead>
                   <tr className="px-8 py-4 text-[15px] text-slate-500 leading-none">
-                    <th className="font-medium px-6 py-5">Họ và tên</th>
-                    <th className="font-medium px-6 py-5">Liên hệ</th>
-                    <th className="font-medium px-6 py-5">Vai trò</th>
-                    <th className="font-medium px-6 py-5">Cơ sở</th>
-                    <th className="font-medium px-6 py-5">Ngày tạo</th>
-                    <th className="font-medium px-6 py-5">Trạng thái</th>
-                    <th className="font-medium px-6 py-5 text-right">Thao tác</th>
+                    <th className="text-[14px] font-bold leading-tight text-slate-900 dark:text-white px-6 py-5">Họ và tên</th>
+                    <th className="text-[14px] font-bold leading-tight text-slate-900 dark:text-white px-6 py-5">Liên hệ</th>
+                    <th className="text-[14px] font-bold leading-tight text-slate-900 dark:text-white px-6 py-5">Vai trò</th>
+                    <th className="text-[14px] font-bold leading-tight text-slate-900 dark:text-white px-6 py-5">Cơ sở</th>
+                    <th className="text-[14px] font-bold leading-tight text-slate-900 dark:text-white px-6 py-5">Ngày tạo</th>
+                    <th className="text-[14px] font-bold leading-tight text-slate-900 dark:text-white px-6 py-5">Trạng thái</th>
+                    <th className="text-[14px] font-bold leading-tight text-slate-900 dark:text-white px-6 py-5 text-right">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-primary/5">
@@ -335,7 +335,7 @@ export default function AdminUsers() {
                       <td colSpan={7} className="px-6 py-20 text-center">
                         <div className="flex flex-col items-center gap-2 text-slate-400">
                           <span className="material-symbols-outlined text-5xl">person_search</span>
-                          <p className="font-bold text-lg">Không tìm thấy người dùng phù hợp</p>
+                          <p className="font-medium text-lg">Không tìm thấy người dùng</p>
                         </div>
                       </td>
                     </tr>
@@ -343,41 +343,37 @@ export default function AdminUsers() {
                     userList.map((user, idx) => {
                       const isActive = user.status === 'Hoạt động';
                       return (
-                        <tr key={idx} className="hover:bg-primary/5 transition-colors group">
+                        <tr key={idx} className="transition-colors group">
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 ring-2 ring-primary/10">
                                 <img alt={user.name} className="w-full h-full object-cover" src={user.avatar} />
                               </div>
                               <div>
-                                <p className="text-[16px] font-black tracking-tight truncate max-w-[150px] text-slate-900 dark:text-white group-hover:text-primary transition-colors">
+                                <p className="text-[14px] font-bold tracking-tight truncate max-w-[150px] text-slate-900 dark:text-white transition-colors">
                                   {user.name}
                                 </p>
-                                <p className="text-[12px] text-slate-400 font-medium truncate max-w-[150px]">{user.email}</p>
+                                <p className="text-[12px] text-slate-500 font-medium">{user.email}</p>
                               </div>
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <p className="text-base font-bold text-slate-700 dark:text-slate-300">{user.phone}</p>
+                            <p className="text-[14px] font-medium text-slate-700 dark:text-slate-300">{user.phone}</p>
                           </td>
                           <td className="px-6 py-4">
-                            <span className={`px-2.5 py-1 rounded-full text-[14px] font-bold tracking-tighter shadow-sm ${user.rawRole === 'DOCTOR' ? 'bg-blue-500 text-white' :
-                              user.rawRole === 'ADMIN' ? 'bg-primary text-white' :
-                                user.rawRole === 'CLINIC_MANAGER' ? 'bg-amber-500 text-white' :
-                                  'bg-emerald-500 text-white'
-                              }`}>
+                            <span className="text-[14px] font-bold leading-tight text-slate-900 dark:text-white">
                               {user.role}
                             </span>
                           </td>
                           <td className="px-6 py-4">
-                            <p className="text-[14px] font-extrabold leading-tight text-slate-600 dark:text-slate-400">{user.clinic}</p>
+                            <p className="text-[14px] font-bold leading-tight text-slate-900 dark:text-white">{user.clinic}</p>
                             {user.clinicPhone && (
-                              <p className="text-[12px] text-slate-400 font-bold mt-0.5">{user.clinicPhone}</p>
+                              <p className="text-[12px] text-slate-500 font-medium mt-1">{user.clinicPhone}</p>
                             )}
                           </td>
-                          <td className="px-6 py-4 text-[13px] text-slate-500 font-bold">{user.date}</td>
+                          <td className="px-6 py-4 text-[14px] text-slate-700 font-medium">{user.date}</td>
                           <td className="px-6 py-4">
-                            <span className={`px-4 py-1.5 rounded-full text-white text-[13px] font-black shadow-sm whitespace-nowrap inline-flex tracking-tighter ${isActive ? 'bg-emerald-500' : 'bg-red-500'
+                            <span className={`px-4 py-1.5 rounded-full text-white text-[14px] font-bold shadow-sm whitespace-nowrap inline-flex tracking-tighter ${isActive ? 'bg-emerald-500' : 'bg-red-500'
                               }`}>
                               {user.status}
                             </span>
@@ -413,7 +409,7 @@ export default function AdminUsers() {
             </div>
 
             {/* Pagination Box */}
-            <div className="bg-primary/5 border-t border-primary/5 py-4">
+            <div className="bg-slate-50 border-t border-slate-100 py-4">
               <div className="px-8 flex flex-col md:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-1 order-2 md:order-2">
                   <button

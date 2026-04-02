@@ -16,6 +16,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     long countByRole(String role);
 
+    long countByRoleAndClinicId(String role, Long clinicId);
+
     long countByStatus(String status);
 
     @Query("SELECT u FROM User u WHERE " +

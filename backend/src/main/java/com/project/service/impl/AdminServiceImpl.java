@@ -10,6 +10,10 @@ import com.project.entity.User;
 import com.project.exception.ResourceNotFoundException;
 import com.project.repository.ClinicRepository;
 import com.project.repository.UserRepository;
+import com.project.repository.AuditLogRepository;
+import com.project.repository.SystemConfigRepository;
+import com.project.entity.SystemConfig;
+import com.project.dto.request.UpdateSystemConfigRequest;
 import com.project.service.AdminService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +32,8 @@ public class AdminServiceImpl implements AdminService {
 
     private final ClinicRepository clinicRepository;
     private final UserRepository userRepository;
+    private final AuditLogRepository auditLogRepository;
+    private final SystemConfigRepository systemConfigRepository;
     private final PasswordEncoder passwordEncoder;
 
     // ========================
@@ -37,7 +43,7 @@ public class AdminServiceImpl implements AdminService {
     @Override
     @Transactional(readOnly = true)
     public AdminDashboardResponse getDashboardData() {
-        long totalPatients = clinicRepository.sumPatientCount();
+        long totalPatients = userRepository.countByRole("PATIENT");
         long activeClinics = clinicRepository.countByStatus("ACTIVE");
         long totalDoctors = userRepository.countByRole("DOCTOR");
         long highRiskAlerts = clinicRepository.sumHighRiskPatientCount();
@@ -58,9 +64,9 @@ public class AdminServiceImpl implements AdminService {
                 .map(c -> AdminDashboardResponse.ClinicPerformanceDto.builder()
                         .id(c.getId())
                         .name(c.getName())
-                        .patientCount(c.getPatientCount())
+                        .patientCount(userRepository.countByRoleAndClinicId("PATIENT", c.getId()))
                         .growth("+0%")
-                        .status(c.getStatus().equals("ACTIVE") ? "Hoạt động" : "Ngưng hoạt động")
+                        .status("ACTIVE".equals(c.getStatus()) ? "Hoạt động" : "Ngưng hoạt động")
                         .build())
                 .toList();
 
@@ -79,8 +85,7 @@ public class AdminServiceImpl implements AdminService {
                         .timeAgo("5 giờ trước")
                         .icon("add_business")
                         .color("emerald")
-                        .build()
-        );
+                        .build());
 
         return AdminDashboardResponse.builder()
                 .stats(stats)
@@ -142,7 +147,8 @@ public class AdminServiceImpl implements AdminService {
 
         // Validate manager email uniqueness
         if (userRepository.findByEmail(request.getAdminEmail()).isPresent()) {
-            throw new RuntimeException("Email [" + request.getAdminEmail() + "] đã được đăng ký bởi một người dùng khác.");
+            throw new RuntimeException(
+                    "Email [" + request.getAdminEmail() + "] đã được đăng ký bởi một người dùng khác.");
         }
 
         // 1. Create Clinic Entity (temporarily without managerId)
@@ -176,8 +182,10 @@ public class AdminServiceImpl implements AdminService {
         savedClinic.setManagerId(savedManager.getId());
         clinicRepository.save(savedClinic);
 
-        log.info("Successfully created clinic: {} ({}) and assigned manager: {}", 
+        log.info("Successfully created clinic: {} ({}) and assigned manager: {}",
                 savedClinic.getName(), savedClinic.getClinicCode(), savedManager.getEmail());
+
+        recordActivity("Tạo mới", "Quản lý phòng khám", "Đã khởi tạo phòng khám " + savedClinic.getName() + " cùng quản trị viên mới.", "success");
 
         return mapClinicToResponse(savedClinic);
     }
@@ -188,18 +196,26 @@ public class AdminServiceImpl implements AdminService {
         Clinic clinic = clinicRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Phòng khám không tồn tại với ID: " + id));
 
-        if (request.getName() != null) clinic.setName(request.getName());
-        if (request.getAddress() != null) clinic.setAddress(request.getAddress());
-        if (request.getPhone() != null) clinic.setPhone(request.getPhone());
-        if (request.getImageUrl() != null) clinic.setImageUrl(request.getImageUrl());
-        if (request.getManagerId() != null) clinic.setManagerId(request.getManagerId());
-        if (request.getStatus() != null) clinic.setStatus(request.getStatus());
-        
+        if (request.getName() != null)
+            clinic.setName(request.getName());
+        if (request.getAddress() != null)
+            clinic.setAddress(request.getAddress());
+        if (request.getPhone() != null)
+            clinic.setPhone(request.getPhone());
+        if (request.getImageUrl() != null)
+            clinic.setImageUrl(request.getImageUrl());
+        if (request.getManagerId() != null)
+            clinic.setManagerId(request.getManagerId());
+        if (request.getStatus() != null)
+            clinic.setStatus(request.getStatus());
+
         // Update Manager User if admin info provided
         if (clinic.getManagerId() != null && (request.getAdminFullName() != null || request.getAdminEmail() != null)) {
             userRepository.findById(clinic.getManagerId()).ifPresent(manager -> {
-                if (request.getAdminFullName() != null) manager.setFullName(request.getAdminFullName());
-                if (request.getAdminEmail() != null) manager.setEmail(request.getAdminEmail());
+                if (request.getAdminFullName() != null)
+                    manager.setFullName(request.getAdminFullName());
+                if (request.getAdminEmail() != null)
+                    manager.setEmail(request.getAdminEmail());
                 userRepository.save(manager);
                 log.info("Updated manager details for managerId: {}", manager.getId());
             });
@@ -207,6 +223,9 @@ public class AdminServiceImpl implements AdminService {
 
         Clinic saved = clinicRepository.save(clinic);
         log.info("Updated clinic: {} (ID: {})", saved.getName(), saved.getId());
+        
+        recordActivity("Chỉnh sửa", "Quản lý phòng khám", "Đã cập nhật thông tin phòng khám " + saved.getName(), "success");
+        
         return mapClinicToResponse(saved);
     }
 
@@ -216,10 +235,13 @@ public class AdminServiceImpl implements AdminService {
         Clinic clinic = clinicRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Phòng khám không tồn tại với ID: " + id));
 
-        String newStatus = clinic.getStatus().equals("ACTIVE") ? "INACTIVE" : "ACTIVE";
+        String newStatus = "ACTIVE".equals(clinic.getStatus()) ? "INACTIVE" : "ACTIVE";
         clinic.setStatus(newStatus);
         clinicRepository.save(clinic);
         log.info("Toggled clinic status: {} -> {} (ID: {})", clinic.getName(), newStatus, id);
+
+        String action = "ACTIVE".equals(newStatus) ? "Mở khóa" : "Khóa";
+        recordActivity(action, "Quản lý phòng khám", "Đã " + action.toLowerCase() + " phòng khám " + clinic.getName(), "ACTIVE".equals(newStatus) ? "success" : "warning");
     }
 
     // ========================
@@ -246,7 +268,8 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<AdminUserResponse> getUsers(String role, String status, Long clinicId, String keyword, Pageable pageable) {
+    public Page<AdminUserResponse> getUsers(String role, String status, Long clinicId, String keyword,
+            Pageable pageable) {
         String search = (keyword != null && !keyword.isBlank()) ? "%" + keyword.toLowerCase().trim() + "%" : null;
         Page<User> page = userRepository.findByFilters(role, status, clinicId, search, pageable);
         return page.map(this::mapUserToResponse);
@@ -276,6 +299,9 @@ public class AdminServiceImpl implements AdminService {
 
         User saved = userRepository.save(user);
         log.info("Created new user: {} ({}) with role {}", saved.getFullName(), saved.getEmail(), saved.getRole());
+        
+        recordActivity("Tạo mới", "Quản lý người dùng", "Đã tạo tài khoản " + saved.getFullName() + " với vai trò " + mapRoleName(saved.getRole()), "success");
+        
         return mapUserToResponse(saved);
     }
 
@@ -285,16 +311,25 @@ public class AdminServiceImpl implements AdminService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Người dùng không tồn tại với ID: " + id));
 
+        // Always update basic info if provided
         if (request.getFullName() != null) user.setFullName(request.getFullName());
         if (request.getEmail() != null) user.setEmail(request.getEmail());
         if (request.getPhone() != null) user.setPhone(request.getPhone());
         if (request.getRole() != null) user.setRole(request.getRole());
-        if (request.getClinicId() != null) user.setClinicId(request.getClinicId());
         if (request.getAvatarUrl() != null) user.setAvatarUrl(request.getAvatarUrl());
         if (request.getStatus() != null) user.setStatus(request.getStatus());
 
+        // For clinicId, we need to allow setting it to null (Hệ thống chính)
+        // Since this implementation uses if(null), we'll keep it for now but
+        // in a real scenario we'd use Optional or similar.
+        // For currently selected logic, if the user picks null in FE, it must be updated.
+        user.setClinicId(request.getClinicId()); 
+
         User saved = userRepository.save(user);
         log.info("Updated user: {} (ID: {})", saved.getFullName(), saved.getId());
+        
+        recordActivity("Chỉnh sửa", "Quản lý người dùng", "Đã cập nhật thông tin tài khoản " + saved.getFullName(), "success");
+        
         return mapUserToResponse(saved);
     }
 
@@ -304,10 +339,113 @@ public class AdminServiceImpl implements AdminService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Người dùng không tồn tại với ID: " + id));
 
-        String newStatus = user.getStatus().equals("ACTIVE") ? "INACTIVE" : "ACTIVE";
+        String newStatus = "ACTIVE".equals(user.getStatus()) ? "INACTIVE" : "ACTIVE";
         user.setStatus(newStatus);
         userRepository.save(user);
         log.info("Toggled user status: {} -> {} (ID: {})", user.getFullName(), newStatus, id);
+
+        String action = "ACTIVE".equals(newStatus) ? "Mở khóa" : "Khóa";
+        recordActivity(action, "Quản lý người dùng", "Đã " + action.toLowerCase() + " tài khoản " + user.getFullName(), "ACTIVE".equals(newStatus) ? "success" : "warning");
+    }
+
+    // ========================
+    // SYSTEM CONFIG
+    // ========================
+
+    @Override
+    @Transactional
+    public SystemConfigResponse getConfig() {
+        SystemConfig config = systemConfigRepository.findFirstByOrderByIdAsc()
+                .orElseGet(this::seedDefaultConfig);
+        return mapToConfigResponse(config);
+    }
+
+    @Override
+    @Transactional
+    public SystemConfigResponse updateConfig(UpdateSystemConfigRequest request) {
+        SystemConfig config = systemConfigRepository.findFirstByOrderByIdAsc()
+                .orElseGet(this::seedDefaultConfig);
+
+        config.setLanguage(request.getLanguage());
+        config.setTimezone(request.getTimezone());
+        config.setMaintenanceMode(request.isMaintenanceMode());
+
+        if (request.getSecurity() != null) {
+            config.setSpecialCharRequired(request.getSecurity().isSpecialChar());
+            config.setUpperNumberRequired(request.getSecurity().isUpperNumber());
+        }
+
+        if (request.getThresholds() != null) {
+            config.setBpSysThreshold(request.getThresholds().getBp_sys());
+            config.setBpDiaThreshold(request.getThresholds().getBp_dia());
+            config.setHrThreshold(request.getThresholds().getHr());
+            config.setSpo2Threshold(request.getThresholds().getSpo2());
+        }
+
+        if (request.getNotifications() != null) {
+            config.setNotifyVitalSigns(request.getNotifications().isVital());
+            config.setNotifySupportRequests(request.getNotifications().isSupport());
+            config.setNotifyRevenueReports(request.getNotifications().isRevenue());
+        }
+
+        SystemConfig saved = systemConfigRepository.save(config);
+        recordActivity("Cập nhật", "Hệ thống", "Cập nhật tham số cấu hình hệ thống", "success");
+        return mapToConfigResponse(saved);
+    }
+
+    @Override
+    @Transactional
+    public String regenerateApiKey() {
+        SystemConfig config = systemConfigRepository.findFirstByOrderByIdAsc()
+                .orElseGet(this::seedDefaultConfig);
+        String newKey = "sk_live_" + java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 24);
+        config.setApiKey(newKey);
+        systemConfigRepository.save(config);
+        recordActivity("Làm mới", "Bảo mật", "Làm mới mã khóa API hệ thống", "warning");
+        return newKey;
+    }
+
+    private SystemConfig seedDefaultConfig() {
+        SystemConfig config = SystemConfig.builder()
+                .language("Tiếng Việt")
+                .timezone("(GMT+07) Hanoi")
+                .maintenanceMode(false)
+                .specialCharRequired(true)
+                .upperNumberRequired(true)
+                .bpSysThreshold("140")
+                .bpDiaThreshold("90")
+                .hrThreshold("100")
+                .spo2Threshold("94")
+                .notifyVitalSigns(true)
+                .notifySupportRequests(true)
+                .notifyRevenueReports(true)
+                .apiKey("sk_live_51MvR8kL6vJtE2X9_damdiep_key")
+                .build();
+        return systemConfigRepository.save(config);
+    }
+
+    private SystemConfigResponse mapToConfigResponse(SystemConfig config) {
+        return SystemConfigResponse.builder()
+                .language(config.getLanguage())
+                .timezone(config.getTimezone())
+                .maintenanceMode(config.isMaintenanceMode())
+                .security(SystemConfigResponse.SecuritySettingsDto.builder()
+                        .specialChar(config.isSpecialCharRequired())
+                        .upperNumber(config.isUpperNumberRequired())
+                        .build())
+                .thresholds(SystemConfigResponse.ThresholdsDto.builder()
+                        .bp_sys(config.getBpSysThreshold())
+                        .bp_dia(config.getBpDiaThreshold())
+                        .hr(config.getHrThreshold())
+                        .spo2(config.getSpo2Threshold())
+                        .build())
+                .notifications(SystemConfigResponse.NotificationsDto.builder()
+                        .vital(config.isNotifyVitalSigns())
+                        .support(config.isNotifySupportRequests())
+                        .revenue(config.isNotifyRevenueReports())
+                        .build())
+                .apiKey(config.getApiKey())
+                .build();
     }
 
     // ========================
@@ -331,8 +469,7 @@ public class AdminServiceImpl implements AdminService {
                 AdminReportsResponse.ChartPoint.builder().label("Tháng 7").value(150).build(),
                 AdminReportsResponse.ChartPoint.builder().label("Tháng 8").value(165).build(),
                 AdminReportsResponse.ChartPoint.builder().label("Tháng 9").value(120).build(),
-                AdminReportsResponse.ChartPoint.builder().label("Tháng 10").value(135).build()
-        );
+                AdminReportsResponse.ChartPoint.builder().label("Tháng 10").value(135).build());
 
         AdminReportsResponse.AnalyticsSummary analytics = AdminReportsResponse.AnalyticsSummary.builder()
                 .growthRate("+12.4%")
@@ -342,18 +479,24 @@ public class AdminServiceImpl implements AdminService {
                 .build();
 
         List<AdminReportsResponse.ClinicBreakdown> breakdowns = List.of(
-                AdminReportsResponse.ClinicBreakdown.builder().name("Vitality Quận 1").value("1,240 Bệnh nhân").percentage("45%").icon("home_health").build(),
-                AdminReportsResponse.ClinicBreakdown.builder().name("Vitality Thảo Điền").value("860 Bệnh nhân").percentage("30%").icon("home_health").build(),
-                AdminReportsResponse.ClinicBreakdown.builder().name("Phú Mỹ Hưng").value("720 Bệnh nhân").percentage("20%").icon("home_health").build(),
-                AdminReportsResponse.ClinicBreakdown.builder().name("Cầu Giấy (Mới)").value("310 Bệnh nhân").percentage("5%").icon("add_business").build()
-        );
+                AdminReportsResponse.ClinicBreakdown.builder().name("Vitality Quận 1").value("1,240 Bệnh nhân")
+                        .percentage("45%").icon("home_health").build(),
+                AdminReportsResponse.ClinicBreakdown.builder().name("Vitality Thảo Điền").value("860 Bệnh nhân")
+                        .percentage("30%").icon("home_health").build(),
+                AdminReportsResponse.ClinicBreakdown.builder().name("Phú Mỹ Hưng").value("720 Bệnh nhân")
+                        .percentage("20%").icon("home_health").build(),
+                AdminReportsResponse.ClinicBreakdown.builder().name("Cầu Giấy (Mới)").value("310 Bệnh nhân")
+                        .percentage("5%").icon("add_business").build());
 
         List<AdminReportsResponse.ClinicPerformance> performances = List.of(
-                AdminReportsResponse.ClinicPerformance.builder().name("Vitality Quận 1").cases("1,240").appointments("842").adherence("95%").status("Tốt").color("emerald").build(),
-                AdminReportsResponse.ClinicPerformance.builder().name("Vitality Thảo Điền").cases("860").appointments("624").adherence("91%").status("Tốt").color("emerald").build(),
-                AdminReportsResponse.ClinicPerformance.builder().name("Vitality Phú Mỹ Hưng").cases("720").appointments("415").adherence("84%").status("Ổn định").color("primary").build(),
-                AdminReportsResponse.ClinicPerformance.builder().name("Vitality Cầu Giấy (Mới)").cases("310").appointments("186").adherence("68%").status("Cần lưu ý").color("amber").build()
-        );
+                AdminReportsResponse.ClinicPerformance.builder().name("Vitality Quận 1").cases("1,240")
+                        .appointments("842").adherence("95%").status("Tốt").color("emerald").build(),
+                AdminReportsResponse.ClinicPerformance.builder().name("Vitality Thảo Điền").cases("860")
+                        .appointments("624").adherence("91%").status("Tốt").color("emerald").build(),
+                AdminReportsResponse.ClinicPerformance.builder().name("Vitality Phú Mỹ Hưng").cases("720")
+                        .appointments("415").adherence("84%").status("Ổn định").color("primary").build(),
+                AdminReportsResponse.ClinicPerformance.builder().name("Vitality Cầu Giấy (Mới)").cases("310")
+                        .appointments("186").adherence("68%").status("Cần lưu ý").color("amber").build());
 
         // Applying the simple frontend filter logically
         if (performanceFilter != null && !performanceFilter.equals("Tất cả kết quả")) {
@@ -369,6 +512,58 @@ public class AdminServiceImpl implements AdminService {
                 .clinicBreakdown(breakdowns)
                 .clinicPerformances(performances)
                 .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<AuditLogResponse> getAuditLogs(String userName, String module, String keyword, Pageable pageable) {
+        String userFilter = (userName != null && !userName.equals("Tất cả người dùng")) ? "%" + userName.toLowerCase() + "%" : null;
+        String moduleFilter = (module != null && !module.equals("Tất cả mô-đun")) ? module : null;
+        String searchFilter = (keyword != null && !keyword.isBlank()) ? "%" + keyword.toLowerCase() + "%" : null;
+
+        return auditLogRepository.findByFilters(userFilter, moduleFilter, searchFilter, pageable)
+                .map(logEntry -> {
+                    String timeStr = "--:--:--";
+                    if (logEntry.getCreatedAt() != null) {
+                        timeStr = logEntry.getCreatedAt().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+                    }
+                    
+                    return AuditLogResponse.builder()
+                        .id(logEntry.getId())
+                        .time(timeStr)
+                        .createdAt(logEntry.getCreatedAt())
+                        .user(AuditLogResponse.UserDto.builder()
+                                .name(logEntry.getUserName())
+                                .avatar(logEntry.getUserAvatar())
+                                .build())
+                        .action(logEntry.getAction())
+                        .module(logEntry.getModule())
+                        .details(logEntry.getDetails())
+                        .ip(logEntry.getIpAddress())
+                        .status(logEntry.getStatus())
+                        .build();
+                });
+    }
+
+    @Transactional(propagation = org.springframework.transaction.annotation.Propagation.REQUIRES_NEW)
+    public void recordActivity(String action, String module, String details, String status) {
+        try {
+            // In real app, get current user and IP from SecurityContext
+            com.project.entity.AuditLog logEntry = com.project.entity.AuditLog.builder()
+                    .userId(1L)
+                    .userName("Hệ thống (Test)")
+                    .userAvatar("https://i.pravatar.cc/150?u=system")
+                    .action(action)
+                    .module(module)
+                    .details(details)
+                    .ipAddress("127.0.0.1")
+                    .status(status != null ? status : "success")
+                    .build();
+            auditLogRepository.save(logEntry);
+            log.info("Activity Recorded: {} -> {}", module, action);
+        } catch (Exception e) {
+            log.error("Failed to record activity log: {}", e.getMessage());
+        }
     }
 
     // ========================
@@ -395,9 +590,9 @@ public class AdminServiceImpl implements AdminService {
                 .imageUrl(clinic.getImageUrl())
                 .managerName(managerName)
                 .managerEmail(managerEmail)
-                .doctorCount(clinic.getDoctorCount())
-                .patientCount(clinic.getPatientCount())
-                .highRiskPatientCount(clinic.getHighRiskPatientCount())
+                .doctorCount(clinic.getDoctorCount() != null ? clinic.getDoctorCount() : 0)
+                .patientCount(clinic.getPatientCount() != null ? clinic.getPatientCount() : 0)
+                .highRiskPatientCount(clinic.getHighRiskPatientCount() != null ? clinic.getHighRiskPatientCount() : 0)
                 .status(clinic.getStatus())
                 .createdAt(clinic.getCreatedAt())
                 .build();
@@ -407,10 +602,6 @@ public class AdminServiceImpl implements AdminService {
         String clinicName = null;
         String clinicPhone = null;
         if (user.getClinicId() != null) {
-            clinicRepository.findById(user.getClinicId()).ifPresent(c -> {
-                // clinicName = c.getName(); // Wait, clinicName is outside
-            });
-            // Re-fetch to be safe and clear
             Clinic clinic = clinicRepository.findById(user.getClinicId()).orElse(null);
             if (clinic != null) {
                 clinicName = clinic.getName();
@@ -440,6 +631,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     private String mapRoleName(String role) {
+        if (role == null) return "Thành viên";
         return switch (role) {
             case "ADMIN" -> "Quản trị viên";
             case "DOCTOR" -> "Bác sĩ";

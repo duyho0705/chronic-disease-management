@@ -1,13 +1,47 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import AdminLayout from '../layouts/AdminLayout';
 import Dropdown from '../components/ui/Dropdown';
+import { auditApi } from '../api/audit';
 
 export default function AdminAuditLogs() {
-  const [selectedUser, setSelectedUser] = useState('Tất cả người dùng');
+  const [selectedUser, setSelectedUser] = useState('');
   const [selectedModule, setSelectedModule] = useState('Tất cả mô-đun');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIp, setSelectedIp] = useState<string | null>(null);
   const [isIpModalOpen, setIsIpModalOpen] = useState(false);
+  const [logList, setLogList] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [pagination, setPagination] = useState({ page: 0, size: 10, total: 0 });
+
+  const fetchLogs = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const params = {
+        userName: selectedUser || null,
+        module: selectedModule !== 'Tất cả mô-đun' ? selectedModule : null,
+        keyword: searchTerm || null,
+        page: pagination.page,
+        size: pagination.size
+      };
+      const res = await auditApi.getAuditLogs(params);
+      if (res && res.data) {
+        setLogList(res.data.content || []);
+        setPagination(prev => ({ ...prev, total: res.data.totalElements || 0 }));
+      }
+    } catch (error) {
+      console.error('Failed to fetch audit logs:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [selectedUser, selectedModule, searchTerm, pagination.page, pagination.size]);
+
+  useEffect(() => {
+    setPagination(prev => ({ ...prev, page: 0 }));
+  }, [selectedUser, selectedModule, searchTerm]);
+
+  useEffect(() => {
+    fetchLogs();
+  }, [fetchLogs]);
 
   const ipInfo: any = {
     '192.168.1.45': { location: 'TP. Hồ Chí Minh', isp: 'Viettel Network', type: 'Cá nhân (Dynamic)', country: 'Việt Nam', flag: '🇻🇳', lat: '10.8231', lng: '106.6297', timezone: 'Asia/Ho_Chi_Minh (UTC+7)', zip: '70000', security: 'Sạch (Clean)' },
@@ -23,27 +57,8 @@ export default function AdminAuditLogs() {
     setIsIpModalOpen(true);
   };
 
-  const logs = [
-    { id: 1, time: '28/05/2024 10:45:22', user: { name: 'Dr. Admin', avatar: 'https://i.pravatar.cc/150?u=admin' }, action: 'Kích hoạt', module: 'Quản lý người dùng', details: 'Khóa tài khoản Bác sĩ Lê Văn Cường', ip: '192.168.1.45', status: 'success' },
-    { id: 2, time: '28/05/2024 10:12:05', user: { name: 'Hồ Văn Duy', avatar: 'https://i.pravatar.cc/150?u=duy' }, action: 'Chỉnh sửa', module: 'Hồ sơ phòng khám', details: 'Cập nhật địa chỉ Vitality Dental Care', ip: '113.161.45.22', status: 'success' },
-    { id: 3, time: '28/05/2024 09:30:11', user: { name: 'Dr. Admin', avatar: 'https://i.pravatar.cc/150?u=admin' }, action: 'Tạo mới', module: 'Quản lý phòng khám', details: 'Đăng ký phòng khám Nhi Đồng 1', ip: '192.168.1.45', status: 'success' },
-    { id: 4, time: '27/05/2024 23:55:40', user: { name: 'Phạm Minh Đức', avatar: 'https://i.pravatar.cc/150?u=duc' }, action: 'Đăng nhập', module: 'Auth', details: 'Đăng nhập thành công từ thiết bị mới', ip: '27.72.105.88', status: 'warning' },
-    { id: 5, time: '27/05/2024 16:20:18', user: { name: 'Trần Thị Bình', avatar: 'https://i.pravatar.cc/150?u=binh' }, action: 'Xóa', module: 'Báo cáo', details: 'Xóa bản nháp báo cáo doanh thu tháng 9', ip: '14.161.22.99', status: 'danger' },
-    { id: 6, time: '27/05/2024 14:05:33', user: { name: 'Dr. Admin', avatar: 'https://i.pravatar.cc/150?u=admin' }, action: 'Cấu hình', module: 'Hệ thống', details: 'Thay đổi giới hạn tải lên tệp tin lên 50MB', ip: '192.168.1.45', status: 'success' },
-  ];
-
-  const filteredLogs = logs.filter(log => {
-    const matchesSearch = log.details.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.ip.includes(searchTerm);
-    const matchesUser = selectedUser === 'Tất cả người dùng' || log.user.name === selectedUser;
-    const matchesModule = selectedModule === 'Tất cả mô-đun' || log.module === selectedModule;
-
-    return matchesSearch && matchesUser && matchesModule;
-  });
-
   const handleExport = () => {
-    alert(`Đang xuất ${filteredLogs.length} bản ghi nhật ký hệ thống...`);
+    alert(`Đang xuất ${logList.length} bản ghi nhật ký hệ thống...`);
   };
 
   return (
@@ -73,7 +88,7 @@ export default function AdminAuditLogs() {
               <div className="relative">
                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
                 <input
-                  className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl pl-10 pr-4 py-2.5 text-[14px] font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none"
+                  className="w-full bg-slate-100/80 dark:bg-slate-800 border-none rounded-xl pl-10 pr-4 py-2.5 text-[14px] font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none text-slate-900 dark:text-white"
                   placeholder="Nội dung ví dụ: Khóa tài khoản..."
                   type="text"
                   value={searchTerm}
@@ -83,11 +98,16 @@ export default function AdminAuditLogs() {
             </div>
             <div>
               <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">Người thực hiện</label>
-              <Dropdown
-                options={['Tất cả người dùng', 'Dr. Admin', 'Hồ Văn Duy', 'Trần Thị Bình', 'Phạm Minh Đức']}
-                value={selectedUser}
-                onChange={setSelectedUser}
-              />
+              <div className="relative">
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">person</span>
+                <input
+                  className="w-full bg-slate-100/80 dark:bg-slate-800 border-none rounded-xl pl-10 pr-4 py-2.5 text-[14px] font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none text-slate-900 dark:text-white"
+                  placeholder="Tên người thực hiện..."
+                  type="text"
+                  value={selectedUser}
+                  onChange={(e) => setSelectedUser(e.target.value)}
+                />
+              </div>
             </div>
             <div>
               <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">Mô-đun</label>
@@ -102,6 +122,11 @@ export default function AdminAuditLogs() {
 
         {/* Timeline-style Table */}
         <div className="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-sm border border-primary/5 relative">
+          {isLoading && (
+            <div className="absolute inset-0 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm z-10 flex items-center justify-center">
+              <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+            </div>
+          )}
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
@@ -115,8 +140,8 @@ export default function AdminAuditLogs() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-primary/5">
-                {filteredLogs.length > 0 ? (
-                  filteredLogs.map((log) => (
+                {logList.length > 0 ? (
+                  logList.map((log: any) => (
                     <tr key={log.id} className="hover:bg-primary/5 transition-colors group">
                       <td className="px-8 py-5">
                         <div className="flex flex-col">
@@ -128,7 +153,7 @@ export default function AdminAuditLogs() {
                         <div className="flex items-center gap-3">
                           <img
                             className="w-8 h-8 rounded-lg overflow-hidden shrink-0 border border-primary/10"
-                            src={log.user.avatar}
+                            src={log.user.avatar || `https://i.pravatar.cc/150?u=${log.id}`}
                             alt={log.user.name}
                           />
                           <span className="text-[14px] font-bold text-slate-700 dark:text-slate-200">{log.user.name}</span>
@@ -143,7 +168,14 @@ export default function AdminAuditLogs() {
                         <span className="text-[13px] font-bold text-slate-600 dark:text-slate-400">{log.module}</span>
                       </td>
                       <td className="px-6 py-5">
-                        <p className="text-[14px] font-bold text-slate-800 dark:text-slate-200 line-clamp-1 max-w-sm">{log.details}</p>
+                        <p className="text-[14px] font-bold text-slate-800 dark:text-slate-200 line-clamp-1 max-w-sm">
+                          {log.details ? log.details
+                            .replace(/DOCTOR/g, 'Bác sĩ')
+                            .replace(/ADMIN/g, 'Quản trị viên')
+                            .replace(/PATIENT/g, 'Bệnh nhân')
+                            .replace(/CLINIC_MANAGER/g, 'Quản lý phòng khám') 
+                            : '--'}
+                        </p>
                       </td>
                       <td className="px-8 py-5 text-right flex justify-end">
                         <code
@@ -160,15 +192,43 @@ export default function AdminAuditLogs() {
                   <tr>
                     <td colSpan={6} className="px-8 py-12 text-center">
                       <div className="flex flex-col items-center gap-2 text-slate-400">
-                        <span className="material-symbols-outlined text-4xl">search_off</span>
-                        <p className="font-bold text-[15px]">Không tìm thấy nhật ký nào phù hợp</p>
-                        <p className="text-[13px] font-medium">Hãy thử điều chỉnh bộ lọc hoặc từ khóa tìm kiếm</p>
+                        <span className="material-symbols-outlined text-3xl">search_off</span>
+                        <p className="font-medium text-[14px]">Không tìm thấy nhật ký nào phù hợp</p>
                       </div>
                     </td>
                   </tr>
                 )}
               </tbody>
             </table>
+          </div>
+
+          {/* Pagination Box */}
+          <div className="bg-slate-50 border-t border-slate-100 py-4">
+            <div className="px-8 flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-1 order-2 md:order-2">
+                <button
+                  disabled={pagination.page === 0}
+                  onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
+                  className="p-2 rounded-lg text-slate-400 hover:bg-white hover:text-primary transition-all disabled:opacity-30 disabled:hover:bg-transparent"
+                >
+                  <span className="material-symbols-outlined">chevron_left</span>
+                </button>
+                <button className="w-8 h-8 rounded-lg bg-primary text-white text-[13px] font-extrabold shadow-md">{pagination.page + 1}</button>
+                <button
+                  disabled={(pagination.page + 1) * pagination.size >= pagination.total}
+                  onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
+                  className="p-2 rounded-lg text-slate-400 hover:bg-white hover:text-primary transition-all disabled:opacity-30 disabled:hover:bg-transparent"
+                >
+                  <span className="material-symbols-outlined">chevron_right</span>
+                </button>
+              </div>
+
+              <div className="order-3 md:order-1">
+                <p className="text-[14px] font-medium text-slate-500">
+                  Hiển thị <span className="text-slate-500 font-medium">{logList.length}</span>/<span className="text-slate-500 font-medium">{pagination.total}</span> bản ghi
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 

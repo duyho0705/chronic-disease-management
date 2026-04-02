@@ -29,7 +29,7 @@ const PatientDashboard: React.FC = () => {
                         <p className="text-base font-bold text-slate-900 dark:text-white">Tăng huyết áp</p>
                     </div>
                 </div>
-                <button 
+                <button
                     onClick={() => navigate('/patient/profile')}
                     className="px-6 py-2 border border-slate-200 dark:border-slate-700 rounded-xl font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors whitespace-nowrap active:scale-95 text-slate-700 dark:text-slate-300"
                 >
@@ -45,7 +45,7 @@ const PatientDashboard: React.FC = () => {
                             <span className="material-symbols-outlined text-primary">show_chart</span>
                             Chỉ số sức khỏe & Xu hướng
                         </h2>
-                        <button 
+                        <button
                             onClick={() => navigate('/patient/metrics')}
                             className="text-primary font-bold text-sm flex items-center gap-1 hover:underline active:scale-95"
                         >
@@ -157,7 +157,7 @@ const PatientDashboard: React.FC = () => {
                                 <span className="material-symbols-outlined text-primary">pill</span>
                                 Lịch uống thuốc
                             </h3>
-                            <button 
+                            <button
                                 onClick={() => navigate('/patient/prescriptions')}
                                 className="text-[14px] text-primary font-bold hover:underline"
                             >

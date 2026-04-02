@@ -3,6 +3,7 @@ import AdminLayout from '../layouts/AdminLayout';
 import Dropdown from '../components/ui/Dropdown';
 import CreateClinicModal from '../features/admin/components/CreateClinicModal';
 import Toast from '../components/ui/Toast';
+import { adminApi } from '../api/admin';
 import { clinicApi } from '../api/clinic';
 
 export default function AdminDashboard() {
@@ -13,6 +14,7 @@ export default function AdminDashboard() {
   const [toastTitle, setToastTitle] = useState('');
   const [stats, setStats] = useState<any>(null);
   const [clinics, setClinics] = useState<any[]>([]);
+  const [activities, setActivities] = useState<any[]>([]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -20,12 +22,12 @@ export default function AdminDashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const [statsRes, clinicsRes] = await Promise.all([
-        clinicApi.getClinicStats(),
-        clinicApi.getClinics({ size: 5 }) // Get latest 5
-      ]);
-      setStats(statsRes.data);
-      setClinics(clinicsRes.data.content);
+      const res = await adminApi.getDashboardData();
+      if (res && res.data) {
+        setStats(res.data.stats);
+        setClinics(res.data.clinicPerformances || []);
+        setActivities(res.data.recentActivities || []);
+      }
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
     }
@@ -133,7 +135,7 @@ export default function AdminDashboard() {
             <p className="text-[16px] text-slate-500 mt-1 font-medium italic-none">Theo dõi hiệu suất vận hành toàn mạng lưới Vitality</p>
           </div>
           <div className="flex gap-3">
-             <button
+            <button
               onClick={() => setIsCreateModalOpen(true)}
               className="flex items-center gap-2 px-6 py-2.5 bg-emerald-500 text-white rounded-xl font-bold transition-all text-[14px] shadow-lg shadow-emerald-500/20 active:scale-95"
             >
@@ -158,7 +160,7 @@ export default function AdminDashboard() {
               <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl flex items-center justify-center text-emerald-600">
                 <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>groups</span>
               </div>
-              <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">+0%</span>
+              <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">{stats?.patientGrowth || '+0%'}</span>
             </div>
             <div className="mt-4">
               <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{stats?.totalPatients || 0}</h3>
@@ -172,7 +174,7 @@ export default function AdminDashboard() {
               <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-xl flex items-center justify-center text-blue-600">
                 <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>apartment</span>
               </div>
-              <span className="text-[11px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-lg uppercase tracking-wider">Ổn định</span>
+              <span className="text-[11px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-lg uppercase tracking-wider">{stats?.clinicTrend || 'Ổn định'}</span>
             </div>
             <div className="mt-4">
               <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{stats?.activeClinics || 0}</h3>
@@ -186,7 +188,7 @@ export default function AdminDashboard() {
               <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl flex items-center justify-center text-indigo-600">
                 <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>stethoscope</span>
               </div>
-              <span className="text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg">+0 mới</span>
+              <span className="text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg">{stats?.doctorTrend || '+0 mới'}</span>
             </div>
             <div className="mt-4">
               <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{stats?.totalDoctors || 0}</h3>
@@ -203,7 +205,7 @@ export default function AdminDashboard() {
               <span className="px-2 py-1 bg-red-500 text-white text-[10px] font-bold rounded-full uppercase tracking-wider">Theo dõi</span>
             </div>
             <div className="mt-4">
-              <h3 className="text-3xl font-black text-red-600 tracking-tight">{stats?.highRiskPatients || 0}</h3>
+              <h3 className="text-3xl font-black text-red-600 tracking-tight">{stats?.highRiskAlerts || 0}</h3>
               <p className="text-slate-500 text-[15px] font-medium mt-1 font-display">Cảnh báo rủi ro cao</p>
             </div>
           </div>
@@ -260,19 +262,28 @@ export default function AdminDashboard() {
               <span className="material-symbols-outlined text-slate-400">history</span>
             </div>
             <div className="space-y-6 flex-1">
-              <div className="flex gap-4 group">
-                <div className="relative">
-                  <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 z-10 relative">
-                    <span className="material-symbols-outlined text-lg">security</span>
+              {activities.length > 0 ? (
+                activities.map((act, idx) => (
+                  <div key={idx} className="flex gap-4 group">
+                    <div className="relative">
+                      <div className={`w-10 h-10 rounded-full bg-${act.color || 'blue'}-100 dark:bg-${act.color || 'blue'}-900/30 flex items-center justify-center text-${act.color || 'blue'}-600 dark:text-${act.color || 'blue'}-400 z-10 relative`}>
+                        <span className="material-symbols-outlined text-lg">{act.icon || 'history'}</span>
+                      </div>
+                      {idx !== activities.length - 1 && <div className="absolute top-10 left-1/2 -translate-x-1/2 w-0.5 h-full bg-slate-200 dark:bg-slate-800"></div>}
+                    </div>
+                    <div>
+                      <p className="text-[15px] font-bold text-slate-900 dark:text-white">{act.title}</p>
+                      <p className="text-[14px] text-slate-500 font-medium mt-0.5 leading-relaxed">{act.description}</p>
+                      <span className="text-[13px] font-medium text-slate-400 dark:text-slate-500 mt-2 inline-block italic-none tracking-tight">{act.timeAgo}</span>
+                    </div>
                   </div>
-                  <div className="absolute top-10 left-1/2 -translate-x-1/2 w-0.5 h-full bg-slate-200 dark:bg-slate-800"></div>
+                ))
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-slate-400 py-10 opacity-50">
+                  <span className="material-symbols-outlined text-4xl mb-2">inbox</span>
+                  <p className="text-sm font-medium">Chưa có hoạt động mới</p>
                 </div>
-                <div>
-                  <p className="text-[15px] font-bold text-slate-900 dark:text-white">Dữ liệu thực tế</p>
-                  <p className="text-[14px] text-slate-500 font-medium mt-0.5 leading-relaxed">Hệ thống chuyển sang chế độ dữ liệu thực từ Postgres.</p>
-                  <span className="text-[13px] font-medium text-slate-400 dark:text-slate-500 mt-2 inline-block">Vừa xong</span>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

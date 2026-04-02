@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import React from 'react';
 import AdminLayout from '../layouts/AdminLayout';
 import CreateClinicModal from '../features/admin/components/CreateClinicModal';
 import EditClinicModal from '../features/admin/components/EditClinicModal';
@@ -169,16 +168,23 @@ export default function AdminClinics() {
   };
 
   const handleLockClinic = async (clinic: any) => {
-    const action = clinic.status === 'Hoạt động' ? 'khóa' : 'mở khóa';
+    const isCurrentlyActive = clinic.status === 'Hoạt động';
+    const newStatusLabel = isCurrentlyActive ? 'Ngưng hoạt động' : 'Hoạt động';
+    const action = isCurrentlyActive ? 'khóa' : 'mở khóa';
+
+    // 1. Optimistic UI update (Instant)
+    setClinicList(prev => prev.map(c => c.realId === clinic.realId ? { ...c, status: newStatusLabel } : c));
+    setToastTitle(`Đã ${action} phòng khám ${clinic.name} thành công!`);
+    setShowToast(true);
+
     try {
+      // 2. Secret background update
       await clinicApi.toggleStatus(clinic.realId);
-      setToastTitle(`Đã ${action} phòng khám ${clinic.name} thành công!`);
-      fetchClinics(); // Sync with DB
     } catch (error) {
+      // Revert if error occurs
+      setClinicList(prev => prev.map(c => c.realId === clinic.realId ? { ...c, status: clinic.status } : c));
       console.error('Failed to toggle status:', error);
       setToastTitle(`Lỗi khi ${action} phòng khám`);
-    } finally {
-      setShowToast(true);
     }
   };
 

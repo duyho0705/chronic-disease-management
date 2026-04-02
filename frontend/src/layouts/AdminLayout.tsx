@@ -71,9 +71,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               />
               <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></div>
             </div>
-            <div className="overflow-hidden">
+            <div className="overflow-hidden text-left">
               <p className="text-base font-bold text-slate-900 dark:text-white truncate">Dr. Admin</p>
-              <p className="text-sm text-slate-500 font-medium opacity-70 leading-tight">System Administrator</p>
+              <p className="text-sm text-slate-500 font-medium opacity-70 leading-tight">Quản trị viên</p>
             </div>
           </div>
         </div>
