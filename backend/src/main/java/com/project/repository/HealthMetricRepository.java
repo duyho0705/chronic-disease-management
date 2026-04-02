@@ -22,6 +22,9 @@ public interface HealthMetricRepository extends JpaRepository<HealthMetric, Long
     List<HealthMetric> findByPatientIdAndMetricTypeAndMeasuredAtBetweenAndIsDeletedFalse(
             Long patientId, MetricType metricType, LocalDateTime from, LocalDateTime to);
 
+    List<HealthMetric> findByPatientIdAndMeasuredAtBetweenAndIsDeletedFalse(
+            Long patientId, LocalDateTime from, LocalDateTime to);
+
     Optional<HealthMetric> findTopByPatientIdAndMetricTypeAndIsDeletedFalseOrderByMeasuredAtDesc(
             Long patientId, MetricType metricType);
 

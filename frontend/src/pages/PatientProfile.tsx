@@ -41,7 +41,7 @@ const PatientProfile: React.FC = () => {
                         </div>
                     </div>
                     <div className="flex flex-col gap-3 w-full md:w-auto">
-                        <button className="px-8 py-3 bg-primary text-slate-900 font-bold rounded-full hover:bg-primary/90 transition-all font-display shadow-lg shadow-primary/20 active:scale-95 flex items-center justify-center gap-2">
+                        <button className="px-8 py-3 bg-primary text-white font-bold rounded-full hover:bg-primary/90 transition-all font-display shadow-lg shadow-primary/20 active:scale-95 flex items-center justify-center gap-2">
                             <span className="material-symbols-outlined text-lg">download</span>
                             Tải báo cáo
                         </button>

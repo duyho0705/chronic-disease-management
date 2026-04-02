@@ -90,8 +90,8 @@ const AddAppointmentModal: React.FC<AddAppointmentModalProps> = ({ isOpen, onClo
                         <h3 className="text-base font-bold text-slate-900 dark:text-white mb-4">Hình thức khám</h3>
                         <div className="grid grid-cols-2 gap-4">
                             <label className="relative cursor-pointer group">
-                                <input 
-                                    checked={appointmentType === 'direct'} 
+                                <input
+                                    checked={appointmentType === 'direct'}
                                     onChange={() => setAppointmentType('direct')}
                                     className="peer sr-only" name="appt_type" type="radio"
                                 />
@@ -104,8 +104,8 @@ const AddAppointmentModal: React.FC<AddAppointmentModalProps> = ({ isOpen, onClo
                                 </div>
                             </label>
                             <label className="relative cursor-pointer group">
-                                <input 
-                                    checked={appointmentType === 'online'} 
+                                <input
+                                    checked={appointmentType === 'online'}
                                     onChange={() => setAppointmentType('online')}
                                     className="peer sr-only" name="appt_type" type="radio"
                                 />
@@ -124,7 +124,7 @@ const AddAppointmentModal: React.FC<AddAppointmentModalProps> = ({ isOpen, onClo
                     <div>
                         <h3 className="text-base font-bold text-slate-900 dark:text-white mb-4">Chọn bác sĩ chuyên khoa</h3>
                         <div className="mb-6">
-                            <Dropdown 
+                            <Dropdown
                                 options={specialtyOptions}
                                 value={specialty}
                                 onChange={setSpecialty}
@@ -172,14 +172,13 @@ const AddAppointmentModal: React.FC<AddAppointmentModalProps> = ({ isOpen, onClo
                                 </div>
                                 <div className="grid grid-cols-7 gap-1">
                                     {[23, 24, 25, 26, 27, 28, 29].map(day => (
-                                        <button 
+                                        <button
                                             key={day}
                                             onClick={() => setSelectedDate(day)}
-                                            className={`h-8 rounded-lg text-xs transition-all font-bold ${
-                                                selectedDate === day 
-                                                ? 'bg-primary text-slate-900' 
-                                                : day > 27 ? 'text-slate-300 pointer-events-none' : 'hover:bg-slate-200 dark:hover:bg-slate-700 dark:text-slate-300'
-                                            }`}
+                                            className={`h-8 rounded-lg text-xs transition-all font-bold ${selectedDate === day
+                                                    ? 'bg-primary text-slate-900'
+                                                    : day > 27 ? 'text-slate-300 pointer-events-none' : 'hover:bg-slate-200 dark:hover:bg-slate-700 dark:text-slate-300'
+                                                }`}
                                         >
                                             {day}
                                         </button>
@@ -193,14 +192,13 @@ const AddAppointmentModal: React.FC<AddAppointmentModalProps> = ({ isOpen, onClo
                             <h3 className="text-base font-bold text-slate-900 dark:text-white mb-4">Khung giờ</h3>
                             <div className="grid grid-cols-3 gap-2">
                                 {['08:00', '08:30', '09:00', '09:30', '10:00', '14:00', '14:30', '15:00', '15:30'].map(slot => (
-                                    <button 
+                                    <button
                                         key={slot}
                                         onClick={() => setSelectedTime(slot)}
-                                        className={`py-2.5 rounded-lg border-2 text-xs font-bold transition-all ${
-                                            selectedTime === slot 
-                                            ? 'border-primary bg-primary/5 text-primary' 
-                                            : 'border-slate-100 dark:border-slate-800 text-slate-500 hover:border-primary/30 dark:text-slate-400 hover:text-primary'
-                                        }`}
+                                        className={`py-2.5 rounded-lg border-2 text-xs font-bold transition-all ${selectedTime === slot
+                                                ? 'border-primary bg-primary/5 text-primary'
+                                                : 'border-slate-100 dark:border-slate-800 text-slate-500 hover:border-primary/30 dark:text-slate-400 hover:text-primary'
+                                            }`}
                                     >
                                         {slot}
                                     </button>
@@ -212,8 +210,8 @@ const AddAppointmentModal: React.FC<AddAppointmentModalProps> = ({ isOpen, onClo
                     {/* Section: Reason for visit */}
                     <div>
                         <h3 className="text-base font-bold text-slate-900 dark:text-white mb-4">Lý do khám / Triệu chứng</h3>
-                        <textarea 
-                            className="w-full p-5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-primary/50 text-slate-900 dark:text-white font-bold text-sm min-h-[120px] resize-none outline-none shadow-sm transition-all" 
+                        <textarea
+                            className="w-full p-5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-primary/50 text-slate-900 dark:text-white font-bold text-sm min-h-[120px] resize-none outline-none shadow-sm transition-all"
                             placeholder="Mô tả tình trạng sức khỏe của bạn hoặc các triệu chứng đang gặp phải..."
                         ></textarea>
                     </div>
@@ -230,16 +228,16 @@ const AddAppointmentModal: React.FC<AddAppointmentModalProps> = ({ isOpen, onClo
                     <button
                         onClick={onSave}
                         disabled={isSaving}
-                        className={`w-full sm:w-auto px-10 py-3 rounded-full text-[16px] font-bold bg-primary text-slate-900 shadow-lg shadow-primary/20 hover:brightness-105 active:scale-95 transition-all flex items-center justify-center gap-2 ${isSaving ? 'opacity-70 cursor-not-allowed' : ''}`}
+                        className={`w-full sm:w-auto px-10 py-3 rounded-full text-[16px] font-bold bg-primary text-white shadow-lg shadow-primary/20 hover:brightness-105 active:scale-95 transition-all flex items-center justify-center gap-2 ${isSaving ? 'opacity-70 cursor-not-allowed' : ''}`}
                     >
                         {isSaving ? (
-                             <div className="flex items-center gap-2">
-                                 <svg className="animate-spin h-5 w-5 text-slate-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                 </svg>
-                                 <span>Đang xử lý...</span>
-                             </div>
+                            <div className="flex items-center gap-2">
+                                <svg className="animate-spin h-5 w-5 text-slate-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span>Đang xử lý...</span>
+                            </div>
                         ) : (
                             'Xác nhận đặt lịch'
                         )}

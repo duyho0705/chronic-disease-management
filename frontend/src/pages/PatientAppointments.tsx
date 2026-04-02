@@ -32,7 +32,7 @@ const PatientAppointments: React.FC = () => {
                     </div>
                     <button
                         onClick={() => setIsModalOpen(true)}
-                        className="bg-primary hover:bg-primary/90 text-slate-900 px-8 py-3 rounded-full font-bold flex items-center gap-2 transition-all shadow-lg shadow-primary/20 active:scale-95 font-display text-sm"
+                        className="bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-full font-bold flex items-center gap-2 transition-all shadow-lg shadow-primary/20 active:scale-95 font-display text-sm"
                     >
                         <span className="material-symbols-outlined">add_circle</span>
                         Đặt lịch mới
@@ -75,7 +75,7 @@ const PatientAppointments: React.FC = () => {
                                 </div>
                             </div>
                             <div className="flex gap-3">
-                                <button className="flex-1 bg-primary text-slate-900 py-2.5 rounded-lg text-sm font-bold hover:bg-primary/90 transition-colors">Nhắc tôi</button>
+                                <button className="flex-1 bg-primary text-white py-2.5 rounded-lg text-sm font-bold hover:bg-primary/90 transition-colors">Nhắc tôi</button>
                                 <button className="px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Hủy lịch</button>
                             </div>
                         </div>
@@ -109,7 +109,7 @@ const PatientAppointments: React.FC = () => {
                                 </div>
                             </div>
                             <div className="flex gap-3">
-                                <button className="flex-1 bg-primary text-slate-900 py-2.5 rounded-lg text-sm font-bold hover:bg-primary/90 transition-colors">Vào phòng chờ</button>
+                                <button className="flex-1 bg-primary text-white py-2.5 rounded-lg text-sm font-bold hover:bg-primary/90 transition-colors">Vào phòng chờ</button>
                                 <button className="px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Hủy lịch</button>
                             </div>
                         </div>
@@ -195,7 +195,7 @@ const PatientAppointments: React.FC = () => {
                             {/* Days of Oct */}
                             {Array.from({ length: 30 }, (_, i) => i + 1).map(d => (
                                 <div key={d} className={`py-2 text-xs font-medium cursor-pointer hover:bg-primary/20 hover:text-primary rounded-full transition-all ${d === 20 ? 'bg-primary text-slate-900 font-bold shadow-lg shadow-primary/20 scale-110' :
-                                        d === 25 ? 'bg-primary/20 text-primary font-bold' : ''
+                                    d === 25 ? 'bg-primary/20 text-primary font-bold' : ''
                                     }`}>
                                     {d}
                                 </div>

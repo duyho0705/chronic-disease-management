@@ -10,10 +10,13 @@ spring:
       maximum-pool-size: 10
       minimum-idle: 2
       idle-timeout: 30000
-      max-lifetime: 1800000
+      # Shorter max-lifetime and keepalive-time for Neon Serverless DB
+      max-lifetime: 600000 
       connection-timeout: 30000
-      keepalive-time: 45000
+      keepalive-time: 30000
       leak-detection-threshold: 2000
+      # Modern validation
+      validation-timeout: 5000
   jpa:
     hibernate:
       ddl-auto: update

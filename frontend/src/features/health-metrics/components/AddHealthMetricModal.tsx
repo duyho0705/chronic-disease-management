@@ -6,9 +6,10 @@ interface AddHealthMetricModalProps {
     onClose: () => void;
     onSave?: (metricData: any) => void;
     isSaving?: boolean;
+    initialType?: string;
 }
 
-const AddHealthMetricModal: React.FC<AddHealthMetricModalProps> = ({ isOpen, onClose, onSave, isSaving }) => {
+const AddHealthMetricModal: React.FC<AddHealthMetricModalProps> = ({ isOpen, onClose, onSave, isSaving, initialType }) => {
     const [metricType, setMetricType] = useState('BLOOD_PRESSURE');
     const [value, setValue] = useState('');
     const [valueSecondary, setValueSecondary] = useState('');
@@ -17,11 +18,11 @@ const AddHealthMetricModal: React.FC<AddHealthMetricModalProps> = ({ isOpen, onC
     const [notes, setNotes] = useState('');
 
     const metricOptions = [
-        { label: 'Huyết áp (Blood Pressure)', value: 'BLOOD_PRESSURE' },
-        { label: 'Đường huyết (Blood Sugar)', value: 'BLOOD_SUGAR' },
-        { label: 'Nhịp tim (Heart Rate)', value: 'HEART_RATE' },
-        { label: 'HbA1c (%)', value: 'HBA1C' },
-        { label: 'Nồng độ Oxy (SpO2)', value: 'SPO2' },
+        { label: 'Huyết áp', value: 'BLOOD_PRESSURE' },
+        { label: 'Đường huyết', value: 'BLOOD_SUGAR' },
+        { label: 'Nhịp tim', value: 'HEART_RATE' },
+        { label: 'HbA1c', value: 'HBA1C' },
+        { label: 'Nồng độ Oxy', value: 'SPO2' },
     ];
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -45,13 +46,14 @@ const AddHealthMetricModal: React.FC<AddHealthMetricModalProps> = ({ isOpen, onC
             setValue('');
             setValueSecondary('');
             setNotes('');
+            setMetricType(initialType || 'BLOOD_PRESSURE');
         } else {
             document.body.style.overflow = 'unset';
         }
         return () => {
             document.body.style.overflow = 'unset';
         };
-    }, [isOpen]);
+    }, [isOpen, initialType]);
 
     if (!isOpen) return null;
 
@@ -73,7 +75,7 @@ const AddHealthMetricModal: React.FC<AddHealthMetricModalProps> = ({ isOpen, onC
                     <form id="health-metric-form" onSubmit={handleSubmit} className="space-y-6">
                         <div className="flex flex-col gap-2">
                             <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Loại chỉ số</label>
-                            <Dropdown 
+                            <Dropdown
                                 options={metricOptions}
                                 value={metricType}
                                 onChange={setMetricType}
@@ -86,10 +88,10 @@ const AddHealthMetricModal: React.FC<AddHealthMetricModalProps> = ({ isOpen, onC
                                 <label className="text-sm font-bold text-slate-700 dark:text-slate-300">
                                     {isBloodPressure ? 'Tâm thu (mmHg)' : 'Giá trị'}
                                 </label>
-                                <input 
-                                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl h-[46px] px-4 focus:ring-2 focus:ring-primary focus:border-transparent text-slate-900 dark:text-white outline-none transition-all font-medium text-[15px]" 
-                                    placeholder={isBloodPressure ? "120" : "5.6"} 
-                                    type="number" 
+                                <input
+                                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl h-[46px] px-4 focus:ring-2 focus:ring-primary focus:border-transparent text-slate-900 dark:text-white outline-none transition-all font-medium text-[15px]"
+                                    placeholder={isBloodPressure ? "120" : "5.6"}
+                                    type="number"
                                     step="0.01"
                                     required
                                     value={value}
@@ -99,10 +101,10 @@ const AddHealthMetricModal: React.FC<AddHealthMetricModalProps> = ({ isOpen, onC
                             {isBloodPressure && (
                                 <div className="flex flex-col gap-2">
                                     <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Tâm trương (mmHg)</label>
-                                    <input 
-                                        className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl h-[46px] px-4 focus:ring-2 focus:ring-primary focus:border-transparent text-slate-900 dark:text-white outline-none transition-all font-medium text-[15px]" 
-                                        placeholder="80" 
-                                        type="number" 
+                                    <input
+                                        className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl h-[46px] px-4 focus:ring-2 focus:ring-primary focus:border-transparent text-slate-900 dark:text-white outline-none transition-all font-medium text-[15px]"
+                                        placeholder="80"
+                                        type="number"
                                         step="0.01"
                                         required={isBloodPressure}
                                         value={valueSecondary}
@@ -115,18 +117,18 @@ const AddHealthMetricModal: React.FC<AddHealthMetricModalProps> = ({ isOpen, onC
                         <div className="grid grid-cols-2 gap-4">
                             <div className="flex flex-col gap-2">
                                 <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Ngày đo</label>
-                                <input 
-                                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl h-[46px] px-4 focus:ring-2 focus:ring-primary focus:border-transparent text-slate-900 dark:text-white outline-none transition-all font-medium text-[15px]" 
-                                    type="date" 
+                                <input
+                                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl h-[46px] px-4 focus:ring-2 focus:ring-primary focus:border-transparent text-slate-900 dark:text-white outline-none transition-all font-medium text-[15px]"
+                                    type="date"
                                     value={date}
                                     onChange={(e) => setDate(e.target.value)}
                                 />
                             </div>
                             <div className="flex flex-col gap-2">
                                 <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Giờ đo</label>
-                                <input 
-                                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl h-[46px] px-4 focus:ring-2 focus:ring-primary focus:border-transparent text-slate-900 dark:text-white outline-none transition-all font-medium text-[15px]" 
-                                    type="time" 
+                                <input
+                                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl h-[46px] px-4 focus:ring-2 focus:ring-primary focus:border-transparent text-slate-900 dark:text-white outline-none transition-all font-medium text-[15px]"
+                                    type="time"
                                     value={time}
                                     onChange={(e) => setTime(e.target.value)}
                                 />
@@ -135,9 +137,9 @@ const AddHealthMetricModal: React.FC<AddHealthMetricModalProps> = ({ isOpen, onC
 
                         <div className="flex flex-col gap-2">
                             <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Ghi chú / Triệu chứng</label>
-                            <textarea 
-                                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 focus:ring-2 focus:ring-primary focus:border-transparent text-slate-900 dark:text-white outline-none transition-all resize-none font-medium text-[15px] h-28" 
-                                placeholder="Nhập tình trạng sức khỏe hiện tại của bạn hoặc cảm giác lúc này..." 
+                            <textarea
+                                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 focus:ring-2 focus:ring-primary focus:border-transparent text-slate-900 dark:text-white outline-none transition-all resize-none font-medium text-[15px] h-28"
+                                placeholder="Nhập tình trạng sức khỏe hiện tại của bạn hoặc cảm giác lúc này..."
                                 rows={3}
                                 value={notes}
                                 onChange={(e) => setNotes(e.target.value)}
@@ -149,7 +151,7 @@ const AddHealthMetricModal: React.FC<AddHealthMetricModalProps> = ({ isOpen, onC
                 <div className="px-8 py-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-5 z-10 font-display">
                     <button
                         onClick={onClose}
-                        className="px-6 py-2.5 rounded-full text-slate-600 dark:text-slate-400 font-bold hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors text-[16px]"
+                        className="px-6 py-2 rounded-full text-slate-600 dark:text-slate-400 font-bold hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors text-[14px]"
                     >
                         Hủy bỏ
                     </button>
@@ -157,21 +159,18 @@ const AddHealthMetricModal: React.FC<AddHealthMetricModalProps> = ({ isOpen, onC
                         type="submit"
                         form="health-metric-form"
                         disabled={isSaving}
-                        className={`px-10 py-3 bg-primary text-slate-900 font-bold rounded-full shadow-lg shadow-primary/20 hover:brightness-105 active:scale-95 transition-all flex items-center justify-center gap-2 text-[16px] ${isSaving ? 'opacity-70 cursor-not-allowed' : ''}`}
+                        className={`px-8 py-2 bg-primary text-white font-bold rounded-full shadow-lg shadow-primary/20 hover:brightness-105 active:scale-95 transition-all flex items-center justify-center gap-2 text-[14px] ${isSaving ? 'opacity-70 cursor-not-allowed' : ''}`}
                     >
                         {isSaving ? (
-                             <div className="flex items-center gap-2">
-                                 <svg className="animate-spin h-5 w-5 text-slate-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                 </svg>
-                                 <span>Đang lưu...</span>
-                             </div>
+                            <div className="flex items-center gap-2">
+                                <svg className="animate-spin h-5 w-5 text-slate-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span>Đang lưu...</span>
+                            </div>
                         ) : (
-                            <>
-                                <span className="material-symbols-outlined text-xl font-bold">save</span>
-                                Lưu chỉ số
-                            </>
+                            'Lưu chỉ số'
                         )}
                     </button>
                 </div>

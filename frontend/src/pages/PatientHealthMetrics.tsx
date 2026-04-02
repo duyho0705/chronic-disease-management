@@ -3,6 +3,7 @@ import AddHealthMetricModal from '../features/health-metrics/components/AddHealt
 import Toast from '../components/ui/Toast';
 import Dropdown from '../components/ui/Dropdown';
 import { patientApi } from '../api/patient';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const PatientHealthMetrics: React.FC = () => {
     const [activeTab, setActiveTab] = useState('WEEK');
@@ -13,18 +14,33 @@ const PatientHealthMetrics: React.FC = () => {
 
     const [summary, setSummary] = useState<any[]>([]);
     const [history, setHistory] = useState<any[]>([]);
+    const [chartData, setChartData] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isChartLoading, setIsChartLoading] = useState(false);
+    const [historyFilter, setHistoryFilter] = useState('ALL');
+    const [statusFilter, setStatusFilter] = useState('ALL');
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const pageSize = 5; // Reduced page size for better UI balance
+
+    const fetchHistory = useCallback(async (page: number) => {
+        try {
+            const res = await patientApi.getHistory(page, pageSize);
+            if (res.success) {
+                setHistory(res.data.content || []);
+                setTotalPages(res.data.totalPages || 0);
+            }
+        } catch (error) {
+            console.error('Failed to fetch history:', error);
+        }
+    }, [pageSize]);
 
     const fetchData = useCallback(async () => {
         try {
             setIsLoading(true);
-            const [summaryRes, historyRes] = await Promise.all([
-                patientApi.getMetricsSummary(activeTab),
-                patientApi.getHistory(0, 10)
-            ]);
-
+            const summaryRes = await patientApi.getMetricsSummary(activeTab);
             if (summaryRes.success) setSummary(summaryRes.data);
-            if (historyRes.success) setHistory(historyRes.data.content || []);
+            await fetchHistory(currentPage);
         } catch (error: any) {
             const msg = error.response?.data?.message || error.message || 'Lỗi không xác định';
             console.error('Failed to fetch metrics data:', msg);
@@ -32,11 +48,40 @@ const PatientHealthMetrics: React.FC = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [activeTab]);
+    }, [activeTab, currentPage, fetchHistory]);
+
+    const fetchChartData = useCallback(async () => {
+        try {
+            setIsChartLoading(true);
+            const res = await patientApi.getChartData(selectedMetric, activeTab);
+            if (res.success && res.data) {
+                const formattedData = res.data.map((item: any) => ({
+                    ...item,
+                    label: new Date(item.measuredAt).toLocaleString('vi-VN', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        day: activeTab !== 'DAY' ? '2-digit' : undefined,
+                        month: activeTab !== 'DAY' ? '2-digit' : undefined,
+                    }),
+                    value: Number(item.value),
+                    valueSecondary: item.valueSecondary ? Number(item.valueSecondary) : null
+                }));
+                setChartData(formattedData);
+            }
+        } catch (error) {
+            console.error('Failed to fetch chart data:', error);
+        } finally {
+            setIsChartLoading(false);
+        }
+    }, [selectedMetric, activeTab]);
 
     useEffect(() => {
         fetchData();
     }, [fetchData]);
+
+    useEffect(() => {
+        fetchChartData();
+    }, [fetchChartData]);
 
     const handleSaveMetric = async (metricData: any) => {
         try {
@@ -54,6 +99,7 @@ const PatientHealthMetrics: React.FC = () => {
                 });
                 setIsModalOpen(false);
                 fetchData();
+                fetchChartData();
             }
         } catch (error: any) {
             const msg = error.response?.data?.message || 'Lỗi không xác định';
@@ -88,12 +134,23 @@ const PatientHealthMetrics: React.FC = () => {
 
     const getStatusVn = (status: string) => {
         switch (status) {
-            case 'NORMAL': return 'BÌNH THƯỜNG';
-            case 'BORDERLINE_HIGH': return 'CẬN CAO';
-            case 'HIGH': return 'HƠI CAO';
-            case 'LOW': return 'THẤP';
+            case 'NORMAL': return 'Bình thường';
+            case 'BORDERLINE_HIGH': return 'Cận cao';
+            case 'HIGH': return 'Hơi cao';
+            case 'LOW': return 'Thấp';
             default: return status;
         }
+    };
+
+    const getMetricIcon = (identifier: string | undefined | null) => {
+        if (!identifier) return '';
+        const type = String(identifier).toUpperCase().replace(' ', '_');
+        if (type.includes('BLOOD_PRESSURE')) return 'vital_signs';
+        if (type.includes('BLOOD_SUGAR')) return 'glucose';
+        if (type.includes('HEART_RATE')) return 'favorite';
+        if (type.includes('HBA1C')) return 'science';
+        if (type.includes('SPO2')) return 'air';
+        return 'analytics';
     };
 
     const getMetricNameVn = (identifier: string | undefined | null) => {
@@ -105,6 +162,47 @@ const PatientHealthMetrics: React.FC = () => {
         if (type.includes('HBA1C')) return 'Điểm HbA1c';
         if (type.includes('SPO2')) return 'Nồng độ Oxy (SpO2)';
         return String(identifier);
+    };
+
+    const getMetricColor = (metric: string) => {
+        if (metric === 'BLOOD_PRESSURE') return '#f97316';
+        return '#3bb9f3'; // Matching admin's signature sky blue style
+    };
+
+    const CustomTooltip = ({ active, payload, label }: any) => {
+        if (active && payload && payload.length) {
+            // Filter out the duplicated entries and handle ranges
+            const filteredPayload = payload.filter((entry: any) => {
+                // If it's a range area (array value), it often shows up twice. 
+                // We prefer entries with individual names like 'Tâm thu' or 'Chỉ số'.
+                return !Array.isArray(entry.value);
+            });
+
+            return (
+                <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-3 border border-primary/10 rounded-xl shadow-xl flex flex-col gap-2 min-w-[150px]">
+                    <p className="text-[12px] font-bold text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 pb-1 mb-1">{label}</p>
+                    <div className="space-y-1.5">
+                        {filteredPayload.map((entry: any, index: number) => (
+                            <div key={index} className="flex items-center justify-between gap-4">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color || entry.stroke }} />
+                                    <span className="text-[13px] font-medium text-slate-600 dark:text-slate-300">
+                                        {entry.name || 'Chỉ số'}
+                                    </span>
+                                </div>
+                                <span className="text-[13px] font-bold text-slate-900 dark:text-white">
+                                    {entry.value}
+                                    <span className="text-[11px] ml-1 font-normal text-slate-400">
+                                        {selectedMetric === 'BLOOD_PRESSURE' ? 'mmHg' : determineUnit(selectedMetric)}
+                                    </span>
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+        return null;
     };
 
     return (
@@ -124,21 +222,7 @@ const PatientHealthMetrics: React.FC = () => {
                 </button>
             </div>
 
-            {/* Filters */}
-            <div className="flex bg-white dark:bg-slate-900 p-1 rounded-xl border border-primary/10 w-fit text-left">
-                {['DAY', 'WEEK', 'MONTH', 'YEAR'].map((tab) => (
-                    <button
-                        key={tab}
-                        onClick={() => setActiveTab(tab)}
-                        className={`px-6 py-1.5 text-sm transition-all duration-200 ${activeTab === tab
-                            ? 'font-bold text-primary bg-primary/10 rounded-lg shadow-sm'
-                            : 'font-medium text-slate-500 hover:text-slate-900 dark:hover:text-white'
-                            }`}
-                    >
-                        {tab === 'DAY' ? 'Ngày' : tab === 'WEEK' ? 'Tuần' : tab === 'MONTH' ? 'Tháng' : 'Năm'}
-                    </button>
-                ))}
-            </div>
+            {/* Filter removed from here, will be inside the chart card to match admin style */}
 
             {/* Metric Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 text-left">
@@ -151,18 +235,18 @@ const PatientHealthMetrics: React.FC = () => {
                         <div key={idx} className={`bg-white dark:bg-slate-900 p-4 rounded-xl border ${idx === 0 ? 'border-primary ring-2 ring-primary/10' : 'border-primary/10'}`}>
                             <div className="flex justify-between items-start mb-4">
                                 <div className={`p-2 rounded-lg ${item.metricType === 'BLOOD_PRESSURE' ? 'bg-orange-100 text-orange-600' :
-                                        item.metricType === 'HEART_RATE' ? 'bg-red-100 text-red-600' :
-                                            item.metricType === 'HBA1C' ? 'bg-purple-100 text-purple-600' :
-                                                item.metricType === 'SPO2' ? 'bg-cyan-100 text-cyan-600' : 'bg-primary/10 text-primary'
+                                    item.metricType === 'HEART_RATE' ? 'bg-red-100 text-red-600' :
+                                        item.metricType === 'HBA1C' ? 'bg-purple-100 text-purple-600' :
+                                            item.metricType === 'SPO2' ? 'bg-cyan-100 text-cyan-600' : 'bg-primary/10 text-primary'
                                     }`}>
                                     <span className="material-symbols-outlined text-xl font-bold">{item.icon}</span>
                                 </div>
-                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${item.status === 'NORMAL' ? 'bg-primary/10 text-primary' : 'bg-orange-100 text-orange-600'
+                                <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full tracking-wide ${item.status === 'NORMAL' ? 'bg-primary/10 text-primary' : 'bg-orange-100 text-orange-600'
                                     }`}>
                                     {getStatusVn(item.status)}
                                 </span>
                             </div>
-                            <p className="text-slate-500 text-[14px] font-bold uppercase">{getMetricNameVn(item.metricType)}</p>
+                            <p className="text-slate-500 text-[15px] font-medium ">{getMetricNameVn(item.metricType)}</p>
                             <div className="flex items-baseline gap-1 mt-1">
                                 <span className="text-2xl font-black text-slate-900 dark:text-white">
                                     {item.latestValue}
@@ -183,40 +267,147 @@ const PatientHealthMetrics: React.FC = () => {
 
             {/* Chart and Analysis */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-left">
-                <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-xl border border-primary/10">
-                    <div className="flex items-center justify-between mb-6">
+                <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm relative group/chart overflow-hidden text-left">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
                         <div>
-                            <h3 className="font-bold text-lg">Biểu đồ chi tiết</h3>
-                            <p className="text-xs text-slate-500">Dữ liệu phân tích trong thời gian qua</p>
+                            <h3 className="text-[19px] font-bold text-slate-900 dark:text-white tracking-tight">Phân tích xu hướng</h3>
+                            <p className="text-[15px] text-slate-500 mt-1 font-medium italic-none">Báo cáo chi tiết theo {getMetricNameVn(selectedMetric).toLowerCase()}</p>
                         </div>
-                        <Dropdown
-                            options={[
-                                { label: 'Đường huyết', value: 'BLOOD_SUGAR' },
-                                { label: 'Huyết áp', value: 'BLOOD_PRESSURE' },
-                                { label: 'Nhịp tim', value: 'HEART_RATE' },
-                                { label: 'HbA1c', value: 'HBA1C' },
-                                { label: 'Nồng độ Oxy', value: 'SPO2' }
-                            ]}
-                            value={selectedMetric}
-                            onChange={setSelectedMetric}
-                            className="w-full sm:w-52"
-                        />
+                        <div className="flex items-center gap-6">
+                            <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+                                {['DAY', 'WEEK', 'MONTH', 'YEAR'].map((tab) => (
+                                    <button
+                                        key={tab}
+                                        onClick={() => setActiveTab(tab)}
+                                        className={`px-4 py-1.5 text-[13px] font-bold rounded-lg transition-all ${activeTab === tab
+                                            ? 'bg-white dark:bg-slate-700 text-[#3bb9f3] shadow-sm'
+                                            : 'text-slate-500 hover:text-slate-700'
+                                            }`}
+                                    >
+                                        {tab === 'DAY' ? 'Ngày' : tab === 'WEEK' ? 'Tuần' : tab === 'MONTH' ? 'Tháng' : 'Năm'}
+                                    </button>
+                                ))}
+                            </div>
+                            <Dropdown
+                                options={[
+                                    { label: 'Đường huyết', value: 'BLOOD_SUGAR' },
+                                    { label: 'Huyết áp', value: 'BLOOD_PRESSURE' },
+                                    { label: 'Nhịp tim', value: 'HEART_RATE' },
+                                    { label: 'HbA1c', value: 'HBA1C' },
+                                    { label: 'Nồng độ Oxy', value: 'SPO2' }
+                                ]}
+                                value={selectedMetric}
+                                onChange={setSelectedMetric}
+                                className="w-full sm:w-52"
+                            />
+                        </div>
                     </div>
-                    {/* Simplified Chart (Maintaining Visuals but could use a library like recharts later) */}
-                    <div className="h-64 relative">
-                        <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 800 200">
-                            <defs>
-                                <linearGradient id="gradient" x1="0%" x2="0%" y1="0%" y2="100%">
-                                    <stop offset="0%" style={{ stopColor: '#3bb9f3', stopOpacity: 0.2 }}></stop>
-                                    <stop offset="100%" style={{ stopColor: '#3bb9f3', stopOpacity: 0 }}></stop>
-                                </linearGradient>
-                            </defs>
-                            <path d="M0,150 Q50,140 100,160 T200,130 T300,140 T400,110 T500,120 T600,90 T700,100 T800,80 L800,200 L0,200 Z" fill="url(#gradient)"></path>
-                            <path d="M0,150 Q50,140 100,160 T200,130 T300,140 T400,110 T500,120 T600,90 T700,100 T800,80" fill="none" stroke="#3bb9f3" strokeWidth="4" strokeLinecap="round"></path>
-                        </svg>
-                        <div className="absolute bottom-0 w-full flex justify-between text-[10px] font-bold text-slate-400 pt-2">
-                            <span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span>T7</span><span>CN</span>
-                        </div>
+                    <div className="h-[300px] w-full relative">
+                        {isChartLoading && (
+                            <div className="absolute inset-0 z-10 bg-white/40 dark:bg-slate-900/40 backdrop-blur-[1px] flex items-center justify-center rounded-xl">
+                                <div className="flex flex-col items-center gap-3">
+                                    <div className="w-8 h-8 border-4 border-[#3bb9f3] border-t-transparent rounded-full animate-spin"></div>
+                                    <p className="text-[13px] font-medium text-slate-500">Đang tải dữ liệu...</p>
+                                </div>
+                            </div>
+                        )}
+                        {chartData.length === 0 && !isChartLoading ? (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 font-bold opacity-50">
+                                <span className="material-symbols-outlined text-4xl mb-2">bar_chart</span>
+                                <p>Chưa có dữ liệu cho khoảng thời gian này</p>
+                            </div>
+                        ) : (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={chartData} margin={{ top: 10, right: 0, left: 0, bottom: 40 }}>
+                                    <defs>
+                                        <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor={getMetricColor(selectedMetric)} stopOpacity={0.2} />
+                                            <stop offset="95%" stopColor={getMetricColor(selectedMetric)} stopOpacity={0} />
+                                        </linearGradient>
+                                        <linearGradient id="colorValueSecondary" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#4ade80" stopOpacity={0.2} />
+                                            <stop offset="95%" stopColor="#4ade80" stopOpacity={0} />
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(203, 213, 225, 0.4)" />
+                                    <XAxis
+                                        dataKey="label"
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tick={{ fill: '#475569', fontSize: 13, fontWeight: 500 }}
+                                        dy={22}
+                                        textAnchor="middle"
+                                        minTickGap={60}
+                                        interval="preserveStartEnd"
+                                        padding={{ left: 0, right: 0 }}
+                                    />
+                                    <YAxis
+                                        hide
+                                        domain={['auto', 'auto']}
+                                    />
+                                    <Tooltip
+                                        content={<CustomTooltip />}
+                                        cursor={{ stroke: getMetricColor(selectedMetric), strokeWidth: 1, strokeDasharray: '4 4' }}
+                                    />
+                                    {selectedMetric === 'BLOOD_PRESSURE' ? (
+                                        <>
+                                            <Area
+                                                type="monotone"
+                                                dataKey={(d: any) => [d.valueSecondary, d.value]}
+                                                stroke="none"
+                                                fill="url(#colorValue)"
+                                                fillOpacity={0.4}
+                                                animationDuration={2000}
+                                            />
+                                            <Area
+                                                type="monotone"
+                                                dataKey="value"
+                                                stroke={getMetricColor('BLOOD_PRESSURE')}
+                                                strokeWidth={4}
+                                                fill="none"
+                                                dot={{ r: 4, fill: getMetricColor('BLOOD_PRESSURE'), stroke: '#fff', strokeWidth: 2 }}
+                                                activeDot={{ r: 7, fill: getMetricColor('BLOOD_PRESSURE'), stroke: '#fff', strokeWidth: 3 }}
+                                                name="Tâm thu"
+                                            />
+                                            <Area
+                                                type="monotone"
+                                                dataKey="valueSecondary"
+                                                stroke="#4ade80"
+                                                strokeWidth={4}
+                                                fill="none"
+                                                dot={{ r: 4, fill: '#4ade80', stroke: '#fff', strokeWidth: 2 }}
+                                                activeDot={{ r: 7, fill: '#4ade80', stroke: '#fff', strokeWidth: 3 }}
+                                                name="Tâm trương"
+                                            />
+                                        </>
+                                    ) : (
+                                        <Area
+                                            type="monotone"
+                                            dataKey="value"
+                                            stroke={getMetricColor(selectedMetric)}
+                                            strokeWidth={4}
+                                            fillOpacity={1}
+                                            fill="url(#colorValue)"
+                                            animationDuration={2000}
+                                            name={getMetricNameVn(selectedMetric)}
+                                            dot={{
+                                                r: 5,
+                                                fill: getMetricColor(selectedMetric),
+                                                stroke: '#fff',
+                                                strokeWidth: 2
+                                            }}
+                                            activeDot={{
+                                                r: 7,
+                                                fill: getMetricColor(selectedMetric),
+                                                stroke: '#fff',
+                                                strokeWidth: 3,
+                                                style: { cursor: 'pointer' }
+                                            }}
+                                        />
+                                    )}
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        )}
                     </div>
                 </div>
 
@@ -235,7 +426,7 @@ const PatientHealthMetrics: React.FC = () => {
                             </p>
                             <div className="mt-3 flex items-center gap-2">
                                 <div className="size-6 bg-primary rounded-full flex items-center justify-center text-[10px] text-white font-bold leading-none">AI</div>
-                                <p className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Hệ thống phân tích Damian</p>
+                                <p className="text-[10px] font-extrabold text-slate-500 tracking-widest">Hệ thống phân tích Damian</p>
                             </div>
                         </div>
                     </div>
@@ -244,18 +435,45 @@ const PatientHealthMetrics: React.FC = () => {
 
             {/* Recent History Table */}
             <div className="bg-white dark:bg-slate-900 rounded-xl border border-primary/10 overflow-hidden text-left font-display">
-                <div className="p-6 border-b border-primary/10 flex items-center justify-between">
-                    <h3 className="font-extrabold text-lg text-slate-900 dark:text-white">Lịch sử nhập liệu gần đây</h3>
+                <div className="p-6 border-b border-primary/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <h3 className="font-bold text-lg text-slate-900 dark:text-white">Lịch sử nhập liệu gần đây</h3>
+                    <div className="flex flex-wrap items-center gap-3">
+                        <Dropdown
+                            options={[
+                                { label: 'Tất cả chỉ số', value: 'ALL' },
+                                { label: 'Huyết áp', value: 'BLOOD_PRESSURE' },
+                                { label: 'Đường huyết', value: 'BLOOD_SUGAR' },
+                                { label: 'Nhịp tim', value: 'HEART_RATE' },
+                                { label: 'HbA1c', value: 'HBA1C' },
+                                { label: 'Nồng độ Oxy', value: 'SPO2' }
+                            ]}
+                            value={historyFilter}
+                            onChange={setHistoryFilter}
+                            className="w-full sm:w-44"
+                        />
+                        <Dropdown
+                            options={[
+                                { label: 'Tất cả trạng thái', value: 'ALL' },
+                                { label: 'Bình thường', value: 'NORMAL' },
+                                { label: 'Cận cao', value: 'BORDERLINE_HIGH' },
+                                { label: 'Cao', value: 'HIGH' },
+                                { label: 'Thấp', value: 'LOW' }
+                            ]}
+                            value={statusFilter}
+                            onChange={setStatusFilter}
+                            className="w-full sm:w-44"
+                        />
+                    </div>
                 </div>
                 <div className="overflow-x-auto overflow-y-hidden">
                     <table className="w-full text-left">
                         <thead>
                             <tr className="bg-background-light dark:bg-slate-800/50">
-                                <th className="px-6 py-3 text-xs font-bold text-slate-500">Thời gian</th>
-                                <th className="px-6 py-3 text-xs font-bold text-slate-500">Chỉ số</th>
-                                <th className="px-6 py-3 text-xs font-bold text-slate-500">Giá trị</th>
-                                <th className="px-6 py-3 text-xs font-bold text-slate-500">Trạng thái</th>
-                                <th className="px-6 py-3 text-xs font-bold text-slate-500">Ghi chú</th>
+                                <th className="px-6 py-3 text-[13px] font-bold text-slate-500 uppercase">Thời gian</th>
+                                <th className="px-6 py-3 text-[13px] font-bold text-slate-500 uppercase">Chỉ số</th>
+                                <th className="px-6 py-3 text-[13px] font-bold text-slate-500 uppercase">Giá trị</th>
+                                <th className="px-6 py-3 text-[13px] font-bold text-slate-500 uppercase">Trạng thái</th>
+                                <th className="px-6 py-3 text-[13px] font-bold text-slate-500 uppercase">Ghi chú</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-primary/5">
@@ -263,30 +481,67 @@ const PatientHealthMetrics: React.FC = () => {
                                 Array(3).fill(0).map((_, i) => (
                                     <tr key={i}><td colSpan={5} className="px-6 py-4 animate-pulse bg-slate-50 dark:bg-slate-800/50 h-10"></td></tr>
                                 ))
-                            ) : history.length === 0 ? (
-                                <tr><td colSpan={5} className="px-6 py-10 text-center text-slate-400 font-bold">Chưa có dữ liệu lịch sử</td></tr>
-                            ) : history.map((row, idx) => (
+                            ) : history.filter(row => {
+                                const matchType = historyFilter === 'ALL' || row.metricType === historyFilter;
+                                const matchStatus = statusFilter === 'ALL' || row.status === statusFilter;
+                                return matchType && matchStatus;
+                            }).length === 0 ? (
+                                <tr><td colSpan={5} className="px-6 py-10 text-center text-slate-400 font-bold">Không tìm thấy dữ liệu khớp với bộ lọc</td></tr>
+                            ) : history.filter(row => {
+                                const matchType = historyFilter === 'ALL' || row.metricType === historyFilter;
+                                const matchStatus = statusFilter === 'ALL' || row.status === statusFilter;
+                                return matchType && matchStatus;
+                            }).map((row, idx) => (
                                 <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900 dark:text-white">{formatDate(row.measuredAt)}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900 dark:text-white">{formatDate(row.measuredAt)}</td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-center gap-2">
-                                            <span className="text-sm text-slate-600 dark:text-slate-300 font-bold">{getMetricNameVn(row.metricType || row.metricDisplayName || '')}</span>
+                                            <span className={`material-symbols-outlined text-[18px] font-bold ${String(row.metricType).includes('BLOOD_PRESSURE') ? 'text-orange-500' :
+                                                String(row.metricType).includes('BLOOD_SUGAR') ? 'text-primary' :
+                                                    String(row.metricType).includes('HEART_RATE') ? 'text-red-500' :
+                                                        String(row.metricType).includes('HBA1C') ? 'text-purple-500' :
+                                                            String(row.metricType).includes('SPO2') ? 'text-cyan-500' : 'text-slate-400'
+                                                }`}>
+                                                {getMetricIcon(row.metricType || row.metricDisplayName)}
+                                            </span>
+                                            <span className="text-sm text-slate-600 font-medium">{getMetricNameVn(row.metricType || row.metricDisplayName || '')}</span>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-black text-slate-900 dark:text-white">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900 dark:text-white">
                                         {row.value}{row.valueSecondary ? `/${row.valueSecondary}` : ''} {row.unit}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className={`px-2 py-1 text-[10px] font-black rounded-full ${row.status === 'NORMAL' ? 'bg-primary/10 text-primary' : 'bg-orange-100 text-orange-600'
+                                        <span className={`px-2 py-1 text-[12px] font-bold rounded-full ${row.status === 'NORMAL' ? 'bg-primary/10 text-primary' : 'bg-orange-100 text-orange-600'
                                             }`}>
                                             {getStatusVn(row.status)}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400 truncate max-w-[200px] font-bold">{row.notes || 'Không có ghi chú'}</td>
+                                    <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400 truncate max-w-[200px] font-medium">{row.notes || 'Không có ghi chú'}</td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
+                </div>
+
+                {/* Pagination Controls */}
+                <div className="px-6 py-4 border-t border-primary/5 flex items-center justify-between bg-white dark:bg-slate-900/50">
+                    <p className="text-[13px] text-slate-500 font-medium font-display">Trang {currentPage + 1} của {totalPages || 1}</p>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
+                            disabled={currentPage === 0}
+                            className="w-9 h-9 flex items-center justify-center rounded-xl border border-slate-100 dark:border-slate-800 text-slate-500 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95"
+                        >
+                            <span className="material-symbols-outlined text-[20px]">chevron_left</span>
+                        </button>
+                        <button
+                            onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))}
+                            disabled={currentPage >= totalPages - 1}
+                            className="w-9 h-9 flex items-center justify-center rounded-xl border border-slate-100 dark:border-slate-800 text-slate-500 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95"
+                        >
+                            <span className="material-symbols-outlined text-[20px]">chevron_right</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -295,6 +550,7 @@ const PatientHealthMetrics: React.FC = () => {
                 onClose={() => setIsModalOpen(false)}
                 onSave={handleSaveMetric}
                 isSaving={isSaving}
+                initialType={selectedMetric}
             />
 
             <Toast
