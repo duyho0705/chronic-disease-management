@@ -4,24 +4,47 @@ import Dropdown from '../../../components/ui/Dropdown';
 interface AddHealthMetricModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave?: () => void;
+    onSave?: (metricData: any) => void;
     isSaving?: boolean;
 }
 
 const AddHealthMetricModal: React.FC<AddHealthMetricModalProps> = ({ isOpen, onClose, onSave, isSaving }) => {
-    const [metricType, setMetricType] = useState('blood_pressure');
+    const [metricType, setMetricType] = useState('BLOOD_PRESSURE');
+    const [value, setValue] = useState('');
+    const [valueSecondary, setValueSecondary] = useState('');
+    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+    const [time, setTime] = useState(new Date().toTimeString().slice(0, 5));
+    const [notes, setNotes] = useState('');
 
     const metricOptions = [
-        { label: 'Huyết áp (Blood Pressure)', value: 'blood_pressure' },
-        { label: 'Đường huyết (Blood Glucose)', value: 'blood_glucose' },
-        { label: 'Nhịp tim (Heart Rate)', value: 'heart_rate' },
-        { label: 'Cân nặng (Weight)', value: 'weight' },
-        { label: 'Nồng độ Oxy (SpO2)', value: 'spo2' },
+        { label: 'Huyết áp (Blood Pressure)', value: 'BLOOD_PRESSURE' },
+        { label: 'Đường huyết (Blood Sugar)', value: 'BLOOD_SUGAR' },
+        { label: 'Nhịp tim (Heart Rate)', value: 'HEART_RATE' },
+        { label: 'HbA1c (%)', value: 'HBA1C' },
+        { label: 'Nồng độ Oxy (SpO2)', value: 'SPO2' },
     ];
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!onSave) return;
+
+        const measuredAt = `${date}T${time}:00`;
+        onSave({
+            metricType,
+            value: parseFloat(value),
+            valueSecondary: valueSecondary ? parseFloat(valueSecondary) : null,
+            measuredAt,
+            notes
+        });
+    };
 
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = 'hidden';
+            // Reset form on open
+            setValue('');
+            setValueSecondary('');
+            setNotes('');
         } else {
             document.body.style.overflow = 'unset';
         }
@@ -32,44 +55,22 @@ const AddHealthMetricModal: React.FC<AddHealthMetricModalProps> = ({ isOpen, onC
 
     if (!isOpen) return null;
 
+    const isBloodPressure = metricType === 'BLOOD_PRESSURE';
+
     return (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-            {/* Background Overlay (Skeleton/Simulated Background) */}
-            <div className="fixed inset-0 z-0 overflow-hidden blur-sm opacity-40 pointer-events-none">
-                <div className="p-8 max-w-7xl mx-auto">
-                    <div className="flex justify-between items-center mb-8">
-                        <div className="h-10 w-48 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
-                        <div className="h-10 w-10 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
-                    </div>
-                    <div className="grid grid-cols-3 gap-6">
-                        <div className="h-40 bg-slate-200 dark:bg-slate-700 rounded-xl"></div>
-                        <div className="h-40 bg-slate-200 dark:bg-slate-700 rounded-xl"></div>
-                        <div className="h-40 bg-slate-200 dark:bg-slate-700 rounded-xl"></div>
-                    </div>
-                    <div className="mt-8 h-64 bg-slate-200 dark:bg-slate-700 rounded-xl w-full"></div>
-                </div>
-            </div>
-
-            {/* Modal Backdrop (Matched with Doctor's Backdrop) */}
             <div
                 className="fixed inset-0 bg-slate-900/40 backdrop-blur-[2px] transition-opacity"
                 onClick={onClose}
             ></div>
 
-            {/* Modal Container */}
             <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh] animate-in zoom-in-95 duration-200 border border-primary/10">
-
-                {/* Modal Header */}
                 <div className="px-8 py-6 border-b border-slate-100 dark:border-slate-800 text-left bg-primary/5 font-display">
-                    <div className="flex items-center mb-0">
-                        <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Nhập chỉ số sức khỏe</h2>
-                    </div>
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Nhập chỉ số sức khỏe</h2>
                 </div>
 
-                {/* Modal Content (Scrollable) */}
                 <div className="p-8 overflow-y-auto custom-scrollbar text-left flex-1 space-y-6 font-display">
-                    <form className="space-y-6">
-                        {/* Metric Type Selection */}
+                    <form id="health-metric-form" onSubmit={handleSubmit} className="space-y-6">
                         <div className="flex flex-col gap-2">
                             <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Loại chỉ số</label>
                             <Dropdown 
@@ -80,39 +81,71 @@ const AddHealthMetricModal: React.FC<AddHealthMetricModalProps> = ({ isOpen, onC
                             />
                         </div>
 
-                        {/* Values Grid */}
                         <div className="grid grid-cols-2 gap-4">
                             <div className="flex flex-col gap-2">
-                                <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Tâm thu (mmHg)</label>
-                                <input className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl h-[46px] px-4 focus:ring-2 focus:ring-primary focus:border-transparent text-slate-900 dark:text-white outline-none transition-all font-medium text-[15px]" placeholder="120" type="number" />
+                                <label className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                                    {isBloodPressure ? 'Tâm thu (mmHg)' : 'Giá trị'}
+                                </label>
+                                <input 
+                                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl h-[46px] px-4 focus:ring-2 focus:ring-primary focus:border-transparent text-slate-900 dark:text-white outline-none transition-all font-medium text-[15px]" 
+                                    placeholder={isBloodPressure ? "120" : "5.6"} 
+                                    type="number" 
+                                    step="0.01"
+                                    required
+                                    value={value}
+                                    onChange={(e) => setValue(e.target.value)}
+                                />
                             </div>
-                            <div className="flex flex-col gap-2">
-                                <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Tâm trương (mmHg)</label>
-                                <input className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl h-[46px] px-4 focus:ring-2 focus:ring-primary focus:border-transparent text-slate-900 dark:text-white outline-none transition-all font-medium text-[15px]" placeholder="80" type="number" />
-                            </div>
+                            {isBloodPressure && (
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Tâm trương (mmHg)</label>
+                                    <input 
+                                        className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl h-[46px] px-4 focus:ring-2 focus:ring-primary focus:border-transparent text-slate-900 dark:text-white outline-none transition-all font-medium text-[15px]" 
+                                        placeholder="80" 
+                                        type="number" 
+                                        step="0.01"
+                                        required={isBloodPressure}
+                                        value={valueSecondary}
+                                        onChange={(e) => setValueSecondary(e.target.value)}
+                                    />
+                                </div>
+                            )}
                         </div>
 
-                        {/* Date and Time Grid */}
                         <div className="grid grid-cols-2 gap-4">
                             <div className="flex flex-col gap-2">
                                 <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Ngày đo</label>
-                                <input className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl h-[46px] px-4 focus:ring-2 focus:ring-primary focus:border-transparent text-slate-900 dark:text-white outline-none transition-all font-medium text-[15px]" type="date" defaultValue="2023-10-27" />
+                                <input 
+                                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl h-[46px] px-4 focus:ring-2 focus:ring-primary focus:border-transparent text-slate-900 dark:text-white outline-none transition-all font-medium text-[15px]" 
+                                    type="date" 
+                                    value={date}
+                                    onChange={(e) => setDate(e.target.value)}
+                                />
                             </div>
                             <div className="flex flex-col gap-2">
                                 <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Giờ đo</label>
-                                <input className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl h-[46px] px-4 focus:ring-2 focus:ring-primary focus:border-transparent text-slate-900 dark:text-white outline-none transition-all font-medium text-[15px]" type="time" defaultValue="08:30" />
+                                <input 
+                                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl h-[46px] px-4 focus:ring-2 focus:ring-primary focus:border-transparent text-slate-900 dark:text-white outline-none transition-all font-medium text-[15px]" 
+                                    type="time" 
+                                    value={time}
+                                    onChange={(e) => setTime(e.target.value)}
+                                />
                             </div>
                         </div>
 
-                        {/* Notes/Symptoms */}
                         <div className="flex flex-col gap-2">
                             <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Ghi chú / Triệu chứng</label>
-                            <textarea className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 focus:ring-2 focus:ring-primary focus:border-transparent text-slate-900 dark:text-white outline-none transition-all resize-none font-medium text-[15px] h-28" placeholder="Nhập tình trạng sức khỏe hiện tại của bạn hoặc cảm giác lúc này..." rows={3}></textarea>
+                            <textarea 
+                                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 focus:ring-2 focus:ring-primary focus:border-transparent text-slate-900 dark:text-white outline-none transition-all resize-none font-medium text-[15px] h-28" 
+                                placeholder="Nhập tình trạng sức khỏe hiện tại của bạn hoặc cảm giác lúc này..." 
+                                rows={3}
+                                value={notes}
+                                onChange={(e) => setNotes(e.target.value)}
+                            ></textarea>
                         </div>
                     </form>
                 </div>
 
-                {/* Modal Footer */}
                 <div className="px-8 py-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-5 z-10 font-display">
                     <button
                         onClick={onClose}
@@ -121,7 +154,8 @@ const AddHealthMetricModal: React.FC<AddHealthMetricModalProps> = ({ isOpen, onC
                         Hủy bỏ
                     </button>
                     <button
-                        onClick={onSave}
+                        type="submit"
+                        form="health-metric-form"
                         disabled={isSaving}
                         className={`px-10 py-3 bg-primary text-slate-900 font-bold rounded-full shadow-lg shadow-primary/20 hover:brightness-105 active:scale-95 transition-all flex items-center justify-center gap-2 text-[16px] ${isSaving ? 'opacity-70 cursor-not-allowed' : ''}`}
                     >

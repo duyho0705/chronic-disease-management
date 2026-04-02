@@ -25,5 +25,6 @@ public class CreateHealthMetricRequest {
 
     private String notes;
 
+    @com.fasterxml.jackson.annotation.JsonFormat(shape = com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime measuredAt;
 }

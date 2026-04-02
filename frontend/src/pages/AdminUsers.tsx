@@ -335,8 +335,8 @@ export default function AdminUsers() {
                     <tr>
                       <td colSpan={7} className="px-6 py-20 text-center">
                         <div className="flex flex-col items-center gap-2 text-slate-400">
-                          <span className="material-symbols-outlined text-5xl">person_search</span>
-                          <p className="font-medium text-lg">Không tìm thấy người dùng</p>
+                          <span className="material-symbols-outlined text-3xl">person_search</span>
+                          <p className="font-medium text-[14px]">Không tìm thấy người dùng</p>
                         </div>
                       </td>
                     </tr>

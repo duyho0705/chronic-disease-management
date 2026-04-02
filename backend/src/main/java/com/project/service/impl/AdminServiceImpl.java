@@ -593,11 +593,12 @@ public class AdminServiceImpl implements AdminService {
 
         // Fetching real database aggregates for clinic performances & breakdown
         List<Clinic> clinics = clinicRepository.findAll();
-        
+
         // Count unique patients per clinic
         Map<Long, Long> patientCounts = userRepository.countByRoleGroupedByClinic("PATIENT")
-                .stream().collect(Collectors.toMap(obj -> ((Number) obj[0]).longValue(), obj -> ((Number) obj[1]).longValue()));
-        
+                .stream()
+                .collect(Collectors.toMap(obj -> ((Number) obj[0]).longValue(), obj -> ((Number) obj[1]).longValue()));
+
         Map<Long, Long> totalAppts = appointmentRepository.countTotalAppointmentsByClinicNative()
                 .stream()
                 .collect(Collectors.toMap(obj -> ((Number) obj[0]).longValue(), obj -> ((Number) obj[1]).longValue()));
@@ -625,10 +626,8 @@ public class AdminServiceImpl implements AdminService {
                 })
                 .sorted((a, b) -> Integer.compare(
                         Integer.parseInt(b.getPercentage().replace("%", "")),
-                        Integer.parseInt(a.getPercentage().replace("%", ""))
-                ))
+                        Integer.parseInt(a.getPercentage().replace("%", ""))))
                 .collect(Collectors.toList());
-
 
         List<AdminReportsResponse.ClinicPerformance> performances = clinics.stream()
                 .map(c -> {

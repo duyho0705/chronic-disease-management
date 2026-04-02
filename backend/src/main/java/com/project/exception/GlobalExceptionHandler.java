@@ -31,11 +31,25 @@ public class GlobalExceptionHandler {
         log.error("Validation failed: {}", errorMessage);
         return ApiResponse.error(errorMessage);
     }
-    
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ApiResponse<Object> handleAccessDeniedException(org.springframework.security.access.AccessDeniedException ex) {
+        log.warn("Access denied: {}", ex.getMessage());
+        return ApiResponse.error("Access denied: " + ex.getMessage());
+    }
+
+    @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ApiResponse<Object> handleAuthenticationException(org.springframework.security.core.AuthenticationException ex) {
+        log.warn("Authentication failed: {}", ex.getMessage());
+        return ApiResponse.error("Authentication failed: " + ex.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ApiResponse<Object> handleAllUncaughtException(Exception ex) {
         log.error("Unknown error occurred", ex);
-        return ApiResponse.error("An unexpected error occurred: " + ex.getMessage());
+        String cause = ex.getCause() != null ? ex.getCause().toString() : "No cause";
+        return ApiResponse.error("An unexpected error occurred: " + ex.toString() + " | Cause: " + cause);
     }
 }

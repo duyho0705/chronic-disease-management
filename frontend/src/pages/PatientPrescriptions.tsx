@@ -14,7 +14,7 @@ const PatientPrescriptions: React.FC = () => {
                         <span className="material-symbols-outlined text-lg">history</span>
                         Lịch sử
                     </button>
-                    <button className="flex items-center gap-2 px-4 py-2 bg-primary text-slate-900 rounded-xl font-bold text-sm shadow-lg shadow-primary/20 active:scale-95 transition-transform">
+                    <button className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl font-bold text-sm shadow-lg shadow-primary/20 active:scale-95 transition-transform">
                         <span className="material-symbols-outlined text-lg">add_shopping_cart</span>
                         Yêu cầu cấp lại
                     </button>
@@ -199,7 +199,7 @@ const PatientPrescriptions: React.FC = () => {
                             <p className="text-sm text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
                                 Bạn còn **3 ngày** thuốc <strong>Metformin</strong>. Chúng tôi khuyên bạn nên yêu cầu cấp lại đơn ngay để không gián đoạn điều trị.
                             </p>
-                            <button className="w-full bg-primary text-slate-900 font-black py-3.5 rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 hover:bg-primary/90 hover:-translate-y-1 transition-all active:scale-95 uppercase tracking-widest text-xs">
+                            <button className="w-full bg-primary text-white font-black py-3.5 rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 hover:bg-primary/90 hover:-translate-y-1 transition-all active:scale-95 uppercase tracking-widest text-xs">
                                 <span className="material-symbols-outlined text-lg">autorenew</span>
                                 Tái cấp ngay
                             </button>

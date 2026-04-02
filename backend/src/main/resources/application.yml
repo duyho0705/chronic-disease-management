@@ -2,7 +2,7 @@ spring:
   application:
     name: backend
   datasource:
-    url: jdbc:postgresql://ep-delicate-moon-a1jfnlax-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
+    url: jdbc:postgresql://ep-delicate-moon-a1jfnlax-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&preparedThreshold=0
     username: neondb_owner
     password: npg_N1lq4SYCHGov
     driver-class-name: org.postgresql.Driver

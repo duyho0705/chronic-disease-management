@@ -47,20 +47,8 @@ const PatientHeader: React.FC<PatientHeaderProps> = ({ setIsSidebarOpen }) => {
                 <button className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl bg-background-light dark:bg-slate-800 text-slate-600 transition-all hover:bg-slate-200 dark:hover:bg-slate-700 group">
                     <span className="material-symbols-outlined text-xl font-bold group-hover:text-primary transition-colors">settings</span>
                 </button>
-                
-                <div className="hidden xs:block h-8 w-px bg-slate-200 dark:bg-slate-700 mx-1 md:mx-2"></div>
-                
-                <div className="flex items-center gap-3 pl-2 cursor-pointer group">
-                    <div className="text-right hidden sm:block">
-                        <p className="text-[15px] font-bold text-slate-900 dark:text-white leading-none group-hover:text-primary transition-colors">Nguyễn Văn A</p>
-                        <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mt-1">ID: BN12345</p>
-                    </div>
-                    <div 
-                        className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-tr from-primary to-blue-400 border-2 border-white dark:border-slate-800 shadow-md shadow-primary/10 overflow-hidden transition-all group-hover:scale-105"
-                        style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuB0IL8Ha85DrLIQW4Y4bRik-fxoCNe-lh7EdSlQJtP3AvZlLOF-v_6fahyzIdteXZ8x4RqXt1QbBv_TFGFijuUfXcPxpBd2JXZ9iv6usWjVuOyKJq7g32UHMfCPIv-pvDzHq9EY4ucfOkJ9IsYKy8rySac2j2sg16xcAzR0XMIq65Y7ez5PPbRpiNPfHC5lP4kkzpn35gPZq_ub95d5J7Zww14hAZU00q5sZxBe7ER6IAorxZdPItiWzMqhKnk00X-9fyxWEpIb5r8')", backgroundSize: 'cover' }}
-                    ></div>
-                </div>
             </div>
+
             <style>{`
                 @keyframes flag-wave {
                     0% { transform: scale(1); }

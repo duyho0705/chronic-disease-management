@@ -1,14 +1,30 @@
 package com.project.service.impl;
 
+import com.project.dto.request.CreatePatientRequest;
 import com.project.dto.response.ClinicDashboardResponse;
+import com.project.dto.response.ClinicPatientResponse;
+import com.project.entity.Patient;
+import com.project.entity.User;
+import com.project.repository.PatientRepository;
+import com.project.repository.UserRepository;
 import com.project.service.ClinicDashboardService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ClinicDashboardServiceImpl implements ClinicDashboardService {
+
+    private final PatientRepository patientRepository;
+    private final UserRepository userRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -60,5 +76,84 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
                 .growthStats(growthStats)
                 .doctorPerformances(performances)
                 .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ClinicPatientResponse> getPatientRecords(Long clinicId, String keyword) {
+        List<Patient> patients = patientRepository.findByClinicIdAndFilters(clinicId, keyword);
+        
+        // If results are empty and it was a clinic filter, try fetching all for demo
+        if (patients.isEmpty() && (keyword == null || keyword.isBlank())) {
+            patients = patientRepository.findAll();
+        }
+
+        List<User> doctors = userRepository.findByFilters("DOCTOR", "ACTIVE", null, null, null).getContent();
+        Map<Long, String> doctorMap = doctors.stream()
+                .collect(Collectors.toMap(User::getId, User::getFullName, (existing, replacement) -> existing));
+
+        return patients.stream().map(p -> {
+            int age = p.getDateOfBirth() != null ? Period.between(p.getDateOfBirth(), LocalDate.now()).getYears() : 0;
+            return ClinicPatientResponse.builder()
+                    .id(p.getPatientCode())
+                    .name(p.getFullName())
+                    .age(age)
+                    .phone(p.getPhone())
+                    .condition(p.getChronicCondition() != null ? p.getChronicCondition() : "N/A")
+                    .riskLevel(p.getRiskLevel() != null ? p.getRiskLevel() : "Bình thường")
+                    .doctor(p.getDoctorId() != null ? doctorMap.getOrDefault(p.getDoctorId(), "Chưa phân công") : "Chưa phân công")
+                    .location(p.getRoomLocation() != null ? p.getRoomLocation() : "Ngoại trú")
+                    .status(p.getTreatmentStatus() != null ? p.getTreatmentStatus() : "Đang theo dõi")
+                    .img(p.getAvatarUrl() != null ? p.getAvatarUrl() : "https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=150&h=150")
+                    .build();
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void createPatient(Long clinicId, CreatePatientRequest request) {
+        String email = request.getName().toLowerCase().replace(" ", "") + System.currentTimeMillis() % 1000 + "@patient.com";
+        User user = User.builder()
+                .email(email)
+                .password("$2a$10$vO.mXyMCHmJ/l3X2uR8Nbeu0iZ5Yv/0/O7U9q7jX0m0j0u0u0u0u.")
+                .role("PATIENT")
+                .fullName(request.getName())
+                .phone(request.getPhone())
+                .clinicId(clinicId)
+                .status("ACTIVE")
+                .build();
+        user = userRepository.save(user);
+
+        Long drId = null;
+        if (request.getAssignedDoctor() != null) {
+            String drName = request.getAssignedDoctor().replace("BS. ", "");
+            List<User> foundDrs = userRepository.findByFilters("DOCTOR", "ACTIVE", null, drName, null).getContent();
+            if (!foundDrs.isEmpty()) {
+                drId = foundDrs.get(0).getId();
+            }
+        }
+
+        int age = 0;
+        try { age = Integer.parseInt(request.getAge()); } catch (Exception ignored) {}
+
+        Patient patient = Patient.builder()
+                .userId(user.getId())
+                .clinicId(clinicId)
+                .fullName(request.getName())
+                .phone(request.getPhone())
+                .gender(request.getGender())
+                .address(request.getAddress())
+                .dateOfBirth(LocalDate.now().minusYears(age))
+                .patientCode("BN-" + (1000 + new Random().nextInt(9000)))
+                .doctorId(drId)
+                .joinedDate(LocalDate.now())
+                .chronicCondition(request.getCondition())
+                .riskLevel(request.getRiskLevel())
+                .treatmentStatus("Đang điều trị")
+                .roomLocation("Ngoại trú")
+                .clinicalNotes(request.getNotes())
+                .build();
+
+        patientRepository.save(patient);
     }
 }

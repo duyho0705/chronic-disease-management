@@ -1,6 +1,9 @@
 package com.project.dto.response;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -19,5 +22,4 @@ public class HealthMetricResponse {
     private String status;
     private String notes;
     private LocalDateTime measuredAt;
-    private String changePercentage;
 }

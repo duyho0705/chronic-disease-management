@@ -1,16 +1,17 @@
 package com.project.controller;
 
+import com.project.dto.request.CreatePatientRequest;
 import com.project.dto.response.ApiResponse;
 import com.project.dto.response.ClinicDashboardResponse;
+import com.project.dto.response.ClinicPatientResponse;
 import com.project.service.ClinicDashboardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/clinic")
@@ -26,8 +27,30 @@ public class ClinicDashboardController {
     public ApiResponse<ClinicDashboardResponse> getDashboard(
             @RequestParam(required = false) Long clinicId
     ) {
-        // Normally extract clinicId from current authenticated user context if not provided
-        Long targetClinicId = clinicId != null ? clinicId : 1L; // Mock clinic ID
-        return ApiResponse.success("Clinic dashboard data fetched successfully", clinicDashboardService.getDashboardData(targetClinicId));
+        Long targetClinicId = clinicId != null ? clinicId : 1L;
+        return ApiResponse.success("Clinic dashboard data fetched successfully", 
+                clinicDashboardService.getDashboardData(targetClinicId));
+    }
+
+    @GetMapping("/patients")
+    @Operation(summary = "Get clinic patients list", description = "Returns list of patients belonging to a clinic")
+    public ApiResponse<List<ClinicPatientResponse>> getPatients(
+            @RequestParam(required = false) Long clinicId,
+            @RequestParam(required = false) String keyword
+    ) {
+        Long targetClinicId = clinicId != null ? clinicId : 1L;
+        return ApiResponse.success("Clinic patients fetched successfully", 
+                clinicDashboardService.getPatientRecords(targetClinicId, keyword));
+    }
+
+    @PostMapping("/patients")
+    @Operation(summary = "Create new patient record", description = "Add a new chronic patient record to the clinic")
+    public ApiResponse<Void> createPatient(
+            @RequestParam(required = false) Long clinicId,
+            @RequestBody CreatePatientRequest request
+    ) {
+        Long targetClinicId = clinicId != null ? clinicId : 1L;
+        clinicDashboardService.createPatient(targetClinicId, request);
+        return ApiResponse.success("Patient record created successfully", null);
     }
 }

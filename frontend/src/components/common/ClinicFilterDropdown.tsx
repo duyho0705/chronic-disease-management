@@ -1,13 +1,15 @@
 import { useState } from 'react';
+import type { ReactNode } from 'react';
 
 interface ClinicFilterDropdownProps {
     value: string;
     options: string[];
     onChange: (value: string) => void;
     minWidth?: string;
+    icon?: ReactNode;
 }
 
-export default function ClinicFilterDropdown({ value, options, onChange, minWidth = '180px' }: ClinicFilterDropdownProps) {
+export default function ClinicFilterDropdown({ value, options, onChange, minWidth = '180px', icon }: ClinicFilterDropdownProps) {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
@@ -17,9 +19,13 @@ export default function ClinicFilterDropdown({ value, options, onChange, minWidt
                 className="bg-slate-50 dark:bg-slate-800 border-2 border-transparent hover:border-primary/20 rounded-2xl text-[14px] font-bold py-3.5 px-6 flex items-center justify-between gap-3 transition-all active:scale-95 group"
                 style={{ minWidth }}
             >
-                <span className="text-slate-700 dark:text-slate-200 group-hover:text-primary transition-colors">{value}</span>
+                <div className="flex items-center gap-3">
+                    {icon && <div className="text-slate-400 group-hover:text-primary transition-colors">{icon}</div>}
+                    <span className="text-slate-700 dark:text-slate-200 group-hover:text-primary transition-colors uppercase tracking-tight">{value}</span>
+                </div>
                 <span className={`material-symbols-outlined text-slate-400 group-hover:text-primary transition-all duration-300 ${isOpen ? 'rotate-180' : ''}`}>expand_more</span>
             </button>
+
             {isOpen && (
                 <>
                     <div className="fixed inset-0 z-[100]" onClick={() => setIsOpen(false)}></div>
