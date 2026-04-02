@@ -216,7 +216,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                         }`}
                     >
                       <span className="material-symbols-outlined text-[18px]">block</span>
-                      Tạm dừng
+                      Ngưng hoạt động
                     </button>
                   </div>
                 </div>

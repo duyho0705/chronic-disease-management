@@ -74,8 +74,9 @@ export default function AdminAuditLogs() {
           </div>
           <button
             onClick={handleExport}
-            className="bg-slate-900 dark:bg-slate-800 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all text-[14px]">
-            <span className="material-symbols-outlined text-xl">download</span>
+            className="bg-slate-900 dark:bg-slate-800 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all text-[13px] active:scale-95 shadow-lg shadow-slate-900/10"
+          >
+            <span className="material-symbols-outlined text-[18px]">download</span>
             Xuất dữ liệu
           </button>
         </div>

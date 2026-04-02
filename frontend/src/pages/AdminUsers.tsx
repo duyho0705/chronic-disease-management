@@ -41,7 +41,7 @@ export default function AdminUsers() {
 
       const statusMapping: any = {
         'Hoạt động': 'ACTIVE',
-        'Đã khóa': 'INACTIVE'
+        'Ngưng hoạt động': 'INACTIVE'
       };
 
       const selectedClinicObj = clinics.find(c => c.name === selectedClinic);
@@ -200,7 +200,7 @@ export default function AdminUsers() {
     try {
       // 2. Secret background update
       await userApi.toggleStatus(user.id);
-      const action = isCurrentlyActive ? 'khóa' : 'mở khóa';
+      const action = isCurrentlyActive ? 'ngưng hoạt động' : 'kích hoạt';
       setToastTitle(`Đã ${action} tài khoản ${user.name}`);
       setShowToast(true);
 
@@ -223,18 +223,19 @@ export default function AdminUsers() {
               <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Quản lý người dùng</h2>
               <p className="text-[16px] text-slate-500 mt-1 font-medium">Phân quyền và quản lý tài khoản toàn hệ thống.</p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               <button
                 onClick={handleExport}
-                className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:bg-slate-200 transition-all text-[14px]">
-                <span className="material-symbols-outlined text-xl">ios_share</span>
+                className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-lg font-bold transition-all text-[13px] border border-primary/10 active:scale-95 shadow-sm"
+              >
+                <span className="material-symbols-outlined text-[18px]">ios_share</span>
                 Xuất báo cáo
               </button>
               <button
                 onClick={() => setIsCreateModalOpen(true)}
-                className="bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all text-[14px]"
+                className="flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-lg font-bold transition-all text-[13px] shadow-lg shadow-slate-900/10 active:scale-95"
               >
-                <span className="material-symbols-outlined font-bold">person_add</span>
+                <span className="material-symbols-outlined text-[18px]">person_add</span>
                 Thêm người dùng mới
               </button>
             </div>
@@ -301,7 +302,7 @@ export default function AdminUsers() {
               <div>
                 <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">Trạng thái</label>
                 <Dropdown
-                  options={['Tất cả trạng thái', 'Hoạt động', 'Đã khóa']}
+                  options={['Tất cả trạng thái', 'Hoạt động', 'Ngưng hoạt động']}
                   value={selectedStatus}
                   onChange={setSelectedStatus}
                 />
@@ -392,10 +393,10 @@ export default function AdminUsers() {
                                 className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-300 ${isActive
                                   ? 'bg-slate-100 text-slate-400 hover:bg-red-500/10 hover:text-red-500'
                                   : 'bg-red-500/10 text-red-500 hover:bg-emerald-500/10 hover:text-emerald-500'}`}
-                                title={isActive ? 'Khóa' : 'Mở khóa'}
+                                title={isActive ? 'Ngưng hoạt động' : 'Kích hoạt'}
                               >
                                 <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: isActive ? "'FILL' 0" : "'FILL' 1" }}>
-                                  {isActive ? 'lock_open' : 'lock'}
+                                  {isActive ? 'block' : 'check_circle'}
                                 </span>
                               </button>
                             </div>

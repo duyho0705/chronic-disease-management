@@ -1,24 +1,40 @@
 import AdminLayout from '../layouts/AdminLayout';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../constants/routes';
 import Dropdown from '../components/ui/Dropdown';
+import { adminApi } from '../api/admin';
 
 export default function AdminReports() {
-  const [reportType, setReportType] = useState('Month');
+  const [reportType, setReportType] = useState('Tháng');
   const [performanceFilter, setPerformanceFilter] = useState('Tất cả kết quả');
+  const [reportsData, setReportsData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const performanceData = [
-    { name: "Vitality Quận 1", cases: "1,240", appts: "842", ad: "95%", status: "Tốt", color: "emerald" },
-    { name: "Vitality Thảo Điền", cases: "860", appts: "624", ad: "91%", status: "Tốt", color: "emerald" },
-    { name: "Vitality Phú Mỹ Hưng", cases: "720", appts: "415", ad: "84%", status: "Ổn định", color: "primary" },
-    { name: "Vitality Cầu Giấy (Mới)", cases: "310", appts: "186", ad: "68%", status: "Cần lưu ý", color: "amber" }
+  useEffect(() => {
+    fetchReports();
+  }, [reportType, performanceFilter]);
+
+  const fetchReports = async () => {
+    setIsLoading(true);
+    try {
+      const res = await adminApi.getReportsData(reportType, performanceFilter);
+      if (res && res.data) {
+        setReportsData(res.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch report data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const statCards = [
+    { label: 'Chỉ số hài lòng (NPS)', value: reportsData?.summary?.nps || '0', trend: '+0.0', trendType: 'up', icon: 'sentiment_very_satisfied', color: 'emerald' },
+    { label: 'Thời gian khám TB', value: reportsData?.summary?.avgTime || '0', unit: 'phút', trend: 'Ổn định', trendType: 'check', icon: 'schedule', color: 'blue' },
+    { label: 'Tỷ lệ tái khám', value: reportsData?.summary?.returnRate || '0', unit: '%', trend: 'Ổn định', trendType: 'check', icon: 'event_repeat', color: 'primary' },
+    { label: 'Tỷ lệ giữ chân', value: reportsData?.summary?.retentionRate || '0', unit: '%', trend: 'Ổn định', trendType: 'check', icon: 'favorite', color: 'red' }
   ];
-
-  const filteredData = performanceData.filter(row => {
-    if (performanceFilter === 'Tất cả kết quả') return true;
-    return row.status === performanceFilter;
-  });
 
   return (
     <AdminLayout>
@@ -27,7 +43,7 @@ export default function AdminReports() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
             <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Báo cáo hợp nhất</h2>
-            <p className="text-[16px] text-slate-500 mt-1 font-medium">Phân tích dữ liệu vận hành toàn hệ thống</p>
+            <p className="text-[16px] text-slate-500 mt-1 font-medium italic-none">Phân tích dữ liệu vận hành toàn hệ thống</p>
           </div>
           <div className="flex flex-wrap items-center gap-4">
             <div className="bg-primary/5 dark:bg-slate-800 rounded-xl p-1 flex gap-1 border border-primary/5">
@@ -42,22 +58,12 @@ export default function AdminReports() {
                 </button>
               ))}
             </div>
-            <button className="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-slate-900 border border-primary/10 text-slate-700 dark:text-slate-200 text-[13px] font-bold rounded-xl hover:bg-slate-50 shadow-sm">
-              <span className="material-symbols-outlined text-[18px]">calendar_today</span>
-              01/10/2023 - 31/10/2023
-            </button>
-
           </div>
         </div>
 
-        {/* High-level Stats Bento - Match Simplified Look */}
+        {/* High-level Stats Bento */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {[
-            { label: 'Chỉ số hài lòng (NPS)', value: '78.5', trend: '+2.4', trendType: 'up', icon: 'sentiment_very_satisfied', color: 'emerald' },
-            { label: 'Thời gian khám TB', value: '24', unit: 'phút', trend: '+3m', trendType: 'up-warning', icon: 'schedule', color: 'blue' },
-            { label: 'Tỷ lệ tái khám', value: '92', unit: '%', trend: '+5%', trendType: 'up', icon: 'event_repeat', color: 'primary' },
-            { label: 'Tỷ lệ giữ chân', value: '84', unit: '%', trend: 'Ổn định', trendType: 'check', icon: 'favorite', color: 'red' }
-          ].map((stat, idx) => (
+          {statCards.map((stat, idx) => (
             <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm transition-all group hover:shadow-md">
               <div className="flex justify-between items-start mb-4">
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.color === 'primary' ? 'bg-primary/10 text-primary' :
@@ -76,8 +82,8 @@ export default function AdminReports() {
                   {stat.trend}
                 </span>
               </div>
-              <p className="text-slate-500 text-[15px] font-medium mt-1">{stat.label}</p>
-              <h3 className={`text-2xl font-black ${stat.color === 'red' && false ? 'text-red-500' : 'text-slate-900 dark:text-white'} tracking-tight mt-1`}>
+              <p className="text-slate-500 text-[15px] font-medium mt-1 font-display tracking-tight leading-none">{stat.label}</p>
+              <h3 className={`text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-2`}>
                 {stat.value}
                 {stat.unit && <span className="text-[14px] font-bold ml-1 opacity-50">{stat.unit}</span>}
               </h3>
@@ -85,18 +91,13 @@ export default function AdminReports() {
           ))}
         </div>
 
-        {/* Charts Section */}
+        {/* Charts & Breakdown */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Patient Growth Trend Chart */}
           <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-primary/5 relative overflow-hidden">
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h4 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Xu hướng tăng trưởng hệ thống</h4>
-                <p className="text-[15px] font-medium text-slate-500 mt-1">Dữ liệu tổng hợp từ các chi nhánh</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-primary mb-0.5"></span>
-                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Lượng bệnh nhân</span>
+                <p className="text-[15px] font-medium text-slate-500 mt-1">Dữ liệu tổng hợp toàn thời gian</p>
               </div>
             </div>
 
@@ -119,49 +120,29 @@ export default function AdminReports() {
                   strokeWidth="4"
                   strokeLinecap="round"
                 />
-                {[
-                  { x: 120, y: 195 }, { x: 240, y: 150 }, { x: 360, y: 165 },
-                  { x: 480, y: 120 }, { x: 600, y: 135 }, { x: 720, y: 105 }, { x: 800, y: 85 }
-                ].map((pt, i) => (
-                  <circle
-                    key={i}
-                    cx={pt.x}
-                    cy={pt.y}
-                    r="6"
-                    fill="#3bb9f3"
-                    stroke="white"
-                    strokeWidth="3"
-                    className="drop-shadow-sm transition-transform hover:scale-125 cursor-pointer"
-                  />
-                ))}
               </svg>
               <div className="absolute bottom-0 w-full flex justify-between px-2 text-[10px] font-extrabold text-slate-300 dark:text-slate-600 pt-6 uppercase tracking-widest pointer-events-none">
-                <span>Tháng 5</span>
-                <span>Tháng 6</span>
-                <span>Tháng 7</span>
-                <span>Tháng 8</span>
-                <span>Tháng 9</span>
-                <span>Tháng 10</span>
+                {reportsData?.growthTrend?.map((pt: any, i: number) => (
+                  <span key={i}>{pt.label}</span>
+                ))}
               </div>
             </div>
 
-            {/* Quick Analytics Summary Bar */}
             <div className="mt-12 pt-8 border-t border-slate-50 dark:border-slate-800">
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
                 {[
-                  { label: 'Tỷ lệ tăng trưởng', val: '+12.4%', icon: 'trending_up', color: 'emerald', sub: 'So với Tháng 5' },
-                  { label: 'Tháng cao điểm', val: 'Tháng 10', icon: 'event', color: 'primary', sub: '1,240 ca' },
-                  { label: 'Tỷ lệ quay lại', val: '84.2%', icon: 'replay', color: 'blue', sub: 'Bệnh nhân cũ' },
-                  { label: 'Dự báo T11', val: '+5.8%', icon: 'bolt', color: 'amber', sub: 'Dự đoán AI' }
+                  { label: 'Tỷ lệ tăng trưởng', val: reportsData?.analytics?.growthRate || '0%', icon: 'trending_up', color: 'emerald', sub: 'So với kỳ trước' },
+                  { label: 'Điểm cao nhất', val: reportsData?.analytics?.peakMonth || 'N/A', icon: 'event', color: 'primary', sub: 'Dữ liệu thô' },
+                  { label: 'Tỷ lệ quay lại', val: reportsData?.analytics?.returnRate || '0%', icon: 'replay', color: 'blue', sub: 'Bệnh nhân cũ' },
+                  { label: 'Dự báo kỳ tới', val: reportsData?.analytics?.forecast || '0%', icon: 'bolt', color: 'amber', sub: 'Dự đoán thông minh' }
                 ].map((item, i) => (
                   <div key={i} className="flex flex-col">
                     <div className="flex items-center gap-1.5 text-slate-400 dark:text-slate-500 mb-1.5">
                       <span className={`material-symbols-outlined text-[18px] text-${item.color}-500`} style={{ fontVariationSettings: "'FILL' 1" }}>{item.icon}</span>
-                      <span className="text-[14px] font-medium text-slate-600">{item.label}</span>
+                      <span className="text-[14px] font-medium text-slate-600 line-clamp-1">{item.label}</span>
                     </div>
                     <div className="flex items-baseline gap-2">
-                      <span className="text-[15px] font-bold text-slate-900 dark:text-white leading-none tracking-tight">{item.val}</span>
-                      <span className="text-[13px] font-bold text-slate-600 dark:text-slate-500">{item.sub}</span>
+                       <span className="text-[15px] font-black text-slate-900 dark:text-white leading-none tracking-tight">{item.val}</span>
                     </div>
                   </div>
                 ))}
@@ -169,39 +150,33 @@ export default function AdminReports() {
             </div>
           </div>
 
-          {/* Revenue Breakdown */}
           <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-primary/5 flex flex-col">
-            <h4 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white mb-2">Phân bổ bệnh nhân</h4>
-            <p className="text-[15px] font-medium text-slate-500 mb-10">Mạng lưới chi nhánh tháng 10</p>
+            <h4 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white mb-2 leading-tight">Phân bổ bệnh nhân</h4>
+            <p className="text-[15px] font-medium text-slate-500 mb-10">Mạng lưới chi nhánh tháng này</p>
             <div className="space-y-6 flex-1">
-              {[
-                { name: "Vitality Quận 1", val: "1,240 Bệnh nhân", p: "45%", icon: 'home_health' },
-                { name: "Vitality Thảo Điền", val: "860 Bệnh nhân", p: "30%", icon: 'home_health' },
-                { name: "Phú Mỹ Hưng", val: "720 Bệnh nhân", p: "20%", icon: 'home_health' },
-                { name: "Cầu Giấy (Mới)", val: "310 Bệnh nhân", p: "5%", icon: 'home_health' }
-              ].map((item, idx) => (
+              {reportsData?.clinicBreakdown?.map((item: any, idx: number) => (
                 <div key={idx} className="group">
-                  <div className="flex items-center gap-3 mb-2">
+                  <div className="flex items-center gap-3 mb-2 text-left">
                     <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                      <span className="material-symbols-outlined text-[23px]">{item.icon}</span>
+                      <span className="material-symbols-outlined text-[20px]">{item.icon || 'home_health'}</span>
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-[15px] font-medium text-slate-600">{item.name}</span>
+                      <span className="text-[15px] font-medium text-slate-600 truncate max-w-[200px]">{item.name}</span>
                       <div className="flex items-baseline gap-2">
-                        <span className="text-[14px] font-bold text-slate-900 dark:text-white">{item.val}</span>
-                        <span className="text-[12px] font-medium text-slate-600">{item.p}</span>
+                        <span className="text-[14px] font-bold text-slate-900 dark:text-white">{item.value}</span>
+                        <span className="text-[12px] font-medium text-slate-600">{item.percentage}</span>
                       </div>
                     </div>
                   </div>
                   <div className="w-full bg-slate-50 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                    <div className="bg-primary h-full rounded-full transition-all duration-1000" style={{ width: item.p }}></div>
+                    <div className="bg-primary h-full rounded-full transition-all duration-1000" style={{ width: item.percentage }}></div>
                   </div>
                 </div>
               ))}
             </div>
             <Link
               to={ROUTES.ADMIN.USERS}
-              className="mt-10 py-3.5 w-full bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-[13px] font-bold rounded-xl border border-primary/10 hover:bg-slate-50 transition-all flex items-center justify-center gap-2 group"
+              className="mt-10 py-3.5 w-full bg-slate-900 text-white text-[13px] font-bold rounded-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2 group shadow-xl shadow-slate-900/10"
             >
               Xem chi tiết bệnh nhân
               <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
@@ -209,9 +184,14 @@ export default function AdminReports() {
           </div>
         </div>
 
-        {/* Detailed Clinic Performance Table - Same as Doctor Dashboard Style */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm border border-primary/5">
-          <div className="p-8 border-b border-primary/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Detailed Clinic PerformanceTable */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm border border-primary/5 relative">
+          {isLoading && (
+            <div className="absolute inset-0 bg-white/40 dark:bg-slate-900/40 backdrop-blur-[1px] z-20 flex items-center justify-center">
+              <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          )}
+          <div className="p-8 border-b border-primary/5 flex flex-col md:flex-row md:items-center justify-between gap-4 text-left">
             <div>
               <h4 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Chi tiết hiệu suất phòng khám</h4>
               <p className="text-[15px] font-medium text-slate-500 mt-1">Phân tích tải trọng và trạng thái vận hành</p>
@@ -220,39 +200,38 @@ export default function AdminReports() {
               options={['Tất cả kết quả', 'Tốt', 'Ổn định', 'Cần lưu ý']}
               value={performanceFilter}
               onChange={setPerformanceFilter}
-              variant="badge"
               className="w-44"
             />
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="px-8 py-4 text-[15px] text-slate-500 leading-none">
-                  <th className="font-medium px-8 py-5">Phòng khám</th>
-                  <th className="font-medium px-6 py-5">Số ca khám</th>
-                  <th className="font-medium px-6 py-5">Lượt đặt lịch mới</th>
-                  <th className="font-medium px-6 py-5">Tuân thủ điều trị</th>
-                  <th className="font-medium px-6 py-5 text-right">Trạng thái</th>
+                <tr className="bg-slate-50/50 dark:bg-slate-800/10 border-b border-slate-50 dark:border-slate-800">
+                  <th className="font-medium px-8 py-5 text-[15px] text-slate-500 leading-none">Phòng khám</th>
+                  <th className="font-medium px-6 py-5 text-[15px] text-slate-500 leading-none">Số ca khám</th>
+                  <th className="font-medium px-6 py-5 text-[15px] text-slate-500 leading-none">Lượt đặt lịch mới</th>
+                  <th className="font-medium px-6 py-5 text-[15px] text-slate-500 leading-none">Tuân thủ điều trị</th>
+                  <th className="font-medium px-8 py-5 text-[15px] text-slate-500 leading-none text-right">Trạng thái</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-primary/5">
-                {filteredData.map((row, idx) => (
+                {reportsData?.clinicPerformances?.map((row: any, idx: number) => (
                   <tr key={idx} className="hover:bg-primary/5 transition-colors group">
-                    <td className="px-8 py-5 text-[15px] font-bold text-slate-900 dark:text-white transition-colors tracking-tight">{row.name}</td>
-                    <td className="px-6 py-5 text-[15px] font-extrabold text-slate-700 dark:text-slate-300">{row.cases}</td>
-                    <td className="px-6 py-5 text-[15px] font-black text-emerald-600 dark:text-emerald-400">{row.appts}</td>
+                    <td className="px-8 py-5 text-[15px] font-bold text-slate-900 dark:text-white tracking-tight">{row.name}</td>
+                    <td className="px-6 py-5 text-[15px] font-extrabold text-slate-900 dark:text-white">{row.cases}</td>
+                    <td className="px-6 py-5 text-[15px] font-bold text-emerald-600 dark:text-emerald-400">{row.appointments}</td>
                     <td className="px-6 py-5">
-                      <span className={`px-4 py-1 rounded-full text-[13px] font-bold shadow-sm inline-flex ${parseInt(row.ad) >= 90 ? 'bg-emerald-500 text-white' :
-                        parseInt(row.ad) >= 80 ? 'bg-primary text-white' :
+                      <span className={`px-4 py-1 rounded-full text-[13px] font-bold shadow-sm inline-flex ${parseInt(row.adherence) >= 90 ? 'bg-emerald-500 text-white' :
+                        parseInt(row.adherence) >= 80 ? 'bg-primary text-white' :
                           'bg-amber-500 text-white'
                         }`}>
-                        {row.ad}
+                        {row.adherence}
                       </span>
                     </td>
-                    <td className="px-6 py-5 text-right">
-                      <div className={`inline-flex items-center gap-2 text-${row.color === 'emerald' ? 'emerald-500' : row.color === 'amber' ? 'amber-500' : 'primary'} font-extrabold text-[14px]`}>
+                    <td className="px-8 py-5 text-right">
+                      <span className={`font-black text-[14px] ${row.status === 'Tốt' ? 'text-emerald-500' : row.status === 'Ổn định' ? 'text-primary' : 'text-amber-500'}`}>
                         {row.status}
-                      </div>
+                      </span>
                     </td>
                   </tr>
                 ))}
@@ -261,7 +240,6 @@ export default function AdminReports() {
           </div>
         </div>
       </section>
-
     </AdminLayout>
   );
 }

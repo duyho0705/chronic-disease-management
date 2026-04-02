@@ -1,29 +1,45 @@
 package com.project.service.impl;
 
-import com.project.dto.request.CreateClinicRequest;
-import com.project.dto.request.CreateUserRequest;
-import com.project.dto.request.UpdateClinicRequest;
-import com.project.dto.request.UpdateUserRequest;
-import com.project.dto.response.*;
-import com.project.entity.Clinic;
-import com.project.entity.User;
-import com.project.exception.ResourceNotFoundException;
-import com.project.repository.ClinicRepository;
-import com.project.repository.UserRepository;
-import com.project.repository.AuditLogRepository;
-import com.project.repository.SystemConfigRepository;
-import com.project.entity.SystemConfig;
-import com.project.dto.request.UpdateSystemConfigRequest;
-import com.project.service.AdminService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import com.project.dto.request.CreateClinicRequest;
+import com.project.dto.request.CreateUserRequest;
+import com.project.dto.request.UpdateClinicRequest;
+import com.project.dto.request.UpdateSystemConfigRequest;
+import com.project.dto.request.UpdateUserRequest;
+import com.project.dto.response.AdminClinicResponse;
+import com.project.dto.response.AdminClinicStatsResponse;
+import com.project.dto.response.AdminDashboardResponse;
+import com.project.dto.response.AdminReportsResponse;
+import com.project.dto.response.AdminUserResponse;
+import com.project.dto.response.AdminUserStatsResponse;
+import com.project.dto.response.AuditLogResponse;
+import com.project.dto.response.SystemConfigResponse;
+import com.project.entity.Clinic;
+import com.project.entity.SystemConfig;
+import com.project.entity.User;
+import com.project.exception.ResourceNotFoundException;
+import com.project.repository.AppointmentRepository;
+import com.project.repository.AuditLogRepository;
+import com.project.repository.ClinicRepository;
+import com.project.repository.SystemConfigRepository;
+import com.project.repository.UserRepository;
+import com.project.service.AdminService;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +50,7 @@ public class AdminServiceImpl implements AdminService {
     private final UserRepository userRepository;
     private final AuditLogRepository auditLogRepository;
     private final SystemConfigRepository systemConfigRepository;
+    private final AppointmentRepository appointmentRepository;
     private final PasswordEncoder passwordEncoder;
 
     // ========================
@@ -42,7 +59,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional(readOnly = true)
-    public AdminDashboardResponse getDashboardData() {
+    public AdminDashboardResponse getDashboardData(String timeRange) {
         long totalPatients = userRepository.countByRole("PATIENT");
         long activeClinics = clinicRepository.countByStatus("ACTIVE");
         long totalDoctors = userRepository.countByRole("DOCTOR");
@@ -58,15 +75,23 @@ public class AdminServiceImpl implements AdminService {
                 .doctorTrend("+4 mới")
                 .build();
 
-        // Clinic performance for the table
+        // Clinic performance - Optimizing by pre-fetching counts in grouping map
         List<Clinic> topClinics = clinicRepository.findAll();
+        Map<Long, Long> patientCounts = userRepository.countByRoleGroupedByClinic("PATIENT")
+                .stream().collect(Collectors.toMap(obj -> (Long) obj[0], obj -> (Long) obj[1]));
+        Map<Long, Long> doctorCounts = userRepository.countByRoleGroupedByClinic("DOCTOR")
+                .stream().collect(Collectors.toMap(obj -> (Long) obj[0], obj -> (Long) obj[1]));
+
         List<AdminDashboardResponse.ClinicPerformanceDto> performances = topClinics.stream()
                 .map(c -> AdminDashboardResponse.ClinicPerformanceDto.builder()
                         .id(c.getId())
+                        .clinicCode(c.getClinicCode())
                         .name(c.getName())
-                        .patientCount(userRepository.countByRoleAndClinicId("PATIENT", c.getId()))
+                        .patientCount(patientCounts.getOrDefault(c.getId(), 0L))
+                        .doctorCount(doctorCounts.getOrDefault(c.getId(), 0L))
+                        .phone(c.getPhone())
                         .growth("+0%")
-                        .status("ACTIVE".equals(c.getStatus()) ? "Hoạt động" : "Ngưng hoạt động")
+                        .status(c.getStatus())
                         .build())
                 .toList();
 
@@ -87,10 +112,85 @@ public class AdminServiceImpl implements AdminService {
                         .color("emerald")
                         .build());
 
+        // Chart data logic
+        List<AdminDashboardResponse.ChartDataDto> chartData = new ArrayList<>();
+        LocalDate today = LocalDate.now();
+
+        if ("YEAR".equalsIgnoreCase(timeRange)) {
+            LocalDate startPoint = today.minusYears(4); // Last 5 years
+            List<Object[]> results = userRepository.countNewPatientsByYearNative(startPoint.atStartOfDay());
+            Map<String, Long> yearData = new HashMap<>();
+            for (Object[] res : results) {
+                LocalDateTime yDate = (res[0] instanceof LocalDateTime) ? (LocalDateTime) res[0]
+                        : ((java.sql.Timestamp) res[0]).toLocalDateTime();
+                yearData.put(String.valueOf(yDate.getYear()), ((Number) res[1]).longValue());
+            }
+
+            for (int i = 0; i < 5; i++) {
+                String label = String.valueOf(startPoint.plusYears(i).getYear());
+                chartData.add(AdminDashboardResponse.ChartDataDto.builder()
+                        .label(label)
+                        .value(yearData.getOrDefault(label, 0L))
+                        .build());
+            }
+        } else if ("MONTH".equalsIgnoreCase(timeRange)) {
+            LocalDate startPoint = today.withDayOfMonth(1).minusMonths(11);
+            List<Object[]> results = userRepository.countNewPatientsByMonthNative(startPoint.atStartOfDay());
+            Map<String, Long> monthData = new HashMap<>();
+            for (Object[] res : results) {
+                // Postgres DATE_TRUNC returns a Timestamp. Java's Timestamp or LocalDateTime.
+                LocalDateTime mDate = (res[0] instanceof LocalDateTime) ? (LocalDateTime) res[0]
+                        : ((java.sql.Timestamp) res[0]).toLocalDateTime();
+                monthData.put("Th. " + mDate.getMonthValue(), ((Number) res[1]).longValue());
+            }
+
+            for (int i = 0; i < 12; i++) {
+                String label = "Th. " + startPoint.plusMonths(i).getMonthValue();
+                chartData.add(AdminDashboardResponse.ChartDataDto.builder()
+                        .label(label)
+                        .value(monthData.getOrDefault(label, 0L))
+                        .build());
+            }
+        } else {
+            LocalDate startPoint = today.minusDays(6);
+            List<Object[]> results = userRepository.countNewPatientsByDayNative(startPoint.atStartOfDay());
+            Map<String, Long> dayData = new HashMap<>();
+            for (Object[] res : results) {
+                if (res[0] == null)
+                    continue;
+                LocalDate dDate;
+                if (res[0] instanceof java.sql.Date) {
+                    dDate = ((java.sql.Date) res[0]).toLocalDate();
+                } else if (res[0] instanceof java.time.LocalDate) {
+                    dDate = (java.time.LocalDate) res[0];
+                } else if (res[0] instanceof java.time.LocalDateTime) {
+                    dDate = ((java.time.LocalDateTime) res[0]).toLocalDate();
+                } else {
+                    continue; // Skip unrecognized types
+                }
+
+                long count = ((Number) res[1]).longValue();
+                int dowValue = dDate.getDayOfWeek().getValue();
+                String label = (dowValue == 7) ? "Chủ Nhật" : "Thứ " + (dowValue + 1);
+                dayData.put(label, count);
+            }
+
+            for (int i = 0; i < 7; i++) {
+                LocalDate date = startPoint.plusDays(i);
+                int dowValue = date.getDayOfWeek().getValue();
+                String label = (dowValue == 7) ? "Chủ Nhật" : "Thứ " + (dowValue + 1);
+                chartData.add(AdminDashboardResponse.ChartDataDto.builder()
+                        .label(label)
+                        .value(dayData.getOrDefault(label, 0L))
+                        .build());
+            }
+        }
+
         return AdminDashboardResponse.builder()
                 .stats(stats)
                 .clinicPerformances(performances)
                 .recentActivities(activities)
+                .chartData(chartData)
                 .build();
     }
 
@@ -185,7 +285,8 @@ public class AdminServiceImpl implements AdminService {
         log.info("Successfully created clinic: {} ({}) and assigned manager: {}",
                 savedClinic.getName(), savedClinic.getClinicCode(), savedManager.getEmail());
 
-        recordActivity("Tạo mới", "Quản lý phòng khám", "Đã khởi tạo phòng khám " + savedClinic.getName() + " cùng quản trị viên mới.", "success");
+        recordActivity("Tạo mới", "Quản lý phòng khám",
+                "Đã khởi tạo phòng khám " + savedClinic.getName() + " cùng quản trị viên mới.", "success");
 
         return mapClinicToResponse(savedClinic);
     }
@@ -223,9 +324,10 @@ public class AdminServiceImpl implements AdminService {
 
         Clinic saved = clinicRepository.save(clinic);
         log.info("Updated clinic: {} (ID: {})", saved.getName(), saved.getId());
-        
-        recordActivity("Chỉnh sửa", "Quản lý phòng khám", "Đã cập nhật thông tin phòng khám " + saved.getName(), "success");
-        
+
+        recordActivity("Chỉnh sửa", "Quản lý phòng khám", "Đã cập nhật thông tin phòng khám " + saved.getName(),
+                "success");
+
         return mapClinicToResponse(saved);
     }
 
@@ -240,8 +342,9 @@ public class AdminServiceImpl implements AdminService {
         clinicRepository.save(clinic);
         log.info("Toggled clinic status: {} -> {} (ID: {})", clinic.getName(), newStatus, id);
 
-        String action = "ACTIVE".equals(newStatus) ? "Mở khóa" : "Khóa";
-        recordActivity(action, "Quản lý phòng khám", "Đã " + action.toLowerCase() + " phòng khám " + clinic.getName(), "ACTIVE".equals(newStatus) ? "success" : "warning");
+        String action = "ACTIVE".equals(newStatus) ? "Kích hoạt" : "Ngưng hoạt động";
+        recordActivity(action, "Quản lý phòng khám", "Đã " + action.toLowerCase() + " phòng khám " + clinic.getName(),
+                "ACTIVE".equals(newStatus) ? "success" : "warning");
     }
 
     // ========================
@@ -299,9 +402,10 @@ public class AdminServiceImpl implements AdminService {
 
         User saved = userRepository.save(user);
         log.info("Created new user: {} ({}) with role {}", saved.getFullName(), saved.getEmail(), saved.getRole());
-        
-        recordActivity("Tạo mới", "Quản lý người dùng", "Đã tạo tài khoản " + saved.getFullName() + " với vai trò " + mapRoleName(saved.getRole()), "success");
-        
+
+        recordActivity("Tạo mới", "Quản lý người dùng",
+                "Đã tạo tài khoản " + saved.getFullName() + " với vai trò " + mapRoleName(saved.getRole()), "success");
+
         return mapUserToResponse(saved);
     }
 
@@ -312,24 +416,32 @@ public class AdminServiceImpl implements AdminService {
                 .orElseThrow(() -> new ResourceNotFoundException("Người dùng không tồn tại với ID: " + id));
 
         // Always update basic info if provided
-        if (request.getFullName() != null) user.setFullName(request.getFullName());
-        if (request.getEmail() != null) user.setEmail(request.getEmail());
-        if (request.getPhone() != null) user.setPhone(request.getPhone());
-        if (request.getRole() != null) user.setRole(request.getRole());
-        if (request.getAvatarUrl() != null) user.setAvatarUrl(request.getAvatarUrl());
-        if (request.getStatus() != null) user.setStatus(request.getStatus());
+        if (request.getFullName() != null)
+            user.setFullName(request.getFullName());
+        if (request.getEmail() != null)
+            user.setEmail(request.getEmail());
+        if (request.getPhone() != null)
+            user.setPhone(request.getPhone());
+        if (request.getRole() != null)
+            user.setRole(request.getRole());
+        if (request.getAvatarUrl() != null)
+            user.setAvatarUrl(request.getAvatarUrl());
+        if (request.getStatus() != null)
+            user.setStatus(request.getStatus());
 
         // For clinicId, we need to allow setting it to null (Hệ thống chính)
         // Since this implementation uses if(null), we'll keep it for now but
         // in a real scenario we'd use Optional or similar.
-        // For currently selected logic, if the user picks null in FE, it must be updated.
-        user.setClinicId(request.getClinicId()); 
+        // For currently selected logic, if the user picks null in FE, it must be
+        // updated.
+        user.setClinicId(request.getClinicId());
 
         User saved = userRepository.save(user);
         log.info("Updated user: {} (ID: {})", saved.getFullName(), saved.getId());
-        
-        recordActivity("Chỉnh sửa", "Quản lý người dùng", "Đã cập nhật thông tin tài khoản " + saved.getFullName(), "success");
-        
+
+        recordActivity("Chỉnh sửa", "Quản lý người dùng", "Đã cập nhật thông tin tài khoản " + saved.getFullName(),
+                "success");
+
         return mapUserToResponse(saved);
     }
 
@@ -344,8 +456,9 @@ public class AdminServiceImpl implements AdminService {
         userRepository.save(user);
         log.info("Toggled user status: {} -> {} (ID: {})", user.getFullName(), newStatus, id);
 
-        String action = "ACTIVE".equals(newStatus) ? "Mở khóa" : "Khóa";
-        recordActivity(action, "Quản lý người dùng", "Đã " + action.toLowerCase() + " tài khoản " + user.getFullName(), "ACTIVE".equals(newStatus) ? "success" : "warning");
+        String action = "ACTIVE".equals(newStatus) ? "Kích hoạt" : "Ngưng hoạt động";
+        recordActivity(action, "Quản lý người dùng", "Đã " + action.toLowerCase() + " tài khoản " + user.getFullName(),
+                "ACTIVE".equals(newStatus) ? "success" : "warning");
     }
 
     // ========================
@@ -478,25 +591,68 @@ public class AdminServiceImpl implements AdminService {
                 .forecast("+5.8%")
                 .build();
 
-        List<AdminReportsResponse.ClinicBreakdown> breakdowns = List.of(
-                AdminReportsResponse.ClinicBreakdown.builder().name("Vitality Quận 1").value("1,240 Bệnh nhân")
-                        .percentage("45%").icon("home_health").build(),
-                AdminReportsResponse.ClinicBreakdown.builder().name("Vitality Thảo Điền").value("860 Bệnh nhân")
-                        .percentage("30%").icon("home_health").build(),
-                AdminReportsResponse.ClinicBreakdown.builder().name("Phú Mỹ Hưng").value("720 Bệnh nhân")
-                        .percentage("20%").icon("home_health").build(),
-                AdminReportsResponse.ClinicBreakdown.builder().name("Cầu Giấy (Mới)").value("310 Bệnh nhân")
-                        .percentage("5%").icon("add_business").build());
+        // Fetching real database aggregates for clinic performances & breakdown
+        List<Clinic> clinics = clinicRepository.findAll();
+        
+        // Count unique patients per clinic
+        Map<Long, Long> patientCounts = userRepository.countByRoleGroupedByClinic("PATIENT")
+                .stream().collect(Collectors.toMap(obj -> ((Number) obj[0]).longValue(), obj -> ((Number) obj[1]).longValue()));
+        
+        Map<Long, Long> totalAppts = appointmentRepository.countTotalAppointmentsByClinicNative()
+                .stream()
+                .collect(Collectors.toMap(obj -> ((Number) obj[0]).longValue(), obj -> ((Number) obj[1]).longValue()));
+        Map<Long, Long> newBookingsResult = appointmentRepository
+                .countNewBookingsByClinicNative(LocalDateTime.now().minusDays(30))
+                .stream()
+                .collect(Collectors.toMap(obj -> ((Number) obj[0]).longValue(), obj -> ((Number) obj[1]).longValue()));
+        Map<Long, Double> complianceRates = appointmentRepository.calculateComplianceRateByClinicNative()
+                .stream().collect(Collectors.toMap(obj -> ((Number) obj[0]).longValue(),
+                        obj -> obj[1] != null ? ((Number) obj[1]).doubleValue() : 0.0));
 
-        List<AdminReportsResponse.ClinicPerformance> performances = List.of(
-                AdminReportsResponse.ClinicPerformance.builder().name("Vitality Quận 1").cases("1,240")
-                        .appointments("842").adherence("95%").status("Tốt").color("emerald").build(),
-                AdminReportsResponse.ClinicPerformance.builder().name("Vitality Thảo Điền").cases("860")
-                        .appointments("624").adherence("91%").status("Tốt").color("emerald").build(),
-                AdminReportsResponse.ClinicPerformance.builder().name("Vitality Phú Mỹ Hưng").cases("720")
-                        .appointments("415").adherence("84%").status("Ổn định").color("primary").build(),
-                AdminReportsResponse.ClinicPerformance.builder().name("Vitality Cầu Giấy (Mới)").cases("310")
-                        .appointments("186").adherence("68%").status("Cần lưu ý").color("amber").build());
+        // Calculate true volume for clinic breakdown (based on patients)
+        long totalHoneypot = patientCounts.values().stream().mapToLong(Long::longValue).sum();
+
+        List<AdminReportsResponse.ClinicBreakdown> breakdowns = clinics.stream()
+                .map(c -> {
+                    long val = patientCounts.getOrDefault(c.getId(), 0L);
+                    long ptg = totalHoneypot > 0 ? Math.round((val * 100.0) / totalHoneypot) : 0;
+                    return AdminReportsResponse.ClinicBreakdown.builder()
+                            .name(c.getName())
+                            .value(String.format("%,d Bệnh nhân", val))
+                            .percentage(ptg + "%")
+                            .icon(c.getName().contains("Mới") ? "add_business" : "home_health")
+                            .build();
+                })
+                .sorted((a, b) -> Integer.compare(
+                        Integer.parseInt(b.getPercentage().replace("%", "")),
+                        Integer.parseInt(a.getPercentage().replace("%", ""))
+                ))
+                .collect(Collectors.toList());
+
+
+        List<AdminReportsResponse.ClinicPerformance> performances = clinics.stream()
+                .map(c -> {
+                    double adherence = complianceRates.getOrDefault(c.getId(), 0.0);
+                    String status = "Tốt";
+                    String color = "emerald";
+                    if (adherence < 70) {
+                        status = "Cần lưu ý";
+                        color = "amber";
+                    } else if (adherence < 85) {
+                        status = "Ổn định";
+                        color = "primary";
+                    }
+
+                    return AdminReportsResponse.ClinicPerformance.builder()
+                            .name(c.getName())
+                            .cases(String.format("%,d", totalAppts.getOrDefault(c.getId(), 0L)))
+                            .appointments(String.format("%,d", newBookingsResult.getOrDefault(c.getId(), 0L)))
+                            .adherence(Math.round(adherence) + "%")
+                            .status(status)
+                            .color(color)
+                            .build();
+                })
+                .collect(Collectors.toList());
 
         // Applying the simple frontend filter logically
         if (performanceFilter != null && !performanceFilter.equals("Tất cả kết quả")) {
@@ -517,7 +673,9 @@ public class AdminServiceImpl implements AdminService {
     @Override
     @Transactional(readOnly = true)
     public Page<AuditLogResponse> getAuditLogs(String userName, String module, String keyword, Pageable pageable) {
-        String userFilter = (userName != null && !userName.equals("Tất cả người dùng")) ? "%" + userName.toLowerCase() + "%" : null;
+        String userFilter = (userName != null && !userName.equals("Tất cả người dùng"))
+                ? "%" + userName.toLowerCase() + "%"
+                : null;
         String moduleFilter = (module != null && !module.equals("Tất cả mô-đun")) ? module : null;
         String searchFilter = (keyword != null && !keyword.isBlank()) ? "%" + keyword.toLowerCase() + "%" : null;
 
@@ -525,23 +683,24 @@ public class AdminServiceImpl implements AdminService {
                 .map(logEntry -> {
                     String timeStr = "--:--:--";
                     if (logEntry.getCreatedAt() != null) {
-                        timeStr = logEntry.getCreatedAt().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+                        timeStr = logEntry.getCreatedAt()
+                                .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
                     }
-                    
+
                     return AuditLogResponse.builder()
-                        .id(logEntry.getId())
-                        .time(timeStr)
-                        .createdAt(logEntry.getCreatedAt())
-                        .user(AuditLogResponse.UserDto.builder()
-                                .name(logEntry.getUserName())
-                                .avatar(logEntry.getUserAvatar())
-                                .build())
-                        .action(logEntry.getAction())
-                        .module(logEntry.getModule())
-                        .details(logEntry.getDetails())
-                        .ip(logEntry.getIpAddress())
-                        .status(logEntry.getStatus())
-                        .build();
+                            .id(logEntry.getId())
+                            .time(timeStr)
+                            .createdAt(logEntry.getCreatedAt())
+                            .user(AuditLogResponse.UserDto.builder()
+                                    .name(logEntry.getUserName())
+                                    .avatar(logEntry.getUserAvatar())
+                                    .build())
+                            .action(logEntry.getAction())
+                            .module(logEntry.getModule())
+                            .details(logEntry.getDetails())
+                            .ip(logEntry.getIpAddress())
+                            .status(logEntry.getStatus())
+                            .build();
                 });
     }
 
@@ -631,7 +790,8 @@ public class AdminServiceImpl implements AdminService {
     }
 
     private String mapRoleName(String role) {
-        if (role == null) return "Thành viên";
+        if (role == null)
+            return "Thành viên";
         return switch (role) {
             case "ADMIN" -> "Quản trị viên";
             case "DOCTOR" -> "Bác sĩ";

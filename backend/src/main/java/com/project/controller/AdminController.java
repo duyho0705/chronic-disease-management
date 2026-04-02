@@ -30,8 +30,10 @@ public class AdminController {
 
     @GetMapping("/dashboard")
     @Operation(summary = "Get admin dashboard data")
-    public ApiResponse<AdminDashboardResponse> getDashboardData() {
-        return ApiResponse.success("Dashboard data fetched successfully", adminService.getDashboardData());
+    public ApiResponse<AdminDashboardResponse> getDashboardData(
+            @RequestParam(defaultValue = "DAY") String timeRange
+    ) {
+        return ApiResponse.success("Dashboard data fetched successfully", adminService.getDashboardData(timeRange));
     }
 
     // === Clinic Management ===

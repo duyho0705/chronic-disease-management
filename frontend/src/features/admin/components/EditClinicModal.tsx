@@ -217,7 +217,7 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
                           : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-400 hover:border-slate-200'
                           }`}
                       >
-                        {status === 'ACTIVE' ? 'Hoạt động' : 'Tạm dừng'}
+                        {status === 'ACTIVE' ? 'Hoạt động' : 'Ngưng hoạt động'}
                       </button>
                     ))}
                   </div>

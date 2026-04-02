@@ -1,35 +1,25 @@
 package com.project.service.impl;
 
 import com.project.dto.response.ClinicDashboardResponse;
-import com.project.repository.ClinicRepository;
-import com.project.repository.UserRepository;
 import com.project.service.ClinicDashboardService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class ClinicDashboardServiceImpl implements ClinicDashboardService {
-
-    private final ClinicRepository clinicRepository;
-    private final UserRepository userRepository;
 
     @Override
     @Transactional(readOnly = true)
     public ClinicDashboardResponse getDashboardData(Long clinicId) {
-        // Here we would normally aggregate actual real clinic data.
-        // Returning mock presentation data to fulfill the UI request for the clinic.
-
-        List<ClinicDashboardResponse.DiseaseRatioDto> diseaseRatios = List.of(
+        List<ClinicDashboardResponse.DiseaseRatioDto> diseaseRatios = java.util.Arrays.asList(
                 ClinicDashboardResponse.DiseaseRatioDto.builder().color("bg-emerald-500").label("Tiểu đường").percentage("40%").build(),
                 ClinicDashboardResponse.DiseaseRatioDto.builder().color("bg-amber-400").label("Cao huyết áp").percentage("35%").build(),
                 ClinicDashboardResponse.DiseaseRatioDto.builder().color("bg-sky-400").label("Bệnh tim mạch").percentage("25%").build()
         );
 
-        List<ClinicDashboardResponse.PatientGrowthChartDto> patientGrowthChart = List.of(
+        List<ClinicDashboardResponse.PatientGrowthChartDto> patientGrowthChart = java.util.Arrays.asList(
                 ClinicDashboardResponse.PatientGrowthChartDto.builder().month("T.1").height("35%").active(false).build(),
                 ClinicDashboardResponse.PatientGrowthChartDto.builder().month("T.2").height("65%").active(false).build(),
                 ClinicDashboardResponse.PatientGrowthChartDto.builder().month("T.3").height("90%").active(true).build(),
@@ -44,7 +34,7 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
                 .peakMonth("Tháng 3 (224 ca)")
                 .build();
 
-        List<ClinicDashboardResponse.DoctorPerformanceDto> performances = List.of(
+        List<ClinicDashboardResponse.DoctorPerformanceDto> performances = java.util.Arrays.asList(
                 ClinicDashboardResponse.DoctorPerformanceDto.builder()
                         .name("BS. Lê Thị Mai").id("DR-1024").dept("Nội tiết").load(124).progress("w-4/5").color("emerald").rating("4.9").reviews(420).status("Đang trực").active(true)
                         .img("https://lh3.googleusercontent.com/aida-public/AB6AXuAhOoC9URZAHCP9v9d_l_e-tyh66ffAtXVouqi4DZSNPa_eq_JzHX993csJtIXauOlPnmXYsPpVSyauZnWxcYV0fodnKzn8Ihjmni-69lwmEZo5ugMwzJXx9nSknt0kftRkYZBXvjHcMHbqgeNSCgeYlaPo_sDnjYWhL--uhL42_WuhgMEh-Iqfvnzf5OGRgKBbIeVMbzn_qr-uoS-9lmem5CY9sVQPDjZIw4w-2r_lhCaOmqMuY1GKus8fSstMQoPp2EDUQSklumY")

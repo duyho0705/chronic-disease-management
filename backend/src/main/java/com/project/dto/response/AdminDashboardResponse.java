@@ -12,6 +12,14 @@ public class AdminDashboardResponse {
     private AdminStatsDto stats;
     private List<ClinicPerformanceDto> clinicPerformances;
     private List<SystemActivityDto> recentActivities;
+    private List<ChartDataDto> chartData;
+
+    @Data
+    @Builder
+    public static class ChartDataDto {
+        private String label;
+        private double value;
+    }
 
     @Data
     @Builder
@@ -29,8 +37,11 @@ public class AdminDashboardResponse {
     @Builder
     public static class ClinicPerformanceDto {
         private Long id;
+        private String clinicCode;
         private String name;
         private long patientCount;
+        private long doctorCount;
+        private String phone;
         private String growth;
         private String status;
     }

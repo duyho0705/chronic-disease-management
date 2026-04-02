@@ -22,7 +22,7 @@ export default function AdminClinics() {
   const [stats, setStats] = useState([
     { title: 'Tổng số phòng khám', value: '0', change: '+0%', icon: 'apartment', color: 'primary' },
     { title: 'Đang hoạt động', value: '0', icon: 'check_circle', color: 'emerald' },
-    { title: 'Phòng khám tạm khóa', value: '0', icon: 'lock_reset', color: 'red' },
+    { title: 'Ngưng hoạt động', value: '0', icon: 'block', color: 'red' },
     { title: 'Tổng bác sĩ hệ thống', value: '0', icon: 'stethoscope', color: 'indigo' },
   ]);
 
@@ -52,7 +52,7 @@ export default function AdminClinics() {
       setStats([
         { title: 'Tổng số phòng khám', value: s.totalClinics.toString(), change: '+0%', icon: 'apartment', color: 'primary' },
         { title: 'Đang hoạt động', value: s.activeClinics.toString(), icon: 'check_circle', color: 'emerald' },
-        { title: 'Phòng khám tạm khóa', value: s.inactiveClinics.toString(), icon: 'lock_reset', color: 'red' },
+        { title: 'Ngưng hoạt động', value: s.inactiveClinics.toString(), icon: 'block', color: 'red' },
         { title: 'Tổng bác sĩ hệ thống', value: s.totalDoctors.toString(), icon: 'stethoscope', color: 'indigo' },
       ]);
     } catch (error) {
@@ -170,7 +170,7 @@ export default function AdminClinics() {
   const handleLockClinic = async (clinic: any) => {
     const isCurrentlyActive = clinic.status === 'Hoạt động';
     const newStatusLabel = isCurrentlyActive ? 'Ngưng hoạt động' : 'Hoạt động';
-    const action = isCurrentlyActive ? 'khóa' : 'mở khóa';
+    const action = isCurrentlyActive ? 'ngưng hoạt động' : 'kích hoạt';
 
     // 1. Optimistic UI update (Instant)
     setClinicList(prev => prev.map(c => c.realId === clinic.realId ? { ...c, status: newStatusLabel } : c));
@@ -207,19 +207,19 @@ export default function AdminClinics() {
             <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Quản lý Phòng khám</h2>
             <p className="text-[16px] text-slate-500 mt-1 font-medium">Theo dõi và điều phối mạng lưới y tế</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             <button
               onClick={handleExport}
-              className="flex items-center gap-2 px-5 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl font-bold transition-all text-[14px]"
+              className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-lg font-bold transition-all text-[13px] border border-primary/10 active:scale-95 shadow-sm"
             >
-              <span className="material-symbols-outlined text-xl">ios_share</span>
+              <span className="material-symbols-outlined text-[18px]">ios_share</span>
               Xuất báo cáo
             </button>
             <button
               onClick={() => setIsCreateModalOpen(true)}
-              className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white rounded-xl font-bold transition-all text-[14px]"
+              className="flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-lg font-bold transition-all text-[13px] shadow-lg shadow-slate-900/10 active:scale-95"
             >
-              <span className="material-symbols-outlined text-xl">add</span>
+              <span className="material-symbols-outlined text-[18px]">add</span>
               Thêm phòng khám mới
             </button>
           </div>
@@ -274,7 +274,7 @@ export default function AdminClinics() {
                     <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-primary/5 p-2 z-40 animate-in fade-in slide-in-from-top-2 duration-200">                      {[
                       { id: 'ALL', label: 'Tất cả hệ thống', icon: 'apps' },
                       { id: 'ACTIVE', label: 'Đang hoạt động', icon: 'check_circle' },
-                      { id: 'INACTIVE', label: 'Đang tạm dừng', icon: 'block' }
+                      { id: 'INACTIVE', label: 'Ngưng hoạt động', icon: 'block' }
                     ].map((item) => (
                       <button
                         key={item.id}
@@ -364,9 +364,9 @@ export default function AdminClinics() {
                           className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-300 ${clinic.status === 'Hoạt động'
                             ? 'bg-blue-500/5 text-blue-500 hover:bg-blue-500/10'
                             : 'bg-red-500/5 text-red-500 hover:bg-red-500/10'}`}
-                          title={clinic.status === 'Hoạt động' ? 'Khóa phòng khám' : 'Mở khóa phòng khám'}
+                          title={clinic.status === 'Hoạt động' ? 'Ngưng hoạt động phòng khám' : 'Kích hoạt phòng khám'}
                         >
-                          <span className="material-symbols-outlined text-[18px]">{clinic.status === 'Hoạt động' ? 'lock_open' : 'lock'}</span>
+                          <span className="material-symbols-outlined text-[18px]">{clinic.status === 'Hoạt động' ? 'block' : 'check_circle'}</span>
                         </button>
                         <button
                           onClick={() => { setSelectedClinic(clinic); setIsDetailsModalOpen(true); }}

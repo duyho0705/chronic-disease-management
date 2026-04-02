@@ -5,6 +5,9 @@ import CreateClinicModal from '../features/admin/components/CreateClinicModal';
 import Toast from '../components/ui/Toast';
 import { adminApi } from '../api/admin';
 import { clinicApi } from '../api/clinic';
+import {
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+} from 'recharts';
 
 export default function AdminDashboard() {
   const [selectedChartMetric, setSelectedChartMetric] = useState('Lượng bệnh nhân');
@@ -15,22 +18,46 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<any>(null);
   const [clinics, setClinics] = useState<any[]>([]);
   const [activities, setActivities] = useState<any[]>([]);
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [timeRange, setTimeRange] = useState('DAY'); // 'DAY' or 'MONTH'
+  const [isLoadingChart, setIsLoadingChart] = useState(false);
 
   useEffect(() => {
-    fetchDashboardData();
-  }, []);
+    fetchDashboardData(timeRange);
+  }, [timeRange]);
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = async (range: string = 'DAY') => {
+    setIsLoadingChart(true);
     try {
-      const res = await adminApi.getDashboardData();
+      const res = await adminApi.getDashboardData(range);
       if (res && res.data) {
         setStats(res.data.stats);
         setClinics(res.data.clinicPerformances || []);
         setActivities(res.data.recentActivities || []);
+        setChartData(res.data.chartData || []);
       }
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
+    } finally {
+      setIsLoadingChart(false);
     }
+  };
+
+  // Custom Chart Tooltip Component
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white/80 dark:bg-slate-900/90 backdrop-blur-md p-3 border border-slate-100 dark:border-slate-800 rounded-xl shadow-xl">
+          <p className="text-[13px] font-bold text-slate-700 mb-1">{label}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-[14px] font-medium text-slate-600 dark:text-white">
+              {payload[0].value} <span className="text-slate-600 font-medium text-[12px]">bệnh nhân mới</span>
+            </p>
+          </div>
+        </div>
+      );
+    }
+    return null;
   };
 
   const handleExportExcel = () => {
@@ -38,7 +65,7 @@ export default function AdminDashboard() {
     const reportData = [
       { id: 'TA-102', name: 'Phòng khám Đa khoa Tâm Anh', address: '108 Hoàng Như Tiếp, Long Biên, Hà Nội', doctors: 42, patients: 1240, growth: '+8.4%', status: 'Đang hoạt động' },
       { id: 'ND-204', name: 'Phòng khám Nhi Đồng 1', address: '341 Sư Vạn Hạnh, Quận 10, TP.HCM', doctors: 28, patients: 892, growth: '+3.2%', status: 'Đang hoạt động' },
-      { id: 'VD-301', name: 'Vitality Dental Care', address: '25 Nguyễn Huệ, Quận 1, TP.HCM', doctors: 12, patients: 415, growth: '-1.5%', status: 'Tạm khóa' },
+      { id: 'VD-301', name: 'Vitality Dental Care', address: '25 Nguyễn Huệ, Quận 1, TP.HCM', doctors: 12, patients: 415, growth: '-1.5%', status: 'Ngưng hoạt động' },
       { id: 'ML-009', name: 'Mediscan Central Lab', address: '12 Nguyễn Trãi, Quận 5, TP.HCM', doctors: 15, patients: 156, growth: '+2.0%', status: 'Đang hoạt động' }
     ];
 
@@ -134,19 +161,19 @@ export default function AdminDashboard() {
             <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Tổng quan hệ thống</h2>
             <p className="text-[16px] text-slate-500 mt-1 font-medium italic-none">Theo dõi hiệu suất vận hành toàn mạng lưới Vitality</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             <button
               onClick={() => setIsCreateModalOpen(true)}
-              className="flex items-center gap-2 px-6 py-2.5 bg-emerald-500 text-white rounded-xl font-bold transition-all text-[14px] shadow-lg shadow-emerald-500/20 active:scale-95"
+              className="flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-lg font-bold transition-all text-[13px] shadow-lg shadow-slate-900/10 active:scale-95"
             >
-              <span className="material-symbols-outlined text-xl">add</span>
+              <span className="material-symbols-outlined text-[18px]">add</span>
               Thêm phòng khám
             </button>
             <button
               onClick={handleExportExcel}
-              className="flex items-center gap-2 px-6 py-2.5 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-xl font-bold transition-all text-[14px] border border-primary/10 active:scale-95 shadow-sm"
+              className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-lg font-bold transition-all text-[13px] border border-primary/10 active:scale-95 shadow-sm"
             >
-              <span className="material-symbols-outlined text-xl">ios_share</span>
+              <span className="material-symbols-outlined text-[18px]">ios_share</span>
               Xuất báo cáo
             </button>
           </div>
@@ -220,7 +247,38 @@ export default function AdminDashboard() {
                 <h2 className="text-[19px] font-bold text-slate-900 dark:text-white tracking-tight">Thống kê vận hành hệ thống</h2>
                 <p className="text-[15px] text-slate-500 mt-1">Báo cáo chi tiết theo {selectedChartMetric.toLowerCase()}</p>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-6">
+                {/* Time Range Selector */}
+                <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+                  <button
+                    onClick={() => setTimeRange('DAY')}
+                    className={`px-4 py-1.5 text-[13px] font-bold rounded-lg transition-all ${timeRange === 'DAY'
+                        ? 'bg-white dark:bg-slate-700 text-[#3bb9f3] shadow-sm'
+                        : 'text-slate-500 hover:text-slate-700'
+                      }`}
+                  >
+                    Ngày
+                  </button>
+                  <button
+                    onClick={() => setTimeRange('MONTH')}
+                    className={`px-4 py-1.5 text-[13px] font-bold rounded-lg transition-all ${timeRange === 'MONTH'
+                        ? 'bg-white dark:bg-slate-700 text-[#3bb9f3] shadow-sm'
+                        : 'text-slate-500 hover:text-slate-700'
+                      }`}
+                  >
+                    Tháng
+                  </button>
+                  <button
+                    onClick={() => setTimeRange('YEAR')}
+                    className={`px-4 py-1.5 text-[13px] font-bold rounded-lg transition-all ${timeRange === 'YEAR'
+                        ? 'bg-white dark:bg-slate-700 text-[#3bb9f3] shadow-sm'
+                        : 'text-slate-500 hover:text-slate-700'
+                      }`}
+                  >
+                    Năm
+                  </button>
+                </div>
+
                 <Dropdown
                   options={['Lượng bệnh nhân', 'Lượt đặt lịch', 'Doanh thu', 'Tỷ lệ hài lòng']}
                   value={selectedChartMetric}
@@ -232,26 +290,61 @@ export default function AdminDashboard() {
 
             {/* Visual Chart with Dots and Smooth Line */}
             <div className="h-[300px] w-full relative">
-              <svg className="w-full h-full relative z-10" preserveAspectRatio="none" viewBox="0 0 800 240">
-                <defs>
-                  <linearGradient id="adminChartGradient" x1="0%" x2="0%" y1="0%" y2="100%">
-                    <stop offset="0%" style={{ stopColor: '#3bb9f3', stopOpacity: 0.15 }}></stop>
-                    <stop offset="100%" style={{ stopColor: '#3bb9f3', stopOpacity: 0 }}></stop>
-                  </linearGradient>
-                </defs>
-                <path d="M0,180 Q60,165 120,195 T240,150 T360,165 T480,120 T600,135 T720,105 T800,85 L800,240 L0,240 Z" fill="url(#adminChartGradient)" />
-                <path d="M0,180 Q60,165 120,195 T240,150 T360,165 T480,120 T600,135 T720,105 T800,85" fill="none" stroke="#3bb9f3" strokeWidth="4" strokeLinecap="round" />
-                {[
-                  { x: 120, y: 195 }, { x: 240, y: 150 }, { x: 360, y: 165 },
-                  { x: 480, y: 120 }, { x: 600, y: 135 }, { x: 720, y: 105 }, { x: 800, y: 85 }
-                ].map((pt, i) => (
-                  <circle key={i} cx={pt.x} cy={pt.y} r="6" fill="#3bb9f3" stroke="white" strokeWidth="3" className="drop-shadow-sm transition-transform hover:scale-125" />
-                ))}
-              </svg>
-
-              <div className="absolute bottom-0 w-full flex justify-between px-2 text-[10px] font-extrabold text-slate-400 pt-4 uppercase tracking-[0.15em]">
-                <span>Thứ 2</span><span>Thứ 3</span><span>Thứ 4</span><span>Thứ 5</span><span>Thứ 6</span><span>Thứ 7</span><span>CN</span>
-              </div>
+              {isLoadingChart && (
+                <div className="absolute inset-0 z-10 bg-white/40 dark:bg-slate-900/40 backdrop-blur-[1px] flex items-center justify-center rounded-xl">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-8 h-8 border-4 border-[#3bb9f3] border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-[13px] font-medium text-slate-500">Đang tải dữ liệu...</p>
+                  </div>
+                </div>
+              )}
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 30 }}>
+                  <defs>
+                    <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3bb9f3" stopOpacity={0.2} />
+                      <stop offset="95%" stopColor="#3bb9f3" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(203, 213, 225, 0.4)" />
+                  <XAxis
+                    dataKey="label"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: '#475569', fontSize: 13, fontWeight: 500 }}
+                    dy={18}
+                    textAnchor="middle"
+                  />
+                  <YAxis
+                    hide
+                    domain={['auto', 'auto']}
+                  />
+                  <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#3bb9f3', strokeWidth: 1, strokeDasharray: '4 4' }} />
+                  <Area
+                    type="monotone"
+                    dataKey="value"
+                    stroke="#3bb9f3"
+                    strokeWidth={4}
+                    fillOpacity={1}
+                    fill="url(#colorValue)"
+                    animationDuration={2000}
+                    dot={{
+                      r: 6,
+                      fill: '#fff',
+                      stroke: '#3bb9f3',
+                      strokeWidth: 3,
+                      className: 'drop-shadow-md'
+                    }}
+                    activeDot={{
+                      r: 8,
+                      fill: '#3bb9f3',
+                      stroke: '#fff',
+                      strokeWidth: 3,
+                      className: 'drop-shadow-lg'
+                    }}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
           </div>
 
@@ -301,9 +394,12 @@ export default function AdminDashboard() {
               <thead>
                 <tr className="bg-slate-50/50 dark:bg-slate-800/50">
                   <th className="px-8 py-4 text-[15px] font-medium text-slate-500">Tên Phòng Khám</th>
-                  <th className="px-8 py-4 text-[15px] font-medium text-slate-500">Lượng Bệnh Nhân</th>
-                  <th className="px-8 py-4 text-[15px] font-medium text-slate-500 text-center">Tăng Trưởng</th>
-                  <th className="px-8 py-4 text-[15px] font-medium text-slate-500 text-center">Trạng Thái</th>
+                  <th className="px-6 py-4 text-[15px] font-medium text-slate-500">Mã Cơ Sở</th>
+                  <th className="px-6 py-4 text-[15px] font-medium text-slate-500">Liên Hệ</th>
+                  <th className="px-6 py-4 text-[15px] font-medium text-slate-500">Bác Sĩ</th>
+                  <th className="px-6 py-4 text-[15px] font-medium text-slate-500">Bệnh Nhân</th>
+                  <th className="px-6 py-4 text-[15px] font-medium text-slate-500">Tăng Trưởng</th>
+                  <th className="px-6 py-4 text-[15px] font-medium text-slate-500">Trạng Thái</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
@@ -317,15 +413,24 @@ export default function AdminDashboard() {
                         <p className="text-sm font-bold text-slate-900 dark:text-white leading-none">{clinic.name}</p>
                       </div>
                     </td>
-                    <td className="px-8 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4">
+                      <code className="text-xs font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">{clinic.clinicCode}</code>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-sm font-medium text-slate-600 dark:text-slate-400">{clinic.phone}</p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-sm font-bold text-slate-900 dark:text-white">{clinic.doctorCount || 0}</span>
+                    </td>
+                    <td className="px-6 py-4">
                       <span className="text-sm font-black text-slate-900 dark:text-white tracking-tight">{clinic.patientCount || 0}</span>
                     </td>
-                    <td className="px-8 py-4 text-center">
-                      <span className="text-sm font-bold text-[#3bb9f3]">+0%</span>
+                    <td className="px-6 py-4">
+                      <span className="text-sm font-bold text-[#3bb9f3]">{clinic.growth}</span>
                     </td>
-                    <td className="px-8 py-4 text-center">
+                    <td className="px-6 py-4">
                       <span className={`px-3 py-1 text-white text-[13px] font-bold rounded-full ${clinic.status === 'ACTIVE' ? 'bg-emerald-500' : 'bg-red-500'}`}>
-                        {clinic.status === 'ACTIVE' ? 'Hoạt động' : 'Tạm dừng'}
+                        {clinic.status === 'ACTIVE' ? 'Hoạt động' : 'Ngưng hoạt động'}
                       </span>
                     </td>
                   </tr>

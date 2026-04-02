@@ -104,9 +104,9 @@ export default function AdminSupport() {
           </div>
           <button
             onClick={() => setIsCreateModalOpen(true)}
-            className="bg-emerald-500 text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all text-[14px]"
+            className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-lg shadow-slate-900/10 active:scale-95 transition-all text-[13px]"
           >
-            <span className="material-symbols-outlined text-xl">add_task</span>
+            <span className="material-symbols-outlined text-[18px]">add_task</span>
             Tạo yêu cầu mới
           </button>
         </div>
