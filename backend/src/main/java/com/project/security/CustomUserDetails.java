@@ -18,6 +18,7 @@ public class CustomUserDetails implements UserDetails {
     private Long id;
     private String email;
     private String password;
+    private Long clinicId;
     private List<GrantedAuthority> authorities;
 
     @Override

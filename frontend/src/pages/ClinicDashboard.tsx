@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from '../api/axios';
 import ClinicSidebar from '../components/common/ClinicSidebar';
 import TopBar from '../components/common/TopBar';
 import Dropdown from '../components/ui/Dropdown';
@@ -9,6 +10,31 @@ import DevelopmentModal from '../features/admin/components/DevelopmentModal';
 
 export default function ClinicDashboard() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [stats, setStats] = useState<any>(null);
+    const currentClinicId = localStorage.getItem('clinicId') || '1';
+
+    const doctors = stats?.doctorPerformances || [];
+    const mainStats = {
+        totalPatients: stats?.totalPatients || '0',
+        highRiskAlerts: stats?.highRiskAlerts || '0',
+        pendingFollowUps: stats?.pendingFollowUps || '0',
+        patientGrowth: stats?.patientGrowth || '+0%',
+        highRiskGrowth: stats?.highRiskGrowth || '+0 ca',
+        diseaseRatios: stats?.diseaseRatios || [
+            { color: 'bg-emerald-500', label: 'Tiểu đường', value: '40%' },
+            { color: 'bg-amber-400', label: 'Cao huyết áp', value: '35%' },
+            { color: 'bg-sky-400', label: 'Bệnh tim mạch', value: '25%' },
+        ],
+        chartData: stats?.patientGrowthChart || [
+            { month: 'T.1', height: '30%', active: false },
+            { month: 'T.2', height: '30%', active: false },
+            { month: 'T.3', height: '30%', active: false },
+            { month: 'T.4', height: '30%', active: false },
+            { month: 'T.5', height: '30%', active: false },
+            { month: 'T.6', height: '30%', active: false },
+        ]
+    };
+
     const [notifications, setNotifications] = useState([
         { id: 1, title: 'Báo cáo mới', description: 'Có báo cáo tổng quát tháng 12 vừa được tạo.', time: '5 phút trước', read: false },
         { id: 2, title: 'Cảnh báo nguy cơ', description: 'Bệnh nhân Nguyễn Văn An có chỉ số bất thường.', time: '1 giờ trước', read: false },
@@ -23,29 +49,38 @@ export default function ClinicDashboard() {
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
 
-    const doctors = [
-        {
-            name: 'BS. Lê Thị Mai', id: 'DR-1024', dept: 'Nội tiết', load: 124, progress: 'w-4/5', color: 'emerald', rating: '4.9', reviews: 420, status: 'Đang trực', active: true, email: 'mai.le@clinic.vn', phone: '0901234567',
-            img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAhOoC9URZAHCP9v9d_l_e-tyh66ffAtXVouqi4DZSNPa_eq_JzHX993csJtIXauOlPnmXYsPpVSyauZnWxcYV0fodnKzn8Ihjmni-69lwmEZo5ugMwzJXx9nSknt0kftRkYZBXvjHcMHbqgeNSCgeYlaPo_sDnjYWhL--uhL42_WuhgMEh-Iqfvnzf5OGRgKBbIeVMbzn_qr-uoS-9lmem5CY9sVQPDjZIw4w-2r_lhCaOmqMuY1GKus8fSstMQoPp2EDUQSklumY'
-        },
-        {
-            name: 'BS. Nguyễn Văn Hùng', id: 'DR-1025', dept: 'Tim mạch', load: 98, progress: 'w-3/5', color: 'amber', rating: '4.7', reviews: 315, status: 'Nghỉ ca', active: false, email: 'hung.nguyen@clinic.vn', phone: '0907654321',
-            img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDYDRWmp-LgjGpRKEb5U5aaxSuviEGGzdWXblGs06zhuwpWaZlFdSZwRT2bBxg6mk28k9IhyLFivR9v7kIzFi9BsQ5iyenuznuRy4WeKYvqDbbgdtig_kA2eVqY6q6ze5jElaX7E4cyXqg59-fMZc_Y_EJvSgAZw2Kz_Uc284VdQyqwMvZEUE6kdCYgSkePLdYKSeXpgGJ4gGuye7EP0h8WaOBKfRQsPZVZI-vVFKYCkcethQLzefVbnTo7d3bMBljYXQRbWQx7GIY'
-        },
-        {
-            name: 'BS. Trần Thanh Vân', id: 'DR-1026', dept: 'Tổng quát', load: 145, progress: 'w-full', color: 'red', rating: '4.8', reviews: 512, status: 'Đang trực', active: true, email: 'van.tran@clinic.vn', phone: '0908889999',
-            img: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=150&h=150'
+    const fetchDashboardData = async () => {
+        try {
+            const response = await axios.get(`/v1/clinics/${currentClinicId}/dashboard`);
+            if (response.data.success) {
+                setStats(response.data.data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch dashboard data:', error);
         }
-    ];
+    };
+
+    useEffect(() => {
+        fetchDashboardData();
+    }, [currentClinicId]);
 
     const handleSaveDoctor = async (doctorData: any) => {
         setIsSavingDoctor(true);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        setIsSavingDoctor(false);
-        setShowCreateDoctorModal(false);
-        setToastMessage(`Đã thêm bác sĩ ${doctorData.name} thành công!`);
-        setShowToast(true);
+        try {
+            const response = await axios.post(`/v1/clinics/${currentClinicId}/doctors`, doctorData);
+            if (response.data.success) {
+                fetchDashboardData();
+                setShowCreateDoctorModal(false);
+                setToastMessage(`Đã thêm bác sĩ ${doctorData.name} thành công!`);
+                setShowToast(true);
+            }
+        } catch (error) {
+            console.error('Failed to create doctor:', error);
+            setToastMessage('Lỗi khi thêm bác sĩ');
+            setShowToast(true);
+        } finally {
+            setIsSavingDoctor(false);
+        }
     };
 
     const handleExportExcel = () => {
@@ -118,10 +153,13 @@ export default function ClinicDashboard() {
                                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
                                     <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>groups</span>
                                 </div>
-                                <span className="text-emerald-500 text-[13px] font-bold flex items-center gap-1">+12% <span className="material-symbols-outlined text-xs">trending_up</span></span>
+                                <span className={`text-[13px] font-bold flex items-center gap-1 ${mainStats.patientGrowth.startsWith('+') ? 'text-emerald-500' : 'text-red-500'}`}>
+                                    {mainStats.patientGrowth}
+                                    <span className="material-symbols-outlined text-xs">{mainStats.patientGrowth.startsWith('+') ? 'trending_up' : 'trending_down'}</span>
+                                </span>
                             </div>
                             <h3 className="text-slate-500 text-sm font-medium">Tổng số bệnh nhân</h3>
-                            <p className="text-3xl font-extrabold mt-1 italic-none">1,250</p>
+                            <p className="text-3xl font-extrabold mt-1 italic-none">{mainStats.totalPatients}</p>
                         </div>
 
                         {/* Disease Ratio */}
@@ -130,12 +168,14 @@ export default function ClinicDashboard() {
                                 <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center text-amber-500">
                                     <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>monitoring</span>
                                 </div>
-                                <span className="px-2 py-1 bg-amber-50 dark:bg-amber-900/50 text-amber-600 text-[12px] font-bold rounded-full">Tiểu đường 40%</span>
+                                <span className="px-2 py-1 bg-amber-50 dark:bg-amber-900/50 text-amber-600 text-[12px] font-bold rounded-full">
+                                    {mainStats.diseaseRatios[0]?.label} {mainStats.diseaseRatios[0]?.value}
+                                </span>
                             </div>
                             <h3 className="text-slate-500 text-sm font-medium">Tỷ lệ bệnh theo loại</h3>
                             <div className="flex items-baseline gap-2 mt-1">
-                                <p className="text-3xl font-extrabold italic-none">40%</p>
-                                <span className="text-slate-400 text-xs font-medium">/ Cao huyết áp</span>
+                                <p className="text-3xl font-extrabold italic-none">{mainStats.diseaseRatios[0]?.value}</p>
+                                <span className="text-slate-400 text-xs font-medium">/ {mainStats.diseaseRatios[1]?.label}</span>
                             </div>
                         </div>
 
@@ -149,8 +189,8 @@ export default function ClinicDashboard() {
                             </div>
                             <h3 className="text-slate-500 text-sm font-medium">Ca nguy cơ cao</h3>
                             <div className="flex items-baseline gap-2 mt-1">
-                                <p className="text-3xl font-extrabold text-red-500 italic-none">24</p>
-                                <p className="text-[13px] text-red-400 font-bold">+4 ca so với hôm qua</p>
+                                <p className="text-3xl font-extrabold text-red-500 italic-none">{mainStats.highRiskAlerts}</p>
+                                <p className="text-[13px] text-red-400 font-bold">{mainStats.highRiskGrowth}</p>
                             </div>
                         </div>
 
@@ -162,7 +202,7 @@ export default function ClinicDashboard() {
                                 </div>
                             </div>
                             <h3 className="text-slate-500 text-sm font-medium">Chưa tái khám</h3>
-                            <p className="text-3xl font-extrabold mt-1 italic-none">45</p>
+                            <p className="text-3xl font-extrabold mt-1 italic-none">{mainStats.pendingFollowUps}</p>
                         </div>
                     </section>
 
@@ -184,14 +224,7 @@ export default function ClinicDashboard() {
                                     />
                                 </div>
                                 <div className="flex items-end justify-between h-64 gap-3 md:gap-6 px-4">
-                                    {[
-                                        { month: 'T.1', height: '35%', active: false },
-                                        { month: 'T.2', height: '65%', active: false },
-                                        { month: 'T.3', height: '90%', active: true },
-                                        { month: 'T.4', height: '75%', active: false },
-                                        { month: 'T.5', height: '55%', active: false },
-                                        { month: 'T.6', height: '45%', active: false },
-                                    ].map((item, idx) => (
+                                    {mainStats.chartData.map((item: any, idx: number) => (
                                         <div key={idx} className="flex flex-col items-center flex-1 gap-4">
                                             <div className="w-full bg-slate-50 dark:bg-slate-800 rounded-t-2xl relative overflow-hidden group h-48 border border-primary/5">
                                                 <div
@@ -212,17 +245,17 @@ export default function ClinicDashboard() {
                                 <div className="flex flex-col items-center">
                                     <p className="text-[14px] font-medium text-slate-500 mb-1">Tăng trưởng</p>
                                     <div className="flex items-center gap-1">
-                                        <span className="text-lg font-bold text-emerald-500">+12.5%</span>
-                                        <span className="material-symbols-outlined text-sm text-emerald-500">trending_up</span>
+                                        <span className={`text-lg font-bold ${mainStats.patientGrowth.startsWith('+') ? 'text-emerald-500' : 'text-red-500'}`}>{mainStats.patientGrowth}</span>
+                                        <span className={`material-symbols-outlined text-sm ${mainStats.patientGrowth.startsWith('+') ? 'text-emerald-500' : 'text-red-500'}`}>{mainStats.patientGrowth.startsWith('+') ? 'trending_up' : 'trending_down'}</span>
                                     </div>
                                 </div>
                                 <div className="flex flex-col items-center border-x border-slate-100 dark:border-slate-800/50">
                                     <p className="text-[14px] font-medium text-slate-500 mb-1">Trung bình</p>
-                                    <span className="text-lg font-bold text-slate-700 dark:text-slate-200">180 ca/tháng</span>
+                                    <span className="text-lg font-bold text-slate-700 dark:text-slate-200">{Math.round(parseInt(String(mainStats.totalPatients).replace(/,/g, '')) / 6)} ca/tháng</span>
                                 </div>
                                 <div className="flex flex-col items-center">
                                     <p className="text-[14px] font-medium text-slate-500 mb-1">Đỉnh điểm</p>
-                                    <span className="text-lg font-bold text-sky-500">Tháng 3 (224 ca)</span>
+                                    <span className="text-lg font-bold text-sky-500">T.3 (224 ca)</span>
                                 </div>
                             </div>
                         </div>
@@ -246,11 +279,7 @@ export default function ClinicDashboard() {
                                 </div>
                             </div>
                             <div className="space-y-4">
-                                {[
-                                    { color: 'bg-emerald-500', label: 'Tiểu đường', value: '40%' },
-                                    { color: 'bg-amber-400', label: 'Cao huyết áp', value: '35%' },
-                                    { color: 'bg-sky-400', label: 'Bệnh tim mạch', value: '25%' },
-                                ].map((item, idx) => (
+                                {mainStats.diseaseRatios.map((item: any, idx: number) => (
                                     <div key={idx} className="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50">
                                         <div className="flex items-center gap-3">
                                             <div className={`w-3 h-3 rounded-full ${item.color}`}></div>
@@ -286,7 +315,7 @@ export default function ClinicDashboard() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
-                                    {doctors.map((dr, idx) => (
+                                    {doctors.map((dr: any, idx: number) => (
                                         <tr key={idx} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors group cursor-pointer">
                                             <td className="px-8 py-5">
                                                 <div className="flex items-center gap-4">

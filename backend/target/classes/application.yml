@@ -1,6 +1,9 @@
 spring:
   application:
     name: backend
+  sql:
+    init:
+      mode: always
   datasource:
     url: jdbc:postgresql://ep-delicate-moon-a1jfnlax-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&preparedThreshold=0
     username: neondb_owner
@@ -18,8 +21,9 @@ spring:
       # Modern validation
       validation-timeout: 5000
   jpa:
+    defer-datasource-initialization: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: true
     properties:
       hibernate:

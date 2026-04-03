@@ -18,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+@SuppressWarnings("null")
 @RestController
 @RequestMapping("/api/v1/doctor/prescriptions")
 @RequiredArgsConstructor

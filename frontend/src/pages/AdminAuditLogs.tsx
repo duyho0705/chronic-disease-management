@@ -82,52 +82,59 @@ export default function AdminAuditLogs() {
         </div>
 
         {/* Filter Section */}
-        <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-primary/5 space-y-6">
+        <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-primary/5 space-y-6 text-left">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="relative">
               <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">Tìm kiếm sự kiện</label>
-              <div className="relative">
-                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
-                <input
-                  className="w-full bg-slate-100/80 dark:bg-slate-800 border-none rounded-xl pl-10 pr-4 py-2.5 text-[14px] font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none text-slate-900 dark:text-white"
-                  placeholder="Nội dung ví dụ: Khóa tài khoản..."
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
+              {isLoading ? (
+                <div className="h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl w-full"></div>
+              ) : (
+                <div className="relative">
+                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+                  <input
+                    className="w-full bg-slate-100/80 dark:bg-slate-800 border-none rounded-xl pl-10 pr-4 py-2.5 text-[14px] font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none text-slate-900 dark:text-white"
+                    placeholder="Nội dung ví dụ: Khóa tài khoản..."
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+              )}
             </div>
             <div>
               <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">Người thực hiện</label>
-              <div className="relative">
-                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">person</span>
-                <input
-                  className="w-full bg-slate-100/80 dark:bg-slate-800 border-none rounded-xl pl-10 pr-4 py-2.5 text-[14px] font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none text-slate-900 dark:text-white"
-                  placeholder="Tên người thực hiện..."
-                  type="text"
-                  value={selectedUser}
-                  onChange={(e) => setSelectedUser(e.target.value)}
-                />
-              </div>
+              {isLoading ? (
+                <div className="h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl w-full"></div>
+              ) : (
+                <div className="relative">
+                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">person</span>
+                  <input
+                    className="w-full bg-slate-100/80 dark:bg-slate-800 border-none rounded-xl pl-10 pr-4 py-2.5 text-[14px] font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none text-slate-900 dark:text-white"
+                    placeholder="Tên người thực hiện..."
+                    type="text"
+                    value={selectedUser}
+                    onChange={(e) => setSelectedUser(e.target.value)}
+                  />
+                </div>
+              )}
             </div>
             <div>
               <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">Mô-đun</label>
-              <Dropdown
-                options={['Tất cả mô-đun', 'Quản lý người dùng', 'Quản lý phòng khám', 'Hồ sơ phòng khám', 'Báo cáo', 'Hệ thống', 'Auth']}
-                value={selectedModule}
-                onChange={setSelectedModule}
-              />
+              {isLoading ? (
+                <div className="h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl w-full"></div>
+              ) : (
+                <Dropdown
+                  options={['Tất cả mô-đun', 'Quản lý người dùng', 'Quản lý phòng khám', 'Hồ sơ phòng khám', 'Báo cáo', 'Hệ thống', 'Auth']}
+                  value={selectedModule}
+                  onChange={setSelectedModule}
+                />
+              )}
             </div>
           </div>
         </div>
 
         {/* Timeline-style Table */}
         <div className="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-sm border border-primary/5 relative">
-          {isLoading && (
-            <div className="absolute inset-0 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm z-10 flex items-center justify-center">
-              <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
-            </div>
-          )}
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
@@ -141,7 +148,37 @@ export default function AdminAuditLogs() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-primary/5">
-                {logList.length > 0 ? (
+                {isLoading ? (
+                  // Skeleton Rows
+                  [...Array(pagination.size)].map((_, i) => (
+                    <tr key={`skeleton-${i}`} className="animate-pulse">
+                      <td className="px-8 py-5">
+                        <div className="space-y-2">
+                          <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-20"></div>
+                          <div className="h-3 bg-slate-100 dark:bg-slate-800/50 rounded w-16"></div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-800 shrink-0"></div>
+                          <div className="h-4 bg-slate-100 dark:bg-slate-800/50 rounded w-24"></div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-32"></div>
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="h-4 bg-slate-100 dark:bg-slate-800/50 rounded w-20"></div>
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-48"></div>
+                      </td>
+                      <td className="px-8 py-5 text-right flex justify-end">
+                        <div className="h-7 bg-slate-200 dark:bg-slate-800 rounded-xl w-24"></div>
+                      </td>
+                    </tr>
+                  ))
+                ) : logList.length > 0 ? (
                   logList.map((log: any) => (
                     <tr key={log.id} className="hover:bg-primary/5 transition-colors group">
                       <td className="px-8 py-5">
@@ -206,29 +243,42 @@ export default function AdminAuditLogs() {
           {/* Pagination Box */}
           <div className="bg-slate-50 border-t border-slate-100 py-4">
             <div className="px-8 flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-1 order-2 md:order-2">
-                <button
-                  disabled={pagination.page === 0}
-                  onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
-                  className="p-2 rounded-lg text-slate-400 hover:bg-white hover:text-primary transition-all disabled:opacity-30 disabled:hover:bg-transparent"
-                >
-                  <span className="material-symbols-outlined">chevron_left</span>
-                </button>
-                <button className="w-8 h-8 rounded-lg bg-primary text-white text-[13px] font-extrabold shadow-md">{pagination.page + 1}</button>
-                <button
-                  disabled={(pagination.page + 1) * pagination.size >= pagination.total}
-                  onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
-                  className="p-2 rounded-lg text-slate-400 hover:bg-white hover:text-primary transition-all disabled:opacity-30 disabled:hover:bg-transparent"
-                >
-                  <span className="material-symbols-outlined">chevron_right</span>
-                </button>
-              </div>
+              {isLoading ? (
+                <>
+                  <div className="flex gap-1 order-2">
+                    <div className="w-8 h-8 rounded-lg bg-slate-200 animate-pulse"></div>
+                    <div className="w-8 h-8 rounded-lg bg-slate-100 animate-pulse"></div>
+                    <div className="w-8 h-8 rounded-lg bg-slate-200 animate-pulse"></div>
+                  </div>
+                  <div className="h-4 bg-slate-200 animate-pulse rounded w-32 order-1"></div>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center gap-1 order-2 md:order-2">
+                    <button
+                      disabled={pagination.page === 0}
+                      onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
+                      className="p-2 rounded-lg text-slate-400 hover:bg-white hover:text-primary transition-all disabled:opacity-30 disabled:hover:bg-transparent"
+                    >
+                      <span className="material-symbols-outlined">chevron_left</span>
+                    </button>
+                    <button className="w-8 h-8 rounded-lg bg-primary text-white text-[13px] font-extrabold shadow-md">{pagination.page + 1}</button>
+                    <button
+                      disabled={(pagination.page + 1) * pagination.size >= pagination.total}
+                      onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
+                      className="p-2 rounded-lg text-slate-400 hover:bg-white hover:text-primary transition-all disabled:opacity-30 disabled:hover:bg-transparent"
+                    >
+                      <span className="material-symbols-outlined">chevron_right</span>
+                    </button>
+                  </div>
 
-              <div className="order-3 md:order-1">
-                <p className="text-[14px] font-medium text-slate-500">
-                  Hiển thị <span className="text-slate-500 font-medium">{logList.length}</span>/<span className="text-slate-500 font-medium">{pagination.total}</span> bản ghi
-                </p>
-              </div>
+                  <div className="order-3 md:order-1">
+                    <p className="text-[14px] font-medium text-slate-500">
+                      Hiển thị <span className="text-slate-500 font-medium">{logList.length}</span>/<span className="text-slate-500 font-medium">{pagination.total}</span> bản ghi
+                    </p>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>

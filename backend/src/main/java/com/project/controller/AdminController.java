@@ -134,6 +134,13 @@ public class AdminController {
         return ApiResponse.success("User status toggled successfully", null);
     }
 
+    @DeleteMapping("/users/{id}")
+    @Operation(summary = "Permanently delete user record")
+    public ApiResponse<Void> deleteUser(@PathVariable Long id) {
+        adminService.deleteUser(id);
+        return ApiResponse.success("User deleted successfully", null);
+    }
+
     // === Reports ===
 
     @GetMapping("/reports")

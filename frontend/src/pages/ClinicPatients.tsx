@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+import axios from '../api/axios';
 import ClinicSidebar from '../components/common/ClinicSidebar';
 import TopBar from '../components/common/TopBar';
 import CreatePatientModal from '../features/clinic/components/CreatePatientModal';
@@ -6,17 +7,18 @@ import EditPatientModal from '../features/clinic/components/EditPatientModal';
 import DeletePatientModal from '../features/clinic/components/DeletePatientModal';
 import ClinicFilterDropdown from '../components/common/ClinicFilterDropdown';
 import Toast from '../components/ui/Toast';
-import { clinicApi } from '../api/clinic';
 
 export default function ClinicPatients() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const currentClinicId = localStorage.getItem('clinicId') || '1';
 
     // Filter States
     const [searchTerm, setSearchTerm] = useState('');
     const [conditionFilter, setConditionFilter] = useState('Tất cả bệnh lý');
     const [riskFilter, setRiskFilter] = useState('Mức độ rủi ro');
+    const [statusFilter, setStatusFilter] = useState('Tất cả trạng thái');
 
     // Edit/Delete Modal States
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -28,45 +30,113 @@ export default function ClinicPatients() {
     // Toast State
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
-
-    const [patients, setPatients] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    const fetchPatients = useCallback(async () => {
-        try {
-            setIsLoading(true);
-            const response = await clinicApi.getPatients({ keyword: searchTerm });
-            if (response.success) {
-                setPatients(response.data);
-            }
-        } catch (error) {
-            console.error('Failed to fetch patients:', error);
-        } finally {
-            setIsLoading(false);
-        }
-    }, [searchTerm]);
+    const [debouncedSearch, setDebouncedSearch] = useState('');
 
     useEffect(() => {
-        fetchPatients();
-    }, [fetchPatients]);
+        const timer = setTimeout(() => {
+            setDebouncedSearch(searchTerm);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
+    const [availableDoctors, setAvailableDoctors] = useState<string[]>([]);
+    const [availableConditions, setAvailableConditions] = useState<string[]>([]);
+
+    const [patients, setPatients] = useState<any[]>([]);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
+    const [pageSize] = useState(10);
 
     const [notifications, setNotifications] = useState([
         { id: 1, title: 'Báo cáo mới', description: 'Có báo cáo tổng quát tháng 12 vừa được tạo.', time: '5 phút trước', read: false },
         { id: 2, title: 'Cảnh báo nguy cơ', description: 'Bệnh nhân Nguyễn Văn An có chỉ số bất thường.', time: '1 giờ trước', read: false },
     ]);
 
-    const handleSavePatient = async (patientData: any) => {
+    const [stats, setStats] = useState<any>(null);
+
+    const fetchPatients = async (page = currentPage) => {
         try {
-            setIsSaving(true);
-            const response = await clinicApi.createPatient(patientData);
-            if (response.success) {
+            const response = await axios.get(`/v1/clinics/${currentClinicId}/patients`, {
+                params: {
+                    keyword: debouncedSearch || undefined,
+                    condition: conditionFilter !== 'Tất cả bệnh lý' ? conditionFilter : undefined,
+                    riskLevel: riskFilter !== 'Mức độ rủi ro' ? riskFilter : undefined,
+                    status: statusFilter !== 'Tất cả trạng thái' ? statusFilter : undefined,
+                    page: page,
+                    size: pageSize
+                }
+            });
+            if (response.data.success) {
+                const pageData = response.data.data;
+                setPatients(pageData.content || []);
+                setTotalPages(pageData.totalPages || 0);
+                setTotalElements(pageData.totalElements || 0);
+                setCurrentPage(pageData.number || 0);
+            }
+        } catch (error) {
+            console.error('Failed to fetch patients:', error);
+        }
+    };
+
+    const fetchStats = async () => {
+        try {
+            const response = await axios.get(`/v1/clinics/${currentClinicId}/dashboard`);
+            if (response.data.success) {
+                setStats(response.data.data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch stats:', error);
+        }
+    };
+
+    useEffect(() => {
+        const fetchDoctors = async () => {
+            try {
+                const response = await axios.get(`/v1/clinics/${currentClinicId}/doctors/names`);
+                if (response.data.success) {
+                    setAvailableDoctors(response.data.data);
+                }
+            } catch (error) {
+                console.error('Failed to fetch doctors:', error);
+                setAvailableDoctors(['BS. Lê Thị Mai', 'BS. Nguyễn Văn Hùng', 'BS. Trần Thanh Vân']); // Fallback
+            }
+        };
+
+        const fetchConditions = async () => {
+            try {
+                const response = await axios.get(`/v1/clinics/${currentClinicId}/conditions`);
+                if (response.data.success) {
+                    setAvailableConditions(response.data.data);
+                }
+            } catch (error) {
+                console.error('Failed to fetch conditions:', error);
+                setAvailableConditions(['Tiểu đường Type 1', 'Tiểu đường Type 2', 'Cao huyết áp', 'Bệnh tim mạch', 'Suy thận', 'Hen suyễn', 'Khác']); // Fallback
+            }
+        };
+
+        fetchDoctors();
+        fetchConditions();
+        fetchStats();
+    }, [currentClinicId]);
+
+    useEffect(() => {
+        fetchPatients(0);
+    }, [debouncedSearch, conditionFilter, riskFilter, statusFilter]);
+
+    const handleSavePatient = async (patientData: any) => {
+        setIsSaving(true);
+        try {
+            const response = await axios.post(`/v1/clinics/${currentClinicId}/patients`, patientData);
+            if (response.data.success) {
+                fetchPatients();
+                setIsCreateModalOpen(false);
                 setToastMessage(`Đã thêm hồ sơ bệnh nhân ${patientData.name} thành công!`);
                 setShowToast(true);
-                setIsCreateModalOpen(false);
-                fetchPatients();
             }
         } catch (error) {
             console.error('Failed to save patient:', error);
+            setToastMessage('Có lỗi xảy ra khi lưu hồ sơ. Vui lòng thử lại!');
+            setShowToast(true);
         } finally {
             setIsSaving(false);
         }
@@ -74,38 +144,47 @@ export default function ClinicPatients() {
 
     const handleEditPatient = async (patientData: any) => {
         setIsEditing(true);
-        setTimeout(() => {
-            setIsEditing(false);
-            setIsEditModalOpen(false);
-            setToastMessage(`Đã cập nhật hồ sơ bệnh nhân ${patientData.name}!`);
+        try {
+            // Use dbId for backend API, keep existing 'id' (patientCode) for UI consistency
+            const response = await axios.put(`/v1/clinics/${currentClinicId}/patients/${patientData.dbId}`, patientData);
+            if (response.data.success) {
+                fetchPatients();
+                setIsEditing(false);
+                setIsEditModalOpen(false);
+                setToastMessage(`Đã cập nhật hồ sơ bệnh nhân ${patientData.name}!`);
+                setShowToast(true);
+            }
+        } catch (error) {
+            console.error('Failed to edit patient:', error);
+            setToastMessage('Lỗi khi cập nhật hồ sơ');
             setShowToast(true);
-            fetchPatients();
-        }, 1500);
+            setIsEditing(false);
+        }
     };
 
-    const handleDeletePatient = useCallback(async (patientId: string) => {
+    const handleDeletePatient = async (patientId: any) => {
+        setIsDeleting(true);
+        // Note: patientId passed from modal could be 'id' or 'dbId' depending on implementation
+        // Since we want the database ID for the endpoint:
+        const dbId = typeof patientId === 'object' ? patientId.dbId : patientId;
         try {
-            setIsDeleting(true);
-            // Simulating API delete call for now
-            setTimeout(() => {
+            const response = await axios.delete(`/v1/clinics/${currentClinicId}/patients/${dbId}`);
+            if (response.data.success) {
+                fetchPatients();
                 setIsDeleting(false);
                 setIsDeleteModalOpen(false);
-                setToastMessage(`Đã loại bỏ hồ sơ bệnh nhân thành công`);
+                setToastMessage('Đã bỏ hồ sơ bệnh nhân khỏi danh sách theo dõi');
                 setShowToast(true);
-                fetchPatients();
-            }, 1000);
+            }
         } catch (error) {
             console.error('Failed to delete patient:', error);
+            setToastMessage('Lỗi khi xóa hồ sơ');
+            setShowToast(true);
+            setIsDeleting(false);
         }
-    }, [fetchPatients]);
+    };
 
-    const filteredPatients = patients.filter(p => {
-        const matchesCondition = conditionFilter === 'Tất cả bệnh lý' || p.condition.includes(conditionFilter);
-        const matchesRisk = riskFilter === 'Mức độ rủi ro' || p.riskLevel.includes(riskFilter);
-        return matchesCondition && matchesRisk;
-    });
 
-    const availableDoctors = ['BS. Lê Thị Mai', 'BS. Nguyễn Văn Hùng', 'BS. Trần Thanh Vân'];
 
     return (
         <div className="flex min-h-screen font-display bg-[#f6f8f7] dark:bg-slate-950 text-slate-900 dark:text-slate-100 italic-none">
@@ -130,7 +209,7 @@ export default function ClinicPatients() {
                     setNotifications={setNotifications}
                 />
 
-                <div className="p-8 space-y-10">
+                <div className="p-8 space-y-6">
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                         <div className="space-y-1">
                             <h3 className="text-xl font-bold italic-none text-slate-900 dark:text-white tracking-tight">Hồ sơ bệnh nhân mãn tính</h3>
@@ -138,20 +217,64 @@ export default function ClinicPatients() {
                         </div>
                         <button
                             onClick={() => setIsCreateModalOpen(true)}
-                            className="bg-primary text-white px-6 py-3 rounded-2xl font-black text-[15px] flex items-center gap-3 hover:shadow-xl hover:shadow-primary/30 transition-all font-display whitespace-nowrap active:scale-95 group"
+                            className="bg-primary text-white px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all font-display whitespace-nowrap active:scale-95 group shadow-sm"
                         >
-                            <span className="material-symbols-outlined font-black">add</span>
+                            <span className="material-symbols-outlined text-[20px]">add</span>
                             Thêm bệnh nhân mới
                         </button>
                     </div>
 
-                    {/* Filters Bar (Standardized) */}
-                    <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-primary/5 shadow-sm flex flex-wrap items-center gap-6">
-                        <div className="flex-1 min-w-[300px] relative group">
-                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
+                    {/* Stats Summary Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="bg-white dark:bg-slate-900 p-7 rounded-[2rem] border border-slate-200 dark:border-slate-700 shadow-sm space-y-5 group hover:shadow-md transition-all">
+                            <div className="flex items-center justify-between">
+                                <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-slate-500 group-hover:text-primary transition-colors">
+                                    <span className="material-symbols-outlined text-[24px]">analytics</span>
+                                </div>
+                                <span className={`px-4 py-1.5 bg-emerald-50 text-emerald-600 text-[11px] font-bold rounded-full uppercase tracking-wider border border-emerald-100/50`}>
+                                    {stats?.patientGrowth || '+0%'} so với tháng trước
+                                </span>
+                            </div>
+                            <div>
+                                <p className="text-[14px] font-medium text-slate-500 mb-1">Hiệu suất khám bệnh</p>
+                                <h4 className="text-3xl font-bold italic-none text-slate-900 dark:text-white">{stats?.totalPatients || '0'} ca</h4>
+                            </div>
+                        </div>
+
+                        <div className="bg-white dark:bg-slate-900 p-7 rounded-[2rem] border border-slate-200 dark:border-slate-700 shadow-sm space-y-5 group hover:shadow-md transition-all">
+                            <div className="flex items-center justify-between">
+                                <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-slate-500 group-hover:text-primary transition-colors">
+                                    <span className="material-symbols-outlined text-[24px]">verified</span>
+                                </div>
+                                <span className="px-4 py-1.5 bg-slate-50 text-slate-500 text-[11px] font-bold rounded-full uppercase tracking-wider border border-slate-200/50">Dữ liệu thực tế</span>
+                            </div>
+                            <div>
+                                <p className="text-[14px] font-medium text-slate-500 mb-1">Ca nguy cơ cao</p>
+                                <h4 className="text-3xl font-bold italic-none text-slate-900 dark:text-white text-red-500">{stats?.highRiskAlerts || '0'}</h4>
+                            </div>
+                        </div>
+
+                        <div className="bg-white dark:bg-slate-900 p-7 rounded-[2rem] border border-slate-200 dark:border-slate-700 shadow-sm space-y-5 group hover:shadow-md transition-all">
+                            <div className="flex items-center justify-between">
+                                <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-slate-500 group-hover:text-primary transition-colors">
+                                    <span className="material-symbols-outlined text-[24px]">calendar_month</span>
+                                </div>
+                                <span className="px-4 py-1.5 bg-emerald-50 text-emerald-600 text-[11px] font-bold rounded-full uppercase tracking-wider border border-emerald-100/50">{stats?.highRiskGrowth || '+0 ca'}</span>
+                            </div>
+                            <div>
+                                <p className="text-[14px] font-medium text-slate-500 mb-1">Chờ tái khám</p>
+                                <h4 className="text-3xl font-bold italic-none text-slate-900 dark:text-white">{stats?.pendingFollowUps || '0'}</h4>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Filters Bar (Clean - No Background Container) */}
+                    <div className="flex flex-wrap items-center gap-4">
+                        <div className="w-full md:w-[450px] relative group">
+                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors text-[20px]">search</span>
                             <input
-                                className="w-full pl-12 pr-6 py-3.5 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-primary/30 text-sm font-bold placeholder:text-slate-400 transition-all outline-none italic-none"
-                                placeholder="Tìm kiếm theo tên bệnh nhân hoặc mã số hồ sơ..."
+                                className="w-full pl-12 pr-6 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full focus:ring-2 focus:ring-primary/20 text-sm font-medium transition-all outline-none italic-none shadow-sm"
+                                placeholder="Tìm kiếm theo tên bệnh nhân"
                                 type="text"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -162,114 +285,89 @@ export default function ClinicPatients() {
                                 value={conditionFilter}
                                 options={['Tất cả bệnh lý', 'Tiểu đường', 'Cao huyết áp', 'Hen suyễn']}
                                 onChange={setConditionFilter}
-                                icon={<span className="material-symbols-outlined">filter_alt</span>}
                             />
+
                             <ClinicFilterDropdown
                                 value={riskFilter}
-                                options={['Mức độ rủi ro', 'STABLE', 'MONITORING', 'HIGH_RISK']}
+                                options={['Mức độ rủi ro', 'Bình thường', 'Theo dõi', 'Nguy cơ cao']}
                                 onChange={setRiskFilter}
-                                icon={<span className="material-symbols-outlined">analytics</span>}
                             />
-                            <button className="p-3.5 bg-slate-50 dark:bg-slate-800 rounded-2xl text-slate-400 hover:text-primary transition-colors active:scale-95">
-                                <span className="material-symbols-outlined">tune</span>
-                            </button>
+
+                            <ClinicFilterDropdown
+                                value={statusFilter}
+                                options={['Tất cả trạng thái', 'Đang điều trị', 'Đang theo dõi', 'Ổn định']}
+                                onChange={setStatusFilter}
+                            />
                         </div>
                     </div>
 
-                    {/* Patient Table Container */}
-                    <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-primary/5 shadow-sm overflow-hidden">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden font-display">
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
-                                <thead className="bg-slate-50/50 dark:bg-slate-800/20 text-slate-500 text-[13px] font-black tracking-widest uppercase">
-                                    <tr>
-                                        <th className="px-8 py-6 w-1/3">Người bệnh</th>
-                                        <th className="px-6 py-6">Hồ sơ & Bệnh lý</th>
-                                        <th className="px-6 py-6">Phụ trách</th>
-                                        <th className="px-6 py-6">Rủi ro</th>
-                                        <th className="px-6 py-6">Trạng thái</th>
-                                        <th className="px-8 py-6 text-right">Thao tác</th>
+                                <thead>
+                                    <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
+                                        <th className="px-8 py-4 text-[15px] font-medium text-slate-700">Người bệnh</th>
+                                        <th className="px-6 py-4 text-[15px] font-medium text-slate-700">Liên hệ</th>
+                                        <th className="px-6 py-4 text-[15px] font-medium text-slate-700">Bệnh lý</th>
+                                        <th className="px-6 py-4 text-[15px] font-medium text-slate-700">Phụ trách</th>
+                                        <th className="px-6 py-4 text-[15px] font-medium text-slate-700">Rủi ro</th>
+                                        <th className="px-6 py-4 text-[15px] font-medium text-slate-700">Trạng thái</th>
+                                        <th className="px-8 py-4 text-[15px] font-medium text-slate-700 text-right">Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                                    {isLoading ? (
-                                        <tr>
-                                            <td colSpan={6} className="px-8 py-20 text-center">
-                                                <div className="flex flex-col items-center gap-3 text-primary animate-pulse">
-                                                    <span className="material-symbols-outlined text-5xl">sync</span>
-                                                    <p className="text-sm font-bold italic-none tracking-tight">Đang tải dữ liệu bệnh nhân...</p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ) : filteredPatients.length > 0 ? filteredPatients.map((p, idx) => (
-                                        <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-all group">
-                                            <td className="px-8 py-5">
+                                    {patients.length > 0 ? patients.map((p, idx) => (
+                                        <tr key={idx} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors group cursor-pointer border-b border-slate-50 dark:border-slate-800 last:border-0">
+                                            <td className="px-8 py-4">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="relative">
-                                                        <img
-                                                            alt={p.name}
-                                                            className="w-12 h-12 rounded-2xl object-cover ring-2 ring-white dark:ring-slate-800 shadow-sm"
-                                                            src={p.img}
-                                                        />
-                                                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full"></div>
-                                                    </div>
+                                                    <img alt={p.name} className="w-11 h-11 rounded-xl object-cover ring-2 ring-primary/10" src={p.img} />
                                                     <div>
-                                                        <p className="text-[15px] font-black text-slate-900 dark:text-white mb-0.5 italic-none leading-tight">{p.name}</p>
-                                                        <p className="text-[12px] font-bold text-slate-400 font-mono tracking-tighter uppercase">{p.id} • {p.age} tuổi</p>
+                                                        <p className="text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-colors tracking-tight italic-none">{p.name}</p>
+                                                        <p className="text-[12px] text-slate-500 font-medium">{p.age} tuổi</p>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-5">
-                                                <div className="space-y-1">
-                                                    <p className="text-[14px] font-bold text-slate-700 dark:text-slate-300 italic-none">{p.condition}</p>
-                                                    <p className="text-[12px] font-medium text-slate-400 flex items-center gap-1.5">
-                                                        <span className="w-1.5 h-1.5 bg-primary/40 rounded-full"></span>
-                                                        {p.location}
-                                                    </p>
-                                                </div>
+                                            <td className="px-6 py-4">
+                                                <p className="text-[14px] font-medium text-slate-600">
+                                                    {p.phone}
+                                                </p>
                                             </td>
-                                            <td className="px-6 py-5">
-                                                <div className="flex items-center gap-2.5">
-                                                    <div className="w-8 h-8 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center text-slate-500">
-                                                        <span className="material-symbols-outlined text-[18px]">medical_services</span>
-                                                    </div>
-                                                    <p className="text-[13.5px] font-bold text-slate-600 dark:text-slate-400 italic-none">{p.doctor}</p>
-                                                </div>
+                                            <td className="px-6 py-4">
+                                                <span className="text-slate-700 text-[14px] font-bold">
+                                                    {p.condition}
+                                                </span>
                                             </td>
-                                            <td className="px-6 py-5">
-                                                <div className="flex items-center gap-2">
-                                                    <div className={`w-2 h-2 rounded-full ${p.riskLevel === 'HIGH_RISK' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' :
-                                                        p.riskLevel === 'MONITORING' ? 'bg-amber-400' : 'bg-emerald-400'
-                                                        }`}></div>
-                                                    <span className={`text-[12.5px] font-black italic-none ${p.riskLevel === 'HIGH_RISK' ? 'text-red-600' :
-                                                        p.riskLevel === 'MONITORING' ? 'text-amber-600' : 'text-emerald-600'
-                                                        }`}>
-                                                        {p.riskLevel}
-                                                    </span>
-                                                </div>
+                                            <td className="px-6 py-4">
+                                                <p className="text-[14px] font-bold text-slate-700">{p.doctor}</p>
                                             </td>
-                                            <td className="px-6 py-5">
-                                                <span className={`inline-flex px-4 py-1.5 rounded-full text-[13px] font-black italic-none shadow-sm ${p.status === 'Ổn định' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
-                                                    p.status === 'Cấp cứu' ? 'bg-red-50 text-red-600 border border-red-100 animate-pulse' :
-                                                        'bg-blue-50 text-blue-600 border border-blue-100'
+                                            <td className="px-6 py-4">
+                                                <span className="text-[14px] font-bold text-slate-700 italic-none">
+                                                    {p.riskLevel.includes('HIGH') ? 'Nguy cơ cao' : p.riskLevel.includes('MONITORING') ? 'Đang theo dõi' : 'Bình thường'}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span className={`inline-flex px-4 py-1.5 rounded-full text-[12px] font-bold italic-none shadow-sm text-white ${p.status === 'Ổn định' ? 'bg-emerald-500' :
+                                                    p.status === 'Đang theo dõi' ? 'bg-amber-500' :
+                                                        'bg-blue-500'
                                                     }`}>
                                                     {p.status}
                                                 </span>
                                             </td>
-                                            <td className="px-8 py-5 text-right">
-                                                <div className="flex items-center justify-end gap-1 opacity-10 md:opacity-100 group-hover:opacity-100 transition-opacity">
-                                                    <button className="p-2 text-primary hover:bg-primary/10 rounded-xl transition-colors active:scale-95" title="Xem hồ sơ">
+                                            <td className="px-8 py-4 text-right">
+                                                <div className="flex items-center justify-end gap-2 transition-all">
+                                                    <button className="p-2 text-primary bg-primary/5 hover:bg-primary/10 rounded-lg transition-colors active:scale-95" title="Xem hồ sơ">
                                                         <span className="material-symbols-outlined text-[20px]">visibility</span>
                                                     </button>
                                                     <button
                                                         onClick={() => { setSelectedPatient(p); setIsEditModalOpen(true); }}
-                                                        className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-xl transition-colors active:scale-95"
+                                                        className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors active:scale-95"
                                                         title="Chỉnh sửa"
                                                     >
                                                         <span className="material-symbols-outlined text-[20px]">edit</span>
                                                     </button>
                                                     <button
                                                         onClick={() => { setSelectedPatient(p); setIsDeleteModalOpen(true); }}
-                                                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors active:scale-95"
+                                                        className="p-2 text-red-500 bg-red-50 hover:bg-red-100 rounded-lg transition-colors active:scale-95"
                                                         title="Loại bỏ"
                                                     >
                                                         <span className="material-symbols-outlined text-[20px]">delete</span>
@@ -279,10 +377,10 @@ export default function ClinicPatients() {
                                         </tr>
                                     )) : (
                                         <tr>
-                                            <td colSpan={6} className="px-8 py-20 text-center">
-                                                <div className="flex flex-col items-center gap-3 text-slate-400">
+                                            <td colSpan={7} className="px-8 py-20 text-center">
+                                                <div className="flex flex-col items-center">
                                                     <span className="material-symbols-outlined text-4xl opacity-20">person_off</span>
-                                                    <p className="text-sm font-bold italic-none tracking-tight">Không tìm thấy bệnh nhân phù hợp</p>
+                                                    <p className="text-sm font-medium text-slate-500">Không tìm thấy bệnh nhân nào</p>
                                                 </div>
                                             </td>
                                         </tr>
@@ -291,32 +389,44 @@ export default function ClinicPatients() {
                             </table>
                         </div>
 
-                        <div className="px-8 py-6 bg-slate-50/50 dark:bg-slate-800/20 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">
+                        <div className="px-8 py-6 bg-slate-50/30 dark:bg-slate-800/30 flex items-center justify-between border-t border-slate-200 dark:border-slate-700">
                             <p className="text-[14px] font-medium text-slate-500">
-                                Hiển thị <span className="font-bold text-slate-900 dark:text-white">{filteredPatients.length}</span> trên <span className="font-bold text-slate-900 dark:text-white">{patients.length}</span> hồ sơ
+                                Hiển thị <span className="font-bold text-slate-900 dark:text-white">{patients.length}</span> trên <span className="font-bold text-slate-900 dark:text-white">{totalElements}</span> hồ sơ
                             </p>
-                            <div className="flex items-center gap-2">
-                                <button className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-400 hover:bg-white dark:hover:bg-slate-800 transition-all disabled:opacity-30 disabled:cursor-not-allowed">
-                                    <span className="material-symbols-outlined">chevron_left</span>
+                            <div className="flex items-center gap-3">
+                                <button
+                                    onClick={() => fetchPatients(currentPage - 1)}
+                                    disabled={currentPage === 0}
+                                    className="p-2 rounded-xl bg-white dark:bg-slate-100 border border-slate-200 text-slate-400 hover:text-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                >
+                                    <span className="material-symbols-outlined text-[20px]">chevron_left</span>
                                 </button>
-                                <div className="flex items-center gap-1 mx-2">
-                                    <button className="w-9 h-9 flex items-center justify-center rounded-xl bg-primary text-white font-black text-sm">1</button>
+                                <div className="flex items-center gap-1.5">
+                                    <button className="w-10 h-10 rounded-xl bg-primary text-white text-sm font-black shadow-lg shadow-primary/20 transition-all">
+                                        {currentPage + 1}
+                                    </button>
+                                    <span className="text-sm font-medium text-slate-400 mx-1">/ {totalPages || 1}</span>
                                 </div>
-                                <button className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-400 hover:bg-white dark:hover:bg-slate-800 transition-all disabled:opacity-30 disabled:cursor-not-allowed">
-                                    <span className="material-symbols-outlined">chevron_right</span>
+                                <button
+                                    onClick={() => fetchPatients(currentPage + 1)}
+                                    disabled={currentPage >= totalPages - 1}
+                                    className="p-2 rounded-xl bg-white dark:bg-slate-100 border border-slate-200 text-slate-400 hover:text-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                >
+                                    <span className="material-symbols-outlined text-[20px]">chevron_right</span>
                                 </button>
                             </div>
                         </div>
                     </div>
+
                 </div>
 
-                {/* Modals */}
                 <CreatePatientModal
                     isOpen={isCreateModalOpen}
                     onClose={() => setIsCreateModalOpen(false)}
                     isSaving={isSaving}
                     onSave={handleSavePatient}
                     availableDoctors={availableDoctors}
+                    availableConditions={availableConditions}
                 />
 
                 <EditPatientModal
@@ -332,7 +442,7 @@ export default function ClinicPatients() {
                     isOpen={isDeleteModalOpen}
                     onClose={() => setIsDeleteModalOpen(false)}
                     isDeleting={isDeleting}
-                    onDelete={() => handleDeletePatient(selectedPatient?.id)}
+                    onDelete={handleDeletePatient}
                     patientData={selectedPatient}
                 />
 
@@ -341,6 +451,7 @@ export default function ClinicPatients() {
                     title={toastMessage}
                     onClose={() => setShowToast(false)}
                 />
+
             </main>
         </div>
     );

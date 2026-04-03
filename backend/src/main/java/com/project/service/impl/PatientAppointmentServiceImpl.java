@@ -18,8 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("null")
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -68,8 +70,8 @@ public class PatientAppointmentServiceImpl implements PatientAppointmentService 
     @Override
     @Transactional
     public void cancel(Long id) {
-        Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found: " + id));
+        Appointment appointment = appointmentRepository.findById(Objects.requireNonNull(id))
+                .orElseThrow(() -> new ResourceNotFoundException("Lịch hẹn không tồn tại với ID: " + id));
         appointment.setStatus("CANCELLED");
         appointmentRepository.save(appointment);
         log.info("Appointment cancelled: id={}", id);

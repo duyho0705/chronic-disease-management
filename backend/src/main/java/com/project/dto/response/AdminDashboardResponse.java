@@ -1,25 +1,21 @@
 package com.project.dto.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class AdminDashboardResponse {
-
     private AdminStatsDto stats;
     private List<ClinicPerformanceDto> clinicPerformances;
     private List<SystemActivityDto> recentActivities;
     private List<ChartDataDto> chartData;
-
-    @Data
-    @Builder
-    public static class ChartDataDto {
-        private String label;
-        private double value;
-    }
 
     @Data
     @Builder
@@ -54,5 +50,12 @@ public class AdminDashboardResponse {
         private String timeAgo;
         private String icon;
         private String color;
+    }
+
+    @Data
+    @Builder
+    public static class ChartDataDto {
+        private String label;
+        private long value;
     }
 }

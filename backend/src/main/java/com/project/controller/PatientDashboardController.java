@@ -1,22 +1,27 @@
 package com.project.controller;
 
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.project.dto.response.ApiResponse;
 import com.project.dto.response.PatientAlertResponse;
 import com.project.dto.response.PatientDashboardResponse;
 import com.project.service.PatientDashboardService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/patient/dashboard")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('PATIENT')")
+// @PreAuthorize("hasRole('PATIENT')")
 @Tag(name = "Patient Dashboard", description = "Patient dashboard aggregation APIs")
 public class PatientDashboardController {
 

@@ -6,6 +6,7 @@ import EditUserModal from '../features/admin/components/EditUserModal';
 import Toast from '../components/ui/Toast';
 import { clinicApi } from '../api/clinic';
 import { userApi } from '../api/user';
+import DeleteConfirmModal from '../components/ui/DeleteConfirmModal';
 
 export default function AdminUsers() {
   const [selectedRole, setSelectedRole] = useState('Tất cả vai trò');
@@ -13,16 +14,26 @@ export default function AdminUsers() {
   const [selectedStatus, setSelectedStatus] = useState('Tất cả trạng thái');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [deletingUser, setDeletingUser] = useState<any>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastTitle, setToastTitle] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [clinics, setClinics] = useState<any[]>([]);
   const [userList, setUserList] = useState<any[]>([]);
   const [userStats, setUserStats] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [pagination, setPagination] = useState({ page: 0, size: 10, total: 0 });
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   useEffect(() => {
     fetchClinics();
@@ -50,7 +61,7 @@ export default function AdminUsers() {
         role: selectedRole !== 'Tất cả vai trò' ? roleMapping[selectedRole] : null,
         status: selectedStatus !== 'Tất cả trạng thái' ? statusMapping[selectedStatus] : null,
         clinicId: selectedClinicObj ? selectedClinicObj.id : null,
-        keyword: searchTerm || null,
+        keyword: debouncedSearch || null,
         page: pagination.page,
         size: pagination.size
       };
@@ -78,11 +89,11 @@ export default function AdminUsers() {
     } finally {
       if (!isSilent) setIsLoading(false);
     }
-  }, [selectedRole, selectedClinic, selectedStatus, searchTerm, pagination.page, pagination.size, clinics]);
+  }, [selectedRole, selectedClinic, selectedStatus, debouncedSearch, pagination.page, pagination.size, clinics]);
 
   useEffect(() => {
     fetchUsers();
-  }, [fetchUsers]);
+  }, [selectedRole, selectedClinic, selectedStatus, debouncedSearch, pagination.page, pagination.size]);
 
   const fetchClinics = async () => {
     try {
@@ -213,6 +224,31 @@ export default function AdminUsers() {
     }
   };
 
+  const handleDeleteUser = (user: any) => {
+    setDeletingUser(user);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingUser) return;
+
+    setIsSaving(true);
+    try {
+      await userApi.deleteUser(deletingUser.id);
+      setIsDeleteModalOpen(false);
+      setToastTitle(`Đã xóa tài khoản ${deletingUser.name}`);
+      setShowToast(true);
+      fetchUsers();
+      fetchStats();
+    } catch (error: any) {
+      console.error('Failed to delete user:', error);
+      alert('Lỗi khi xóa người dùng: ' + (error.response?.data?.message || 'Có lỗi xảy ra'));
+    } finally {
+      setIsSaving(false);
+      setDeletingUser(null);
+    }
+  };
+
   return (
     <>
       <AdminLayout>
@@ -233,9 +269,9 @@ export default function AdminUsers() {
               </button>
               <button
                 onClick={() => setIsCreateModalOpen(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-lg font-bold transition-all text-[13px] shadow-lg shadow-slate-900/10 active:scale-95"
+                className="flex items-center gap-2 px-6 py-2.5 bg-primary text-white rounded-full font-bold transition-all text-[14px] shadow-lg shadow-primary/20 hover:shadow-primary/30 active:scale-95 group"
               >
-                <span className="material-symbols-outlined text-[18px]">person_add</span>
+                <span className="material-symbols-outlined text-[20px]">person_add</span>
                 Thêm người dùng mới
               </button>
             </div>
@@ -243,80 +279,104 @@ export default function AdminUsers() {
 
           {/* Summary Bento Grid */}
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-8">
-            {[
-              { label: 'Tổng người dùng', value: userStats?.totalUsers?.toString() || '0', icon: 'groups', color: 'primary' },
-              { label: 'Quản trị viên', value: userStats?.adminCount?.toString() || '0', icon: 'admin_panel_settings', color: 'slate' },
-              { label: 'Bác sĩ', value: userStats?.doctorCount?.toString() || '0', icon: 'medical_services', color: 'blue' },
-              { label: 'Quản lý phòng khám', value: userStats?.clinicManagerCount?.toString() || '0', icon: 'manage_accounts', color: 'amber' },
-              { label: 'Bệnh nhân', value: userStats?.patientCount?.toString() || '0', icon: 'person', color: 'emerald' }
-            ].map((stat, idx) => (
-              <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm transition-all group hover:shadow-md">
-                <div className="flex justify-between items-start mb-4">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.color === 'primary' ? 'bg-primary/10 text-primary' :
-                    stat.color === 'emerald' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600' :
-                      stat.color === 'blue' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600' :
-                        stat.color === 'amber' ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600' :
-                          'bg-slate-100 dark:bg-slate-800 text-slate-600'
-                    }`}>
-                    <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>{stat.icon}</span>
+            {isLoading || !userStats ? (
+              // Skeleton Stats Cards
+              [...Array(5)].map((_, idx) => (
+                <div key={`user-stat-skeleton-${idx}`} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm animate-pulse">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800"></div>
                   </div>
+                  <div className="h-4 bg-slate-100 dark:bg-slate-800/50 rounded w-24 mb-2"></div>
+                  <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded w-16"></div>
                 </div>
-                <p className="text-slate-500 text-[15px] font-medium mt-1">{stat.label}</p>
-                <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{stat.value}</h3>
-              </div>
-            ))}
+              ))
+            ) : (
+              [
+                { label: 'Tổng người dùng', value: userStats?.totalUsers?.toString() || '0', icon: 'groups', color: 'primary' },
+                { label: 'Quản trị viên', value: userStats?.adminCount?.toString() || '0', icon: 'admin_panel_settings', color: 'slate' },
+                { label: 'Bác sĩ', value: userStats?.doctorCount?.toString() || '0', icon: 'medical_services', color: 'blue' },
+                { label: 'Quản lý phòng khám', value: userStats?.clinicManagerCount?.toString() || '0', icon: 'manage_accounts', color: 'amber' },
+                { label: 'Bệnh nhân', value: userStats?.patientCount?.toString() || '0', icon: 'person', color: 'emerald' }
+              ].map((stat, idx) => (
+                <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-all group hover:shadow-md">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.color === 'primary' ? 'bg-primary/10 text-primary' :
+                      stat.color === 'emerald' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600' :
+                        stat.color === 'blue' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600' :
+                          stat.color === 'amber' ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600' :
+                            'bg-slate-100 dark:bg-slate-800 text-slate-600'
+                      }`}>
+                      <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>{stat.icon}</span>
+                    </div>
+                  </div>
+                  <p className="text-slate-500 text-[15px] font-medium mt-1">{stat.label}</p>
+                  <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{stat.value}</h3>
+                </div>
+              ))
+            )}
           </div>
 
           {/* Filter Section */}
-          <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-primary/5 space-y-6">
+          <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="relative">
                 <label className="text-[14px] font-medium text-slate-500  mb-2 block px-1">Tìm kiếm</label>
-                <div className="relative">
-                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
-                  <input
-                    className="w-full bg-slate-100/80 dark:bg-slate-800 border-none rounded-xl pl-10 pr-4 py-2.5 text-[14px] font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none text-slate-900 dark:text-white"
-                    placeholder="Tên hoặc Email..."
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
+                {isLoading ? (
+                  <div className="h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-full w-full"></div>
+                ) : (
+                  <div className="relative">
+                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+                    <input
+                      className="w-full bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/50 rounded-full pl-10 pr-4 py-2.5 text-[14px] font-bold focus:ring-2 focus:ring-primary/20 shadow-sm outline-none text-slate-900 dark:text-white transition-all"
+                      placeholder="Tên hoặc Email..."
+                      type="text"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+                )}
               </div>
               <div>
                 <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">Vai trò</label>
-                <Dropdown
-                  options={['Tất cả vai trò', 'Quản trị viên', 'Bác sĩ', 'Quản lý phòng khám', 'Bệnh nhân']}
-                  value={selectedRole}
-                  onChange={setSelectedRole}
-                />
+                {isLoading ? (
+                  <div className="h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl w-full"></div>
+                ) : (
+                  <Dropdown
+                    options={['Tất cả vai trò', 'Quản trị viên', 'Bác sĩ', 'Quản lý phòng khám', 'Bệnh nhân']}
+                    value={selectedRole}
+                    onChange={setSelectedRole}
+                  />
+                )}
               </div>
               <div>
                 <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">Phòng khám</label>
-                <Dropdown
-                  options={filterClinicOptions}
-                  value={selectedClinic}
-                  onChange={setSelectedClinic}
-                />
+                {isLoading ? (
+                  <div className="h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl w-full"></div>
+                ) : (
+                  <Dropdown
+                    options={filterClinicOptions}
+                    value={selectedClinic}
+                    onChange={setSelectedClinic}
+                  />
+                )}
               </div>
               <div>
                 <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">Trạng thái</label>
-                <Dropdown
-                  options={['Tất cả trạng thái', 'Hoạt động', 'Ngưng hoạt động']}
-                  value={selectedStatus}
-                  onChange={setSelectedStatus}
-                />
+                {isLoading ? (
+                  <div className="h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl w-full"></div>
+                ) : (
+                  <Dropdown
+                    options={['Tất cả trạng thái', 'Hoạt động', 'Ngưng hoạt động']}
+                    value={selectedStatus}
+                    onChange={setSelectedStatus}
+                  />
+                )}
               </div>
             </div>
           </div>
 
           {/* Data Table */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm border border-primary/5 relative">
-            {isLoading && (
-              <div className="absolute inset-0 bg-white/50 dark:bg-slate-900/50 backdrop-blur-[1px] z-10 flex items-center justify-center">
-                <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
-              </div>
-            )}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800 relative">
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead>
@@ -331,7 +391,45 @@ export default function AdminUsers() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-primary/5">
-                  {!isLoading && userList.length === 0 ? (
+                  {isLoading ? (
+                    // Skeleton Rows
+                    [...Array(5)].map((_, i) => (
+                      <tr key={`skeleton-${i}`} className="animate-pulse">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 shrink-0"></div>
+                            <div className="space-y-2">
+                              <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-24"></div>
+                              <div className="h-3 bg-slate-100 dark:bg-slate-800/50 rounded w-32"></div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-20"></div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-16"></div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-28"></div>
+                          <div className="h-3 bg-slate-100 dark:bg-slate-800/50 rounded w-20 mt-1"></div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-16"></div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="h-7 bg-slate-200 dark:bg-slate-800 rounded-full w-20"></div>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex justify-end gap-2">
+                            <div className="w-9 h-9 bg-slate-200 dark:bg-slate-800 rounded-xl"></div>
+                            <div className="w-9 h-9 bg-slate-200 dark:bg-slate-800 rounded-xl"></div>
+                            <div className="w-9 h-9 bg-slate-200 dark:bg-slate-800 rounded-xl"></div>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : userList.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="px-6 py-20 text-center">
                         <div className="flex flex-col items-center gap-2 text-slate-400">
@@ -399,6 +497,13 @@ export default function AdminUsers() {
                                   {isActive ? 'block' : 'check_circle'}
                                 </span>
                               </button>
+                              <button
+                                onClick={() => handleDeleteUser(user)}
+                                className="w-9 h-9 flex items-center justify-center rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all duration-300"
+                                title="Xóa người dùng"
+                              >
+                                <span className="material-symbols-outlined text-[18px]">delete</span>
+                              </button>
                             </div>
                           </td>
                         </tr>
@@ -412,34 +517,56 @@ export default function AdminUsers() {
             {/* Pagination Box */}
             <div className="bg-slate-50 border-t border-slate-100 py-4">
               <div className="px-8 flex flex-col md:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-1 order-2 md:order-2">
-                  <button
-                    disabled={pagination.page === 0}
-                    onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
-                    className="p-2 rounded-lg text-slate-400 hover:bg-white hover:text-primary transition-all disabled:opacity-30 disabled:hover:bg-transparent"
-                  >
-                    <span className="material-symbols-outlined">chevron_left</span>
-                  </button>
-                  <button className="w-8 h-8 rounded-lg bg-primary text-white text-[13px] font-extrabold shadow-md">{pagination.page + 1}</button>
-                  <button
-                    disabled={(pagination.page + 1) * pagination.size >= pagination.total}
-                    onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
-                    className="p-2 rounded-lg text-slate-400 hover:bg-white hover:text-primary transition-all disabled:opacity-30 disabled:hover:bg-transparent"
-                  >
-                    <span className="material-symbols-outlined">chevron_right</span>
-                  </button>
-                </div>
+                {isLoading ? (
+                  <>
+                    <div className="flex gap-1 order-2">
+                       <div className="w-8 h-8 rounded-lg bg-slate-200 animate-pulse"></div>
+                       <div className="w-8 h-8 rounded-lg bg-slate-100 animate-pulse"></div>
+                       <div className="w-8 h-8 rounded-lg bg-slate-200 animate-pulse"></div>
+                    </div>
+                    <div className="h-4 bg-slate-200 animate-pulse rounded w-32 order-1"></div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-1 order-2 md:order-2">
+                      <button
+                        disabled={pagination.page === 0}
+                        onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
+                        className="p-2 rounded-lg text-slate-400 hover:bg-white hover:text-primary transition-all disabled:opacity-30 disabled:hover:bg-transparent"
+                      >
+                        <span className="material-symbols-outlined">chevron_left</span>
+                      </button>
+                      <button className="w-8 h-8 rounded-lg bg-primary text-white text-[13px] font-extrabold shadow-md">{pagination.page + 1}</button>
+                      <button
+                        disabled={(pagination.page + 1) * pagination.size >= pagination.total}
+                        onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
+                        className="p-2 rounded-lg text-slate-400 hover:bg-white hover:text-primary transition-all disabled:opacity-30 disabled:hover:bg-transparent"
+                      >
+                        <span className="material-symbols-outlined">chevron_right</span>
+                      </button>
+                    </div>
 
-                <div className="order-3 md:order-1">
-                  <p className="text-[14px] font-medium text-slate-500">
-                    Hiển thị <span className="text-slate-500 font-medium">{userList.length}</span>/<span className="text-slate-500 font-medium">{pagination.total}</span> tài khoản
-                  </p>
-                </div>
+                    <div className="order-3 md:order-1">
+                      <p className="text-[14px] font-medium text-slate-500">
+                        Hiển thị <span className="text-slate-500 font-medium">{userList.length}</span>/<span className="text-slate-500 font-medium">{pagination.total}</span> tài khoản
+                      </p>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
         </section>
       </AdminLayout>
+
+      <DeleteConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Xác nhận xóa tài khoản"
+        description={`Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản ${deletingUser?.name}? Hành động này sẽ xóa tất cả dữ liệu liên quan và không thể hoàn tác.`}
+        isLoading={isSaving}
+      />
 
       <CreateUserModal
         isOpen={isCreateModalOpen}

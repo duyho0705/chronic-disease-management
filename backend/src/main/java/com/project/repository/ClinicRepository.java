@@ -14,18 +14,24 @@ public interface ClinicRepository extends JpaRepository<Clinic, Long> {
 
     Optional<Clinic> findByClinicCode(String clinicCode);
 
-    long countByStatus(String status);
+    @Query("SELECT COUNT(c) FROM Clinic c WHERE c.isDeleted = false")
+    long countClinics();
 
-    Page<Clinic> findByStatusAndNameContainingIgnoreCase(String status, String name, Pageable pageable);
+    @Query("SELECT COUNT(c) FROM Clinic c WHERE c.isDeleted = false AND c.status = :status")
+    long countByStatusAndIsDeletedFalse(String status);
 
-    Page<Clinic> findByNameContainingIgnoreCase(String name, Pageable pageable);
+    @Query("SELECT c FROM Clinic c WHERE c.isDeleted = false")
+    java.util.List<Clinic> findAllActive();
 
-    @Query("SELECT COALESCE(SUM(c.doctorCount), 0) FROM Clinic c WHERE c.status = 'ACTIVE'")
+    @Query("SELECT c FROM Clinic c WHERE c.isDeleted = false AND (:status IS NULL OR c.status = :status) AND (:name IS NULL OR LOWER(c.name) LIKE :name)")
+    Page<Clinic> findByFilters(String status, String name, Pageable pageable);
+
+    @Query("SELECT COALESCE(SUM(c.doctorCount), 0) FROM Clinic c WHERE c.isDeleted = false AND c.status = 'ACTIVE'")
     long sumDoctorCountByActiveStatus();
 
-    @Query("SELECT COALESCE(SUM(c.patientCount), 0) FROM Clinic c")
+    @Query("SELECT COALESCE(SUM(c.patientCount), 0) FROM Clinic c WHERE c.isDeleted = false")
     long sumPatientCount();
 
-    @Query("SELECT COALESCE(SUM(c.highRiskPatientCount), 0) FROM Clinic c")
+    @Query("SELECT COALESCE(SUM(c.highRiskPatientCount), 0) FROM Clinic c WHERE c.isDeleted = false")
     long sumHighRiskPatientCount();
 }

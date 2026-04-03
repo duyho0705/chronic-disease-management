@@ -7,6 +7,7 @@ interface CreatePatientModalProps {
     isSaving: boolean;
     onSave: (patientData: any) => Promise<void>;
     availableDoctors: string[];
+    availableConditions: string[];
 }
 
 export default function CreatePatientModal({
@@ -14,7 +15,8 @@ export default function CreatePatientModal({
     onClose,
     isSaving,
     onSave,
-    availableDoctors
+    availableDoctors,
+    availableConditions
 }: CreatePatientModalProps) {
     const [formData, setFormData] = useState({
         name: '',
@@ -22,11 +24,26 @@ export default function CreatePatientModal({
         gender: 'Nam',
         phone: '',
         address: '',
-        condition: 'Tiểu đường Type 2',
+        condition: '', 
         riskLevel: 'Theo dõi (MONITORING)',
-        assignedDoctor: availableDoctors[0] || 'BS. Nguyễn Văn A',
-        notes: ''
+        assignedDoctor: '', 
+        notes: '',
+        password: '',
+        confirmPassword: ''
     });
+
+    // Auto-update default values when lists are loaded
+    useEffect(() => {
+        if (!formData.assignedDoctor && availableDoctors.length > 0) {
+            setFormData(prev => ({ ...prev, assignedDoctor: availableDoctors[0] }));
+        }
+        if (!formData.condition && availableConditions.length > 0) {
+            setFormData(prev => ({ ...prev, condition: availableConditions[0] }));
+        }
+    }, [availableDoctors, availableConditions]);
+
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
@@ -62,6 +79,8 @@ export default function CreatePatientModal({
         if (!formData.name.trim()) errors.name = 'Vui lòng nhập họ và tên bệnh nhân';
         if (!formData.age.trim() || isNaN(Number(formData.age))) errors.age = 'Vui lòng nhập tuổi hợp lệ';
         if (!formData.phone.trim()) errors.phone = 'Vui lòng nhập số điện thoại liên hệ';
+        if (!formData.password) errors.password = 'Vui lòng thiết lập mật khẩu';
+        if (formData.password !== formData.confirmPassword) errors.confirmPassword = 'Mật khẩu xác nhận không khớp';
 
         setFormErrors(errors);
         return Object.keys(errors).length === 0;
@@ -85,12 +104,8 @@ export default function CreatePatientModal({
                 {/* Modal Header */}
                 <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 sticky top-0 z-20">
                     <div className="flex items-center gap-4 text-left">
-                        <div className="bg-primary/10 p-3 rounded-2xl text-primary flex items-center justify-center">
-                            <span className="material-symbols-outlined font-black text-2xl">person_add</span>
-                        </div>
                         <div>
                             <h2 className="text-[20px] font-black text-slate-900 dark:text-white tracking-tight leading-tight">Thêm hồ sơ bệnh nhân mới</h2>
-                            <p className="text-[13px] font-medium text-slate-500 mt-0.5">Khởi tạo và phân công theo dõi sức khỏe chuyên sâu</p>
                         </div>
                     </div>
                 </div>
@@ -101,7 +116,7 @@ export default function CreatePatientModal({
                         {/* Left Column: Personal Information */}
                         <div className="space-y-4">
                             <div className="flex items-center gap-2 pb-2 pl-2 border-l-4 border-l-primary">
-                                <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-[15px] uppercase tracking-wider">Thông tin hành chính</h3>
+                                <h3 className="font-bold text-slate-900 dark:text-slate-100 text-[15px]">Thông tin hành chính</h3>
                             </div>
 
                             <div className="space-y-4 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
@@ -111,8 +126,8 @@ export default function CreatePatientModal({
                                         name="name"
                                         value={formData.name}
                                         onChange={handleChange}
-                                        placeholder="VD: Nguyễn Văn An"
-                                        className={`w-full px-4 py-[9px] rounded-xl border-2 ${formErrors.name ? 'border-red-500/50' : 'border-slate-100 dark:border-slate-800'} bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10`}
+                                        placeholder="Tên bệnh nhân"
+                                        className={`w-full px-4 py-[9px] rounded-xl border-2 ${formErrors.name ? 'border-red-500/50' : 'border-slate-100 dark:border-slate-800'} bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 placeholder:font-medium`}
                                     />
                                     {formErrors.name && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.name}</p>}
                                 </div>
@@ -124,8 +139,8 @@ export default function CreatePatientModal({
                                             name="age"
                                             value={formData.age}
                                             onChange={handleChange}
-                                            placeholder="VD: 54"
-                                            className={`w-full px-4 py-[9px] rounded-xl border-2 ${formErrors.age ? 'border-red-500/50' : 'border-slate-100 dark:border-slate-800'} bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 text-center`}
+                                            placeholder="Tuổi bệnh nhân"
+                                            className={`w-full px-4 py-[9px] rounded-xl border-2 ${formErrors.age ? 'border-red-500/50' : 'border-slate-100 dark:border-slate-800'} bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 text-center placeholder:font-medium`}
                                         />
                                         {formErrors.age && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.age}</p>}
                                     </div>
@@ -147,8 +162,8 @@ export default function CreatePatientModal({
                                             name="phone"
                                             value={formData.phone}
                                             onChange={handleChange}
-                                            placeholder="09xx.xxx.xxx"
-                                            className={`w-full pl-11 pr-4 py-[9px] rounded-xl border-2 ${formErrors.phone ? 'border-red-500/50' : 'border-slate-100 dark:border-slate-800'} bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10`}
+                                            placeholder="Số điện thoại bệnh nhân"
+                                            className={`w-full pl-11 pr-4 py-[9px] rounded-xl border-2 ${formErrors.phone ? 'border-red-500/50' : 'border-slate-100 dark:border-slate-800'} bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 placeholder:font-medium`}
                                         />
                                     </div>
                                     {formErrors.phone && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.phone}</p>}
@@ -162,31 +177,70 @@ export default function CreatePatientModal({
                                             name="address"
                                             value={formData.address}
                                             onChange={handleChange}
-                                            placeholder="Số nhà, Đường, Quận/Huyện..."
-                                            className="w-full pl-11 pr-4 py-[9px] rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
+                                            placeholder="Địa chỉ bệnh nhân"
+                                            className="w-full pl-11 pr-4 py-[9px] rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 placeholder:font-medium"
                                         />
                                     </div>
                                 </div>
 
-                                {/* Filler Info Banner */}
-                                <div className="mt-2 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800/50 flex gap-3 items-start">
-                                    <div className="bg-blue-100 dark:bg-blue-800/50 p-1.5 rounded-lg flex items-center justify-center shrink-0">
-                                        <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 text-[18px]">verified_user</span>
+                                <div className="space-y-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-[13px] font-bold text-slate-500 ml-1">Mật khẩu <span className="text-red-500">*</span></label>
+                                        <div className="relative group/pass">
+                                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[18px] text-slate-400 group-focus-within/pass:text-primary transition-colors">lock</span>
+                                            <input
+                                                type={showPassword ? "text" : "password"}
+                                                name="password"
+                                                value={formData.password}
+                                                onChange={handleChange}
+                                                placeholder="Mật khẩu"
+                                                className={`w-full pl-11 pr-12 py-[9px] rounded-xl border-2 ${formErrors.password ? 'border-red-500/50' : 'border-slate-100 dark:border-slate-800'} bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 placeholder:font-medium`}
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary p-1.5 rounded-lg transition-all active:scale-90"
+                                            >
+                                                <span className="material-symbols-outlined text-[20px]">
+                                                    {showPassword ? 'visibility_off' : 'visibility'}
+                                                </span>
+                                            </button>
+                                        </div>
+                                        {formErrors.password && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.password}</p>}
                                     </div>
-                                    <div>
-                                        <h4 className="text-[13px] font-bold text-blue-900 dark:text-blue-300 mb-0.5">Xác thực danh tính</h4>
-                                        <p className="text-[12px] text-blue-700/80 dark:text-blue-400/80 font-medium leading-relaxed">
-                                            Vui lòng nhắc nhở bệnh nhân mang theo Thẻ BHYT và CCCD bản gốc trong lần khám đầu tiên để hoàn tất thủ tục.
-                                        </p>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[13px] font-bold text-slate-500 ml-1">Xác nhận mật khẩu <span className="text-red-500">*</span></label>
+                                        <div className="relative group/pass">
+                                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[18px] text-slate-400 group-focus-within/pass:text-primary transition-colors">lock_reset</span>
+                                            <input
+                                                type={showConfirmPassword ? "text" : "password"}
+                                                name="confirmPassword"
+                                                value={formData.confirmPassword}
+                                                onChange={handleChange}
+                                                placeholder="Xác nhận mật khẩu"
+                                                className={`w-full pl-11 pr-12 py-[9px] rounded-xl border-2 ${formErrors.confirmPassword ? 'border-red-500/50' : 'border-slate-100 dark:border-slate-800'} bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 placeholder:font-medium`}
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary p-1.5 rounded-lg transition-all active:scale-90"
+                                            >
+                                                <span className="material-symbols-outlined text-[20px]">
+                                                    {showConfirmPassword ? 'visibility_off' : 'visibility'}
+                                                </span>
+                                            </button>
+                                        </div>
+                                        {formErrors.confirmPassword && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.confirmPassword}</p>}
                                     </div>
                                 </div>
+
                             </div>
                         </div>
 
                         {/* Right Column: Medical Profile & Assignment */}
                         <div className="space-y-4">
                             <div className="flex items-center gap-2 pb-2 pl-2 border-l-4 border-l-amber-400">
-                                <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-[15px] uppercase tracking-wider">Hồ sơ bệnh lý</h3>
+                                <h3 className="font-bold text-slate-900 text-[15px]">Hồ sơ bệnh lý</h3>
                             </div>
 
                             <div className="space-y-4 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm relative">
@@ -196,7 +250,7 @@ export default function CreatePatientModal({
                                 <div className="space-y-1.5 relative z-30">
                                     <label className="text-[13px] font-bold text-slate-500 ml-1">Nhóm bệnh lý chính</label>
                                     <Dropdown
-                                        options={['Tiểu đường Type 1', 'Tiểu đường Type 2', 'Cao huyết áp', 'Bệnh tim mạch', 'Suy thận', 'Hen suyễn', 'Khác']}
+                                        options={availableConditions}
                                         value={formData.condition}
                                         onChange={(condition: string) => setFormData(prev => ({ ...prev, condition }))}
                                     />
@@ -221,7 +275,6 @@ export default function CreatePatientModal({
                                                 const isSelected = formData.riskLevel === level;
                                                 const isDanger = level.includes('HIGH');
                                                 const isWarning = level.includes('MONITORING');
-                                                const isSafe = level.includes('STABLE');
 
                                                 let selectedClasses = 'border-slate-200 text-slate-500 bg-white hover:bg-slate-50';
                                                 let iconProps = { name: 'health_and_safety', color: 'text-slate-400' };
@@ -267,7 +320,7 @@ export default function CreatePatientModal({
                                         onChange={handleChange}
                                         placeholder="Tiền sử bệnh, dị ứng thuốc, các lưu ý khác..."
                                         rows={3}
-                                        className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-medium text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 resize-none custom-scrollbar"
+                                        className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-medium text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 resize-none custom-scrollbar placeholder:font-medium"
                                     ></textarea>
                                 </div>
                             </div>

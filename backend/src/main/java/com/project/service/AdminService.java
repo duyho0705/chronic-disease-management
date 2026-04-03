@@ -29,6 +29,7 @@ public interface AdminService {
     AdminUserResponse createUser(CreateUserRequest request);
     AdminUserResponse updateUser(Long id, UpdateUserRequest request);
     void toggleUserStatus(Long id);
+    void deleteUser(Long id);
 
     // System Config
     SystemConfigResponse getConfig();

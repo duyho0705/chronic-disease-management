@@ -1,25 +1,15 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HeartPulse, Stethoscope, Building2, Shield, Activity } from 'lucide-react';
-import LoginModal from '../features/auth/components/LoginModal';
+import { ROUTES } from '../constants/routes';
 
 const LandingPage = () => {
     const navigate = useNavigate();
-    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-    const [selectedRole, setSelectedRole] = useState('clinic');
 
     const handleRoleClick = (roleId: string) => {
-        setSelectedRole(roleId);
-        setIsLoginModalOpen(true);
-    };
-
-    const handleLoginSuccess = (roleId: string) => {
-        setIsLoginModalOpen(false);
-        navigate(`/${roleId}`);
+        navigate(ROUTES.LOGIN, { state: { roleId } });
     };
 
     const roles = [
-// ...
         {
             id: 'patient',
             title: 'Bệnh Nhân',
@@ -93,16 +83,8 @@ const LandingPage = () => {
                     </div>
                 ))}
             </div>
-
-            <LoginModal 
-                isOpen={isLoginModalOpen} 
-                onClose={() => setIsLoginModalOpen(false)}
-                initialRole={selectedRole}
-                onLoginSuccess={handleLoginSuccess}
-            />
         </div>
     );
 };
-
 
 export default LandingPage;

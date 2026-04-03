@@ -181,61 +181,79 @@ export default function AdminDashboard() {
 
         {/* Summary Cards Bento Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Card 1 */}
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
-            <div className="flex justify-between items-start">
-              <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl flex items-center justify-center text-emerald-600">
-                <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>groups</span>
+          {isLoadingChart || !stats ? (
+            // Skeleton Summary Cards
+            [...Array(4)].map((_, idx) => (
+              <div key={`summary-skeleton-${idx}`} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm animate-pulse text-left">
+                <div className="flex justify-between items-start">
+                  <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-xl"></div>
+                  <div className="w-10 h-5 bg-slate-50 dark:bg-slate-800 rounded-lg"></div>
+                </div>
+                <div className="mt-4 space-y-2">
+                  <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-24"></div>
+                  <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded w-16"></div>
+                </div>
               </div>
-              <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">{stats?.patientGrowth || '+0%'}</span>
-            </div>
-            <div className="mt-4">
-              <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{stats?.totalPatients || 0}</h3>
-              <p className="text-slate-500 text-[15px] font-medium mt-1 font-display">Tổng số bệnh nhân</p>
-            </div>
-          </div>
+            ))
+          ) : (
+            <>
+              {/* Card 1 */}
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
+                <div className="flex justify-between items-start">
+                  <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl flex items-center justify-center text-emerald-600">
+                    <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>groups</span>
+                  </div>
+                  <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">{stats?.patientGrowth || '+0%'}</span>
+                </div>
+                <div className="mt-4">
+                  <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{stats?.totalPatients || 0}</h3>
+                  <p className="text-slate-500 text-[15px] font-medium mt-1 font-display">Tổng số bệnh nhân</p>
+                </div>
+              </div>
 
-          {/* Card 2 */}
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
-            <div className="flex justify-between items-start">
-              <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-xl flex items-center justify-center text-blue-600">
-                <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>apartment</span>
+              {/* Card 2 */}
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
+                <div className="flex justify-between items-start">
+                  <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-xl flex items-center justify-center text-blue-600">
+                    <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>apartment</span>
+                  </div>
+                  <span className="text-[11px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-lg uppercase tracking-wider">{stats?.clinicTrend || 'Ổn định'}</span>
+                </div>
+                <div className="mt-4">
+                  <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{stats?.activeClinics || 0}</h3>
+                  <p className="text-slate-500 text-[15px] font-medium mt-1 font-display">Phòng khám hoạt động</p>
+                </div>
               </div>
-              <span className="text-[11px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-lg uppercase tracking-wider">{stats?.clinicTrend || 'Ổn định'}</span>
-            </div>
-            <div className="mt-4">
-              <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{stats?.activeClinics || 0}</h3>
-              <p className="text-slate-500 text-[15px] font-medium mt-1 font-display">Phòng khám hoạt động</p>
-            </div>
-          </div>
 
-          {/* Card 3 */}
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
-            <div className="flex justify-between items-start">
-              <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl flex items-center justify-center text-indigo-600">
-                <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>stethoscope</span>
+              {/* Card 3 */}
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
+                <div className="flex justify-between items-start">
+                  <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl flex items-center justify-center text-indigo-600">
+                    <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>stethoscope</span>
+                  </div>
+                  <span className="text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg">{stats?.doctorTrend || '+0 mới'}</span>
+                </div>
+                <div className="mt-4">
+                  <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{stats?.totalDoctors || 0}</h3>
+                  <p className="text-slate-500 text-[15px] font-medium mt-1 font-display">Đội ngũ Bác sĩ</p>
+                </div>
               </div>
-              <span className="text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg">{stats?.doctorTrend || '+0 mới'}</span>
-            </div>
-            <div className="mt-4">
-              <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{stats?.totalDoctors || 0}</h3>
-              <p className="text-slate-500 text-[15px] font-medium mt-1 font-display">Đội ngũ Bác sĩ</p>
-            </div>
-          </div>
 
-          {/* Card 4 - High Risk Level Style from Doctor */}
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
-            <div className="flex justify-between items-start">
-              <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center text-red-600">
-                <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>warning</span>
+              {/* Card 4 - High Risk Level Style from Doctor */}
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
+                <div className="flex justify-between items-start">
+                  <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center text-red-600">
+                    <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>warning</span>
+                  </div>
+                  <span className="px-2 py-1 bg-red-500 text-white text-[10px] font-bold rounded-full uppercase tracking-wider">Theo dõi</span>
+                </div>
+                <div className="mt-4">
+                  <h3 className="text-3xl font-black text-red-600 tracking-tight">{stats?.highRiskAlerts || 0}</h3>
+                  <p className="text-slate-500 text-[15px] font-medium mt-1 font-display">Cảnh báo rủi ro cao</p>
+                </div>
               </div>
-              <span className="px-2 py-1 bg-red-500 text-white text-[10px] font-bold rounded-full uppercase tracking-wider">Theo dõi</span>
-            </div>
-            <div className="mt-4">
-              <h3 className="text-3xl font-black text-red-600 tracking-tight">{stats?.highRiskAlerts || 0}</h3>
-              <p className="text-slate-500 text-[15px] font-medium mt-1 font-display">Cảnh báo rủi ro cao</p>
-            </div>
-          </div>
+            </>
+          )}
         </div>
 
         {/* Main Layout Section: Chart and Activity */}
@@ -288,63 +306,66 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* Visual Chart with Dots and Smooth Line */}
+            {/* Visual Chart Area */}
             <div className="h-[300px] w-full relative">
-              {isLoadingChart && (
-                <div className="absolute inset-0 z-10 bg-white/40 dark:bg-slate-900/40 backdrop-blur-[1px] flex items-center justify-center rounded-xl">
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="w-8 h-8 border-4 border-[#3bb9f3] border-t-transparent rounded-full animate-spin"></div>
-                    <p className="text-[13px] font-medium text-slate-500">Đang tải dữ liệu...</p>
-                  </div>
+              {isLoadingChart ? (
+                <div className="absolute inset-0 bg-slate-50 dark:bg-slate-800/50 animate-pulse rounded-xl flex flex-col justify-end p-8 gap-12">
+                   <div className="flex items-end justify-between gap-4 h-full">
+                      {[...Array(7)].map((_, i) => (
+                        <div key={i} className={`bg-slate-200 dark:bg-slate-700/50 rounded-lg w-full`} style={{ height: `${20 + Math.random() * 60}%` }}></div>
+                      ))}
+                   </div>
+                   <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-full"></div>
                 </div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 30 }}>
+                    <defs>
+                      <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#3bb9f3" stopOpacity={0.2} />
+                        <stop offset="95%" stopColor="#3bb9f3" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(203, 213, 225, 0.4)" />
+                    <XAxis
+                      dataKey="label"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: '#475569', fontSize: 13, fontWeight: 500 }}
+                      dy={18}
+                      textAnchor="middle"
+                    />
+                    <YAxis
+                      hide
+                      domain={['auto', 'auto']}
+                    />
+                    <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#3bb9f3', strokeWidth: 1, strokeDasharray: '4 4' }} />
+                    <Area
+                      type="monotone"
+                      dataKey="value"
+                      stroke="#3bb9f3"
+                      strokeWidth={4}
+                      fillOpacity={1}
+                      fill="url(#colorValue)"
+                      animationDuration={2000}
+                      dot={{
+                        r: 6,
+                        fill: '#fff',
+                        stroke: '#3bb9f3',
+                        strokeWidth: 3,
+                        className: 'drop-shadow-md'
+                      }}
+                      activeDot={{
+                        r: 8,
+                        fill: '#3bb9f3',
+                        stroke: '#fff',
+                        strokeWidth: 3,
+                        className: 'drop-shadow-lg'
+                      }}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
               )}
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 30 }}>
-                  <defs>
-                    <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3bb9f3" stopOpacity={0.2} />
-                      <stop offset="95%" stopColor="#3bb9f3" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(203, 213, 225, 0.4)" />
-                  <XAxis
-                    dataKey="label"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: '#475569', fontSize: 13, fontWeight: 500 }}
-                    dy={18}
-                    textAnchor="middle"
-                  />
-                  <YAxis
-                    hide
-                    domain={['auto', 'auto']}
-                  />
-                  <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#3bb9f3', strokeWidth: 1, strokeDasharray: '4 4' }} />
-                  <Area
-                    type="monotone"
-                    dataKey="value"
-                    stroke="#3bb9f3"
-                    strokeWidth={4}
-                    fillOpacity={1}
-                    fill="url(#colorValue)"
-                    animationDuration={2000}
-                    dot={{
-                      r: 6,
-                      fill: '#fff',
-                      stroke: '#3bb9f3',
-                      strokeWidth: 3,
-                      className: 'drop-shadow-md'
-                    }}
-                    activeDot={{
-                      r: 8,
-                      fill: '#3bb9f3',
-                      stroke: '#fff',
-                      strokeWidth: 3,
-                      className: 'drop-shadow-lg'
-                    }}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
             </div>
           </div>
 
@@ -355,7 +376,18 @@ export default function AdminDashboard() {
               <span className="material-symbols-outlined text-slate-400">history</span>
             </div>
             <div className="space-y-6 flex-1">
-              {activities.length > 0 ? (
+              {isLoadingChart ? (
+                // Skeleton Activities
+                [...Array(4)].map((_, idx) => (
+                  <div key={`activity-skeleton-${idx}`} className="flex gap-4 animate-pulse">
+                    <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 shrink-0"></div>
+                    <div className="space-y-2 flex-1">
+                      <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-1/2"></div>
+                      <div className="h-3 bg-slate-100 dark:bg-slate-800/50 rounded w-full"></div>
+                    </div>
+                  </div>
+                ))
+              ) : activities.length > 0 ? (
                 activities.map((act, idx) => (
                   <div key={idx} className="flex gap-4 group">
                     <div className="relative">
@@ -403,38 +435,58 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
-                {clinics.map((clinic) => (
-                  <tr key={clinic.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
-                    <td className="px-8 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[#3bb9f3]">
-                          <span className="material-symbols-outlined text-[23px]">home_health</span>
+                {isLoadingChart ? (
+                  // Skeleton Rows
+                  [...Array(4)].map((_, i) => (
+                    <tr key={`clinic-skeleton-${i}`} className="animate-pulse">
+                       <td className="px-8 py-4 whitespace-nowrap">
+                          <div className="flex items-center gap-3">
+                             <div className="w-9 h-9 rounded-xl bg-slate-200 dark:bg-slate-800"></div>
+                             <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-48"></div>
+                          </div>
+                       </td>
+                       <td className="px-6 py-4"><div className="h-6 bg-slate-100 dark:bg-slate-800 rounded w-12"></div></td>
+                       <td className="px-6 py-4"><div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-24"></div></td>
+                       <td className="px-6 py-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-8"></div></td>
+                       <td className="px-6 py-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-12"></div></td>
+                       <td className="px-6 py-4"><div className="h-4 bg-slate-300 dark:bg-slate-800 rounded w-16"></div></td>
+                       <td className="px-6 py-4"><div className="h-6 bg-slate-200 dark:bg-slate-800 rounded-full w-24"></div></td>
+                    </tr>
+                  ))
+                ) : (
+                  clinics.map((clinic) => (
+                    <tr key={clinic.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
+                      <td className="px-8 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[#3bb9f3]">
+                            <span className="material-symbols-outlined text-[23px]">home_health</span>
+                          </div>
+                          <p className="text-sm font-bold text-slate-900 dark:text-white leading-none">{clinic.name}</p>
                         </div>
-                        <p className="text-sm font-bold text-slate-900 dark:text-white leading-none">{clinic.name}</p>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <code className="text-xs font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">{clinic.clinicCode}</code>
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className="text-sm font-medium text-slate-600 dark:text-slate-400">{clinic.phone}</p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-sm font-bold text-slate-900 dark:text-white">{clinic.doctorCount || 0}</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-sm font-black text-slate-900 dark:text-white tracking-tight">{clinic.patientCount || 0}</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-sm font-bold text-[#3bb9f3]">{clinic.growth}</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-3 py-1 text-white text-[13px] font-bold rounded-full ${clinic.status === 'ACTIVE' ? 'bg-emerald-500' : 'bg-red-500'}`}>
-                        {clinic.status === 'ACTIVE' ? 'Hoạt động' : 'Ngưng hoạt động'}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="px-6 py-4">
+                        <code className="text-xs font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">{clinic.clinicCode}</code>
+                      </td>
+                      <td className="px-6 py-4">
+                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400">{clinic.phone}</p>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="text-sm font-bold text-slate-900 dark:text-white">{clinic.doctorCount || 0}</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="text-sm font-black text-slate-900 dark:text-white tracking-tight">{clinic.patientCount || 0}</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="text-sm font-bold text-[#3bb9f3]">{clinic.growth}</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`px-3 py-1 text-white text-[13px] font-bold rounded-full ${clinic.status === 'ACTIVE' ? 'bg-emerald-500' : 'bg-red-500'}`}>
+                          {clinic.status === 'ACTIVE' ? 'Hoạt động' : 'Ngưng hoạt động'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

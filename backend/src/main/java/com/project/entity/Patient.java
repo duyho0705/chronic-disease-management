@@ -60,6 +60,12 @@ public class Patient extends BaseEntity {
     @Column(name = "chronic_condition", length = 100)
     private String chronicCondition;
 
+    @Column(name = "medical_history", columnDefinition = "TEXT")
+    private String medicalHistory;
+
+    @Column(columnDefinition = "TEXT")
+    private String allergies;
+
     @Column(name = "risk_level", length = 50)
     private String riskLevel;
 

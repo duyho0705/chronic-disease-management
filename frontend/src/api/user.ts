@@ -25,4 +25,8 @@ export const userApi = {
     const response = await axiosInstance.get(`/v1/admin/users/${id}`);
     return response.data;
   },
+  deleteUser: async (id: number | string) => {
+    const response = await axiosInstance.delete(`/v1/admin/users/${id}`);
+    return response.data;
+  },
 };

@@ -25,6 +25,7 @@ public class PatientProfileResponse {
     private BigDecimal weightKg;
     private String avatarUrl;
     private LocalDate joinedDate;
+    private String chronicCondition;
     private List<String> chronicDiseases;
     private List<String> allergies;
     private List<String> currentMedications;

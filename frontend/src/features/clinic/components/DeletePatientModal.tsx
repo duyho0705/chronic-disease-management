@@ -96,7 +96,7 @@ export default function DeletePatientModal({
             Hủy bỏ
           </button>
           <button
-            onClick={() => onDelete(patientData.id)}
+            onClick={() => onDelete(patientData.dbId)}
             disabled={isDeleting}
             className="px-8 py-2.5 text-sm font-extrabold text-white rounded-xl transition-all shadow-xl flex items-center gap-2 transform bg-red-500 hover:bg-red-600 shadow-red-500/20 disabled:opacity-50"
             type="button"

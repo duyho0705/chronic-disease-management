@@ -7,6 +7,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication
 @Slf4j
@@ -16,22 +17,46 @@ public class BackendApplication {
     }
 
     @Bean
-    public CommandLineRunner initSchema(JdbcTemplate jdbcTemplate) {
+    public CommandLineRunner initSchema(JdbcTemplate jdbcTemplate, PasswordEncoder passwordEncoder) {
         return args -> {
             try {
-                // Ensure there is at least one patient for development testing
+                // Ensure there is at least one admin for development testing
+                String email = "admin@care.com";
+                String password = "password";
+                String hashedPwd = passwordEncoder.encode(password);
+                
+                log.info("Checking data for user: {}", email);
+                
+                // Check if admin exists
+                Integer adminCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users WHERE email = ?", Integer.class, email);
+                if (adminCount == null || adminCount == 0) {
+                    log.info("Admin user not found. Seeding system admin...");
+                    jdbcTemplate.update("INSERT INTO users (email, password, role, full_name, status, created_at, is_deleted) VALUES (?, ?, 'ADMIN', 'System Admin', 'ACTIVE', NOW(), false)", 
+                        email, hashedPwd);
+                } else {
+                    log.info("Admin user already exists. Updating password to ensure it matches 'password'...");
+                    jdbcTemplate.update("UPDATE users SET password = ? WHERE email = ?", hashedPwd, email);
+                }
+
+                // Check if patient exists
                 Integer patientCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM patients", Integer.class);
                 if (patientCount == null || patientCount == 0) {
-                    log.info("No patients found. Seeding a mock patient for development bypass...");
-                    jdbcTemplate.execute("INSERT INTO users (email, password, role, full_name, status, created_at, is_deleted) VALUES ('mock@patient.com', 'password', 'PATIENT', 'Bệnh nhân Test', 'ACTIVE', NOW(), false)");
-                    Long userId = jdbcTemplate.queryForObject("SELECT id FROM users WHERE email = 'mock@patient.com' LIMIT 1", Long.class);
-                    jdbcTemplate.execute("INSERT INTO patients (user_id, full_name, phone, gender, created_at, is_deleted) VALUES (" + userId + ", 'Bệnh nhân Test', '0123456789', 'MALE', NOW(), false)");
-                    log.info("Mock patient seeded successfully.");
+                    log.info("No patients found. Seeding a mock patient for development...");
+                    String patientEmail = "mock@patient.com";
+                    String patientHashedPwd = passwordEncoder.encode(password);
+                    
+                    jdbcTemplate.update("INSERT INTO users (email, password, role, full_name, status, created_at, is_deleted) VALUES (?, ?, 'PATIENT', 'Bệnh nhân Test', 'ACTIVE', NOW(), false)",
+                        patientEmail, patientHashedPwd);
+                        
+                    Long userId = jdbcTemplate.queryForObject("SELECT id FROM users WHERE email = ? LIMIT 1", Long.class, patientEmail);
+                    jdbcTemplate.update("INSERT INTO patients (user_id, full_name, phone, gender, created_at, is_deleted) VALUES (?, 'Bệnh nhân Test', '0123456789', 'MALE', NOW(), false)",
+                        userId);
+                    log.info("Mock data seeded successfully.");
                 } else {
                     log.info("Database has {} patients. Skipping mock seed.", patientCount);
                 }
             } catch (Exception e) {
-                log.warn("Auto-seeder failed: {}", e.getMessage());
+                log.error("Auto-seeder failed: {}", e.getMessage(), e);
             }
         };
     }

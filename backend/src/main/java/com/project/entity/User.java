@@ -36,6 +36,12 @@ public class User extends BaseEntity {
 
     @Column(name = "clinic_id")
     private Long clinicId;
+    
+    @Column(length = 100)
+    private String specialization; // For Doctors
+    
+    @Column(length = 100)
+    private String department; // For Doctors
 
     @Column(nullable = false, length = 30)
     @Builder.Default
