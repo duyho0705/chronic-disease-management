@@ -327,14 +327,14 @@ export default function AdminSupport() {
               <button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                className="p-2 rounded-lg text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed">
+                className="p-2 rounded-md text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed">
                 <span className="material-symbols-outlined">chevron_left</span>
               </button>
               {[...Array(totalPages)].map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setCurrentPage(i + 1)}
-                  className={`w-8 h-8 rounded-lg text-[13px] font-extrabold transition-all ${currentPage === i + 1
+                  className={`w-8 h-8 rounded-md text-[13px] font-extrabold transition-all ${currentPage === i + 1
                     ? 'bg-primary text-white shadow-md shadow-primary/20'
                     : 'text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800'
                     }`}>
@@ -344,7 +344,7 @@ export default function AdminSupport() {
               <button
                 disabled={currentPage === totalPages || totalPages === 0}
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                className="p-2 rounded-lg text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed">
+                className="p-2 rounded-md text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed">
                 <span className="material-symbols-outlined">chevron_right</span>
               </button>
             </div>

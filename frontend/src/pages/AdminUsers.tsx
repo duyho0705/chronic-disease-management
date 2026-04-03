@@ -560,11 +560,11 @@ export default function AdminUsers() {
                 {isLoading ? (
                   <>
                     <div className="flex gap-1 order-2">
-                       <div className="w-8 h-8 rounded-lg bg-slate-200 animate-pulse"></div>
-                       <div className="w-8 h-8 rounded-lg bg-slate-100 animate-pulse"></div>
-                       <div className="w-8 h-8 rounded-lg bg-slate-200 animate-pulse"></div>
+                       <div className="w-8 h-8 rounded-md bg-slate-200 animate-pulse"></div>
+                       <div className="w-8 h-8 rounded-md bg-slate-100 animate-pulse"></div>
+                       <div className="w-8 h-8 rounded-md bg-slate-200 animate-pulse"></div>
                     </div>
-                    <div className="h-4 bg-slate-200 animate-pulse rounded w-32 order-1"></div>
+                    <div className="h-4 bg-slate-200 animate-pulse rounded-md w-32 order-1"></div>
                   </>
                 ) : (
                   <>
@@ -572,15 +572,15 @@ export default function AdminUsers() {
                       <button
                         disabled={pagination.page === 0}
                         onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
-                        className="p-2 rounded-lg text-slate-400 hover:bg-white hover:text-primary transition-all disabled:opacity-30 disabled:hover:bg-transparent"
+                        className="p-2 rounded-md text-slate-400 hover:bg-white hover:text-primary transition-all disabled:opacity-30 disabled:hover:bg-transparent"
                       >
                         <span className="material-symbols-outlined">chevron_left</span>
                       </button>
-                      <button className="w-8 h-8 rounded-lg bg-primary text-white text-[13px] font-extrabold shadow-md">{pagination.page + 1}</button>
+                      <button className="w-8 h-8 rounded-md bg-primary text-white text-[13px] font-extrabold shadow-md">{pagination.page + 1}</button>
                       <button
                         disabled={(pagination.page + 1) * pagination.size >= pagination.total}
                         onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
-                        className="p-2 rounded-lg text-slate-400 hover:bg-white hover:text-primary transition-all disabled:opacity-30 disabled:hover:bg-transparent"
+                        className="p-2 rounded-md text-slate-400 hover:bg-white hover:text-primary transition-all disabled:opacity-30 disabled:hover:bg-transparent"
                       >
                         <span className="material-symbols-outlined">chevron_right</span>
                       </button>
