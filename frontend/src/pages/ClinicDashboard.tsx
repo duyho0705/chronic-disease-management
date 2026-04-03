@@ -11,6 +11,12 @@ import DevelopmentModal from '../features/admin/components/DevelopmentModal';
 export default function ClinicDashboard() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [stats, setStats] = useState<any>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setIsLoading(false), 2000);
+        return () => clearTimeout(timer);
+    }, []);
     const currentClinicId = localStorage.getItem('clinicId') || '1';
 
     const doctors = stats?.doctorPerformances || [];
@@ -117,93 +123,127 @@ export default function ClinicDashboard() {
                     {/* Welcome Section */}
                     <section className="flex flex-wrap items-center justify-between gap-4">
                         <div className="space-y-1">
-                            <h3 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Chào buổi sáng, Quản trị viên</h3>
-                            <p className="text-slate-500 font-medium">Hôm nay có 45 bệnh nhân cần theo dõi tái khám.</p>
+                            {isLoading ? (
+                                <div className="space-y-2">
+                                    <div className="h-7 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-64"></div>
+                                    <div className="h-4 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-80"></div>
+                                </div>
+                            ) : (
+                                <>
+                                    <h3 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Chào buổi sáng, Quản trị viên</h3>
+                                    <p className="text-slate-500 font-medium">Hôm nay có 45 bệnh nhân cần theo dõi tái khám.</p>
+                                </>
+                            )}
                         </div>
                         <div className="flex flex-wrap gap-3">
-                            <button
-                                onClick={handleExportExcel}
-                                className="bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-slate-50 transition-all active:scale-95"
-                            >
-                                <span className="material-symbols-outlined text-emerald-500">upload_file</span>
-                                Xuất báo cáo Excel
-                            </button>
-                            <button
-                                onClick={() => setShowCreateDoctorModal(true)}
-                                className="bg-primary text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-95"
-                            >
-                                <span className="material-symbols-outlined">person_add</span>
-                                Thêm bác sĩ mới
-                            </button>
-                            <button
-                                onClick={() => setShowAssignmentModal(true)}
-                                className="bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-teal-100 transition-all border border-teal-100/50 dark:border-teal-800/50 active:scale-95"
-                            >
-                                <span className="material-symbols-outlined">assignment_ind</span>
-                                Phân công bệnh nhân
-                            </button>
+                            {isLoading ? (
+                                <>
+                                    <div className="w-44 h-10 bg-white dark:bg-slate-800 animate-pulse rounded-xl shadow-sm border border-slate-100 dark:border-slate-800"></div>
+                                    <div className="w-40 h-10 bg-primary/20 dark:bg-slate-800 animate-pulse rounded-xl shadow-sm"></div>
+                                    <div className="w-48 h-10 bg-teal-50/50 dark:bg-slate-800 animate-pulse rounded-xl border border-teal-100/30"></div>
+                                </>
+                            ) : (
+                                <>
+                                    <button
+                                        onClick={handleExportExcel}
+                                        className="bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-slate-50 transition-all active:scale-95"
+                                    >
+                                        <span className="material-symbols-outlined text-emerald-500">upload_file</span>
+                                        Xuất báo cáo Excel
+                                    </button>
+                                    <button
+                                        onClick={() => setShowCreateDoctorModal(true)}
+                                        className="bg-primary text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-95"
+                                    >
+                                        <span className="material-symbols-outlined">person_add</span>
+                                        Thêm bác sĩ mới
+                                    </button>
+                                    <button
+                                        onClick={() => setShowAssignmentModal(true)}
+                                        className="bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-teal-100 transition-all border border-teal-100/50 dark:border-teal-800/50 active:scale-95"
+                                    >
+                                        <span className="material-symbols-outlined">assignment_ind</span>
+                                        Phân công bệnh nhân
+                                    </button>
+                                </>
+                            )}
                         </div>
                     </section>
 
                     {/* Stats Bento Grid */}
                     <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 font-display">
-                        {/* Total Patients */}
-                        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
-                            <div className="flex justify-between items-start mb-4">
-                                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
-                                    <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>groups</span>
+                        {isLoading ? (
+                            [...Array(4)].map((_, i) => (
+                                <div key={i} className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-primary/5 shadow-sm space-y-4">
+                                    <div className="flex justify-between items-start">
+                                        <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-lg"></div>
+                                        <div className="h-5 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-full w-12"></div>
+                                    </div>
+                                    <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-32"></div>
+                                    <div className="h-8 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-20"></div>
                                 </div>
-                                <span className={`text-[13px] font-bold flex items-center gap-1 ${mainStats.patientGrowth.startsWith('+') ? 'text-emerald-500' : 'text-red-500'}`}>
-                                    {mainStats.patientGrowth}
-                                    <span className="material-symbols-outlined text-xs">{mainStats.patientGrowth.startsWith('+') ? 'trending_up' : 'trending_down'}</span>
-                                </span>
-                            </div>
-                            <h3 className="text-slate-500 text-sm font-medium">Tổng số bệnh nhân</h3>
-                            <p className="text-3xl font-extrabold mt-1 italic-none">{mainStats.totalPatients}</p>
-                        </div>
+                            ))
+                        ) : (
+                            <>
+                                {/* Total Patients */}
+                                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
+                                            <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>groups</span>
+                                        </div>
+                                        <span className={`text-[13px] font-bold flex items-center gap-1 ${mainStats.patientGrowth.startsWith('+') ? 'text-emerald-500' : 'text-red-500'}`}>
+                                            {mainStats.patientGrowth}
+                                            <span className="material-symbols-outlined text-xs">{mainStats.patientGrowth.startsWith('+') ? 'trending_up' : 'trending_down'}</span>
+                                        </span>
+                                    </div>
+                                    <h3 className="text-slate-500 text-sm font-medium">Tổng số bệnh nhân</h3>
+                                    <p className="text-3xl font-extrabold mt-1 italic-none">{mainStats.totalPatients}</p>
+                                </div>
 
-                        {/* Disease Ratio */}
-                        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
-                            <div className="flex justify-between items-start mb-4">
-                                <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center text-amber-500">
-                                    <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>monitoring</span>
+                                {/* Disease Ratio */}
+                                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center text-amber-500">
+                                            <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>monitoring</span>
+                                        </div>
+                                        <span className="px-2 py-1 bg-amber-50 dark:bg-amber-900/50 text-amber-600 text-[12px] font-bold rounded-full">
+                                            {mainStats.diseaseRatios[0]?.label} {mainStats.diseaseRatios[0]?.value}
+                                        </span>
+                                    </div>
+                                    <h3 className="text-slate-500 text-sm font-medium">Tỷ lệ bệnh theo loại</h3>
+                                    <div className="flex items-baseline gap-2 mt-1">
+                                        <p className="text-3xl font-extrabold italic-none">{mainStats.diseaseRatios[0]?.value}</p>
+                                        <span className="text-slate-400 text-xs font-medium">/ {mainStats.diseaseRatios[1]?.label}</span>
+                                    </div>
                                 </div>
-                                <span className="px-2 py-1 bg-amber-50 dark:bg-amber-900/50 text-amber-600 text-[12px] font-bold rounded-full">
-                                    {mainStats.diseaseRatios[0]?.label} {mainStats.diseaseRatios[0]?.value}
-                                </span>
-                            </div>
-                            <h3 className="text-slate-500 text-sm font-medium">Tỷ lệ bệnh theo loại</h3>
-                            <div className="flex items-baseline gap-2 mt-1">
-                                <p className="text-3xl font-extrabold italic-none">{mainStats.diseaseRatios[0]?.value}</p>
-                                <span className="text-slate-400 text-xs font-medium">/ {mainStats.diseaseRatios[1]?.label}</span>
-                            </div>
-                        </div>
 
-                        {/* High Risk Alerts */}
-                        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
-                            <div className="flex justify-between items-start mb-4">
-                                <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center text-red-500">
-                                    <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>warning</span>
+                                {/* High Risk Alerts */}
+                                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center text-red-500">
+                                            <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>warning</span>
+                                        </div>
+                                        <span className="px-2 py-1 bg-red-500 text-white text-[12px] font-bold rounded-full animate-pulse">Cần chú ý</span>
+                                    </div>
+                                    <h3 className="text-slate-500 text-sm font-medium">Ca nguy cơ cao</h3>
+                                    <div className="flex items-baseline gap-2 mt-1">
+                                        <p className="text-3xl font-extrabold text-red-500 italic-none">{mainStats.highRiskAlerts}</p>
+                                        <p className="text-[13px] text-red-400 font-bold">{mainStats.highRiskGrowth}</p>
+                                    </div>
                                 </div>
-                                <span className="px-2 py-1 bg-red-500 text-white text-[12px] font-bold rounded-full animate-pulse">Cần chú ý</span>
-                            </div>
-                            <h3 className="text-slate-500 text-sm font-medium">Ca nguy cơ cao</h3>
-                            <div className="flex items-baseline gap-2 mt-1">
-                                <p className="text-3xl font-extrabold text-red-500 italic-none">{mainStats.highRiskAlerts}</p>
-                                <p className="text-[13px] text-red-400 font-bold">{mainStats.highRiskGrowth}</p>
-                            </div>
-                        </div>
 
-                        {/* Pending follow-up */}
-                        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
-                            <div className="flex justify-between items-start mb-4">
-                                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center text-blue-500">
-                                    <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>event_busy</span>
+                                {/* Pending follow-up */}
+                                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center text-blue-500">
+                                            <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>event_busy</span>
+                                        </div>
+                                    </div>
+                                    <h3 className="text-slate-500 text-sm font-medium">Chưa tái khám</h3>
+                                    <p className="text-3xl font-extrabold mt-1 italic-none">{mainStats.pendingFollowUps}</p>
                                 </div>
-                            </div>
-                            <h3 className="text-slate-500 text-sm font-medium">Chưa tái khám</h3>
-                            <p className="text-3xl font-extrabold mt-1 italic-none">{mainStats.pendingFollowUps}</p>
-                        </div>
+                            </>
+                        )}
                     </section>
 
                     {/* Charts Section */}

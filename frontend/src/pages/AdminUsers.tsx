@@ -25,7 +25,7 @@ export default function AdminUsers() {
   const [clinics, setClinics] = useState<any[]>([]);
   const [userList, setUserList] = useState<any[]>([]);
   const [userStats, setUserStats] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [pagination, setPagination] = useState({ page: 0, size: 10, total: 0 });
 
   useEffect(() => {
@@ -255,25 +255,43 @@ export default function AdminUsers() {
         <section className="p-4 md:p-8 space-y-8 animate-in fade-in duration-700 font-display text-left">
           {/* Page Header */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div>
-              <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Quản lý người dùng</h2>
-              <p className="text-[16px] text-slate-500 mt-1 font-medium">Phân quyền và quản lý tài khoản toàn hệ thống.</p>
-            </div>
+          <div>
+            {isLoading ? (
+              <div className="space-y-3 mb-2">
+                <div className="h-8 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-72"></div>
+                <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-96"></div>
+              </div>
+            ) : (
+              <>
+                <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Quản lý người dùng</h2>
+                <p className="text-[16px] text-slate-500 mt-1 font-medium">Phân quyền và quản lý tài khoản toàn hệ thống.</p>
+              </>
+            )}
+          </div>
             <div className="flex gap-2">
-              <button
-                onClick={handleExport}
-                className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-lg font-bold transition-all text-[13px] border border-primary/10 active:scale-95 shadow-sm"
-              >
-                <span className="material-symbols-outlined text-[18px]">ios_share</span>
-                Xuất báo cáo
-              </button>
-              <button
-                onClick={() => setIsCreateModalOpen(true)}
-                className="flex items-center gap-2 px-6 py-2.5 bg-primary text-white rounded-full font-bold transition-all text-[14px] shadow-lg shadow-primary/20 hover:shadow-primary/30 active:scale-95 group"
-              >
-                <span className="material-symbols-outlined text-[20px]">person_add</span>
-                Thêm người dùng mới
-              </button>
+              {isLoading ? (
+                <>
+                  <div className="w-32 h-10 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-full shadow-sm"></div>
+                  <div className="w-48 h-10 bg-primary/20 animate-pulse rounded-full shadow-sm"></div>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={handleExport}
+                    className="flex items-center gap-2 px-6 py-2.5 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-full font-bold transition-all text-[14px] border border-primary/10 active:scale-95 shadow-sm group"
+                  >
+                    <span className="material-symbols-outlined text-[20px] group-hover:rotate-[20deg] transition-transform">download</span>
+                    Xuất danh sách
+                  </button>
+                  <button
+                    onClick={() => setIsCreateModalOpen(true)}
+                    className="flex items-center gap-2 px-6 py-2.5 bg-primary text-white rounded-full font-bold transition-all text-[14px] shadow-lg shadow-primary/20 hover:shadow-primary/30 active:scale-95 group"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">person_add</span>
+                    Thêm người dùng mới
+                  </button>
+                </>
+              )}
             </div>
           </div>
 
@@ -320,7 +338,9 @@ export default function AdminUsers() {
           <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="relative">
-                <label className="text-[14px] font-medium text-slate-500  mb-2 block px-1">Tìm kiếm</label>
+            <label className="text-[14px] font-medium text-slate-500  mb-2 block px-1">
+              {isLoading ? <div className="h-3 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-16 mb-2"></div> : "Tìm kiếm"}
+            </label>
                 {isLoading ? (
                   <div className="h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-full w-full"></div>
                 ) : (
@@ -337,7 +357,9 @@ export default function AdminUsers() {
                 )}
               </div>
               <div>
-                <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">Vai trò</label>
+                <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">
+                  {isLoading ? <div className="h-3 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-12 mb-2"></div> : "Vai trò"}
+                </label>
                 {isLoading ? (
                   <div className="h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl w-full"></div>
                 ) : (
@@ -349,7 +371,9 @@ export default function AdminUsers() {
                 )}
               </div>
               <div>
-                <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">Phòng khám</label>
+                <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">
+                  {isLoading ? <div className="h-3 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-20 mb-2"></div> : "Phòng khám"}
+                </label>
                 {isLoading ? (
                   <div className="h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl w-full"></div>
                 ) : (
@@ -361,7 +385,9 @@ export default function AdminUsers() {
                 )}
               </div>
               <div>
-                <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">Trạng thái</label>
+                <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">
+                  {isLoading ? <div className="h-3 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-16 mb-2"></div> : "Trạng thái"}
+                </label>
                 {isLoading ? (
                   <div className="h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl w-full"></div>
                 ) : (
@@ -381,13 +407,27 @@ export default function AdminUsers() {
               <table className="w-full text-left">
                 <thead>
                   <tr className="px-8 py-4 text-[15px] text-slate-500 leading-none">
-                    <th className="text-[14px] font-bold leading-tight text-slate-900 dark:text-white px-6 py-5">Họ và tên</th>
-                    <th className="text-[14px] font-bold leading-tight text-slate-900 dark:text-white px-6 py-5">Liên hệ</th>
-                    <th className="text-[14px] font-bold leading-tight text-slate-900 dark:text-white px-6 py-5">Vai trò</th>
-                    <th className="text-[14px] font-bold leading-tight text-slate-900 dark:text-white px-6 py-5">Cơ sở</th>
-                    <th className="text-[14px] font-bold leading-tight text-slate-900 dark:text-white px-6 py-5">Ngày tạo</th>
-                    <th className="text-[14px] font-bold leading-tight text-slate-900 dark:text-white px-6 py-5">Trạng thái</th>
-                    <th className="text-[14px] font-bold leading-tight text-slate-900 dark:text-white px-6 py-5 text-right">Thao tác</th>
+                    <th className="px-6 py-5">
+                      {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-24"></div> : <span className="text-[14px] font-bold leading-tight text-slate-900 dark:text-white">Họ và tên</span>}
+                    </th>
+                    <th className="px-6 py-5">
+                      {isLoading ? <div className="h-4 bg-slate-300 dark:bg-slate-800 animate-pulse rounded w-20"></div> : <span className="text-[14px] font-bold leading-tight text-slate-900 dark:text-white">Liên hệ</span>}
+                    </th>
+                    <th className="px-6 py-5">
+                      {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16"></div> : <span className="text-[14px] font-bold leading-tight text-slate-900 dark:text-white">Vai trò</span>}
+                    </th>
+                    <th className="px-6 py-5">
+                      {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-28"></div> : <span className="text-[14px] font-bold leading-tight text-slate-900 dark:text-white">Cơ sở</span>}
+                    </th>
+                    <th className="px-6 py-5">
+                      {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-20"></div> : <span className="text-[14px] font-bold leading-tight text-slate-900 dark:text-white">Ngày tạo</span>}
+                    </th>
+                    <th className="px-6 py-5">
+                      {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-20"></div> : <span className="text-[14px] font-bold leading-tight text-slate-900 dark:text-white">Trạng thái</span>}
+                    </th>
+                    <th className="px-6 py-5 text-right">
+                      {isLoading ? <div className="h-4 bg-slate-300 dark:bg-slate-800 animate-pulse rounded w-16 ml-auto"></div> : <span className="text-[14px] font-bold leading-tight text-slate-900 dark:text-white">Thao tác</span>}
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-primary/5">

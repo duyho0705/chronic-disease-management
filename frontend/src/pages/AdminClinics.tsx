@@ -17,7 +17,7 @@ export default function AdminClinics() {
   const [isSaving, setIsSaving] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastTitle, setToastTitle] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [clinicList, setClinicList] = useState<any[]>([]);
   const [stats, setStats] = useState([
@@ -207,26 +207,44 @@ export default function AdminClinics() {
       <AdminLayout>
       <section className="p-4 md:p-8 space-y-8 animate-in fade-in duration-700 font-display">
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 text-left">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Quản lý Phòng khám</h2>
-            <p className="text-[16px] text-slate-500 mt-1 font-medium">Theo dõi và điều phối mạng lưới y tế</p>
+            {isLoading ? (
+              <div className="space-y-3 mb-2">
+                <div className="h-8 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-72"></div>
+                <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-96"></div>
+              </div>
+            ) : (
+              <>
+                <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Quản lý cơ sở y tế</h2>
+                <p className="text-[16px] text-slate-500 mt-1 font-medium italic-none">Vận hành và giám sát mạng lưới phòng khám toàn hệ thống</p>
+              </>
+            )}
           </div>
           <div className="flex gap-2">
-            <button
-              onClick={handleExport}
-              className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-lg font-bold transition-all text-[13px] border border-primary/10 active:scale-95 shadow-sm"
-            >
-              <span className="material-symbols-outlined text-[18px]">ios_share</span>
-              Xuất báo cáo
-            </button>
-            <button
-              onClick={() => setIsCreateModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-lg font-bold transition-all text-[13px] shadow-lg shadow-slate-900/10 active:scale-95"
-            >
-              <span className="material-symbols-outlined text-[18px]">add</span>
-              Thêm phòng khám mới
-            </button>
+            {isLoading ? (
+              <>
+                <div className="w-40 h-10 bg-slate-900 dark:bg-slate-800 animate-pulse rounded-lg shadow-sm"></div>
+                <div className="w-32 h-10 bg-white dark:bg-slate-900 animate-pulse rounded-lg border border-primary/10"></div>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => setIsCreateModalOpen(true)}
+                  className="bg-primary text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all text-[13px] active:scale-95 shadow-lg shadow-primary/20 hover:shadow-primary/30"
+                >
+                  <span className="material-symbols-outlined text-[18px]">add_location</span>
+                  Thêm cơ sở mới
+                </button>
+                <button
+                  onClick={handleExport}
+                  className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all text-[13px] border border-primary/10 active:scale-95 shadow-sm"
+                >
+                  <span className="material-symbols-outlined text-[18px]">download</span>
+                  Xuất dữ liệu
+                </button>
+              </>
+            )}
           </div>
         </div>
 
@@ -328,13 +346,27 @@ export default function AdminClinics() {
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-slate-50/50 dark:bg-slate-800/50">
-                  <th className="px-8 py-4 text-[15px] font-medium text-slate-500 leading-none">Tên phòng khám</th>
-                  <th className="px-6 py-4 text-[15px] font-medium text-slate-500 leading-none">Mã phòng khám</th>
-                  <th className="px-6 py-4 text-[15px] font-medium text-slate-500 leading-none">Địa chỉ</th>
-                  <th className="px-6 py-4 text-[15px] font-medium text-slate-500 leading-none">Số điện thoại</th>
-                  <th className="px-6 py-4 text-[15px] font-medium text-slate-500 leading-none text-center">Bác sĩ</th>
-                  <th className="px-6 py-4 text-[15px] font-medium text-slate-500 leading-none">Trạng thái</th>
-                  <th className="px-8 py-4 text-[15px] font-medium text-slate-500 leading-none text-right">Thao tác</th>
+                  <th className="px-8 py-4">
+                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-48"></div> : <span className="text-[15px] font-medium text-slate-500 leading-none">Tên phòng khám</span>}
+                  </th>
+                  <th className="px-6 py-4">
+                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16"></div> : <span className="text-[15px] font-medium text-slate-500 leading-none">Mã phòng khám</span>}
+                  </th>
+                  <th className="px-6 py-4">
+                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-32"></div> : <span className="text-[15px] font-medium text-slate-500 leading-none">Địa chỉ</span>}
+                  </th>
+                  <th className="px-6 py-4">
+                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-20"></div> : <span className="text-[15px] font-medium text-slate-500 leading-none">Số điện thoại</span>}
+                  </th>
+                  <th className="px-6 py-4 text-center">
+                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-8 mx-auto"></div> : <span className="text-[15px] font-medium text-slate-500 leading-none">Bác sĩ</span>}
+                  </th>
+                  <th className="px-6 py-4">
+                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16"></div> : <span className="text-[15px] font-medium text-slate-500 leading-none">Trạng thái</span>}
+                  </th>
+                  <th className="px-8 py-4 text-right">
+                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-12 ml-auto"></div> : <span className="text-[15px] font-medium text-slate-500 leading-none">Thao tác</span>}
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-primary/5">

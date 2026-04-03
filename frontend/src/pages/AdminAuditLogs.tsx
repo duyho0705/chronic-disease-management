@@ -10,7 +10,7 @@ export default function AdminAuditLogs() {
   const [selectedIp, setSelectedIp] = useState<string | null>(null);
   const [isIpModalOpen, setIsIpModalOpen] = useState(false);
   const [logList, setLogList] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [pagination, setPagination] = useState({ page: 0, size: 10, total: 0 });
 
   const fetchLogs = useCallback(async () => {
@@ -67,25 +67,40 @@ export default function AdminAuditLogs() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
-              Nhật ký hệ thống
-            </h2>
-            <p className="text-[16px] text-slate-500 mt-1 font-medium">Theo dõi và truy vết mọi hoạt động của người dùng trên toàn hệ thống.</p>
+            {isLoading ? (
+              <div className="space-y-3 mb-2 text-left">
+                <div className="h-8 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-64"></div>
+                <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-96"></div>
+              </div>
+            ) : (
+              <>
+                <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
+                  Nhật ký hệ thống
+                </h2>
+                <p className="text-[16px] text-slate-500 mt-1 font-medium">Theo dõi và truy vết mọi hoạt động của người dùng trên toàn hệ thống.</p>
+              </>
+            )}
           </div>
-          <button
-            onClick={handleExport}
-            className="bg-slate-900 dark:bg-slate-800 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all text-[13px] active:scale-95 shadow-lg shadow-slate-900/10"
-          >
-            <span className="material-symbols-outlined text-[18px]">download</span>
-            Xuất dữ liệu
-          </button>
+          {isLoading ? (
+            <div className="w-32 h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl shadow-sm"></div>
+          ) : (
+            <button
+              onClick={handleExport}
+              className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 px-4 py-2 rounded-xl font-bold flex items-center gap-2 transition-all text-[13px] border border-primary/10 active:scale-95 shadow-sm"
+            >
+              <span className="material-symbols-outlined text-[18px]">download</span>
+              Xuất dữ liệu
+            </button>
+          )}
         </div>
 
         {/* Filter Section */}
         <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-primary/5 space-y-6 text-left">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="relative">
-              <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">Tìm kiếm sự kiện</label>
+            <div className="relative text-left">
+              <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">
+                {isLoading ? <div className="h-3 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-32 mb-2"></div> : "Tìm kiếm sự kiện"}
+              </label>
               {isLoading ? (
                 <div className="h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl w-full"></div>
               ) : (
@@ -101,8 +116,10 @@ export default function AdminAuditLogs() {
                 </div>
               )}
             </div>
-            <div>
-              <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">Người thực hiện</label>
+            <div className="text-left">
+              <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">
+                {isLoading ? <div className="h-3 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-32 mb-2"></div> : "Người thực hiện"}
+              </label>
               {isLoading ? (
                 <div className="h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl w-full"></div>
               ) : (
@@ -118,8 +135,10 @@ export default function AdminAuditLogs() {
                 </div>
               )}
             </div>
-            <div>
-              <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">Mô-đun</label>
+            <div className="text-left">
+              <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">
+                {isLoading ? <div className="h-3 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-16 mb-2"></div> : "Mô-đun"}
+              </label>
               {isLoading ? (
                 <div className="h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl w-full"></div>
               ) : (
@@ -139,12 +158,24 @@ export default function AdminAuditLogs() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50/50 dark:bg-slate-800/50">
-                  <th className="px-8 py-5 text-[15px] font-medium text-slate-500 dark:text-slate-500 leading-none">Thời gian</th>
-                  <th className="px-6 py-5 text-[15px] font-medium text-slate-500 dark:text-slate-500 leading-none">Người dùng</th>
-                  <th className="px-6 py-5 text-[15px] font-medium text-slate-500 dark:text-slate-500 leading-none">Hành động</th>
-                  <th className="px-6 py-5 text-[15px] font-medium text-slate-500 dark:text-slate-500 leading-none">Mô-đun</th>
-                  <th className="px-6 py-5 text-[15px] font-medium text-slate-500 dark:text-slate-500 leading-none">Chi tiết</th>
-                  <th className="px-8 py-5 text-[15px] font-medium text-slate-500 dark:text-slate-500 leading-none text-right">Địa chỉ IP</th>
+                  <th className="px-8 py-5">
+                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-20"></div> : <span className="text-[15px] font-medium text-slate-500 dark:text-slate-500 leading-none">Thời gian</span>}
+                  </th>
+                  <th className="px-6 py-5">
+                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-24"></div> : <span className="text-[15px] font-medium text-slate-500 dark:text-slate-500 leading-none">Người dùng</span>}
+                  </th>
+                  <th className="px-6 py-5">
+                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-24"></div> : <span className="text-[15px] font-medium text-slate-500 dark:text-slate-500 leading-none">Hành động</span>}
+                  </th>
+                  <th className="px-6 py-5">
+                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-20"></div> : <span className="text-[15px] font-medium text-slate-500 dark:text-slate-500 leading-none">Mô-đun</span>}
+                  </th>
+                  <th className="px-6 py-5">
+                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-48"></div> : <span className="text-[15px] font-medium text-slate-500 dark:text-slate-500 leading-none">Chi tiết</span>}
+                  </th>
+                  <th className="px-8 py-5 text-right">
+                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-24 ml-auto"></div> : <span className="text-[15px] font-medium text-slate-500 dark:text-slate-500 leading-none text-right">Địa chỉ IP</span>}
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-primary/5">
@@ -211,7 +242,7 @@ export default function AdminAuditLogs() {
                             .replace(/DOCTOR/g, 'Bác sĩ')
                             .replace(/ADMIN/g, 'Quản trị viên')
                             .replace(/PATIENT/g, 'Bệnh nhân')
-                            .replace(/CLINIC_MANAGER/g, 'Quản lý phòng khám') 
+                            .replace(/CLINIC_MANAGER/g, 'Quản lý phòng khám')
                             : '--'}
                         </p>
                       </td>
@@ -280,16 +311,6 @@ export default function AdminAuditLogs() {
                 </>
               )}
             </div>
-          </div>
-        </div>
-
-        {/* Audit Disclaimer */}
-        <div className="bg-slate-100/50 dark:bg-slate-900/50 p-6 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
-          <div className="flex gap-4">
-            <span className="material-symbols-outlined text-slate-400">gavel</span>
-            <p className="text-[14px] text-slate-600 font-medium leading-relaxed">
-              <span className="font-medium text-slate-900 dark:text-slate-300">Lưu ý:</span> Dữ liệu nhật ký hệ thống được lưu trữ trong 2 năm theo tiêu chuẩn bảo mật y tế. Mọi hành vi tự ý chỉnh sửa nhật ký sẽ bị hệ thống phát hiện và cảnh báo ngay lập tức.
-            </p>
           </div>
         </div>
       </section>

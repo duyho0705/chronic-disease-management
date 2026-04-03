@@ -20,7 +20,7 @@ export default function AdminDashboard() {
   const [activities, setActivities] = useState<any[]>([]);
   const [chartData, setChartData] = useState<any[]>([]);
   const [timeRange, setTimeRange] = useState('DAY'); // 'DAY' or 'MONTH'
-  const [isLoadingChart, setIsLoadingChart] = useState(false);
+  const [isLoadingChart, setIsLoadingChart] = useState(true);
 
   useEffect(() => {
     fetchDashboardData(timeRange);
@@ -157,25 +157,43 @@ export default function AdminDashboard() {
       <div className="p-4 md:p-8 space-y-8 animate-in fade-in duration-700 font-display text-left">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div>
-            <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Tổng quan hệ thống</h2>
-            <p className="text-[16px] text-slate-500 mt-1 font-medium italic-none">Theo dõi hiệu suất vận hành toàn mạng lưới Vitality</p>
+          <div className="flex-1 min-w-0">
+            {isLoadingChart ? (
+              <div className="space-y-3">
+                <div className="h-8 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-72"></div>
+                <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-96"></div>
+              </div>
+            ) : (
+              <>
+                <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Tổng quan</h2>
+                <p className="text-[16px] text-slate-500 mt-1 font-medium italic-none">Theo dõi hiệu suất vận hành hệ thống</p>
+              </>
+            )}
           </div>
           <div className="flex gap-2">
-            <button
-              onClick={() => setIsCreateModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-lg font-bold transition-all text-[13px] shadow-lg shadow-slate-900/10 active:scale-95"
-            >
-              <span className="material-symbols-outlined text-[18px]">add</span>
-              Thêm phòng khám
-            </button>
-            <button
-              onClick={handleExportExcel}
-              className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-lg font-bold transition-all text-[13px] border border-primary/10 active:scale-95 shadow-sm"
-            >
-              <span className="material-symbols-outlined text-[18px]">ios_share</span>
-              Xuất báo cáo
-            </button>
+            {isLoadingChart ? (
+              <>
+                <div className="w-32 h-10 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-lg shadow-sm"></div>
+                <div className="w-32 h-10 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded-lg shadow-sm"></div>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => setIsCreateModalOpen(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl font-bold transition-all text-[13px] shadow-lg shadow-primary/20 active:scale-95 hover:shadow-primary/30"
+                >
+                  <span className="material-symbols-outlined text-[18px]">add</span>
+                  Thêm phòng khám
+                </button>
+                <button
+                  onClick={handleExportExcel}
+                  className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-lg font-bold transition-all text-[13px] border border-primary/10 active:scale-95 shadow-sm"
+                >
+                  <span className="material-symbols-outlined text-[18px]">ios_share</span>
+                  Xuất báo cáo
+                </button>
+              </>
+            )}
           </div>
         </div>
 
@@ -262,47 +280,64 @@ export default function AdminDashboard() {
           <div className="col-span-12 lg:col-span-8 bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm relative group/chart overflow-hidden text-left">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
               <div>
-                <h2 className="text-[19px] font-bold text-slate-900 dark:text-white tracking-tight">Thống kê vận hành hệ thống</h2>
-                <p className="text-[15px] text-slate-500 mt-1">Báo cáo chi tiết theo {selectedChartMetric.toLowerCase()}</p>
+                {isLoadingChart ? (
+                  <div className="space-y-2">
+                    <div className="h-6 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-64"></div>
+                    <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-48"></div>
+                  </div>
+                ) : (
+                  <>
+                    <h2 className="text-[19px] font-bold text-slate-900 dark:text-white tracking-tight">Thống kê vận hành hệ thống</h2>
+                    <p className="text-[15px] text-slate-500 mt-1">Báo cáo chi tiết theo {selectedChartMetric.toLowerCase()}</p>
+                  </>
+                )}
               </div>
               <div className="flex items-center gap-6">
                 {/* Time Range Selector */}
-                <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
-                  <button
-                    onClick={() => setTimeRange('DAY')}
-                    className={`px-4 py-1.5 text-[13px] font-bold rounded-lg transition-all ${timeRange === 'DAY'
+                {isLoadingChart ? (
+                  <div className="w-40 h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl"></div>
+                ) : (
+                  <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+                    <button
+                      onClick={() => setTimeRange('DAY')}
+                      className={`px-4 py-1.5 text-[13px] font-bold rounded-lg transition-all ${timeRange === 'DAY'
                         ? 'bg-white dark:bg-slate-700 text-[#3bb9f3] shadow-sm'
                         : 'text-slate-500 hover:text-slate-700'
-                      }`}
-                  >
-                    Ngày
-                  </button>
-                  <button
-                    onClick={() => setTimeRange('MONTH')}
-                    className={`px-4 py-1.5 text-[13px] font-bold rounded-lg transition-all ${timeRange === 'MONTH'
+                        }`}
+                    >
+                      Ngày
+                    </button>
+                    <button
+                      onClick={() => setTimeRange('MONTH')}
+                      className={`px-4 py-1.5 text-[13px] font-bold rounded-lg transition-all ${timeRange === 'MONTH'
                         ? 'bg-white dark:bg-slate-700 text-[#3bb9f3] shadow-sm'
                         : 'text-slate-500 hover:text-slate-700'
-                      }`}
-                  >
-                    Tháng
-                  </button>
-                  <button
-                    onClick={() => setTimeRange('YEAR')}
-                    className={`px-4 py-1.5 text-[13px] font-bold rounded-lg transition-all ${timeRange === 'YEAR'
+                        }`}
+                    >
+                      Tháng
+                    </button>
+                    <button
+                      onClick={() => setTimeRange('YEAR')}
+                      className={`px-4 py-1.5 text-[13px] font-bold rounded-lg transition-all ${timeRange === 'YEAR'
                         ? 'bg-white dark:bg-slate-700 text-[#3bb9f3] shadow-sm'
                         : 'text-slate-500 hover:text-slate-700'
-                      }`}
-                  >
-                    Năm
-                  </button>
-                </div>
+                        }`}
+                    >
+                      Năm
+                    </button>
+                  </div>
+                )}
 
-                <Dropdown
-                  options={['Lượng bệnh nhân', 'Lượt đặt lịch', 'Doanh thu', 'Tỷ lệ hài lòng']}
-                  value={selectedChartMetric}
-                  onChange={setSelectedChartMetric}
-                  className="w-48"
-                />
+                {isLoadingChart ? (
+                  <div className="w-48 h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl"></div>
+                ) : (
+                  <Dropdown
+                    options={['Lượng bệnh nhân', 'Lượt đặt lịch', 'Doanh thu', 'Tỷ lệ hài lòng']}
+                    value={selectedChartMetric}
+                    onChange={setSelectedChartMetric}
+                    className="w-48"
+                  />
+                )}
               </div>
             </div>
 
@@ -310,12 +345,12 @@ export default function AdminDashboard() {
             <div className="h-[300px] w-full relative">
               {isLoadingChart ? (
                 <div className="absolute inset-0 bg-slate-50 dark:bg-slate-800/50 animate-pulse rounded-xl flex flex-col justify-end p-8 gap-12">
-                   <div className="flex items-end justify-between gap-4 h-full">
-                      {[...Array(7)].map((_, i) => (
-                        <div key={i} className={`bg-slate-200 dark:bg-slate-700/50 rounded-lg w-full`} style={{ height: `${20 + Math.random() * 60}%` }}></div>
-                      ))}
-                   </div>
-                   <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-full"></div>
+                  <div className="flex items-end justify-between gap-4 h-full">
+                    {[...Array(7)].map((_, i) => (
+                      <div key={i} className={`bg-slate-200 dark:bg-slate-700/50 rounded-lg w-full`} style={{ height: `${20 + Math.random() * 60}%` }}></div>
+                    ))}
+                  </div>
+                  <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-full"></div>
                 </div>
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
@@ -372,8 +407,16 @@ export default function AdminDashboard() {
           {/* Recent Activity (Placeholder logic) */}
           <div className="col-span-12 lg:col-span-4 bg-slate-50 dark:bg-slate-900/50 p-8 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col text-left">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-[19px] font-bold text-slate-900 dark:text-white tracking-tight">Hoạt động hệ thống</h2>
-              <span className="material-symbols-outlined text-slate-400">history</span>
+              {isLoadingChart ? (
+                <div className="h-6 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-48"></div>
+              ) : (
+                <h2 className="text-[19px] font-bold text-slate-900 dark:text-white tracking-tight">Hoạt động hệ thống</h2>
+              )}
+              {isLoadingChart ? (
+                <div className="w-6 h-6 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-full"></div>
+              ) : (
+                <span className="material-symbols-outlined text-slate-400">history</span>
+              )}
             </div>
             <div className="space-y-6 flex-1">
               {isLoadingChart ? (
@@ -417,21 +460,44 @@ export default function AdminDashboard() {
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-primary/10 overflow-hidden shadow-sm font-display text-left">
           <div className="p-6 border-b border-primary/10 flex items-center justify-between">
             <div>
-              <h3 className="text-[19px] font-bold text-slate-900 dark:text-white">Danh sách chi nhánh mới</h3>
-              <p className="text-[15px] text-slate-500 mt-1">Lấy dữ liệu trực tiếp từ các phòng khám</p>
+              {isLoadingChart ? (
+                <>
+                  <div className="h-6 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-64 mb-3"></div>
+                  <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-80"></div>
+                </>
+              ) : (
+                <>
+                  <h3 className="text-[19px] font-bold text-slate-900 dark:text-white">Danh sách chi nhánh mới</h3>
+                  <p className="text-[15px] text-slate-500 mt-1">Lấy dữ liệu trực tiếp từ các phòng khám</p>
+                </>
+              )}
             </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-slate-50/50 dark:bg-slate-800/50">
-                  <th className="px-8 py-4 text-[15px] font-medium text-slate-500">Tên Phòng Khám</th>
-                  <th className="px-6 py-4 text-[15px] font-medium text-slate-500">Mã Cơ Sở</th>
-                  <th className="px-6 py-4 text-[15px] font-medium text-slate-500">Liên Hệ</th>
-                  <th className="px-6 py-4 text-[15px] font-medium text-slate-500">Bác Sĩ</th>
-                  <th className="px-6 py-4 text-[15px] font-medium text-slate-500">Bệnh Nhân</th>
-                  <th className="px-6 py-4 text-[15px] font-medium text-slate-500">Tăng Trưởng</th>
-                  <th className="px-6 py-4 text-[15px] font-medium text-slate-500">Trạng Thái</th>
+                  <th className="px-8 py-4">
+                    {isLoadingChart ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-24"></div> : <span className="text-[15px] font-medium text-slate-500">Tên Phòng Khám</span>}
+                  </th>
+                  <th className="px-6 py-4">
+                    {isLoadingChart ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16"></div> : <span className="text-[15px] font-medium text-slate-500">Mã cơ sở</span>}
+                  </th>
+                  <th className="px-6 py-4">
+                    {isLoadingChart ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16"></div> : <span className="text-[15px] font-medium text-slate-500">Liên Hệ</span>}
+                  </th>
+                  <th className="px-6 py-4">
+                    {isLoadingChart ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-12"></div> : <span className="text-[15px] font-medium text-slate-500">Bác Sĩ</span>}
+                  </th>
+                  <th className="px-6 py-4">
+                    {isLoadingChart ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16"></div> : <span className="text-[15px] font-medium text-slate-500">Bệnh Nhân</span>}
+                  </th>
+                  <th className="px-6 py-4">
+                    {isLoadingChart ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16"></div> : <span className="text-[15px] font-medium text-slate-500">Tăng Trưởng</span>}
+                  </th>
+                  <th className="px-6 py-4">
+                    {isLoadingChart ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16"></div> : <span className="text-[15px] font-medium text-slate-500">Trạng Thái</span>}
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
@@ -439,18 +505,18 @@ export default function AdminDashboard() {
                   // Skeleton Rows
                   [...Array(4)].map((_, i) => (
                     <tr key={`clinic-skeleton-${i}`} className="animate-pulse">
-                       <td className="px-8 py-4 whitespace-nowrap">
-                          <div className="flex items-center gap-3">
-                             <div className="w-9 h-9 rounded-xl bg-slate-200 dark:bg-slate-800"></div>
-                             <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-48"></div>
-                          </div>
-                       </td>
-                       <td className="px-6 py-4"><div className="h-6 bg-slate-100 dark:bg-slate-800 rounded w-12"></div></td>
-                       <td className="px-6 py-4"><div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-24"></div></td>
-                       <td className="px-6 py-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-8"></div></td>
-                       <td className="px-6 py-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-12"></div></td>
-                       <td className="px-6 py-4"><div className="h-4 bg-slate-300 dark:bg-slate-800 rounded w-16"></div></td>
-                       <td className="px-6 py-4"><div className="h-6 bg-slate-200 dark:bg-slate-800 rounded-full w-24"></div></td>
+                      <td className="px-8 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-xl bg-slate-200 dark:bg-slate-800"></div>
+                          <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-48"></div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4"><div className="h-6 bg-slate-100 dark:bg-slate-800 rounded w-12"></div></td>
+                      <td className="px-6 py-4"><div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-24"></div></td>
+                      <td className="px-6 py-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-8"></div></td>
+                      <td className="px-6 py-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-12"></div></td>
+                      <td className="px-6 py-4"><div className="h-4 bg-slate-300 dark:bg-slate-800 rounded w-16"></div></td>
+                      <td className="px-6 py-4"><div className="h-6 bg-slate-200 dark:bg-slate-800 rounded-full w-24"></div></td>
                     </tr>
                   ))
                 ) : (

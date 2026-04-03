@@ -7,6 +7,7 @@ const PatientDashboard: React.FC = () => {
     const navigate = useNavigate();
     const [summary, setSummary] = useState<any[]>([]);
     const [profile, setProfile] = useState<any>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     const getDayVn = (dateStr: string) => {
         if (!dateStr) return '';
@@ -16,6 +17,7 @@ const PatientDashboard: React.FC = () => {
     };
 
     const fetchData = useCallback(async () => {
+        setIsLoading(true);
         try {
             const [summaryRes, profileRes] = await Promise.all([
                 patientApi.getMetricsSummary('WEEK'),
@@ -24,8 +26,13 @@ const PatientDashboard: React.FC = () => {
             
             if (summaryRes.success) setSummary(summaryRes.data);
             if (profileRes.success) setProfile(profileRes.data);
+            
+            // Artificial delay for smooth skeleton transition
+            await new Promise(resolve => setTimeout(resolve, 1500));
         } catch (error) {
             console.error('Failed to fetch dashboard data:', error);
+        } finally {
+            setIsLoading(false);
         }
     }, []);
 
@@ -55,43 +62,60 @@ const PatientDashboard: React.FC = () => {
         <div className="space-y-8 animate-in fade-in duration-700">
             {/* 1. Profile Summary */}
             <section className="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row gap-8 items-center text-left">
-                <div className="h-24 w-24 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border-4 border-primary/10 shrink-0">
-                    <img 
-                        alt="Patient Avatar" 
-                        className="h-full w-full object-cover" 
-                        src={profile?.avatarUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuDtszSUkFV8-ySPzx5ShEcygZMGlLkCDs4d0864MNknx5EExH89OU4c8yPh8OVN1hs4lphO6fiLk2zNxiEVtKYNCEmFI8wlHiQWp_eNhWhDrDTnx0CzMMhMxEazQTGHz9vkoPO8nr1skAG0vHgWNL9WYSMCVUQCb0F38yyb4j9YXgtT9zCiHC8m8luedS4ciJqp8z63x9_AVk2Iy6aAsM3rPa-p8uNkLf-Ai8Ztas1voDuD-ytltUPtIAtEVk2Zdfo5YiyAOwuAFVk"} 
-                    />
-                </div>
-                <div className="flex-1 grid grid-cols-2 lg:grid-cols-4 gap-6 w-full">
-                    <div>
-                        <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Chẩn đoán</p>
-                        <p className="text-base font-bold text-primary">{profile?.chronicCondition || 'Đang cập nhật'}</p>
-                    </div>
-                    <div>
-                        <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Nhóm máu</p>
-                        <p className="text-base font-bold text-slate-900 dark:text-white">{profile?.bloodType || 'N/A'}</p>
-                    </div>
-                    <div>
-                        <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Thể trạng</p>
-                        <p className="text-base font-bold text-slate-900 dark:text-white">
-                            {profile?.heightCm ? `${profile.heightCm}cm` : '--'} | {profile?.weightKg ? `${profile.weightKg}kg` : '--'}
-                        </p>
-                    </div>
-                    <div>
-                        <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Tiền sử</p>
-                        <p className="text-base font-bold text-slate-900 dark:text-white truncate" title={profile?.chronicDiseases?.join(', ')}>
-                            {profile?.chronicDiseases && profile.chronicDiseases.length > 0 
-                                ? profile.chronicDiseases.join(', ') 
-                                : 'Không có'}
-                        </p>
-                    </div>
-                </div>
-                <button
-                    onClick={() => navigate('/patient/profile')}
-                    className="px-6 py-2 border border-slate-200 dark:border-slate-700 rounded-xl font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors whitespace-nowrap active:scale-95 text-slate-700 dark:text-slate-300"
-                >
-                    Chỉnh sửa hồ sơ
-                </button>
+                {isLoading ? (
+                    <>
+                        <div className="h-24 w-24 rounded-full bg-slate-100 dark:bg-slate-800 animate-pulse border-4 border-slate-50 dark:border-slate-800/50 shrink-0"></div>
+                        <div className="flex-1 grid grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+                            {[...Array(4)].map((_, i) => (
+                                <div key={i} className="space-y-2">
+                                    <div className="h-3 bg-slate-50 dark:bg-slate-800 rounded w-16 animate-pulse"></div>
+                                    <div className="h-5 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-24"></div>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="h-10 w-32 bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse"></div>
+                    </>
+                ) : (
+                    <>
+                        <div className="h-24 w-24 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border-4 border-primary/10 shrink-0">
+                            <img 
+                                alt="Patient Avatar" 
+                                className="h-full w-full object-cover" 
+                                src={profile?.avatarUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuDtszSUkFV8-ySPzx5ShEcygZMGlLkCDs4d0864MNknx5EExH89OU4c8yPh8OVN1hs4lphO6fiLk2zNxiEVtKYNCEmFI8wlHiQWp_eNhWhDrDTnx0CzMMhMxEazQTGHz9vkoPO8nr1skAG0vHgWNL9WYSMCVUQCb0F38yyb4j9YXgtT9zCiHC8m8luedS4ciJqp8z63x9_AVk2Iy6aAsM3rPa-p8uNkLf-Ai8Ztas1voDuD-ytltUPtIAtEVk2Zdfo5YiyAOwuAFVk"} 
+                            />
+                        </div>
+                        <div className="flex-1 grid grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+                            <div>
+                                <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Chẩn đoán</p>
+                                <p className="text-base font-bold text-primary">{profile?.chronicCondition || 'Đang cập nhật'}</p>
+                            </div>
+                            <div>
+                                <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Nhóm máu</p>
+                                <p className="text-base font-bold text-slate-900 dark:text-white">{profile?.bloodType || 'N/A'}</p>
+                            </div>
+                            <div>
+                                <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Thể trạng</p>
+                                <p className="text-base font-bold text-slate-900 dark:text-white">
+                                    {profile?.heightCm ? `${profile.heightCm}cm` : '--'} | {profile?.weightKg ? `${profile.weightKg}kg` : '--'}
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Tiền sử</p>
+                                <p className="text-base font-bold text-slate-900 dark:text-white truncate" title={profile?.chronicDiseases?.join(', ')}>
+                                    {profile?.chronicDiseases && profile.chronicDiseases.length > 0 
+                                        ? profile.chronicDiseases.join(', ') 
+                                        : 'Không có'}
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => navigate('/patient/profile')}
+                            className="px-6 py-2 border border-slate-200 dark:border-slate-700 rounded-xl font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors whitespace-nowrap active:scale-95 text-slate-700 dark:text-slate-300"
+                        >
+                            Chỉnh sửa hồ sơ
+                        </button>
+                    </>
+                )}
             </section>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -298,11 +322,15 @@ const PatientDashboard: React.FC = () => {
                             <span className="material-symbols-outlined">warning</span>
                             Cảnh báo quan trọng
                         </div>
-                        <p className="text-sm text-red-700 dark:text-red-300">
-                            {summary.some(s => s.status === 'HIGH' || s.status === 'LOW') 
-                                ? "Có chỉ số sức khỏe của bạn đang vượt mức bình thường. Vui lòng kiểm tra lại chế độ ăn uống và thông báo cho bác sĩ."
-                                : "Chỉ số hiện tại ổn định. Vui lòng duy trì các thói quen vận động và ăn uống khoa học."}
-                        </p>
+                        {isLoading ? (
+                            <div className="h-10 bg-red-100/50 dark:bg-red-900/40 animate-pulse rounded w-full"></div>
+                        ) : (
+                            <p className="text-sm text-red-700 dark:text-red-300">
+                                {summary.some(s => s.status === 'HIGH' || s.status === 'LOW') 
+                                    ? "Có chỉ số sức khỏe của bạn đang vượt mức bình thường. Vui lòng kiểm tra lại chế độ ăn uống và thông báo cho bác sĩ."
+                                    : "Chỉ số hiện tại ổn định. Vui lòng duy trì các thói quen vận động và ăn uống khoa học."}
+                            </p>
+                        )}
                     </div>
 
                     {/* 2. Medication Management */}
@@ -320,34 +348,48 @@ const PatientDashboard: React.FC = () => {
                             </button>
                         </div>
                         <div className="p-4 space-y-4">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                                    <span className="material-symbols-outlined text-lg">done</span>
-                                </div>
-                                <div className="flex-1">
-                                    <p className="text-sm font-bold">Metformin 500mg</p>
-                                    <p className="text-[13px] text-slate-500">08:00 Sáng- Đã uống</p>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full border-2 border-primary flex items-center justify-center text-primary animate-pulse">
-                                    <span className="material-symbols-outlined text-lg">alarm</span>
-                                </div>
-                                <div className="flex-1">
-                                    <p className="text-sm font-bold">Lisinopril 10mg</p>
-                                    <p className="text-[13px] text-slate-500">01:00 Chiều - Cần uống</p>
-                                </div>
-                                <button className="bg-primary text-slate-900 px-3 py-1 rounded-lg text-xs font-bold active:scale-95 transition-transform">Đã uống</button>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
-                                    <span className="material-symbols-outlined text-lg">schedule</span>
-                                </div>
-                                <div className="flex-1">
-                                    <p className="text-sm font-bold">Atorvastatin 20mg</p>
-                                    <p className="text-[13px] text-slate-500">09:00 Tối - Chờ</p>
-                                </div>
-                            </div>
+                            {isLoading ? (
+                                [...Array(3)].map((_, i) => (
+                                    <div key={i} className="flex items-center gap-3 animate-pulse">
+                                        <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800"></div>
+                                        <div className="flex-1 space-y-2">
+                                            <div className="h-3 bg-slate-100 dark:bg-slate-800 rounded w-24"></div>
+                                            <div className="h-3 bg-slate-50 dark:bg-slate-800/50 rounded w-32"></div>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <>
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                            <span className="material-symbols-outlined text-lg">done</span>
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-sm font-bold">Metformin 500mg</p>
+                                            <p className="text-[13px] text-slate-500">08:00 Sáng- Đã uống</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-full border-2 border-primary flex items-center justify-center text-primary animate-pulse">
+                                            <span className="material-symbols-outlined text-lg">alarm</span>
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-sm font-bold">Lisinopril 10mg</p>
+                                            <p className="text-[13px] text-slate-500">01:00 Chiều - Cần uống</p>
+                                        </div>
+                                        <button className="bg-primary text-slate-900 px-3 py-1 rounded-lg text-xs font-bold active:scale-95 transition-transform">Đã uống</button>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
+                                            <span className="material-symbols-outlined text-lg">schedule</span>
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-sm font-bold">Atorvastatin 20mg</p>
+                                            <p className="text-[13px] text-slate-500">09:00 Tối - Chờ</p>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
 
@@ -357,43 +399,67 @@ const PatientDashboard: React.FC = () => {
                             <span className="material-symbols-outlined text-primary">event_note</span>
                             Lịch khám sắp tới
                         </h3>
-                        <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border-l-4 border-primary relative overflow-hidden group">
-                            <div className="flex justify-between items-start mb-2 relative z-10">
-                                <div>
-                                    <p className="text-xs font-bold text-primary uppercase tracking-widest">Ngày 15 Tháng 10</p>
-                                    <p className="text-base font-bold text-slate-900 dark:text-white">Khám định kỳ Tiểu đường</p>
-                                </div>
-                                <span className="material-symbols-outlined text-slate-400 cursor-pointer">more_vert</span>
-                            </div>
-                            <div className="relative z-10">
-                                <div className="flex items-center gap-2 text-xs text-slate-500">
-                                    <span className="material-symbols-outlined text-sm">person_pin</span>
-                                    BS. Lê Minh Tâm
-                                </div>
-                                <div className="flex items-center gap-2 text-xs text-slate-500 mt-1">
-                                    <span className="material-symbols-outlined text-sm">schedule</span>
-                                    09:30 - 10:30 Sáng
+                        {isLoading ? (
+                            <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border-l-4 border-slate-200 animate-pulse space-y-3">
+                                <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-20"></div>
+                                <div className="h-5 bg-slate-300 dark:bg-slate-600 rounded w-40"></div>
+                                <div className="space-y-1">
+                                    <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-32"></div>
+                                    <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-24"></div>
                                 </div>
                             </div>
-                            <button className="w-full mt-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-white dark:hover:bg-slate-800 transition-colors relative z-10">
-                                Đặt lại lịch
-                            </button>
-                        </div>
+                        ) : (
+                            <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border-l-4 border-primary relative overflow-hidden group">
+                                <div className="flex justify-between items-start mb-2 relative z-10">
+                                    <div>
+                                        <p className="text-xs font-bold text-primary uppercase tracking-widest">Ngày 15 Tháng 10</p>
+                                        <p className="text-base font-bold text-slate-900 dark:text-white">Khám định kỳ Tiểu đường</p>
+                                    </div>
+                                    <span className="material-symbols-outlined text-slate-400 cursor-pointer">more_vert</span>
+                                </div>
+                                <div className="relative z-10">
+                                    <div className="flex items-center gap-2 text-xs text-slate-500">
+                                        <span className="material-symbols-outlined text-sm">person_pin</span>
+                                        BS. Lê Minh Tâm
+                                    </div>
+                                    <div className="flex items-center gap-2 text-xs text-slate-500 mt-1">
+                                        <span className="material-symbols-outlined text-sm">schedule</span>
+                                        09:30 - 10:30 Sáng
+                                    </div>
+                                </div>
+                                <button className="w-full mt-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-white dark:hover:bg-slate-800 transition-colors relative z-10">
+                                    Đặt lại lịch
+                                </button>
+                            </div>
+                        )}
                     </div>
 
                     {/* 6. Doctor Chat */}
                     <div className="bg-primary/10 dark:bg-primary/5 rounded-xl border border-primary/20 p-4 flex items-center gap-4 group cursor-pointer hover:bg-primary/15 transition-all text-left">
-                        <div className="h-12 w-12 rounded-full bg-primary/20 flex-shrink-0 relative overflow-hidden">
-                            <img alt="Doctor" className="object-cover h-full w-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcFUhTbj4SPfWKM3951CEKYvigAczulFrCd8MjzxK28AaIMv7rvM-pUcSN0_6i5RwtX13a876QeZic-WXjKbruzJO_MU1VLhaf8sTaTC6xMBJBLlegIlBVQ7-ay4KFBKDc9Kp4d4VxiW4W55X3BgzMhYJVpEUOsX5zvapaAutwwZ5jNXGYRXvYYdfIxJ3NoXT7vE_s_WQFoBz8nq_gOTbZG2UuGnw6hWILVqM-4JvKFVl6gyFJVzgir_vEEj_UoPOP31YKYoxzHN8" />
-                            <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-slate-900 rounded-full"></span>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <p className="text-sm font-bold truncate">BS. Lê Minh Tâm</p>
-                            <p className="text-xs text-slate-500">Đang trực tuyến</p>
-                        </div>
-                        <button className="bg-primary p-2 rounded-full text-slate-900 shadow-md hover:scale-110 transition-transform active:scale-95">
-                            <span className="material-symbols-outlined">send</span>
-                        </button>
+                        {isLoading ? (
+                            <>
+                                <div className="h-12 w-12 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse"></div>
+                                <div className="flex-1 space-y-2">
+                                    <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-24 animate-pulse"></div>
+                                    <div className="h-3 bg-slate-100 dark:bg-slate-800 rounded w-16 animate-pulse"></div>
+                                </div>
+                                <div className="h-10 w-10 rounded-full bg-primary/20 animate-pulse"></div>
+                            </>
+                        ) : (
+                            <>
+                                <div className="h-12 w-12 rounded-full bg-primary/20 flex-shrink-0 relative overflow-hidden">
+                                    <img alt="Doctor" className="object-cover h-full w-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcFUhTbj4SPfWKM3951CEKYvigAczulFrCd8MjzxK28AaIMv7rvM-pUcSN0_6i5RwtX13a876QeZic-WXjKbruzJO_MU1VLhaf8sTaTC6xMBJBLlegIlBVQ7-ay4KFBKDc9Kp4d4VxiW4W55X3BgzMhYJVpEUOsX5zvapaAutwwZ5jNXGYRXvYYdfIxJ3NoXT7vE_s_WQFoBz8nq_gOTbZG2UuGnw6hWILVqM-4JvKFVl6gyFJVzgir_vEEj_UoPOP31YKYoxzHN8" />
+                                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-slate-900 rounded-full"></span>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-bold truncate">BS. Lê Minh Tâm</p>
+                                    <p className="text-xs text-slate-500">Đang trực tuyến</p>
+                                </div>
+                                <button className="bg-primary p-2 rounded-full text-slate-900 shadow-md hover:scale-110 transition-transform active:scale-95">
+                                    <span className="material-symbols-outlined">send</span>
+                                </button>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>

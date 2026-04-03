@@ -24,6 +24,12 @@ export default function AdminSupport() {
   const [toastTitle, setToastTitle] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const statusOptions = ['Mới', 'Đang xử lý', 'Chờ phản hồi', 'Đã giải quyết', 'Đã đóng'];
 
@@ -97,70 +103,111 @@ export default function AdminSupport() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
-              Trung tâm hỗ trợ
-            </h2>
-            <p className="text-[16px] text-slate-500 mt-1 font-medium">Tiếp nhận và quản lý các yêu cầu kỹ thuật từ đội ngũ bác sĩ & phòng khám.</p>
+            {isLoading ? (
+              <div className="space-y-3 mb-2">
+                <div className="h-8 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-64"></div>
+                <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-96"></div>
+              </div>
+            ) : (
+              <>
+                <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
+                  Trung tâm hỗ trợ
+                </h2>
+                <p className="text-[16px] text-slate-500 mt-1 font-medium">Tiếp nhận và quản lý các yêu cầu kỹ thuật từ đội ngũ bác sĩ & phòng khám.</p>
+              </>
+            )}
           </div>
-          <button
-            onClick={() => setIsCreateModalOpen(true)}
-            className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-lg shadow-slate-900/10 active:scale-95 transition-all text-[13px]"
-          >
-            <span className="material-symbols-outlined text-[18px]">add_task</span>
-            Tạo yêu cầu mới
-          </button>
+          {isLoading ? (
+            <div className="w-40 h-10 bg-primary/20 dark:bg-slate-800 animate-pulse rounded-xl shadow-sm"></div>
+          ) : (
+            <button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="bg-primary text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-primary/20 active:scale-95 transition-all text-[13px] hover:shadow-primary/30"
+            >
+              <span className="material-symbols-outlined text-[20px]">add_task</span>
+              Tạo yêu cầu mới
+            </button>
+          )}
         </div>
 
         {/* Quick Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-          {stats.map((stat, idx) => (
-            <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm">
-              <div className="flex justify-between items-start mb-4">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.color === 'primary' ? 'bg-primary/10 text-primary' :
-                  stat.color === 'red' ? 'bg-red-50 text-red-500' :
-                    stat.color === 'amber' ? 'bg-amber-50 text-amber-500' :
-                      'bg-emerald-50 text-emerald-500'
-                  }`}>
-                  <span className="material-symbols-outlined text-2xl">{stat.icon}</span>
-                </div>
+          {isLoading ? (
+            [...Array(4)].map((_, i) => (
+              <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm space-y-4">
+                <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 animate-pulse"></div>
+                <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-24"></div>
+                <div className="h-7 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-12"></div>
               </div>
-              <p className="text-slate-500 text-[15px] font-medium mt-1">{stat.label}</p>
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white mt-1">{stat.value}</h3>
-            </div>
-          ))}
+            ))
+          ) : (
+            stats.map((stat, idx) => (
+              <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm">
+                <div className="flex justify-between items-start mb-4">
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.color === 'primary' ? 'bg-primary/10 text-primary' :
+                    stat.color === 'red' ? 'bg-red-50 text-red-500' :
+                      stat.color === 'amber' ? 'bg-amber-50 text-amber-500' :
+                        'bg-emerald-50 text-emerald-500'
+                    }`}>
+                    <span className="material-symbols-outlined text-2xl">{stat.icon}</span>
+                  </div>
+                </div>
+                <p className="text-slate-500 text-[15px] font-medium mt-1">{stat.label}</p>
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white mt-1">{stat.value}</h3>
+              </div>
+            ))
+          )}
         </div>
 
         {/* Filters */}
         <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-primary/5 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="relative">
-              <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">Tìm kiếm yêu cầu</label>
-              <div className="relative">
-                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
-                <input
-                  className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl pl-10 pr-4 py-2.5 text-[14px] font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none"
-                  placeholder="Tiêu đề, mã yêu cầu hoặc người gửi..."
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+              <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">
+                {isLoading ? <div className="h-3 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-32 mb-2"></div> : "Tìm kiếm yêu cầu"}
+              </label>
+              {isLoading ? (
+                <div className="h-11 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl w-full"></div>
+              ) : (
+                <div className="relative">
+                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+                  <input
+                    className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl pl-10 pr-4 py-2.5 text-[14px] font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none"
+                    placeholder="Tiêu đề, mã yêu cầu hoặc người gửi..."
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+              )}
+            </div>
+            <div>
+              <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">
+                {isLoading ? <div className="h-3 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-32 mb-2"></div> : "Trạng thái xử lý"}
+              </label>
+              {isLoading ? (
+                <div className="h-11 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-xl w-full"></div>
+              ) : (
+                <Dropdown
+                  options={['Tất cả trạng thái', 'Mới', 'Đang xử lý', 'Chờ phản hồi', 'Đã giải quyết', 'Đã đóng']}
+                  value={selectedStatus}
+                  onChange={setSelectedStatus}
                 />
-              </div>
+              )}
             </div>
             <div>
-              <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">Trạng thái xử lý</label>
-              <Dropdown
-                options={['Tất cả trạng thái', 'Mới', 'Đang xử lý', 'Chờ phản hồi', 'Đã giải quyết', 'Đã đóng']}
-                value={selectedStatus}
-                onChange={setSelectedStatus}
-              />
-            </div>
-            <div>
-              <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">Độ ưu tiên</label>
-              <Dropdown
-                options={['Tất cả cấp độ', 'Khẩn cấp', 'Cao', 'Trung bình', 'Thấp']}
-                value={selectedPriority}
-                onChange={setSelectedPriority}
-              />
+              <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">
+                {isLoading ? <div className="h-3 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-24 mb-2"></div> : "Độ ưu tiên"}
+              </label>
+              {isLoading ? (
+                <div className="h-11 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl w-full"></div>
+              ) : (
+                <Dropdown
+                  options={['Tất cả cấp độ', 'Khẩn cấp', 'Cao', 'Trung bình', 'Thấp']}
+                  value={selectedPriority}
+                  onChange={setSelectedPriority}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -171,61 +218,102 @@ export default function AdminSupport() {
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-slate-50/50 dark:bg-slate-800/50 rounded-t-3xl">
-                  <th className="px-8 py-5 text-[15px] font-medium text-slate-600">Mã yêu cầu</th>
-                  <th className="px-6 py-5 text-[15px] font-medium text-slate-600">Người gửi & Phòng khám</th>
-                  <th className="px-6 py-5 text-[15px] font-medium text-slate-600">Tiêu đề</th>
-                  <th className="px-6 py-5 text-[15px] font-medium text-slate-600">Ưu tiên</th>
-                  <th className="px-6 py-5 text-[15px] font-medium text-slate-600">Trạng thái</th>
-                  <th className="px-8 py-5 text-[15px] font-medium text-slate-600 text-right">Chi tiết</th>
+                  <th className="px-8 py-5">
+                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-20"></div> : <span className="text-[15px] font-medium text-slate-600">Mã yêu cầu</span>}
+                  </th>
+                  <th className="px-6 py-5">
+                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-48"></div> : <span className="text-[15px] font-medium text-slate-600">Người gửi & Phòng khám</span>}
+                  </th>
+                  <th className="px-6 py-5">
+                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-32"></div> : <span className="text-[15px] font-medium text-slate-600">Tiêu đề</span>}
+                  </th>
+                  <th className="px-6 py-5">
+                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16"></div> : <span className="text-[15px] font-medium text-slate-600">Ưu tiên</span>}
+                  </th>
+                  <th className="px-6 py-5">
+                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-24"></div> : <span className="text-[15px] font-medium text-slate-600">Trạng thái</span>}
+                  </th>
+                  <th className="px-8 py-5 text-right">
+                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-12 ml-auto"></div> : <span className="text-[15px] font-medium text-slate-600 text-right">Chi tiết</span>}
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-primary/5">
-                {paginatedTickets.map((t) => (
-                  <tr key={t.id} className="hover:bg-primary/5 transition-colors group">
-                    <td className="px-8 py-5">
-                      <span className="text-[14px] font-bold">{t.id}</span>
-                      <p className="text-[13px] text-slate-500 font-medium mt-0.5">{t.date}</p>
-                    </td>
-                    <td className="px-6 py-5">
-                      <div className="flex items-center gap-3 relative group/tooltip">
-                        <img className="w-9 h-9 rounded-full ring-2 ring-primary/10" src={t.avatar} alt={t.user} />
-                        <div>
-                          <p className="text-[14px] font-black text-slate-900 dark:text-white leading-tight cursor-default">{t.user}</p>
+                {isLoading ? (
+                  [...Array(itemsPerPage)].map((_, i) => (
+                    <tr key={i} className="animate-pulse">
+                      <td className="px-8 py-5">
+                        <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-20 mb-2"></div>
+                        <div className="h-3 bg-slate-100 dark:bg-slate-800/50 rounded w-24"></div>
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800"></div>
+                          <div className="h-4 bg-slate-100 dark:bg-slate-800/50 rounded w-24"></div>
                         </div>
-                        {/* Tooltip */}
-                        <div className="absolute bottom-full left-10 mb-2 invisible group-hover/tooltip:visible opacity-0 group-hover/tooltip:opacity-100 transition-all duration-300 translate-y-2 group-hover/tooltip:translate-y-0 z-[100]">
-                          <div className="bg-slate-900 text-white text-[12px] font-bold px-4 py-2 rounded-2xl whitespace-nowrap shadow-2xl relative">
-                            {t.clinic}
-                            <div className="absolute top-full left-4 border-[6px] border-transparent border-t-slate-900"></div>
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-48"></div>
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="h-4 bg-slate-100 dark:bg-slate-800/50 rounded w-16"></div>
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="h-8 bg-slate-50 dark:bg-slate-800 rounded-xl w-32"></div>
+                      </td>
+                      <td className="px-8 py-5 text-right">
+                        <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl ml-auto"></div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  paginatedTickets.map((t) => (
+                    <tr key={t.id} className="hover:bg-primary/5 transition-colors group">
+                      <td className="px-8 py-5">
+                        <span className="text-[14px] font-bold">{t.id}</span>
+                        <p className="text-[13px] text-slate-500 font-medium mt-0.5">{t.date}</p>
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-3 relative group/tooltip">
+                          <img className="w-9 h-9 rounded-full ring-2 ring-primary/10" src={t.avatar} alt={t.user} />
+                          <div>
+                            <p className="text-[14px] font-black text-slate-900 dark:text-white leading-tight cursor-default">{t.user}</p>
+                          </div>
+                          {/* Tooltip */}
+                          <div className="absolute bottom-full left-10 mb-2 invisible group-hover/tooltip:visible opacity-0 group-hover/tooltip:opacity-100 transition-all duration-300 translate-y-2 group-hover/tooltip:translate-y-0 z-[100]">
+                            <div className="bg-slate-900 text-white text-[12px] font-bold px-4 py-2 rounded-2xl whitespace-nowrap shadow-2xl relative">
+                              {t.clinic}
+                              <div className="absolute top-full left-4 border-[6px] border-transparent border-t-slate-900"></div>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <p className="text-[14px] font-bold text-slate-800 dark:text-slate-200 line-clamp-1 max-w-xs">{t.subject}</p>
-                    </td>
-                    <td className="px-6 py-5">
-                      <span className="text-[14px] font-bold text-slate-700 dark:text-slate-200">
-                        {t.priority}
-                      </span>
-                    </td>
-                    <td className="px-6 py-5 min-w-[160px]">
-                      <Dropdown
-                        options={statusOptions}
-                        value={t.status}
-                        onChange={(val) => handleStatusUpdate(t.id, val)}
-                        variant="badge"
-                      />
-                    </td>
-                    <td className="px-8 py-5 text-right">
-                      <button
-                        onClick={() => handleOpenTicket(t)}
-                        className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary hover:bg-primary/10 transition-all flex items-center justify-center shadow-sm">
-                        <span className="material-symbols-outlined text-[20px]">forum</span>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="px-6 py-5">
+                        <p className="text-[14px] font-bold text-slate-800 dark:text-slate-200 line-clamp-1 max-w-xs">{t.subject}</p>
+                      </td>
+                      <td className="px-6 py-5">
+                        <span className="text-[14px] font-bold text-slate-700 dark:text-slate-200">
+                          {t.priority}
+                        </span>
+                      </td>
+                      <td className="px-6 py-5 min-w-[160px]">
+                        <Dropdown
+                          options={statusOptions}
+                          value={t.status}
+                          onChange={(val) => handleStatusUpdate(t.id, val)}
+                          variant="badge"
+                        />
+                      </td>
+                      <td className="px-8 py-5 text-right">
+                        <button
+                          onClick={() => handleOpenTicket(t)}
+                          className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary hover:bg-primary/10 transition-all flex items-center justify-center shadow-sm">
+                          <span className="material-symbols-outlined text-[20px]">forum</span>
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -263,124 +351,113 @@ export default function AdminSupport() {
           </div>
         </div>
 
-        {/* Support Alert Policy */}
-        <div className="bg-primary/5 dark:bg-primary/20 p-8 rounded-3xl border border-primary/10 flex flex-col md:flex-row items-center gap-6">
-          <div className="w-16 h-16 bg-white dark:bg-slate-900 rounded-2xl flex items-center justify-center text-primary shadow-xl shrink-0">
-            <span className="material-symbols-outlined text-3xl">verified</span>
-          </div>
-          <div className="flex-1">
-            <h5 className="text-[17px] font-bold text-slate-900 dark:text-white mb-2 tracking-tight italic-none">Cam kết chất lượng phản hồi</h5>
-            <p className="text-[14px] text-slate-500 font-medium leading-relaxed italic-none">Chúng tôi luôn ưu tiên các yêu cầu kỹ thuật ảnh hưởng đến quá trình khám chữa bệnh tại phòng khám. Các yêu cầu "Khẩn cấp" sẽ được kỹ thuật viên tiếp nhận trong vòng tối đa 15 phút. Đội ngũ Admin kỹ thuật luôn túc trực 24/7 để đảm bảo hệ thống vận hành trơn tru.</p>
-          </div>
-          <button className="px-6 py-3 font-bold text-primary hover:underline text-sm shrink-0">Xem chi tiết SLA →</button>
-        </div>
-      </section>
 
-      {/* Support Ticket Detail Modal */}
-      {isTicketModalOpen && selectedTicket && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]" onClick={() => setIsTicketModalOpen(false)}></div>
-          <div className="relative bg-white dark:bg-slate-900 w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-300 border border-primary/10 max-h-[90vh]">
-            {/* Modal Header */}
-            <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="bg-primary/10 p-2.5 rounded-xl text-primary">
-                  <span className="material-symbols-outlined font-bold">support_agent</span>
-                </div>
-                <div>
-                  <h3 className="text-[18px] font-black text-slate-900 dark:text-white leading-tight">Xử lý yêu cầu {selectedTicket.id}</h3>
-                  <p className="text-[13px] font-bold text-slate-400 mt-1">{selectedTicket.category} • {selectedTicket.priority}</p>
-                </div>
-              </div>
-              <button onClick={() => setIsTicketModalOpen(false)} className="w-10 h-10 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400">
-                <span className="material-symbols-outlined text-xl">close</span>
-              </button>
-            </div>
-
-            {/* Conversation Content */}
-            <div className="p-8 space-y-8 overflow-y-auto custom-scrollbar flex-1 text-left">
-              <div className="flex gap-4">
-                <img className="w-10 h-10 rounded-xl" src={selectedTicket.avatar} alt={selectedTicket.user} />
-                <div className="bg-slate-50 dark:bg-slate-800 p-5 rounded-2xl rounded-tl-none flex-1">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[14px] font-black text-slate-900 dark:text-white uppercase tracking-tighter">{selectedTicket.user}</span>
-                    <span className="text-[11px] font-bold text-slate-400 italic-none">{selectedTicket.date}</span>
+        {/* Support Ticket Detail Modal */}
+        {isTicketModalOpen && selectedTicket && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]" onClick={() => setIsTicketModalOpen(false)}></div>
+            <div className="relative bg-white dark:bg-slate-900 w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-300 border border-primary/10 max-h-[90vh]">
+              {/* Modal Header */}
+              <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="bg-primary/10 p-2.5 rounded-xl text-primary">
+                    <span className="material-symbols-outlined font-bold">support_agent</span>
                   </div>
-                  <h4 className="text-[15px] font-bold text-slate-800 dark:text-white mb-2">{selectedTicket.subject}</h4>
-                  <p className="text-[14px] text-slate-600 dark:text-slate-400 font-medium italic-none leading-relaxed">
-                    Kính thưa Ban quản trị, tôi gặp lỗi khi cố gắng xuất báo cáo doanh thu tuần. Hệ thống báo lỗi "Xác thực không thành công" dù tôi đã đăng nhập bình thường. Mong được hỗ trợ sớm để kịp nộp báo cáo quý.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-4 flex-row-reverse">
-                <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-bold text-sm shrink-0">AD</div>
-                <div className="bg-primary/5 dark:bg-primary/10 p-5 rounded-2xl rounded-tr-none flex-1 border border-primary/10">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[14px] font-black text-primary uppercase tracking-tighter">HỆ THỐNG (ADMIN)</span>
-                    <span className="text-[11px] font-bold text-primary/60 italic-none">Vừa mới xong</span>
+                  <div>
+                    <h3 className="text-[18px] font-black text-slate-900 dark:text-white leading-tight">Xử lý yêu cầu {selectedTicket.id}</h3>
+                    <p className="text-[13px] font-bold text-slate-400 mt-1">{selectedTicket.category} • {selectedTicket.priority}</p>
                   </div>
-                  <p className="text-[14px] text-slate-600 dark:text-slate-300 font-medium italic-none leading-relaxed">
-                    Chúng tôi đã ghi nhận yêu cầu của bác sĩ. Kỹ thuật viên đang kiểm tra lại phân quyền tài khoản của bác sĩ trên module Báo cáo.
-                  </p>
                 </div>
+                <button onClick={() => setIsTicketModalOpen(false)} className="w-10 h-10 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400">
+                  <span className="material-symbols-outlined text-xl">close</span>
+                </button>
               </div>
-            </div>
 
-            {/* Modal Footer / Reply Area */}
-            <div className="p-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 space-y-4 text-left">
-              <div className="relative">
-                <textarea
-                  rows={2}
-                  placeholder="Nhập nội dung phản hồi cho bác sĩ..."
-                  className="w-full bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 rounded-2xl px-5 py-3 text-[14px] focus:border-primary outline-none transition-all resize-none font-medium"
-                ></textarea>
-                <div className="absolute right-3 bottom-3 flex gap-2">
-                  <button className="p-2 text-slate-400 hover:text-primary transition-colors">
-                    <span className="material-symbols-outlined text-xl">attach_file</span>
-                  </button>
-                  <button className="p-2 text-slate-400 hover:text-primary transition-colors">
-                    <span className="material-symbols-outlined text-xl">image</span>
-                  </button>
+              {/* Conversation Content */}
+              <div className="p-8 space-y-8 overflow-y-auto custom-scrollbar flex-1 text-left">
+                <div className="flex gap-4">
+                  <img className="w-10 h-10 rounded-xl" src={selectedTicket.avatar} alt={selectedTicket.user} />
+                  <div className="bg-slate-50 dark:bg-slate-800 p-5 rounded-2xl rounded-tl-none flex-1">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[14px] font-black text-slate-900 dark:text-white uppercase tracking-tighter">{selectedTicket.user}</span>
+                      <span className="text-[11px] font-bold text-slate-400 italic-none">{selectedTicket.date}</span>
+                    </div>
+                    <h4 className="text-[15px] font-bold text-slate-800 dark:text-white mb-2">{selectedTicket.subject}</h4>
+                    <p className="text-[14px] text-slate-600 dark:text-slate-400 font-medium italic-none leading-relaxed">
+                      Kính thưa Ban quản trị, tôi gặp lỗi khi cố gắng xuất báo cáo doanh thu tuần. Hệ thống báo lỗi "Xác thực không thành công" dù tôi đã đăng nhập bình thường. Mong được hỗ trợ sớm để kịp nộp báo cáo quý.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 flex-row-reverse">
+                  <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-bold text-sm shrink-0">AD</div>
+                  <div className="bg-primary/5 dark:bg-primary/10 p-5 rounded-2xl rounded-tr-none flex-1 border border-primary/10">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[14px] font-black text-primary uppercase tracking-tighter">HỆ THỐNG (ADMIN)</span>
+                      <span className="text-[11px] font-bold text-primary/60 italic-none">Vừa mới xong</span>
+                    </div>
+                    <p className="text-[14px] text-slate-600 dark:text-slate-300 font-medium italic-none leading-relaxed">
+                      Chúng tôi đã ghi nhận yêu cầu của bác sĩ. Kỹ thuật viên đang kiểm tra lại phân quyền tài khoản của bác sĩ trên module Báo cáo.
+                    </p>
+                  </div>
                 </div>
               </div>
-              <div className="flex justify-between items-center">
-                <p className="text-[11px] font-bold text-slate-400 italic-none">* Sau khi gửi, trạng thái sẽ chuyển thành "Chờ phản hồi"</p>
-                <div className="flex gap-3">
-                  {(selectedTicket.status === 'Mới' || selectedTicket.status === 'Chờ phản hồi') && (
-                    <button
-                      onClick={() => {
-                        handleStatusUpdate(selectedTicket.id, 'Đang xử lý');
-                        setIsTicketModalOpen(false);
-                      }}
-                      className="bg-emerald-500 text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all text-[13px]"
-                    >
-                      <span className="material-symbols-outlined text-lg">check_circle</span>
-                      Tiếp nhận yêu cầu
+
+              {/* Modal Footer / Reply Area */}
+              <div className="p-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 space-y-4 text-left">
+                <div className="relative">
+                  <textarea
+                    rows={2}
+                    placeholder="Nhập nội dung phản hồi cho bác sĩ..."
+                    className="w-full bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 rounded-2xl px-5 py-3 text-[14px] focus:border-primary outline-none transition-all resize-none font-medium"
+                  ></textarea>
+                  <div className="absolute right-3 bottom-3 flex gap-2">
+                    <button className="p-2 text-slate-400 hover:text-primary transition-colors">
+                      <span className="material-symbols-outlined text-xl">attach_file</span>
                     </button>
-                  )}
-                  <button className="bg-emerald-500 text-white px-8 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all text-[13px]">
-                    <span className="material-symbols-outlined text-lg rotate-[-45deg] mb-1">send</span>
-                    Phản hồi ngay
-                  </button>
+                    <button className="p-2 text-slate-400 hover:text-primary transition-colors">
+                      <span className="material-symbols-outlined text-xl">image</span>
+                    </button>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="text-[11px] font-bold text-slate-400 italic-none">* Sau khi gửi, trạng thái sẽ chuyển thành "Chờ phản hồi"</p>
+                  <div className="flex gap-3">
+                    {(selectedTicket.status === 'Mới' || selectedTicket.status === 'Chờ phản hồi') && (
+                      <button
+                        onClick={() => {
+                          handleStatusUpdate(selectedTicket.id, 'Đang xử lý');
+                          setIsTicketModalOpen(false);
+                        }}
+                        className="bg-emerald-500 text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all text-[13px]"
+                      >
+                        <span className="material-symbols-outlined text-lg">check_circle</span>
+                        Tiếp nhận yêu cầu
+                      </button>
+                    )}
+                    <button className="bg-emerald-500 text-white px-8 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all text-[13px]">
+                      <span className="material-symbols-outlined text-lg rotate-[-45deg] mb-1">send</span>
+                      Phản hồi ngay
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
-      <CreateTicketModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        isSaving={isSaving}
-        onSave={handleCreateTicket}
-      />
+        )}
+        <CreateTicketModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          isSaving={isSaving}
+          onSave={handleCreateTicket}
+        />
 
-      <Toast
-        show={showToast}
-        title={toastTitle}
-        onClose={() => setShowToast(false)}
-      />
+        <Toast
+          show={showToast}
+          title={toastTitle}
+          onClose={() => setShowToast(false)}
+        />
+      </section>
     </AdminLayout>
   );
 }
