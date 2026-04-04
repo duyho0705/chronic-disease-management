@@ -254,22 +254,28 @@ export default function AdminReports() {
 
         {/* Detailed Clinic PerformanceTable */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm border border-primary/5 relative">
-          {isLoading && (
-            <div className="absolute inset-0 bg-white/40 dark:bg-slate-900/40 backdrop-blur-[1px] z-20 flex items-center justify-center">
-              <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-            </div>
-          )}
           <div className="p-8 border-b border-primary/5 flex flex-col md:flex-row md:items-center justify-between gap-4 text-left">
-            <div>
-              <h4 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Chi tiết hiệu suất phòng khám</h4>
-              <p className="text-[15px] font-medium text-slate-500 mt-1">Phân tích tải trọng và trạng thái vận hành</p>
-            </div>
-            <Dropdown
-              options={['Tất cả kết quả', 'Tốt', 'Ổn định', 'Cần lưu ý']}
-              value={performanceFilter}
-              onChange={setPerformanceFilter}
-              className="w-44"
-            />
+            {isLoading ? (
+              <div className="space-y-2">
+                <div className="h-6 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-64"></div>
+                <div className="h-4 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-80"></div>
+              </div>
+            ) : (
+              <div>
+                <h4 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Chi tiết hiệu suất phòng khám</h4>
+                <p className="text-[15px] font-medium text-slate-500 mt-1">Phân tích tải trọng và trạng thái vận hành</p>
+              </div>
+            )}
+            {isLoading ? (
+              <div className="w-44 h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl shadow-sm border border-slate-100 dark:border-slate-800"></div>
+            ) : (
+              <Dropdown
+                options={['Tất cả kết quả', 'Tốt', 'Ổn định', 'Cần lưu ý']}
+                value={performanceFilter}
+                onChange={setPerformanceFilter}
+                className="w-44"
+              />
+            )}
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">

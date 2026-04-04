@@ -13,10 +13,6 @@ export default function ClinicDashboard() {
     const [stats, setStats] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        const timer = setTimeout(() => setIsLoading(false), 2000);
-        return () => clearTimeout(timer);
-    }, []);
     const currentClinicId = localStorage.getItem('clinicId') || '1';
 
     const doctors = stats?.doctorPerformances || [];
@@ -55,7 +51,8 @@ export default function ClinicDashboard() {
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
 
-    const fetchDashboardData = async () => {
+    const fetchDashboardData = async (isSilent = false) => {
+        if (!isSilent) setIsLoading(true);
         try {
             const response = await axios.get(`/v1/clinics/${currentClinicId}/dashboard`);
             if (response.data.success) {
@@ -63,6 +60,8 @@ export default function ClinicDashboard() {
             }
         } catch (error) {
             console.error('Failed to fetch dashboard data:', error);
+        } finally {
+            if (!isSilent) setIsLoading(false);
         }
     };
 
@@ -101,6 +100,7 @@ export default function ClinicDashboard() {
                 userName="Admin Sarah"
                 userRole="Senior Manager"
                 userAvatar="https://lh3.googleusercontent.com/aida-public/AB6AXuDs9fuTZde7EUIINhAwZDAYbGdWhfZuvszHFDZODEHBxXo3hRWmKfCmGfg6Xgckf0DONyYs8LQEOXng1sISGQVj9ec2pSs--Gz-xPlj6elGIG3KtZTO9U-57mPPcUxuNMtJbLamHmXAsWrVwobD4Ai-pKgNGU0yfv596RmDCRUawQMx8gmW7E2J_we-R_YITLa95pCcbtDZf6tkb7C6bWKKzwepNG2pc4L5uji1KMHQetqk8390TVAlxrRao3qco3laKWLu0uA-BmQ"
+                isLoading={isLoading}
             />
 
             {/* Main Content Area */}
@@ -250,85 +250,148 @@ export default function ClinicDashboard() {
                     <section className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         {/* New Patients Chart */}
                         <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
-                            <div>
-                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
-                                    <div>
-                                        <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Bệnh nhân mới theo tháng</h3>
-                                        <p className="text-sm text-slate-500 font-medium mt-1">Thống kê dữ liệu trong 6 tháng gần nhất</p>
-                                    </div>
-                                    <Dropdown
-                                        options={['Năm 2024', 'Năm 2023']}
-                                        value={dashboardTimeRange}
-                                        onChange={setDashboardTimeRange}
-                                        className="min-w-[140px]"
-                                    />
-                                </div>
-                                <div className="flex items-end justify-between h-64 gap-3 md:gap-6 px-4">
-                                    {mainStats.chartData.map((item: any, idx: number) => (
-                                        <div key={idx} className="flex flex-col items-center flex-1 gap-4">
-                                            <div className="w-full bg-slate-50 dark:bg-slate-800 rounded-t-2xl relative overflow-hidden group h-48 border border-primary/5">
-                                                <div
-                                                    style={{ height: item.height }}
-                                                    className={`absolute bottom-0 w-full transition-all duration-700 rounded-t-2xl ${item.active ? 'bg-[#38bdf8] shadow-[0_-10px_20px_rgba(56,189,248,0.2)]' : 'bg-[#93e2fb] group-hover:bg-[#38bdf8]/60'}`}
-                                                >
-                                                    {item.active && <div className="absolute top-0 w-full h-2 bg-white/20"></div>}
-                                                </div>
-                                            </div>
-                                            <span className={`text-[11px] font-black tracking-tighter ${item.active ? 'text-[#0ea5e9]' : 'text-slate-400'}`}>{item.month}</span>
+                            {isLoading ? (
+                                <div className="space-y-12 animate-pulse">
+                                    <div className="flex justify-between items-center">
+                                        <div className="space-y-3">
+                                            <div className="h-6 bg-slate-200 dark:bg-slate-800 rounded w-48"></div>
+                                            <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-64"></div>
                                         </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Key Stats Bar at Bottom to Balance Height */}
-                            <div className="grid grid-cols-3 gap-4 pt-8 border-t border-slate-50 dark:border-slate-800/50 mt-6 pb-2">
-                                <div className="flex flex-col items-center">
-                                    <p className="text-[14px] font-medium text-slate-500 mb-1">Tăng trưởng</p>
-                                    <div className="flex items-center gap-1">
-                                        <span className={`text-lg font-bold ${mainStats.patientGrowth.startsWith('+') ? 'text-emerald-500' : 'text-red-500'}`}>{mainStats.patientGrowth}</span>
-                                        <span className={`material-symbols-outlined text-sm ${mainStats.patientGrowth.startsWith('+') ? 'text-emerald-500' : 'text-red-500'}`}>{mainStats.patientGrowth.startsWith('+') ? 'trending_up' : 'trending_down'}</span>
+                                        <div className="w-32 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl"></div>
+                                    </div>
+                                    <div className="flex items-end justify-between h-48 gap-4 px-4 overflow-hidden">
+                                        {[...Array(6)].map((_, i) => (
+                                            <div key={i} className="flex-1 space-y-4">
+                                                <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-t-2xl" style={{ height: `${Math.random() * 60 + 20}%` }}></div>
+                                                <div className="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded"></div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="grid grid-cols-3 gap-4 border-t border-slate-50 pt-8">
+                                        <div className="space-y-3 flex flex-col items-center">
+                                            <div className="w-16 h-3 bg-slate-100 dark:bg-slate-800 rounded"></div>
+                                            <div className="w-12 h-6 bg-slate-200 dark:bg-slate-800 rounded"></div>
+                                        </div>
+                                        <div className="space-y-3 flex flex-col items-center">
+                                            <div className="w-16 h-3 bg-slate-100 dark:bg-slate-800 rounded"></div>
+                                            <div className="w-24 h-6 bg-slate-200 dark:bg-slate-800 rounded"></div>
+                                        </div>
+                                        <div className="space-y-3 flex flex-col items-center">
+                                            <div className="w-16 h-3 bg-slate-100 dark:bg-slate-800 rounded"></div>
+                                            <div className="w-20 h-6 bg-slate-200 dark:bg-slate-800 rounded"></div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="flex flex-col items-center border-x border-slate-100 dark:border-slate-800/50">
-                                    <p className="text-[14px] font-medium text-slate-500 mb-1">Trung bình</p>
-                                    <span className="text-lg font-bold text-slate-700 dark:text-slate-200">{Math.round(parseInt(String(mainStats.totalPatients).replace(/,/g, '')) / 6)} ca/tháng</span>
-                                </div>
-                                <div className="flex flex-col items-center">
-                                    <p className="text-[14px] font-medium text-slate-500 mb-1">Đỉnh điểm</p>
-                                    <span className="text-lg font-bold text-sky-500">T.3 (224 ca)</span>
-                                </div>
-                            </div>
+                            ) : (
+                                <>
+                                    <div>
+                                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
+                                            <div>
+                                                <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Bệnh nhân mới theo tháng</h3>
+                                                <p className="text-sm text-slate-500 font-medium mt-1">Thống kê dữ liệu trong 6 tháng gần nhất</p>
+                                            </div>
+                                            <Dropdown
+                                                options={['Năm 2024', 'Năm 2023']}
+                                                value={dashboardTimeRange}
+                                                onChange={setDashboardTimeRange}
+                                                className="min-w-[140px]"
+                                            />
+                                        </div>
+                                        <div className="flex items-end justify-between h-64 gap-3 md:gap-6 px-4">
+                                            {mainStats.chartData.map((item: any, idx: number) => (
+                                                <div key={idx} className="flex flex-col items-center flex-1 gap-4">
+                                                    <div className="w-full bg-slate-50 dark:bg-slate-800 rounded-t-2xl relative overflow-hidden group h-48 border border-primary/5">
+                                                        <div
+                                                            style={{ height: item.height }}
+                                                            className={`absolute bottom-0 w-full transition-all duration-700 rounded-t-2xl ${item.active ? 'bg-[#38bdf8] shadow-[0_-10px_20px_rgba(56,189,248,0.2)]' : 'bg-[#93e2fb] group-hover:bg-[#38bdf8]/60'}`}
+                                                        >
+                                                            {item.active && <div className="absolute top-0 w-full h-2 bg-white/20"></div>}
+                                                        </div>
+                                                    </div>
+                                                    <span className={`text-[11px] font-black tracking-tighter ${item.active ? 'text-[#0ea5e9]' : 'text-slate-400'}`}>{item.month}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Key Stats Bar at Bottom to Balance Height */}
+                                    <div className="grid grid-cols-3 gap-4 pt-8 border-t border-slate-50 dark:border-slate-800/50 mt-6 pb-2">
+                                        <div className="flex flex-col items-center">
+                                            <p className="text-[14px] font-medium text-slate-500 mb-1">Tăng trưởng</p>
+                                            <div className="flex items-center gap-1">
+                                                <span className={`text-lg font-bold ${mainStats.patientGrowth.startsWith('+') ? 'text-emerald-500' : 'text-red-500'}`}>{mainStats.patientGrowth}</span>
+                                                <span className={`material-symbols-outlined text-sm ${mainStats.patientGrowth.startsWith('+') ? 'text-emerald-500' : 'text-red-500'}`}>{mainStats.patientGrowth.startsWith('+') ? 'trending_up' : 'trending_down'}</span>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col items-center border-x border-slate-100 dark:border-slate-800/50">
+                                            <p className="text-[14px] font-medium text-slate-500 mb-1">Trung bình</p>
+                                            <span className="text-lg font-bold text-slate-700 dark:text-slate-200">{Math.round(parseInt(String(mainStats.totalPatients).replace(/,/g, '')) / 6)} ca/tháng</span>
+                                        </div>
+                                        <div className="flex flex-col items-center">
+                                            <p className="text-[14px] font-medium text-slate-500 mb-1">Đỉnh điểm</p>
+                                            <span className="text-lg font-bold text-sky-500">T.3 (224 ca)</span>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
                         </div>
 
                         {/* Pathology Pie Chart */}
                         <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
-                            <div>
-                                <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Cơ cấu bệnh lý</h3>
-                                <p className="text-sm text-slate-500 font-medium">Phân tích theo danh mục</p>
-                            </div>
-                            <div className="relative w-48 h-48 mx-auto my-10">
-                                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                                    <circle className="stroke-slate-50 dark:stroke-slate-800" cx="18" cy="18" fill="none" r="16" strokeWidth="4"></circle>
-                                    <circle className="stroke-emerald-500" cx="18" cy="18" fill="none" r="16" strokeDasharray="40 100" strokeWidth="4"></circle>
-                                    <circle className="stroke-amber-400" cx="18" cy="18" fill="none" r="16" strokeDasharray="35 100" strokeDashoffset="-40" strokeWidth="4"></circle>
-                                    <circle className="stroke-sky-400" cx="18" cy="18" fill="none" r="16" strokeDasharray="25 100" strokeDashoffset="-75" strokeWidth="4"></circle>
-                                </svg>
-                                <div className="absolute inset-0 flex flex-col items-center justify-center font-display">
-                                    <span className="text-3xl font-bold text-slate-900 dark:text-white">75%</span>
-                                    <span className="text-[15px] font-medium text-slate-400 mt-1">Mãn tính</span>
-                                </div>
-                            </div>
-                            <div className="space-y-4">
-                                {mainStats.diseaseRatios.map((item: any, idx: number) => (
-                                    <div key={idx} className="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50">
-                                        <div className="flex items-center gap-3">
-                                            <div className={`w-3 h-3 rounded-full ${item.color}`}></div>
-                                            <span className="font-bold text-slate-600 dark:text-slate-300 text-sm">{item.label}</span>
-                                        </div>
-                                        <span className="font-black text-slate-900 dark:text-white text-sm">{item.value}</span>
+                            {isLoading ? (
+                                <div className="space-y-10 animate-pulse">
+                                    <div className="space-y-3">
+                                        <div className="h-6 bg-slate-200 dark:bg-slate-800 rounded w-40"></div>
+                                        <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-32"></div>
                                     </div>
-                                ))}
-                            </div>
+                                    <div className="relative w-48 h-48 mx-auto">
+                                        <div className="w-full h-full rounded-full border-[10px] border-slate-100 dark:border-slate-800 flex items-center justify-center">
+                                            <div className="w-16 h-6 bg-slate-200 dark:bg-slate-800 rounded"></div>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-4">
+                                        {[...Array(3)].map((_, i) => (
+                                            <div key={i} className="flex justify-between items-center p-3">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-3 h-3 rounded-full bg-slate-100 dark:bg-slate-800"></div>
+                                                    <div className="w-20 h-4 bg-slate-100 dark:bg-slate-800 rounded"></div>
+                                                </div>
+                                                <div className="w-8 h-4 bg-slate-200 dark:bg-slate-800 rounded"></div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ) : (
+                                <>
+                                    <div>
+                                        <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Cơ cấu bệnh lý</h3>
+                                        <p className="text-sm text-slate-500 font-medium">Phân tích theo danh mục</p>
+                                    </div>
+                                    <div className="relative w-48 h-48 mx-auto my-10">
+                                        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                                            <circle className="stroke-slate-50 dark:stroke-slate-800" cx="18" cy="18" fill="none" r="16" strokeWidth="4"></circle>
+                                            <circle className="stroke-emerald-500" cx="18" cy="18" fill="none" r="16" strokeDasharray="40 100" strokeWidth="4"></circle>
+                                            <circle className="stroke-amber-400" cx="18" cy="18" fill="none" r="16" strokeDasharray="35 100" strokeDashoffset="-40" strokeWidth="4"></circle>
+                                            <circle className="stroke-sky-400" cx="18" cy="18" fill="none" r="16" strokeDasharray="25 100" strokeDashoffset="-75" strokeWidth="4"></circle>
+                                        </svg>
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center font-display">
+                                            <span className="text-3xl font-bold text-slate-900 dark:text-white">75%</span>
+                                            <span className="text-[15px] font-medium text-slate-400 mt-1">Mãn tính</span>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-4">
+                                        {mainStats.diseaseRatios.map((item: any, idx: number) => (
+                                            <div key={idx} className="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50">
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`w-3 h-3 rounded-full ${item.color}`}></div>
+                                                    <span className="font-bold text-slate-600 dark:text-slate-300 text-sm">{item.label}</span>
+                                                </div>
+                                                <span className="font-black text-slate-900 dark:text-white text-sm">{item.value}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </section>
 
@@ -336,26 +399,78 @@ export default function ClinicDashboard() {
                     <section className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm overflow-hidden border border-slate-100 dark:border-slate-800">
                         <div className="px-8 py-6 border-b border-slate-50 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                             <div>
-                                <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Hiệu suất Bác sĩ</h3>
-                                <p className="text-sm text-slate-500 font-medium">Tổng hợp đánh giá và tải lượng bệnh nhân</p>
+                                {isLoading ? (
+                                    <>
+                                        <div className="h-7 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-48 mb-1.5"></div>
+                                        <div className="h-4 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-64"></div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Hiệu suất Bác sĩ</h3>
+                                        <p className="text-sm text-slate-500 font-medium">Tổng hợp đánh giá và tải lượng bệnh nhân</p>
+                                    </>
+                                )}
                             </div>
-                            <button className="text-emerald-600 dark:text-emerald-400 font-bold text-sm flex items-center gap-1 hover:underline active:scale-95 transition-all">
-                                Xem tất cả <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                            </button>
+                            {isLoading ? (
+                                <div className="h-5 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-28"></div>
+                            ) : (
+                                <button className="text-emerald-600 dark:text-emerald-400 font-bold text-sm flex items-center gap-1 hover:underline active:scale-95 transition-all">
+                                    Xem tất cả <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                                </button>
+                            )}
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead>
                                     <tr className="bg-slate-50 dark:bg-slate-800/50 font-display">
-                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500">Tên Bác sĩ</th>
-                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500">Chuyên khoa</th>
-                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500 text-center">Tải lượng</th>
-                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500">Đánh giá</th>
-                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-500">Trạng thái</th>
+                                        <th className="px-8 py-5">
+                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-24"></div> : <span className="text-[15px] font-medium text-slate-500">Tên Bác sĩ</span>}
+                                        </th>
+                                        <th className="px-8 py-5">
+                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-32"></div> : <span className="text-[15px] font-medium text-slate-500">Chuyên khoa</span>}
+                                        </th>
+                                        <th className="px-8 py-5">
+                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16 mx-auto"></div> : <span className="text-[15px] font-medium text-slate-500 text-center block">Tải lượng</span>}
+                                        </th>
+                                        <th className="px-8 py-5">
+                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-20"></div> : <span className="text-[15px] font-medium text-slate-500">Đánh giá</span>}
+                                        </th>
+                                        <th className="px-8 py-5">
+                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-24"></div> : <span className="text-[15px] font-medium text-slate-500">Trạng thái</span>}
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
-                                    {doctors.map((dr: any, idx: number) => (
+                                    {isLoading ? (
+                                        [...Array(4)].map((_, i) => (
+                                            <tr key={`dr-row-skeleton-${i}`} className="animate-pulse">
+                                                <td className="px-8 py-5">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="w-11 h-11 bg-slate-100/50 dark:bg-slate-800/50 rounded-full"></div>
+                                                        <div className="space-y-2">
+                                                            <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-24"></div>
+                                                            <div className="h-3 bg-slate-50 dark:bg-slate-800/50 rounded w-16"></div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-8 py-5">
+                                                    <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-28"></div>
+                                                </td>
+                                                <td className="px-8 py-5 text-center">
+                                                    <div className="space-y-2 max-w-[120px] mx-auto">
+                                                        <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-8 mx-auto"></div>
+                                                        <div className="w-full h-1.5 bg-slate-50 dark:bg-slate-800 rounded-full"></div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-8 py-5">
+                                                    <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-16"></div>
+                                                </td>
+                                                <td className="px-8 py-5">
+                                                    <div className="h-7 bg-slate-100 dark:bg-slate-800 rounded-full w-24"></div>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : doctors.map((dr: any, idx: number) => (
                                         <tr key={idx} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors group cursor-pointer">
                                             <td className="px-8 py-5">
                                                 <div className="flex items-center gap-4">

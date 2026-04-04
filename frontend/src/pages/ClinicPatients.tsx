@@ -53,8 +53,10 @@ export default function ClinicPatients() {
     ]);
 
     const [stats, setStats] = useState<any>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const fetchPatients = async (page = currentPage) => {
+    const fetchPatients = async (page = currentPage, isSilent = false) => {
+        if (!isSilent) setIsLoading(true);
         try {
             const response = await axios.get(`/v1/clinics/${currentClinicId}/patients`, {
                 params: {
@@ -75,6 +77,8 @@ export default function ClinicPatients() {
             }
         } catch (error) {
             console.error('Failed to fetch patients:', error);
+        } finally {
+            if (!isSilent) setIsLoading(false);
         }
     };
 
@@ -120,7 +124,7 @@ export default function ClinicPatients() {
     }, [currentClinicId]);
 
     useEffect(() => {
-        fetchPatients(0);
+        fetchPatients(0, false);
     }, [debouncedSearch, conditionFilter, riskFilter, statusFilter]);
 
     const handleSavePatient = async (patientData: any) => {
@@ -193,6 +197,7 @@ export default function ClinicPatients() {
                 userName="Admin Sarah"
                 userRole="Senior Manager"
                 userAvatar="https://lh3.googleusercontent.com/aida-public/AB6AXuDs9fuTZde7EUIINhAwZDAYbGdWhfZuvszHFDZODEHBxXo3hRWmKfCmGfg6Xgckf0DONyYs8LQEOXng1sISGQVj9ec2pSs--Gz-xPlj6elGIG3KtZTO9U-57mPPcUxuNMtJbLamHmXAsWrVwobD4Ai-pKgNGU0yfv596RmDCRUawQMx8gmW7E2J_we-R_YITLa95pCcbtDZf6tkb7C6bWKKzwepNG2pc4L5uji1KMHQetqk8390TVAlxrRao3qco3laKWLu0uA-BmQ"
+                isLoading={isLoading}
             />
 
             <main className="flex-1 lg:ml-72 min-h-screen flex flex-col transition-all duration-300">
@@ -211,94 +216,134 @@ export default function ClinicPatients() {
 
                 <div className="p-8 space-y-6">
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                        <div className="space-y-1">
-                            <h3 className="text-xl font-bold italic-none text-slate-900 dark:text-white tracking-tight">Hồ sơ bệnh nhân mãn tính</h3>
-                            <p className="text-slate-500 font-medium">Theo dõi và quản lý dữ liệu lâm sàng diện rộng</p>
-                        </div>
-                        <button
-                            onClick={() => setIsCreateModalOpen(true)}
-                            className="bg-primary text-white px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all font-display whitespace-nowrap active:scale-95 group shadow-sm"
-                        >
-                            <span className="material-symbols-outlined text-[20px]">add</span>
-                            Thêm bệnh nhân mới
-                        </button>
+                        {isLoading ? (
+                            <div className="space-y-2">
+                                <div className="h-8 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-64"></div>
+                                <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-80"></div>
+                            </div>
+                        ) : (
+                            <div className="space-y-1">
+                                <h3 className="text-xl font-bold italic-none text-slate-900 dark:text-white tracking-tight">Hồ sơ bệnh nhân mãn tính</h3>
+                                <p className="text-slate-500 font-medium">Theo dõi và quản lý dữ liệu lâm sàng diện rộng</p>
+                            </div>
+                        )}
+                        
+                        {isLoading ? (
+                            <div className="w-48 h-10 bg-primary/20 animate-pulse rounded-xl shadow-sm"></div>
+                        ) : (
+                            <button
+                                onClick={() => setIsCreateModalOpen(true)}
+                                className="bg-primary text-white px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all font-display whitespace-nowrap active:scale-95 group shadow-sm"
+                            >
+                                <span className="material-symbols-outlined text-[20px]">add</span>
+                                Thêm bệnh nhân mới
+                            </button>
+                        )}
                     </div>
 
                     {/* Stats Summary Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="bg-white dark:bg-slate-900 p-7 rounded-[2rem] border border-slate-200 dark:border-slate-700 shadow-sm space-y-5 group hover:shadow-md transition-all">
-                            <div className="flex items-center justify-between">
-                                <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-slate-500 group-hover:text-primary transition-colors">
-                                    <span className="material-symbols-outlined text-[24px]">analytics</span>
+                        {isLoading || !stats ? (
+                            [...Array(3)].map((_, i) => (
+                                <div key={i} className="bg-white dark:bg-slate-900 p-7 rounded-[2rem] border border-slate-200 dark:border-slate-700 shadow-sm space-y-5 animate-pulse">
+                                    <div className="flex items-center justify-between">
+                                        <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-2xl"></div>
+                                        <div className="w-40 h-6 bg-slate-50 dark:bg-slate-800 rounded-full"></div>
+                                    </div>
+                                    <div className="space-y-3">
+                                        <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-24"></div>
+                                        <div className="h-10 bg-slate-200 dark:bg-slate-800 rounded w-16"></div>
+                                    </div>
                                 </div>
-                                <span className={`px-4 py-1.5 bg-emerald-50 text-emerald-600 text-[11px] font-bold rounded-full uppercase tracking-wider border border-emerald-100/50`}>
-                                    {stats?.patientGrowth || '+0%'} so với tháng trước
-                                </span>
-                            </div>
-                            <div>
-                                <p className="text-[14px] font-medium text-slate-500 mb-1">Hiệu suất khám bệnh</p>
-                                <h4 className="text-3xl font-bold italic-none text-slate-900 dark:text-white">{stats?.totalPatients || '0'} ca</h4>
-                            </div>
-                        </div>
+                            ))
+                        ) : (
+                            <>
+                                <div className="bg-white dark:bg-slate-900 p-7 rounded-[2rem] border border-slate-200 dark:border-slate-700 shadow-sm space-y-5 group hover:shadow-md transition-all">
+                                    <div className="flex items-center justify-between">
+                                        <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-slate-500 group-hover:text-primary transition-colors">
+                                            <span className="material-symbols-outlined text-[24px]">analytics</span>
+                                        </div>
+                                        <span className={`px-4 py-1.5 bg-emerald-50 text-emerald-600 text-[11px] font-bold rounded-full uppercase tracking-wider border border-emerald-100/50`}>
+                                            {stats?.patientGrowth || '+0%'} so với tháng trước
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <p className="text-[14px] font-medium text-slate-500 mb-1">Hiệu suất khám bệnh</p>
+                                        <h4 className="text-3xl font-bold italic-none text-slate-900 dark:text-white">{stats?.totalPatients || '0'} ca</h4>
+                                    </div>
+                                </div>
 
-                        <div className="bg-white dark:bg-slate-900 p-7 rounded-[2rem] border border-slate-200 dark:border-slate-700 shadow-sm space-y-5 group hover:shadow-md transition-all">
-                            <div className="flex items-center justify-between">
-                                <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-slate-500 group-hover:text-primary transition-colors">
-                                    <span className="material-symbols-outlined text-[24px]">verified</span>
+                                <div className="bg-white dark:bg-slate-900 p-7 rounded-[2rem] border border-slate-200 dark:border-slate-700 shadow-sm space-y-5 group hover:shadow-md transition-all">
+                                    <div className="flex items-center justify-between">
+                                        <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-slate-500 group-hover:text-primary transition-colors">
+                                            <span className="material-symbols-outlined text-[24px]">verified</span>
+                                        </div>
+                                        <span className="px-4 py-1.5 bg-slate-50 text-slate-500 text-[11px] font-bold rounded-full uppercase tracking-wider border border-slate-200/50">Dữ liệu thực tế</span>
+                                    </div>
+                                    <div>
+                                        <p className="text-[14px] font-medium text-slate-500 mb-1">Ca nguy cơ cao</p>
+                                        <h4 className="text-3xl font-bold italic-none text-slate-900 dark:text-white text-red-500">{stats?.highRiskAlerts || '0'}</h4>
+                                    </div>
                                 </div>
-                                <span className="px-4 py-1.5 bg-slate-50 text-slate-500 text-[11px] font-bold rounded-full uppercase tracking-wider border border-slate-200/50">Dữ liệu thực tế</span>
-                            </div>
-                            <div>
-                                <p className="text-[14px] font-medium text-slate-500 mb-1">Ca nguy cơ cao</p>
-                                <h4 className="text-3xl font-bold italic-none text-slate-900 dark:text-white text-red-500">{stats?.highRiskAlerts || '0'}</h4>
-                            </div>
-                        </div>
 
-                        <div className="bg-white dark:bg-slate-900 p-7 rounded-[2rem] border border-slate-200 dark:border-slate-700 shadow-sm space-y-5 group hover:shadow-md transition-all">
-                            <div className="flex items-center justify-between">
-                                <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-slate-500 group-hover:text-primary transition-colors">
-                                    <span className="material-symbols-outlined text-[24px]">calendar_month</span>
+                                <div className="bg-white dark:bg-slate-900 p-7 rounded-[2rem] border border-slate-200 dark:border-slate-700 shadow-sm space-y-5 group hover:shadow-md transition-all">
+                                    <div className="flex items-center justify-between">
+                                        <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-slate-500 group-hover:text-primary transition-colors">
+                                            <span className="material-symbols-outlined text-[24px]">calendar_month</span>
+                                        </div>
+                                        <span className="px-4 py-1.5 bg-emerald-50 text-emerald-600 text-[11px] font-bold rounded-full uppercase tracking-wider border border-emerald-100/50">{stats?.highRiskGrowth || '+0 ca'}</span>
+                                    </div>
+                                    <div>
+                                        <p className="text-[14px] font-medium text-slate-500 mb-1">Chờ tái khám</p>
+                                        <h4 className="text-3xl font-bold italic-none text-slate-900 dark:text-white">{stats?.pendingFollowUps || '0'}</h4>
+                                    </div>
                                 </div>
-                                <span className="px-4 py-1.5 bg-emerald-50 text-emerald-600 text-[11px] font-bold rounded-full uppercase tracking-wider border border-emerald-100/50">{stats?.highRiskGrowth || '+0 ca'}</span>
-                            </div>
-                            <div>
-                                <p className="text-[14px] font-medium text-slate-500 mb-1">Chờ tái khám</p>
-                                <h4 className="text-3xl font-bold italic-none text-slate-900 dark:text-white">{stats?.pendingFollowUps || '0'}</h4>
-                            </div>
-                        </div>
+                            </>
+                        )}
                     </div>
 
                     {/* Filters Bar (Clean - No Background Container) */}
                     <div className="flex flex-wrap items-center gap-4">
-                        <div className="w-full md:w-[450px] relative group">
-                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors text-[20px]">search</span>
-                            <input
-                                className="w-full pl-12 pr-6 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full focus:ring-2 focus:ring-primary/20 text-sm font-medium transition-all outline-none italic-none shadow-sm"
-                                placeholder="Tìm kiếm theo tên bệnh nhân"
-                                type="text"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
-                        <div className="flex items-center gap-4 flex-wrap">
-                            <ClinicFilterDropdown
-                                value={conditionFilter}
-                                options={['Tất cả bệnh lý', 'Tiểu đường', 'Cao huyết áp', 'Hen suyễn']}
-                                onChange={setConditionFilter}
-                            />
+                        {isLoading ? (
+                            <>
+                                <div className="w-full md:w-[450px] h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full animate-pulse"></div>
+                                <div className="w-48 h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full animate-pulse"></div>
+                                <div className="w-48 h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full animate-pulse"></div>
+                                <div className="w-48 h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full animate-pulse"></div>
+                            </>
+                        ) : (
+                            <>
+                                <div className="w-full md:w-[450px] relative group">
+                                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors text-[20px]">search</span>
+                                    <input
+                                        className="w-full pl-12 pr-6 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full focus:ring-2 focus:ring-primary/20 text-sm font-medium transition-all outline-none italic-none shadow-sm"
+                                        placeholder="Tìm kiếm theo tên bệnh nhân"
+                                        type="text"
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
+                                <div className="flex items-center gap-4 flex-wrap">
+                                    <ClinicFilterDropdown
+                                        value={conditionFilter}
+                                        options={['Tất cả bệnh lý', 'Tiểu đường', 'Cao huyết áp', 'Hen suyễn']}
+                                        onChange={setConditionFilter}
+                                    />
 
-                            <ClinicFilterDropdown
-                                value={riskFilter}
-                                options={['Mức độ rủi ro', 'Bình thường', 'Theo dõi', 'Nguy cơ cao']}
-                                onChange={setRiskFilter}
-                            />
+                                    <ClinicFilterDropdown
+                                        value={riskFilter}
+                                        options={['Mức độ rủi ro', 'Bình thường', 'Theo dõi', 'Nguy cơ cao']}
+                                        onChange={setRiskFilter}
+                                    />
 
-                            <ClinicFilterDropdown
-                                value={statusFilter}
-                                options={['Tất cả trạng thái', 'Đang điều trị', 'Đang theo dõi', 'Ổn định']}
-                                onChange={setStatusFilter}
-                            />
-                        </div>
+                                    <ClinicFilterDropdown
+                                        value={statusFilter}
+                                        options={['Tất cả trạng thái', 'Đang điều trị', 'Đang theo dõi', 'Ổn định']}
+                                        onChange={setStatusFilter}
+                                    />
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden font-display">
@@ -306,17 +351,51 @@ export default function ClinicPatients() {
                             <table className="w-full text-left">
                                 <thead>
                                     <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
-                                        <th className="px-8 py-4 text-[15px] font-medium text-slate-700">Người bệnh</th>
-                                        <th className="px-6 py-4 text-[15px] font-medium text-slate-700">Liên hệ</th>
-                                        <th className="px-6 py-4 text-[15px] font-medium text-slate-700">Bệnh lý</th>
-                                        <th className="px-6 py-4 text-[15px] font-medium text-slate-700">Phụ trách</th>
-                                        <th className="px-6 py-4 text-[15px] font-medium text-slate-700">Rủi ro</th>
-                                        <th className="px-6 py-4 text-[15px] font-medium text-slate-700">Trạng thái</th>
-                                        <th className="px-8 py-4 text-[15px] font-medium text-slate-700 text-right">Thao tác</th>
+                                        <th className="px-8 py-4">
+                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-24"></div> : <span className="text-[15px] font-medium text-slate-700">Người bệnh</span>}
+                                        </th>
+                                        <th className="px-6 py-4">
+                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16"></div> : <span className="text-[15px] font-medium text-slate-700">Liên hệ</span>}
+                                        </th>
+                                        <th className="px-6 py-4">
+                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-20"></div> : <span className="text-[15px] font-medium text-slate-700">Bệnh lý</span>}
+                                        </th>
+                                        <th className="px-6 py-4">
+                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-24"></div> : <span className="text-[15px] font-medium text-slate-700">Phụ trách</span>}
+                                        </th>
+                                        <th className="px-6 py-4">
+                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16"></div> : <span className="text-[15px] font-medium text-slate-700">Rủi ro</span>}
+                                        </th>
+                                        <th className="px-6 py-4">
+                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-20"></div> : <span className="text-[15px] font-medium text-slate-700">Trạng thái</span>}
+                                        </th>
+                                        <th className="px-8 py-4 text-right">
+                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16 ml-auto"></div> : <span className="text-[15px] font-medium text-slate-700">Thao tác</span>}
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                                    {patients.length > 0 ? patients.map((p, idx) => (
+                                    {isLoading ? (
+                                        [...Array(pageSize)].map((_, i) => (
+                                            <tr key={`skeleton-${i}`} className="animate-pulse">
+                                                <td className="px-8 py-4">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-800"></div>
+                                                        <div className="space-y-2">
+                                                            <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-24"></div>
+                                                            <div className="h-3 bg-slate-50 dark:bg-slate-800 rounded w-16"></div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4"><div className="h-4 bg-slate-50 dark:bg-slate-800 rounded w-24"></div></td>
+                                                <td className="px-6 py-4"><div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-28"></div></td>
+                                                <td className="px-6 py-4"><div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-20"></div></td>
+                                                <td className="px-6 py-4"><div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-24"></div></td>
+                                                <td className="px-6 py-4"><div className="h-8 bg-slate-50 dark:bg-slate-800 rounded-full w-24"></div></td>
+                                                <td className="px-8 py-4"><div className="flex justify-end gap-2"><div className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800"></div><div className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800"></div></div></td>
+                                            </tr>
+                                        ))
+                                    ) : patients.length > 0 ? patients.map((p, idx) => (
                                         <tr key={idx} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors group cursor-pointer border-b border-slate-50 dark:border-slate-800 last:border-0">
                                             <td className="px-8 py-4">
                                                 <div className="flex items-center gap-4">
@@ -390,31 +469,44 @@ export default function ClinicPatients() {
                         </div>
 
                         <div className="px-8 py-6 bg-slate-50/30 dark:bg-slate-800/30 flex items-center justify-between border-t border-slate-200 dark:border-slate-700">
-                            <p className="text-[14px] font-medium text-slate-500">
-                                Hiển thị <span className="font-bold text-slate-900 dark:text-white">{patients.length}</span> trên <span className="font-bold text-slate-900 dark:text-white">{totalElements}</span> hồ sơ
-                            </p>
-                            <div className="flex items-center gap-3">
-                                <button
-                                    onClick={() => fetchPatients(currentPage - 1)}
-                                    disabled={currentPage === 0}
-                                    className="p-2 rounded-xl bg-white dark:bg-slate-100 border border-slate-200 text-slate-400 hover:text-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                                >
-                                    <span className="material-symbols-outlined text-[20px]">chevron_left</span>
-                                </button>
-                                <div className="flex items-center gap-1.5">
-                                    <button className="w-10 h-10 rounded-xl bg-primary text-white text-sm font-black shadow-lg shadow-primary/20 transition-all">
-                                        {currentPage + 1}
-                                    </button>
-                                    <span className="text-sm font-medium text-slate-400 mx-1">/ {totalPages || 1}</span>
-                                </div>
-                                <button
-                                    onClick={() => fetchPatients(currentPage + 1)}
-                                    disabled={currentPage >= totalPages - 1}
-                                    className="p-2 rounded-xl bg-white dark:bg-slate-100 border border-slate-200 text-slate-400 hover:text-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                                >
-                                    <span className="material-symbols-outlined text-[20px]">chevron_right</span>
-                                </button>
-                            </div>
+                            {isLoading ? (
+                                <>
+                                    <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-48"></div>
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 animate-pulse"></div>
+                                        <div className="w-16 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 animate-pulse"></div>
+                                        <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 animate-pulse"></div>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <p className="text-[14px] font-medium text-slate-500">
+                                        Hiển thị <span className="font-bold text-slate-900 dark:text-white">{patients.length}</span> trên <span className="font-bold text-slate-900 dark:text-white">{totalElements}</span> hồ sơ
+                                    </p>
+                                    <div className="flex items-center gap-3">
+                                        <button
+                                            onClick={() => fetchPatients(currentPage - 1)}
+                                            disabled={currentPage === 0}
+                                            className="p-2 rounded-xl bg-white dark:bg-slate-100 border border-slate-200 text-slate-400 hover:text-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                        >
+                                            <span className="material-symbols-outlined text-[20px]">chevron_left</span>
+                                        </button>
+                                        <div className="flex items-center gap-1.5">
+                                            <button className="w-10 h-10 rounded-xl bg-primary text-white text-sm font-black shadow-lg shadow-primary/20 transition-all">
+                                                {currentPage + 1}
+                                            </button>
+                                            <span className="text-sm font-medium text-slate-400 mx-1">/ {totalPages || 1}</span>
+                                        </div>
+                                        <button
+                                            onClick={() => fetchPatients(currentPage + 1)}
+                                            disabled={currentPage >= totalPages - 1}
+                                            className="p-2 rounded-xl bg-white dark:bg-slate-100 border border-slate-200 text-slate-400 hover:text-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                        >
+                                            <span className="material-symbols-outlined text-[20px]">chevron_right</span>
+                                        </button>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
 

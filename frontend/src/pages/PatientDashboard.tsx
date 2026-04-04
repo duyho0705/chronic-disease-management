@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { patientApi } from '../api/patient';
-import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, XAxis, Tooltip } from 'recharts';
+import { AreaChart, Area, BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 const PatientDashboard: React.FC = () => {
     const navigate = useNavigate();
@@ -23,10 +23,10 @@ const PatientDashboard: React.FC = () => {
                 patientApi.getMetricsSummary('WEEK'),
                 patientApi.getProfile().catch(() => ({ success: false })) // Profile might not be ready
             ]);
-            
+
             if (summaryRes.success) setSummary(summaryRes.data);
             if (profileRes.success) setProfile(profileRes.data);
-            
+
             // Artificial delay for smooth skeleton transition
             await new Promise(resolve => setTimeout(resolve, 1500));
         } catch (error) {
@@ -78,10 +78,10 @@ const PatientDashboard: React.FC = () => {
                 ) : (
                     <>
                         <div className="h-24 w-24 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border-4 border-primary/10 shrink-0">
-                            <img 
-                                alt="Patient Avatar" 
-                                className="h-full w-full object-cover" 
-                                src={profile?.avatarUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuDtszSUkFV8-ySPzx5ShEcygZMGlLkCDs4d0864MNknx5EExH89OU4c8yPh8OVN1hs4lphO6fiLk2zNxiEVtKYNCEmFI8wlHiQWp_eNhWhDrDTnx0CzMMhMxEazQTGHz9vkoPO8nr1skAG0vHgWNL9WYSMCVUQCb0F38yyb4j9YXgtT9zCiHC8m8luedS4ciJqp8z63x9_AVk2Iy6aAsM3rPa-p8uNkLf-Ai8Ztas1voDuD-ytltUPtIAtEVk2Zdfo5YiyAOwuAFVk"} 
+                            <img
+                                alt="Patient Avatar"
+                                className="h-full w-full object-cover"
+                                src={profile?.avatarUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuDtszSUkFV8-ySPzx5ShEcygZMGlLkCDs4d0864MNknx5EExH89OU4c8yPh8OVN1hs4lphO6fiLk2zNxiEVtKYNCEmFI8wlHiQWp_eNhWhDrDTnx0CzMMhMxEazQTGHz9vkoPO8nr1skAG0vHgWNL9WYSMCVUQCb0F38yyb4j9YXgtT9zCiHC8m8luedS4ciJqp8z63x9_AVk2Iy6aAsM3rPa-p8uNkLf-Ai8Ztas1voDuD-ytltUPtIAtEVk2Zdfo5YiyAOwuAFVk"}
                             />
                         </div>
                         <div className="flex-1 grid grid-cols-2 lg:grid-cols-4 gap-6 w-full">
@@ -102,8 +102,8 @@ const PatientDashboard: React.FC = () => {
                             <div>
                                 <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Tiền sử</p>
                                 <p className="text-base font-bold text-slate-900 dark:text-white truncate" title={profile?.chronicDiseases?.join(', ')}>
-                                    {profile?.chronicDiseases && profile.chronicDiseases.length > 0 
-                                        ? profile.chronicDiseases.join(', ') 
+                                    {profile?.chronicDiseases && profile.chronicDiseases.length > 0
+                                        ? profile.chronicDiseases.join(', ')
                                         : 'Không có'}
                                 </p>
                             </div>
@@ -138,30 +138,28 @@ const PatientDashboard: React.FC = () => {
                         <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
                             <div className="flex justify-between mb-4">
                                 <p className="text-sm font-medium text-slate-500">Đường huyết ({bloodSugar?.unit || 'mmol/L'})</p>
-                                <span className={`px-2 py-0.5 text-xs font-bold rounded ${
-                                    bloodSugar?.status === 'NORMAL' ? 'bg-green-100 text-green-700' : bloodSugar?.status === 'HIGH' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'
-                                }`}>
+                                <span className={`px-2 py-0.5 text-xs font-bold rounded ${bloodSugar?.status === 'NORMAL' ? 'bg-green-100 text-green-700' : bloodSugar?.status === 'HIGH' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'
+                                    }`}>
                                     {bloodSugar ? getStatusVn(bloodSugar.status) : 'Cận cao'}
                                 </span>
                             </div>
                             <div className="flex items-baseline gap-2 mb-6">
                                 <p className="text-3xl font-bold">{bloodSugar?.latestValue || '6.5'}</p>
-                                <p className={`text-sm font-bold flex items-center ${
-                                    bloodSugar?.trend === 'UP' ? 'text-red-500' : 'text-green-500'
-                                }`}>
+                                <p className={`text-sm font-bold flex items-center ${bloodSugar?.trend === 'UP' ? 'text-red-500' : 'text-green-500'
+                                    }`}>
                                     <span className="material-symbols-outlined text-sm">
                                         {bloodSugar?.trend === 'UP' ? 'trending_up' : 'trending_down'}
-                                    </span> 
+                                    </span>
                                     {bloodSugar?.changePercentage || '0.2%'}
                                 </p>
                             </div>
                             <div className="h-44 w-full mt-4">
                                 {bloodSugar?.chartData && bloodSugar.chartData.length > 0 ? (
                                     <ResponsiveContainer width="100%" height="100%">
-                                        <AreaChart 
-                                            data={bloodSugar.chartData.map((d: any) => ({ 
+                                        <AreaChart
+                                            data={bloodSugar.chartData.map((d: any) => ({
                                                 name: getDayVn(d.measuredAt),
-                                                value: Number(d.value) 
+                                                value: Number(d.value)
                                             }))}
                                             margin={{ top: 5, right: 10, left: 10, bottom: 0 }}
                                         >
@@ -171,15 +169,15 @@ const PatientDashboard: React.FC = () => {
                                                     <stop offset="100%" stopColor="#3bb9f3" stopOpacity={0} />
                                                 </linearGradient>
                                             </defs>
-                                            <XAxis 
-                                                dataKey="name" 
-                                                axisLine={false} 
-                                                tickLine={false} 
+                                            <XAxis
+                                                dataKey="name"
+                                                axisLine={false}
+                                                tickLine={false}
                                                 tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }}
                                                 interval={0}
                                                 height={30}
                                             />
-                                            <Tooltip 
+                                            <Tooltip
                                                 contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                                                 labelStyle={{ fontWeight: 'bold', color: '#3bb9f3' }}
                                             />
@@ -210,9 +208,8 @@ const PatientDashboard: React.FC = () => {
                         <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
                             <div className="flex justify-between mb-4">
                                 <p className="text-sm font-medium text-slate-500">Huyết áp ({bloodPressure?.unit || 'mmHg'})</p>
-                                <span className={`px-2 py-0.5 text-xs font-bold rounded ${
-                                    bloodPressure?.status === 'NORMAL' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
-                                }`}>
+                                <span className={`px-2 py-0.5 text-xs font-bold rounded ${bloodPressure?.status === 'NORMAL' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                                    }`}>
                                     {bloodPressure ? getStatusVn(bloodPressure.status) : 'Ổn định'}
                                 </span>
                             </div>
@@ -221,34 +218,33 @@ const PatientDashboard: React.FC = () => {
                                     {bloodPressure?.latestValue || '120'}
                                     {bloodPressure?.latestValueSecondary ? `/${bloodPressure.latestValueSecondary}` : '/80'}
                                 </p>
-                                <p className={`text-sm font-bold flex items-center ${
-                                    bloodPressure?.trend === 'UP' ? 'text-red-500' : 'text-green-500'
-                                }`}>
+                                <p className={`text-sm font-bold flex items-center ${bloodPressure?.trend === 'UP' ? 'text-red-500' : 'text-green-500'
+                                    }`}>
                                     <span className="material-symbols-outlined text-sm">
                                         {bloodPressure?.trend === 'UP' ? 'trending_up' : 'trending_down'}
-                                    </span> 
+                                    </span>
                                     {bloodPressure?.changePercentage || '1.0%'}
                                 </p>
                             </div>
                             <div className="h-44 w-full mt-4">
                                 {bloodPressure?.chartData && bloodPressure.chartData.length > 0 ? (
                                     <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart 
-                                            data={bloodPressure.chartData.map((d: any) => ({ 
+                                        <BarChart
+                                            data={bloodPressure.chartData.map((d: any) => ({
                                                 name: getDayVn(d.measuredAt),
-                                                value: Number(d.value) 
+                                                value: Number(d.value)
                                             }))}
                                             margin={{ top: 5, right: 10, left: 10, bottom: 0 }}
                                         >
-                                            <XAxis 
-                                                dataKey="name" 
-                                                axisLine={false} 
-                                                tickLine={false} 
+                                            <XAxis
+                                                dataKey="name"
+                                                axisLine={false}
+                                                tickLine={false}
                                                 tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }}
                                                 interval={0}
                                                 height={30}
                                             />
-                                            <Tooltip 
+                                            <Tooltip
                                                 cursor={{ fill: 'transparent' }}
                                                 contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                                                 labelStyle={{ fontWeight: 'bold', color: '#3bb9f3' }}
@@ -326,7 +322,7 @@ const PatientDashboard: React.FC = () => {
                             <div className="h-10 bg-red-100/50 dark:bg-red-900/40 animate-pulse rounded w-full"></div>
                         ) : (
                             <p className="text-sm text-red-700 dark:text-red-300">
-                                {summary.some(s => s.status === 'HIGH' || s.status === 'LOW') 
+                                {summary.some(s => s.status === 'HIGH' || s.status === 'LOW')
                                     ? "Có chỉ số sức khỏe của bạn đang vượt mức bình thường. Vui lòng kiểm tra lại chế độ ăn uống và thông báo cho bác sĩ."
                                     : "Chỉ số hiện tại ổn định. Vui lòng duy trì các thói quen vận động và ăn uống khoa học."}
                             </p>

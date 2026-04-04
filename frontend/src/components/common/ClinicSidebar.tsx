@@ -7,13 +7,15 @@ interface ClinicSidebarProps {
     userName?: string;
     userRole?: string;
     userAvatar?: string;
+    isLoading?: boolean;
 }
 
 const ClinicSidebar: React.FC<ClinicSidebarProps> = ({
     isSidebarOpen,
     userName = "Phùng Thanh Độ",
     userRole = "Bác Sĩ",
-    userAvatar = "https://lh3.googleusercontent.com/aida-public/AB6AXuDs9fuTZde7EUIINhAwZDAYbGdWhfZuvszHFDZODEHBxXo3hRWmKfCmGfg6Xgckf0DONyYs8LQEOXng1sISGQVj9ec2pSs--Gz-xPlj6elGIG3KtZTO9U-57mPPcUxuNMtJbLamHmXAsWrVwobD4Ai-pKgNGU0yfv596RmDCRUawQMx8gmW7E2J_we-R_YITLa95pCcbtDZf6tkb7C6bWKKzwepNG2pc4L5uji1KMHQetqk8390TVAlxrRao3qco3laKWLu0uA-BmQ"
+    userAvatar = "https://lh3.googleusercontent.com/aida-public/AB6AXuDs9fuTZde7EUIINhAwZDAYbGdWhfZuvszHFDZODEHBxXo3hRWmKfCmGfg6Xgckf0DONyYs8LQEOXng1sISGQVj9ec2pSs--Gz-xPlj6elGIG3KtZTO9U-57mPPcUxuNMtJbLamHmXAsWrVwobD4Ai-pKgNGU0yfv596RmDCRUawQMx8gmW7E2J_we-R_YITLa95pCcbtDZf6tkb7C6bWKKzwepNG2pc4L5uji1KMHQetqk8390TVAlxrRao3qco3laKWLu0uA-BmQ",
+    isLoading = false
 }) => {
     const navItems = [
         { path: ROUTES.CLINIC.DASHBOARD, label: 'Tổng quan', icon: 'dashboard' },
@@ -70,8 +72,17 @@ const ClinicSidebar: React.FC<ClinicSidebarProps> = ({
                         />
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="text-[15px] font-bold text-slate-900 dark:text-white truncate leading-tight tracking-tight ">{userName}</p>
-                        <p className="text-[12px] font-medium text-slate-600 dark:text-slate-500 mt-0.5 truncate">{userRole}</p>
+                        {isLoading ? (
+                            <div className="space-y-2 animate-pulse pr-2">
+                                <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-24"></div>
+                                <div className="h-3 bg-slate-100 dark:bg-slate-800 rounded w-16"></div>
+                            </div>
+                        ) : (
+                            <>
+                                <p className="text-[15px] font-bold text-slate-900 dark:text-white truncate leading-tight tracking-tight ">{userName}</p>
+                                <p className="text-[12px] font-medium text-slate-600 dark:text-slate-500 mt-0.5 truncate">{userRole}</p>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>

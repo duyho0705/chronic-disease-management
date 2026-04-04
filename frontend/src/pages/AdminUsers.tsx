@@ -347,7 +347,7 @@ export default function AdminUsers() {
                   <div className="relative">
                     <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
                     <input
-                      className="w-full bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/50 rounded-full pl-10 pr-4 py-2.5 text-[14px] font-bold focus:ring-2 focus:ring-primary/20 shadow-sm outline-none text-slate-900 dark:text-white transition-all"
+                      className="w-full bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/50 rounded-full pl-10 pr-4 py-2.5 text-[14px] font-medium focus:ring-2 focus:ring-primary/20 shadow-sm outline-none text-slate-900 dark:text-white transition-all"
                       placeholder="Tên hoặc Email..."
                       type="text"
                       value={searchTerm}

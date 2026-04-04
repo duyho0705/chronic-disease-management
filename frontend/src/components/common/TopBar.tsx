@@ -6,7 +6,6 @@ interface TopBarProps {
   notifications: any[];
   setNotifications: React.Dispatch<React.SetStateAction<any[]>>;
   actionButton?: React.ReactNode;
-  hideProfile?: boolean;
 }
 
 const TopBar: React.FC<TopBarProps> = ({
@@ -14,7 +13,6 @@ const TopBar: React.FC<TopBarProps> = ({
   notifications,
   setNotifications,
   actionButton,
-  hideProfile,
 }) => {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
