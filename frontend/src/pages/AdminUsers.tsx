@@ -20,6 +20,7 @@ export default function AdminUsers() {
   const [isSaving, setIsSaving] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastTitle, setToastTitle] = useState('');
+  const [toastType, setToastType] = useState<'success' | 'error' | 'warning'>('success');
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [clinics, setClinics] = useState<any[]>([]);
@@ -203,26 +204,28 @@ export default function AdminUsers() {
 
   const handleLockUser = async (user: any) => {
     const isCurrentlyActive = user.status === 'Hoạt động';
-    const newStatusLabel = isCurrentlyActive ? 'Ngưng hoạt động' : 'Hoạt động';
-
-    // 1. Optimistic UI update (Instant)
-    setUserList(prev => prev.map(u => u.id === user.id ? { ...u, status: newStatusLabel } : u));
+    const action = isCurrentlyActive ? 'ngưng hoạt động' : 'kích hoạt';
 
     try {
-      // 2. Secret background update
+      // 1. API Call first (Stable UI - No Jumping)
       await userApi.toggleStatus(user.id);
-      const action = isCurrentlyActive ? 'ngưng hoạt động' : 'kích hoạt';
+
+      // 2. Success logic
+      const newStatusLabel = isCurrentlyActive ? 'Ngưng hoạt động' : 'Hoạt động';
+      setUserList(prev => prev.map(u => u.id === user.id ? { ...u, status: newStatusLabel } : u));
+      
+      setToastType('success');
       setToastTitle(`Đã ${action} tài khoản ${user.name}`);
       setShowToast(true);
 
-      // 3. Silent sync (Update statistics quietly)
+      // 3. Silent stats refresh
       fetchStats();
     } catch (error: any) {
-      // Revert if error occurs
-      setUserList(prev => prev.map(u => u.id === user.id ? { ...u, status: user.status } : u));
       console.error('Failed to toggle status:', error);
-      const msg = error.response?.data?.message || 'Có lỗi xảy ra khi thay đổi trạng thái';
-      setToastTitle(msg);
+      
+      // 4. Specific Error Handling as requested: Red notification and no state jump
+      setToastType('error');
+      setToastTitle("Phòng khám đã ngưng hoạt động");
       setShowToast(true);
     }
   };
@@ -631,6 +634,7 @@ export default function AdminUsers() {
       <Toast
         show={showToast}
         title={toastTitle}
+        type={toastType}
         onClose={() => setShowToast(false)}
       />
     </>

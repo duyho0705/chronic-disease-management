@@ -17,6 +17,7 @@ export default function AdminClinics() {
   const [isSaving, setIsSaving] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastTitle, setToastTitle] = useState('');
+  const [toastType, setToastType] = useState<'success' | 'error' | 'warning'>('success');
   const [isLoading, setIsLoading] = useState(true);
 
   const [clinicList, setClinicList] = useState<any[]>([]);
@@ -182,13 +183,18 @@ export default function AdminClinics() {
     setShowToast(true);
 
     try {
-      // 2. Secret background update
+      // 2. Background update
       await clinicApi.toggleStatus(clinic.realId);
-    } catch (error) {
+      setToastType('success');
+      setToastTitle(`Đã ${action} cơ sở ${clinic.name}`);
+      setShowToast(true);
+    } catch (error: any) {
       // Revert if error occurs
       setClinicList(prev => prev.map(c => c.realId === clinic.realId ? { ...c, status: clinic.status } : c));
       console.error('Failed to toggle status:', error);
+      setToastType('error');
       setToastTitle(`Lỗi khi ${action} phòng khám`);
+      setShowToast(true);
     }
   };
 
@@ -597,6 +603,7 @@ export default function AdminClinics() {
       <Toast
         show={showToast}
         title={toastTitle}
+        type={toastType}
         onClose={() => setShowToast(false)}
       />
     </>
