@@ -16,19 +16,25 @@ public class UserMapper {
     public AdminUserResponse toAdminUserResponse(User user) {
         String clinicName = null;
         String clinicPhone = null;
+        boolean isClinicActive = true;
+
         if (user.getClinicId() != null) {
             long clinicId = (long) user.getClinicId();
             Clinic clinic = clinicRepository.findById(clinicId).orElse(null);
             if (clinic != null) {
                 clinicName = clinic.getName();
                 clinicPhone = clinic.getPhone();
+                isClinicActive = "ACTIVE".equalsIgnoreCase(clinic.getStatus());
             }
         }
 
         String status = user.getStatus();
         String displayStatus = "Hoạt động";
         if (status != null) {
-            displayStatus = status.equals("ACTIVE") ? "Hoạt động" : "Ngưng hoạt động";
+            // User is active only if both user status is ACTIVE and clinic is ACTIVE
+            displayStatus = (status.equals("ACTIVE") && isClinicActive) ? "Hoạt động" : "Ngưng hoạt động";
+        } else if (!isClinicActive) {
+            displayStatus = "Ngưng hoạt động";
         }
 
         return AdminUserResponse.builder()

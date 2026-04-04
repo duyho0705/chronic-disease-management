@@ -217,10 +217,13 @@ export default function AdminUsers() {
 
       // 3. Silent sync (Update statistics quietly)
       fetchStats();
-    } catch (error) {
+    } catch (error: any) {
       // Revert if error occurs
       setUserList(prev => prev.map(u => u.id === user.id ? { ...u, status: user.status } : u));
       console.error('Failed to toggle status:', error);
+      const msg = error.response?.data?.message || 'Có lỗi xảy ra khi thay đổi trạng thái';
+      setToastTitle(msg);
+      setShowToast(true);
     }
   };
 
@@ -255,19 +258,19 @@ export default function AdminUsers() {
         <section className="p-4 md:p-8 space-y-8 animate-in fade-in duration-700 font-display text-left">
           {/* Page Header */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div>
-            {isLoading ? (
-              <div className="space-y-3 mb-2">
-                <div className="h-8 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-72"></div>
-                <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-96"></div>
-              </div>
-            ) : (
-              <>
-                <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Quản lý người dùng</h2>
-                <p className="text-[16px] text-slate-500 mt-1 font-medium">Phân quyền và quản lý tài khoản toàn hệ thống.</p>
-              </>
-            )}
-          </div>
+            <div>
+              {isLoading ? (
+                <div className="space-y-3 mb-2">
+                  <div className="h-8 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-72"></div>
+                  <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-96"></div>
+                </div>
+              ) : (
+                <>
+                  <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Quản lý người dùng</h2>
+                  <p className="text-[16px] text-slate-500 mt-1 font-medium">Phân quyền và quản lý tài khoản toàn hệ thống.</p>
+                </>
+              )}
+            </div>
             <div className="flex gap-2">
               {isLoading ? (
                 <>
@@ -338,9 +341,9 @@ export default function AdminUsers() {
           <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="relative">
-            <label className="text-[14px] font-medium text-slate-500  mb-2 block px-1">
-              {isLoading ? <div className="h-3 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-16 mb-2"></div> : "Tìm kiếm"}
-            </label>
+                <label className="text-[14px] font-medium text-slate-500  mb-2 block px-1">
+                  {isLoading ? <div className="h-3 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-16 mb-2"></div> : "Tìm kiếm"}
+                </label>
                 {isLoading ? (
                   <div className="h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-full w-full"></div>
                 ) : (
@@ -560,9 +563,9 @@ export default function AdminUsers() {
                 {isLoading ? (
                   <>
                     <div className="flex gap-1 order-2">
-                       <div className="w-8 h-8 rounded-md bg-slate-200 animate-pulse"></div>
-                       <div className="w-8 h-8 rounded-md bg-slate-100 animate-pulse"></div>
-                       <div className="w-8 h-8 rounded-md bg-slate-200 animate-pulse"></div>
+                      <div className="w-8 h-8 rounded-md bg-slate-200 animate-pulse"></div>
+                      <div className="w-8 h-8 rounded-md bg-slate-100 animate-pulse"></div>
+                      <div className="w-8 h-8 rounded-md bg-slate-200 animate-pulse"></div>
                     </div>
                     <div className="h-4 bg-slate-200 animate-pulse rounded-md w-32 order-1"></div>
                   </>

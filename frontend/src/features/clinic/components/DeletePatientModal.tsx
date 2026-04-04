@@ -66,16 +66,12 @@ export default function DeletePatientModal({
               <p className="text-[17px] font-black text-slate-800 dark:text-white leading-tight">
                 Bạn có chắc chắn muốn xóa bệnh nhân này?
               </p>
-              
-              <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 text-left mx-auto max-w-sm">
-                  <p className="text-[14px] font-bold text-slate-700 dark:text-slate-300 mb-1">{patientData.name}</p>
-                  <p className="text-[13px] text-slate-500 font-medium">Mã hồ sơ: {patientData.id}</p>
-                  <p className="text-[13px] text-slate-500 font-medium">Căn bệnh: {patientData.condition}</p>
-              </div>
 
-              <p className="text-[14px] font-medium text-slate-500 leading-relaxed px-4">
-                Mọi thông tin bệnh lý, lịch sử khám và dữ liệu theo dõi sức khỏe của bệnh nhân này sẽ bị xóa vĩnh viễn khỏi hệ thống.
-              </p>
+              <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 text-left mx-auto max-w-sm">
+                <p className="text-[14px] font-bold text-slate-700 dark:text-slate-300 mb-1">{patientData.name}</p>
+                <p className="text-[13px] text-slate-500 font-medium">Mã hồ sơ: {patientData.id}</p>
+                <p className="text-[13px] text-slate-500 font-medium">Căn bệnh: {patientData.condition}</p>
+              </div>
             </div>
           </div>
 
@@ -102,17 +98,17 @@ export default function DeletePatientModal({
             type="button"
           >
             {isDeleting ? (
-                <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    Đang loại bỏ...
-                </>
+              <>
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                Đang loại bỏ...
+              </>
             ) : (
-                <>
-                    <span className="material-symbols-outlined font-bold text-[18px]">
-                    delete_forever
-                    </span>
-                    Xác nhận xóa ngay
-                </>
+              <>
+                <span className="material-symbols-outlined font-bold text-[18px]">
+                  delete_forever
+                </span>
+                Xác nhận xóa ngay
+              </>
             )}
           </button>
         </div>

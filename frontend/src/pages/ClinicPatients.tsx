@@ -227,7 +227,7 @@ export default function ClinicPatients() {
                                 <p className="text-slate-500 font-medium">Theo dõi và quản lý dữ liệu lâm sàng diện rộng</p>
                             </div>
                         )}
-                        
+
                         {isLoading ? (
                             <div className="w-48 h-10 bg-primary/20 animate-pulse rounded-xl shadow-sm"></div>
                         ) : (
@@ -241,104 +241,104 @@ export default function ClinicPatients() {
                         )}
                     </div>
 
-                    {/* Stats Summary Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Stats Summary - Separated Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 italic-none mb-6">
                         {isLoading || !stats ? (
                             [...Array(3)].map((_, i) => (
-                                <div key={i} className="bg-white dark:bg-slate-900 p-7 rounded-[2rem] border border-slate-200 dark:border-slate-700 shadow-sm space-y-5 animate-pulse">
+                                <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm space-y-4 animate-pulse">
                                     <div className="flex items-center justify-between">
-                                        <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-2xl"></div>
-                                        <div className="w-40 h-6 bg-slate-50 dark:bg-slate-800 rounded-full"></div>
+                                        <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl"></div>
+                                        <div className="w-24 h-6 bg-slate-50 dark:bg-slate-800 rounded-full"></div>
                                     </div>
-                                    <div className="space-y-3">
-                                        <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-24"></div>
-                                        <div className="h-10 bg-slate-200 dark:bg-slate-800 rounded w-16"></div>
+                                    <div className="space-y-2">
+                                        <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-20"></div>
+                                        <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded w-16"></div>
                                     </div>
                                 </div>
                             ))
                         ) : (
                             <>
-                                <div className="bg-white dark:bg-slate-900 p-7 rounded-[2rem] border border-slate-200 dark:border-slate-700 shadow-sm space-y-5 group hover:shadow-md transition-all">
-                                    <div className="flex items-center justify-between">
-                                        <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-slate-500 group-hover:text-primary transition-colors">
-                                            <span className="material-symbols-outlined text-[24px]">analytics</span>
+                                {/* Visit Performance */}
+                                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                                            <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>trending_up</span>
                                         </div>
-                                        <span className={`px-4 py-1.5 bg-emerald-50 text-emerald-600 text-[11px] font-bold rounded-full uppercase tracking-wider border border-emerald-100/50`}>
-                                            {stats?.patientGrowth || '+0%'} so với tháng trước
+                                        <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full uppercase tracking-wider border border-emerald-100/50">
+                                            {stats?.patientGrowth || '+0%'} Tăng trưởng
                                         </span>
                                     </div>
                                     <div>
-                                        <p className="text-[14px] font-medium text-slate-500 mb-1">Hiệu suất khám bệnh</p>
-                                        <h4 className="text-3xl font-bold italic-none text-slate-900 dark:text-white">{stats?.totalPatients || '0'} ca</h4>
+                                        <p className="text-[13px] font-medium text-slate-500 mb-0.5">Hiệu suất khám bệnh</p>
+                                        <h4 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">{stats?.totalPatients || '0'} <span className="text-sm font-medium text-slate-400">ca</span></h4>
                                     </div>
                                 </div>
 
-                                <div className="bg-white dark:bg-slate-900 p-7 rounded-[2rem] border border-slate-200 dark:border-slate-700 shadow-sm space-y-5 group hover:shadow-md transition-all">
-                                    <div className="flex items-center justify-between">
-                                        <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-slate-500 group-hover:text-primary transition-colors">
-                                            <span className="material-symbols-outlined text-[24px]">verified</span>
+                                {/* High Risk */}
+                                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="w-10 h-10 bg-rose-50 dark:bg-rose-900/10 rounded-xl flex items-center justify-center text-rose-600">
+                                            <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>warning</span>
                                         </div>
-                                        <span className="px-4 py-1.5 bg-slate-50 text-slate-500 text-[11px] font-bold rounded-full uppercase tracking-wider border border-slate-200/50">Dữ liệu thực tế</span>
+                                        <span className="px-3 py-1 bg-slate-50 text-slate-500 text-[10px] font-bold rounded-full uppercase tracking-wider border border-slate-200/50">Thời gian thực</span>
                                     </div>
                                     <div>
-                                        <p className="text-[14px] font-medium text-slate-500 mb-1">Ca nguy cơ cao</p>
-                                        <h4 className="text-3xl font-bold italic-none text-slate-900 dark:text-white text-red-500">{stats?.highRiskAlerts || '0'}</h4>
+                                        <p className="text-[13px] font-medium text-slate-500 mb-0.5">Ca nguy cơ cao</p>
+                                        <h4 className="text-2xl font-bold text-red-500 leading-tight">{stats?.highRiskAlerts || '0'} <span className="text-sm font-medium text-red-300">cảnh báo</span></h4>
                                     </div>
                                 </div>
 
-                                <div className="bg-white dark:bg-slate-900 p-7 rounded-[2rem] border border-slate-200 dark:border-slate-700 shadow-sm space-y-5 group hover:shadow-md transition-all">
-                                    <div className="flex items-center justify-between">
-                                        <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-slate-500 group-hover:text-primary transition-colors">
-                                            <span className="material-symbols-outlined text-[24px]">calendar_month</span>
+                                {/* Pending follow-up */}
+                                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="w-10 h-10 bg-indigo-50 dark:bg-indigo-900/10 rounded-xl flex items-center justify-center text-indigo-600">
+                                            <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>schedule</span>
                                         </div>
-                                        <span className="px-4 py-1.5 bg-emerald-50 text-emerald-600 text-[11px] font-bold rounded-full uppercase tracking-wider border border-emerald-100/50">{stats?.highRiskGrowth || '+0 ca'}</span>
+                                        <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full uppercase tracking-wider border border-emerald-100/50">{stats?.highRiskGrowth || '+0 ca'} mới</span>
                                     </div>
                                     <div>
-                                        <p className="text-[14px] font-medium text-slate-500 mb-1">Chờ tái khám</p>
-                                        <h4 className="text-3xl font-bold italic-none text-slate-900 dark:text-white">{stats?.pendingFollowUps || '0'}</h4>
+                                        <p className="text-[13px] font-medium text-slate-500 mb-0.5">Chờ tái khám</p>
+                                        <h4 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">{stats?.pendingFollowUps || '0'} <span className="text-sm font-medium text-slate-400">lịch hẹn</span></h4>
                                     </div>
                                 </div>
                             </>
                         )}
                     </div>
 
-                    {/* Filters Bar (Clean - No Background Container) */}
-                    <div className="flex flex-wrap items-center gap-4">
+                    {/* Combined Filters Container */}
+                    <div className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-wrap items-center gap-4">
                         {isLoading ? (
                             <>
-                                <div className="w-full md:w-[450px] h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full animate-pulse"></div>
-                                <div className="w-48 h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full animate-pulse"></div>
-                                <div className="w-48 h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full animate-pulse"></div>
-                                <div className="w-48 h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full animate-pulse"></div>
+                                <div className="w-full md:w-[450px] h-11 bg-white/50 dark:bg-slate-800/50 rounded-full animate-pulse"></div>
+                                <div className="w-48 h-11 bg-white/50 dark:bg-slate-800/50 rounded-full animate-pulse"></div>
+                                <div className="w-48 h-11 bg-white/50 dark:bg-slate-800/50 rounded-full animate-pulse"></div>
+                                <div className="w-48 h-11 bg-white/50 dark:bg-slate-800/50 rounded-full animate-pulse"></div>
                             </>
                         ) : (
                             <>
-                                <div className="w-full md:w-[450px] relative group">
-                                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors text-[20px]">search</span>
+                                <div className="w-full md:w-[450px] relative">
+                                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">search</span>
                                     <input
                                         className="w-full pl-12 pr-6 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full focus:ring-2 focus:ring-primary/20 text-sm font-medium transition-all outline-none italic-none shadow-sm"
                                         placeholder="Tìm kiếm theo tên bệnh nhân"
-                                        type="text"
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                     />
                                 </div>
-                                <div className="flex items-center gap-4 flex-wrap">
+                                <div className="flex flex-wrap items-center gap-3">
                                     <ClinicFilterDropdown
                                         value={conditionFilter}
-                                        options={['Tất cả bệnh lý', 'Tiểu đường', 'Cao huyết áp', 'Hen suyễn']}
+                                        options={['Tất cả bệnh lý', ...availableConditions]}
                                         onChange={setConditionFilter}
                                     />
-
                                     <ClinicFilterDropdown
                                         value={riskFilter}
-                                        options={['Mức độ rủi ro', 'Bình thường', 'Theo dõi', 'Nguy cơ cao']}
+                                        options={['Mức độ rủi ro', 'Cao', 'Trung bình', 'Thấp']}
                                         onChange={setRiskFilter}
                                     />
-
                                     <ClinicFilterDropdown
                                         value={statusFilter}
-                                        options={['Tất cả trạng thái', 'Đang điều trị', 'Đang theo dõi', 'Ổn định']}
+                                        options={['Tất cả trạng thái', 'Đang theo dõi', 'Ổn định', 'Cần can thiệp']}
                                         onChange={setStatusFilter}
                                     />
                                 </div>
@@ -481,7 +481,7 @@ export default function ClinicPatients() {
                             ) : (
                                 <>
                                     <p className="text-[14px] font-medium text-slate-500">
-                                        Hiển thị <span className="font-bold text-slate-900 dark:text-white">{patients.length}</span> trên <span className="font-bold text-slate-900 dark:text-white">{totalElements}</span> hồ sơ
+                                        Hiển thị <span className="font-medium text-slate-500 dark:text-white">{patients.length}</span> trên <span className="font-medium text-slate-500 dark:text-white">{totalElements}</span> hồ sơ
                                     </p>
                                     <div className="flex items-center gap-3">
                                         <button

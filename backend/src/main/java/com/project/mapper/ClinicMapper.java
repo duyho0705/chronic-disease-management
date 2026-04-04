@@ -28,7 +28,7 @@ public class ClinicMapper {
         if (clinic.getManagerId() != null) {
             long managerId = (long) clinic.getManagerId();
             User manager = userRepository.findById(managerId).orElse(null);
-            if (manager != null) {
+            if (manager != null && !manager.isDeleted()) {
                 managerName = manager.getFullName();
                 managerEmail = manager.getEmail();
             }

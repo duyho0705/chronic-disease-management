@@ -34,4 +34,6 @@ public interface ClinicRepository extends JpaRepository<Clinic, Long> {
 
     @Query("SELECT COALESCE(SUM(c.highRiskPatientCount), 0) FROM Clinic c WHERE c.isDeleted = false")
     long sumHighRiskPatientCount();
+
+    java.util.List<Clinic> findByManagerId(Long managerId);
 }

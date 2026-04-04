@@ -95,19 +95,19 @@ export default function AdminAuditLogs() {
         </div>
 
         {/* Filter Section */}
-        <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-primary/5 space-y-6 text-left">
+        <div className="space-y-6 text-left">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="relative text-left">
-              <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">
+              <label className="text-[14px] font-medium text-slate-700 mb-2 block px-1">
                 {isLoading ? <div className="h-3 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-32 mb-2"></div> : "Tìm kiếm sự kiện"}
               </label>
               {isLoading ? (
                 <div className="h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl w-full"></div>
               ) : (
                 <div className="relative">
-                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">search</span>
                   <input
-                    className="w-full bg-slate-100/80 dark:bg-slate-800 border-none rounded-xl pl-10 pr-4 py-2.5 text-[14px] font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none text-slate-900 dark:text-white"
+                    className="w-full h-[40px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 rounded-xl pl-10 pr-4 py-2 text-[14px] font-bold placeholder:font-medium focus:ring-2 focus:ring-primary shadow-sm outline-none text-slate-900 dark:text-white transition-all duration-300"
                     placeholder="Nội dung ví dụ: Khóa tài khoản..."
                     type="text"
                     value={searchTerm}
@@ -117,16 +117,16 @@ export default function AdminAuditLogs() {
               )}
             </div>
             <div className="text-left">
-              <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">
+              <label className="text-[14px] font-medium text-slate-700 mb-2 block px-1">
                 {isLoading ? <div className="h-3 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-32 mb-2"></div> : "Người thực hiện"}
               </label>
               {isLoading ? (
                 <div className="h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl w-full"></div>
               ) : (
                 <div className="relative">
-                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">person</span>
+                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">person</span>
                   <input
-                    className="w-full bg-slate-100/80 dark:bg-slate-800 border-none rounded-xl pl-10 pr-4 py-2.5 text-[14px] font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none text-slate-900 dark:text-white"
+                    className="w-full h-[40px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 rounded-xl pl-10 pr-4 py-2 text-[14px] font-bold placeholder:font-medium focus:ring-2 focus:ring-primary shadow-sm outline-none text-slate-900 dark:text-white transition-all duration-300"
                     placeholder="Tên người thực hiện..."
                     type="text"
                     value={selectedUser}
@@ -136,7 +136,7 @@ export default function AdminAuditLogs() {
               )}
             </div>
             <div className="text-left">
-              <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">
+              <label className="text-[14px] font-medium text-slate-700 mb-2 block px-1">
                 {isLoading ? <div className="h-3 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-16 mb-2"></div> : "Mô-đun"}
               </label>
               {isLoading ? (
