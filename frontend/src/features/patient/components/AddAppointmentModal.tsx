@@ -5,21 +5,21 @@ import Dropdown from '../../../components/ui/Dropdown';
 interface AddAppointmentModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave?: () => void;
+    onSave?: (data: any) => void;
     isSaving?: boolean;
+    doctors?: any[];
 }
 
-const AddAppointmentModal: React.FC<AddAppointmentModalProps> = ({ isOpen, onClose, onSave, isSaving }) => {
+const AddAppointmentModal: React.FC<AddAppointmentModalProps> = ({ isOpen, onClose, onSave, isSaving, doctors = [] }) => {
     const [appointmentType, setAppointmentType] = useState('direct');
-    const [selectedDate, setSelectedDate] = useState(25);
+    const [selectedDate, setSelectedDate] = useState(new Date().getDate() + 1); // tomorrow as default
     const [selectedTime, setSelectedTime] = useState('08:30');
     const [specialty, setSpecialty] = useState('');
+    const [reason, setReason] = useState('');
 
     const specialtyOptions = [
-        { label: 'Chọn bác sĩ (Nội tiết, Tim mạch...)', value: '' },
-        { label: 'BS. Nguyễn Văn Hùng - Tim mạch', value: 'dr-hung' },
-        { label: 'BS. Trần Thị Lan - Nội tiết', value: 'dr-lan' },
-        { label: 'BS. Lê Quang Minh - Thần kinh', value: 'dr-minh' },
+        { label: 'Chọn bác sĩ', value: '' },
+        ...doctors.map(d => ({ label: `${d.name} - ${d.specialty}`, value: d.id.toString() }))
     ];
 
     useEffect(() => {
@@ -133,17 +133,13 @@ const AddAppointmentModal: React.FC<AddAppointmentModalProps> = ({ isOpen, onClo
 
                         {/* Doctor Avatars List (Quick Select) */}
                         <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
-                            {[
-                                { id: 'hung', name: 'BS. Hùng', dept: 'Tim mạch', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCfKGVEdQrCnHzHpJyy5Pac3MHtFaiYEJY_cZRQdbwPHIYa7hFOTM28rBJwufdQmhcEnkExOaN0RcHNyG5WMl3nhhWo4gGNAHcRa9co6Yh2paj47PSRvIIcL8gHRyJJ_eCLFpdNKPeUs4_NTwzItZzNNVy0r6nDQGH7GFN3SWxbnFNffJBmZwgw9dTh_HPibRsKTggrtyCnO053FAJSY0dtWn1enBQm8rywNsxmCuMDMRrbVNB9AWKLjacWE7X9KD9DF5ZW-zbpcAA' },
-                                { id: 'lan', name: 'BS. Lan', dept: 'Nội tiết', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDaxhjz2ejCb2GLUrNwxvCoODCdj5Vc9QbnjAhJl3QuNCGqQbH7BKIu2Vm8mgN9VCrRoiBa8aSt6-n-4OpSZRwoEhCu3buzKqZ29hR4XY1i5jJvQfc9xRenRFMIeNZmMOnBslymoycT0H5CJRElTBA5jv2iC74DoNLEGSTNsecYbTBpziAi6qv9sZ_BrGmUy8-0C4KkdU48CiuqZ_VWmkmnYDWWK1Dwnw7LPZBjl1TSmxJiJ6sWf-ffxRtWmonpAs09L20q1XosSdw' },
-                                { id: 'minh', name: 'BS. Minh', dept: 'Thần kinh', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDdui4A5sTCx4SnKXhnBX8Qc6TUQM8HMh15S_pBVg5OaRGnkDryc6h08tJ50sju5wF9rjiprThsFiQByZ9EU7KT1QNlpFw6h7KZo-hVrqtWXIHBL_y0bynDaskeUaITGxsV3DzrCrtOqUj_qJt2cFsk7D6Do1yzpI_WM3ZdjeK2PnHOLIUdJ_livIH1XABN4krIewL_46m5y9D-ndusceY2yZCsTp4xUSMB_IH63ZEjkdJJ_rIHyzBGWFzWosrQT1QpO0Igs1zmhcs' }
-                            ].map(dr => (
-                                <div key={dr.id} className="flex-shrink-0 flex flex-col items-center gap-2 group cursor-pointer">
-                                    <div className={`size-14 rounded-full border-2 ${dr.id === 'hung' ? 'border-primary' : 'border-transparent group-hover:border-slate-200'} p-0.5 transition-all`}>
-                                        <img alt={dr.name} className="rounded-full bg-slate-100 size-full object-cover" src={dr.img} />
+                            {doctors.map(dr => (
+                                <div key={dr.id} onClick={() => setSpecialty(dr.id.toString())} className="flex-shrink-0 flex flex-col items-center gap-2 group cursor-pointer">
+                                    <div className={`size-14 rounded-full border-2 ${specialty === dr.id.toString() ? 'border-primary' : 'border-transparent group-hover:border-slate-200'} p-0.5 transition-all`}>
+                                        <img alt={dr.name} className="rounded-full bg-slate-100 size-full object-cover" src={dr.avatarUrl || "https://ui-avatars.com/api/?name=" + encodeURIComponent(dr.name)} />
                                     </div>
                                     <span className="text-[10px] font-bold text-center leading-tight dark:text-slate-300">
-                                        {dr.name}<br /><span className="text-slate-400 font-normal">{dr.dept}</span>
+                                        {dr.name}<br /><span className="text-slate-400 font-normal">{dr.specialty}</span>
                                     </span>
                                 </div>
                             ))}
@@ -211,6 +207,8 @@ const AddAppointmentModal: React.FC<AddAppointmentModalProps> = ({ isOpen, onClo
                     <div>
                         <h3 className="text-base font-bold text-slate-900 dark:text-white mb-4">Lý do khám / Triệu chứng</h3>
                         <textarea
+                            value={reason}
+                            onChange={(e) => setReason(e.target.value)}
                             className="w-full p-5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-primary/50 text-slate-900 dark:text-white font-bold text-sm min-h-[120px] resize-none outline-none shadow-sm transition-all"
                             placeholder="Mô tả tình trạng sức khỏe của bạn hoặc các triệu chứng đang gặp phải..."
                         ></textarea>
@@ -226,9 +224,15 @@ const AddAppointmentModal: React.FC<AddAppointmentModalProps> = ({ isOpen, onClo
                         Hủy bỏ
                     </button>
                     <button
-                        onClick={onSave}
-                        disabled={isSaving}
-                        className={`w-full sm:w-auto px-10 py-3 rounded-full text-[16px] font-bold bg-primary text-white shadow-lg shadow-primary/20 hover:brightness-105 active:scale-95 transition-all flex items-center justify-center gap-2 ${isSaving ? 'opacity-70 cursor-not-allowed' : ''}`}
+                        onClick={() => onSave?.({ 
+                            appointmentType: appointmentType === 'direct' ? 'IN_PERSON' : 'ONLINE', 
+                            doctorId: specialty, 
+                            selectedDate, 
+                            selectedTime, 
+                            reason 
+                        })}
+                        disabled={isSaving || !specialty}
+                        className={`w-full sm:w-auto px-10 py-3 rounded-full text-[16px] font-bold bg-primary text-white shadow-lg shadow-primary/20 hover:brightness-105 active:scale-95 transition-all flex items-center justify-center gap-2 ${isSaving || !specialty ? 'opacity-70 cursor-not-allowed' : ''}`}
                     >
                         {isSaving ? (
                             <div className="flex items-center gap-2">

@@ -23,6 +23,10 @@ public class PatientProfileResponse {
     private String bloodType;
     private BigDecimal heightCm;
     private BigDecimal weightKg;
+    private String identityCard;
+    private String occupation;
+    private String ethnicity;
+    private String healthInsuranceNumber;
     private String avatarUrl;
     private LocalDate joinedDate;
     private String chronicCondition;

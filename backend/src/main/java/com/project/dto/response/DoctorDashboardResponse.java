@@ -9,4 +9,6 @@ import java.util.List;
 public class DoctorDashboardResponse {
     private DashboardStatsDto stats;
     private List<AppointmentSnippetDto> upcomingAppointments;
+    private List<DoctorPatientResponse> recentPatients;
+    private List<DoctorPatientResponse> highRiskPatients;
 }

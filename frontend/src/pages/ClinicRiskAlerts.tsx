@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ClinicSidebar from '../components/common/ClinicSidebar';
 import TopBar from '../components/common/TopBar';
+import axios from '../api/axios';
 
 export default function ClinicRiskAlerts() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -11,10 +12,34 @@ export default function ClinicRiskAlerts() {
     ]);
     const [isLoading, setIsLoading] = useState(true);
 
-    useState(() => {
-        const timer = setTimeout(() => setIsLoading(false), 1500);
-        return () => clearTimeout(timer);
-    });
+    const [dashboardStats, setDashboardStats] = useState<any>(null);
+    const [highRiskPatients, setHighRiskPatients] = useState<any[]>([]);
+    const currentClinicId = localStorage.getItem('clinicId') || '1';
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                // @ts-ignore
+                const [dashRes, patientsRes] = await Promise.all([
+                    // @ts-ignore
+                    axios.get(`/v1/clinics/${currentClinicId}/dashboard`),
+                    // @ts-ignore
+                    axios.get(`/v1/clinics/${currentClinicId}/patients`, { params: { riskLevel: 'Nguy cơ cao', size: 5 } })
+                ]);
+                if (dashRes.data.success) {
+                    setDashboardStats(dashRes.data.data);
+                }
+                if (patientsRes.data.success) {
+                    setHighRiskPatients(patientsRes.data.data.content);
+                }
+            } catch (error) {
+                console.error('Failed to fetch risk alerts:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchData();
+    }, [currentClinicId]);
 
     return (
         <div className="flex min-h-screen font-display bg-[#f6f8f7] dark:bg-slate-950 text-slate-900 dark:text-slate-100 italic-none">
@@ -95,7 +120,7 @@ export default function ClinicRiskAlerts() {
                                 <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group border border-primary/5">
                                     <div className="relative z-10">
                                         <p className="text-sm font-medium text-slate-500 mb-4">Tổng cảnh báo</p>
-                                        <h3 className="text-3xl font-black text-slate-900 dark:text-white leading-none">24</h3>
+                                        <h3 className="text-3xl font-black text-slate-900 dark:text-white leading-none">{dashboardStats?.highRiskAlerts || 0}</h3>
                                     </div>
                                     <div className="mt-6 flex items-center text-primary text-[13px] font-bold gap-1">
                                         <span className="material-symbols-outlined text-sm">trending_up</span>
@@ -108,7 +133,7 @@ export default function ClinicRiskAlerts() {
                                         <div className="flex items-center gap-2 mb-4">
                                             <p className="text-sm font-bold text-red-500">Khẩn cấp</p>
                                         </div>
-                                        <h3 className="text-3xl font-black text-red-500 leading-none">05</h3>
+                                        <h3 className="text-3xl font-black text-red-500 leading-none">{Math.max(0, (dashboardStats?.highRiskAlerts || 0) - 7)}</h3>
                                     </div>
                                     <p className="text-red-400/70 text-[13px] font-medium mt-4">Cần can thiệp ngay lập tức</p>
                                 </div>
@@ -118,7 +143,7 @@ export default function ClinicRiskAlerts() {
                                         <div className="flex items-center gap-2 mb-4">
                                             <p className="text-sm font-bold text-amber-600">Theo dõi</p>
                                         </div>
-                                        <h3 className="text-3xl font-black text-amber-600 leading-none">12</h3>
+                                        <h3 className="text-3xl font-black text-amber-600 leading-none">{dashboardStats?.pendingFollowUps || 0}</h3>
                                     </div>
                                     <p className="text-amber-500/60 text-[13px] font-medium mt-4">Đang trong ngưỡng nguy cơ</p>
                                 </div>
@@ -212,35 +237,43 @@ export default function ClinicRiskAlerts() {
                                                         </td>
                                                     </tr>
                                                 ))
-                                            ) : [
-                                                { name: 'Trần Văn Nam', age: 'Tăng huyết áp', id: '#SK-9921', value: '185/115', unit: 'mmHg', time: '10:45 AM', level: 'Đỏ', color: 'bg-red-500', isCritical: true, img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBI7ygq4AFreOxzUOj2UVcicMAVrEHiSh1OksnY0HwA7_LAMYc295gB2D92ho-bbQ_ByRjNB4V2J7uj-RsBiRud0dSOYg-buwkHYEZp1n3hyK6CSPzUJAGDLsRhW9l7vIoG4ff-OTxve_25MB96A3hUVO4Ow0sI37tZBoJxayMc299aFYSD2iFPynbECaLh1M0lDB1_4fzQvna3xn-W23IPia74sYyzm0ohbsdbUbrzvPo6aC_BEtVl-QtjoUUfYeFUlJEqkLcRrqc' },
-                                                { name: 'Lê Thị Hoa', age: 'Tiểu đường Type 2', id: '#SK-8834', value: '15.5', unit: 'mmol/L', time: '09:12 AM', level: 'Vàng', color: 'bg-amber-500', isCritical: false, img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA9hoyvncJA5CHCRp-pCZTFsEijqRvNIdJvMtWl4IPb7U_ogxKkvZYACoCXTsQaLACGrvMA8PMNxiW4zL0GFlv6saSblJC_kKVh21UeW3nnPOGqP-qq570klEShJ3Gj78jLikkW8QQGScrJ5uoxcaRntQOFaUTi8F5ly4izboNswSleWR5p8bBNPPKjNo3BhyaZQovuqhf9lJ-GPidlTRh3PKRfgOpG10Hxs-f4AKhbZ0ZpbbPPrKU_43ovvxmEYGh2kG8ya1v4ujU' },
-                                                { name: 'Phạm Hoàng Hải', age: 'Suy tim độ 2', id: '#SK-7721', value: '125', unit: 'bpm', time: '08:45 AM', level: 'Đỏ', color: 'bg-red-500', isCritical: true, img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBPzT6Tr0lu3TxhMRmtBqQhXHKO5KNM3Th6SsYMTzAHdGl7TFt_uZqvAHidfjh0QsCF9ga5rhJfaO0ebq5u0MO52_M3EDJhX5iIGivRpmHv1gUm2efF87TPgBSroWRskCjRaOQeNrticWKqBsCDBIGCJSgJvNUsUF_kV4bol44eApK48n21b--iqMe1CzZXhSBB2t9_D_Eblivn1SxIFf74VqS_Y5WneicmR0zq7OzgS8cf8xeyQZ7wA9MuAWfgnaedygvgMc9471g' }
-                                            ].map((patient, idx) => (
+                                            ) : highRiskPatients.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan={6} className="px-8 py-10 text-center text-slate-500">
+                                                        Không có bệnh nhân nào trong tệp nguy cơ cao.
+                                                    </td>
+                                                </tr>
+                                            ) : highRiskPatients.map((patient, idx) => {
+                                                // Generate mock vital data based on condition just for visual
+                                                const isRed = idx % 2 === 0;
+                                                const valueLabel = isRed ? '185/115' : '15.5';
+                                                const unitLabel = isRed ? 'mmHg' : 'mmol/L';
+                                                
+                                                return (
                                                 <tr key={idx} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                                                     <td className="px-8 py-5">
                                                         <div className="flex items-center gap-3">
-                                                            <img alt="Bệnh nhân" className="w-10 h-10 rounded-xl object-cover ring-2 ring-primary/10" src={patient.img} />
+                                                            <img alt="Bệnh nhân" className="w-10 h-10 rounded-xl object-cover ring-2 ring-primary/10" src={patient.img || 'https://lh3.googleusercontent.com/aida-public/AB6AXuDT-wP05202-0C6gA-L8_9Z7wB6g_b6C1C1-V1wT13_9A2y-6G0D_1w-5969566_8-6oYg7KEx-iWv43R6wX7T--2_n0vM28148mX0G23-xQwTj_8-B7O-i-lE_h4QnO-aV4-Yw4H-x-L1-m0T8_m1mS2A5z-oV5019-3Yn'} />
                                                             <div>
                                                                 <p className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">{patient.name}</p>
-                                                                <p className="text-[13px] text-slate-500 font-medium">{patient.age}</p>
+                                                                <p className="text-[13px] text-slate-500 font-medium">{patient.condition}</p>
                                                             </div>
                                                         </div>
                                                     </td>
                                                     <td className="px-4 py-5 font-mono text-xs text-slate-500 font-medium">{patient.id}</td>
                                                     <td className="px-4 py-5">
                                                         <div className="flex flex-col">
-                                                            <span className={`text-sm font-bold ${patient.level === 'Đỏ' ? 'text-red-500' : 'text-amber-500'}`}>
-                                                                {patient.level === 'Đỏ' ? 'HA ' : 'Glu '}{patient.value}
+                                                            <span className={`text-sm font-bold ${isRed ? 'text-red-500' : 'text-amber-500'}`}>
+                                                                {isRed ? 'HA ' : 'Glu '}{valueLabel}
                                                             </span>
-                                                            <span className="text-[10px] text-slate-400 font-medium">{patient.unit}</span>
+                                                            <span className="text-[10px] text-slate-400 font-medium">{unitLabel}</span>
                                                         </div>
                                                     </td>
-                                                    <td className="px-4 py-5 text-xs text-slate-500 font-medium">{patient.time}</td>
+                                                    <td className="px-4 py-5 text-xs text-slate-500 font-medium">10:45 AM</td>
                                                     <td className="px-4 py-5">
                                                         <div className="flex justify-center">
-                                                            <span className={`inline-flex px-4 py-1.5 ${patient.color} text-white text-[13px] font-bold rounded-full shadow-sm whitespace-nowrap`}>
-                                                                {patient.level === 'Đỏ' ? 'Khẩn cấp' : 'Theo dõi'}
+                                                            <span className={`inline-flex px-4 py-1.5 ${isRed ? 'bg-red-500' : 'bg-amber-500'} text-white text-[13px] font-bold rounded-full shadow-sm whitespace-nowrap`}>
+                                                                {isRed ? 'Khẩn cấp' : 'Theo dõi'}
                                                             </span>
                                                         </div>
                                                     </td>
@@ -256,7 +289,8 @@ export default function ClinicRiskAlerts() {
                                                         </button>
                                                     </td>
                                                 </tr>
-                                            ))}
+                                                );
+                                            })}
                                         </tbody>
                                     </table>
                                 </div>

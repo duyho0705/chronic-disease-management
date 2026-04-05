@@ -32,13 +32,14 @@ public class PatientMessageServiceImpl implements PatientMessageService {
     private final ConversationRepository conversationRepository;
     private final MessageRepository messageRepository;
     private final PatientRepository patientRepository;
+    private final com.project.repository.UserRepository userRepository;
 
     @Override
     public List<ConversationResponse> getConversations() {
         Patient patient = getCurrentPatient();
         Long userId = SecurityUtils.getCurrentUserId().orElseThrow();
 
-        return conversationRepository
+        List<ConversationResponse> conversations = conversationRepository
                 .findByPatientIdAndIsActiveTrueOrderByLastMessageAtDesc(patient.getId())
                 .stream()
                 .map(conv -> {
@@ -51,15 +52,49 @@ public class PatientMessageServiceImpl implements PatientMessageService {
                     long unreadCount = messageRepository
                             .countByConversationIdAndIsReadFalseAndSenderIdNot(conv.getId(), userId);
 
+                    // Fetch Doctor Details
+                    com.project.entity.User doctor = userRepository.findById(conv.getDoctorId()).orElse(null);
+
                     return ConversationResponse.builder()
                             .id(conv.getId())
                             .doctorId(conv.getDoctorId())
+                            .doctorName(doctor != null ? doctor.getFullName() : "Bác sĩ")
+                            .doctorSpecialty(doctor != null && doctor.getSpecialization() != null ? doctor.getSpecialization() : "Bác sĩ đa khoa")
+                            .doctorAvatarUrl(doctor != null ? doctor.getAvatarUrl() : null)
+                            .isOnline(true) // Default to online for now
                             .lastMessage(lastMsg)
                             .lastMessageAt(conv.getLastMessageAt())
                             .unreadCount(unreadCount)
                             .build();
                 })
                 .collect(Collectors.toList());
+                
+        // Auto-create a conversation if none exist and the patient has an assigned doctor
+        if (conversations.isEmpty() && patient.getDoctorId() != null) {
+            Conversation newConv = Conversation.builder()
+                    .patient(patient)
+                    .doctorId(patient.getDoctorId())
+                    .lastMessageAt(LocalDateTime.now())
+                    .isActive(true)
+                    .build();
+            Conversation savedConv = conversationRepository.save(newConv);
+            
+            com.project.entity.User doctor = userRepository.findById(patient.getDoctorId()).orElse(null);
+            
+            conversations.add(ConversationResponse.builder()
+                    .id(savedConv.getId())
+                    .doctorId(savedConv.getDoctorId())
+                    .doctorName(doctor != null ? doctor.getFullName() : "Bác sĩ")
+                    .doctorSpecialty(doctor != null && doctor.getSpecialization() != null ? doctor.getSpecialization() : "Bác sĩ đa khoa")
+                    .doctorAvatarUrl(doctor != null ? doctor.getAvatarUrl() : null)
+                    .isOnline(true)
+                    .lastMessage("")
+                    .lastMessageAt(savedConv.getLastMessageAt())
+                    .unreadCount(0)
+                    .build());
+        }
+
+        return conversations;
     }
 
     @Override

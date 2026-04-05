@@ -20,6 +20,9 @@ public class CreatePatientRequest {
     @Pattern(regexp = "^(0|\\+84)(\\d{9,10})$", message = "Invalid phone number format")
     private String phone;
 
+    @Email(message = "Invalid email format")
+    private String email;
+
     private String address;
 
     @NotBlank(message = "Chronic condition is required")
@@ -35,4 +38,10 @@ public class CreatePatientRequest {
     @NotBlank(message = "Password is required")
     @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
+
+    private String identityCard;
+    private String occupation;
+    private String ethnicity;
+    private String healthInsuranceNumber;
+    private java.time.LocalDate dateOfBirth;
 }

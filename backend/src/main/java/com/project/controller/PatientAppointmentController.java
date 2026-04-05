@@ -54,4 +54,10 @@ public class PatientAppointmentController {
         service.cancel(id);
         return ResponseEntity.ok(ApiResponse.success("Appointment cancelled successfully", null));
     }
+    
+    @GetMapping("/doctors")
+    @Operation(summary = "Get available doctors")
+    public ResponseEntity<ApiResponse<List<com.project.dto.response.DoctorSimpleResponse>>> getDoctors() {
+        return ResponseEntity.ok(ApiResponse.success("Doctors retrieved", service.getAvailableDoctors()));
+    }
 }

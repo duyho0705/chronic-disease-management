@@ -1,23 +1,96 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AddAppointmentModal from '../features/patient/components/AddAppointmentModal';
 import Toast from '../components/ui/Toast';
+import { patientApi } from '../api/patient';
 
 const PatientAppointments: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [toast, setToast] = useState({ show: false, title: '', type: 'success' as 'success' | 'warning' | 'error' });
+    const [doctors, setDoctors] = useState<any[]>([]);
+    const [upcoming, setUpcoming] = useState<any[]>([]);
+    const [history, setHistory] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const handleSaveAppointment = async () => {
+    useEffect(() => {
+        loadData();
+    }, []);
+
+    const loadData = async () => {
+        setLoading(true);
+        try {
+            const [docsRes, upcomingRes, historyRes] = await Promise.all([
+                patientApi.getAvailableDoctors(),
+                patientApi.getUpcoming(),
+                patientApi.getAppointmentHistory(0, 100)
+            ]);
+            setDoctors(docsRes.data || []);
+            setUpcoming(upcomingRes.data || []);
+            setHistory(historyRes.data?.content || []);
+        } catch (error) {
+            console.error(error);
+            setToast({ show: true, title: 'Lỗi tải dữ liệu', type: 'error' });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleSaveAppointment = async (data: any) => {
         setIsSaving(true);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        setIsSaving(false);
-        setIsModalOpen(false);
-        setToast({
-            show: true,
-            title: 'Đặt lịch khám thành công! Vui lòng chờ bác sĩ xác nhận.',
-            type: 'success'
-        });
+        try {
+            // Build LocalDateTime from selectedDate and selectedTime
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(data.selectedDate).padStart(2, '0');
+            // Assuming time is HH:mm
+            const timeStr = data.selectedTime + ':00';
+            const appointmentTime = `${year}-${month}-${day}T${timeStr}`;
+
+            await patientApi.createAppointment({
+                doctorId: parseInt(data.doctorId),
+                appointmentTime,
+                appointmentType: data.appointmentType,
+                reason: data.reason
+            });
+            
+            setIsModalOpen(false);
+            setToast({
+                show: true,
+                title: 'Đặt lịch khám thành công! Vui lòng chờ bác sĩ xác nhận.',
+                type: 'success'
+            });
+            loadData();
+        } catch (error) {
+            console.error(error);
+            setToast({ show: true, title: 'Lỗi khi đặt lịch hẹn', type: 'error' });
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleCancel = async (id: number) => {
+        if (!window.confirm("Bạn có chắc chắn muốn hủy lịch hẹn này?")) return;
+        try {
+            await patientApi.cancelAppointment(id);
+            setToast({ show: true, title: 'Hủy lịch hẹn thành công', type: 'success' });
+            loadData();
+        } catch (error) {
+            console.error(error);
+            setToast({ show: true, title: 'Lỗi khi hủy lịch hẹn', type: 'error' });
+        }
+    };
+
+    const formatDate = (dateStr: string) => {
+        if (!dateStr) return '';
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+    };
+
+    const formatTime = (dateStr: string) => {
+        if (!dateStr) return '';
+        const d = new Date(dateStr);
+        return d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
     };
 
     return (
@@ -43,77 +116,65 @@ const PatientAppointments: React.FC = () => {
                 <section>
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-xl font-bold text-slate-900 dark:text-white">Lịch khám sắp tới</h3>
-                        <span className="text-sm text-primary font-medium cursor-pointer hover:underline">Xem tất cả</span>
+                        {upcoming.length > 0 && <span className="text-sm text-primary font-medium cursor-pointer hover:underline">Xem tất cả</span>}
                     </div>
+                    {loading ? (
+                        <div className="text-slate-500">Đang tải...</div>
+                    ) : upcoming.length === 0 ? (
+                        <div className="p-8 text-center bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 text-slate-500">Bạn không có lịch hẹn nào sắp tới</div>
+                    ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Appointment Card 1 */}
-                        <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-all group">
+                        {upcoming.map((appt) => (
+                        <div key={appt.id} className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-all group">
                             <div className="flex items-start justify-between mb-4">
                                 <div className="flex gap-4">
-                                    <div className="size-16 rounded-xl overflow-hidden shadow-inner ring-1 ring-primary/10">
-                                        <img className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7vXnp6aQPjZ60X4dViKy4wc9f4af2BaYYdWjq6ffrcLIsH6-nIjntF36ybndgEL8mwebC6vRSsI8QRjBXPV3P0IrWdH-E07u6jxXhVxOn1-NI6lORB2T18_nDSbYHuKxpSZnv6itE2edZIDKHLDxUfmox_g5NChHrkMqYINEZbd22S-Z54JU8oI_MSG0rH7iUZ3VueAzO6AwkFqlQ2mgjCn6QD6Zi66JkjKvOdH2kEC8F3DSs2wvfZA2n1GLEXkG-44UoVTQ1yK8" alt="Bác sĩ" />
+                                    <div className={`size-16 rounded-xl overflow-hidden shadow-inner ring-1 ${appt.appointmentType === 'ONLINE' ? 'ring-blue-100/50' : 'ring-primary/10'}`}>
+                                        <img className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 bg-slate-100" src={appt.doctorAvatarUrl || "https://ui-avatars.com/api/?name=" + encodeURIComponent(appt.doctorName || 'Dr')} alt="Bác sĩ" />
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-lg text-slate-900 dark:text-white">BS. Nguyễn Văn An</h4>
-                                        <p className="text-sm text-primary font-medium">Chuyên khoa Tim mạch</p>
+                                        <h4 className="font-bold text-lg text-slate-900 dark:text-white">{appt.doctorName}</h4>
+                                        <p className="text-sm text-primary font-medium">{appt.doctorSpecialty || "Chuyên môn trống"}</p>
                                     </div>
                                 </div>
-                                <div className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Trực tiếp</div>
+                                {appt.appointmentType === 'ONLINE' ? (
+                                    <div className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Online</div>
+                                ) : (
+                                    <div className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Trực tiếp</div>
+                                )}
                             </div>
                             <div className="space-y-3 mb-6">
                                 <div className="flex items-center gap-3 text-slate-600 dark:text-slate-400">
                                     <span className="material-symbols-outlined text-sm">event</span>
-                                    <span className="text-sm">Thứ Hai, 20 Tháng 10, 2023</span>
+                                    <span className="text-sm">{formatDate(appt.appointmentTime)}</span>
                                 </div>
                                 <div className="flex items-center gap-3 text-slate-600 dark:text-slate-400">
                                     <span className="material-symbols-outlined text-sm">schedule</span>
-                                    <span className="text-sm">09:00 - 09:30</span>
+                                    <span className="text-sm">{formatTime(appt.appointmentTime)} - {appt.endTime ? formatTime(appt.endTime) : (parseInt(formatTime(appt.appointmentTime).split(":")[0]) + 1).toString().padStart(2, '0') + ":" + formatTime(appt.appointmentTime).split(":")[1]}</span>
                                 </div>
                                 <div className="flex items-center gap-3 text-slate-600 dark:text-slate-400">
-                                    <span className="material-symbols-outlined text-sm">location_on</span>
-                                    <span className="text-sm">Phòng khám Đa khoa Hoàn Mỹ, Quận 1</span>
+                                    {appt.appointmentType === 'ONLINE' ? (
+                                    <>
+                                        <span className="material-symbols-outlined text-sm text-blue-500">videocam</span>
+                                        <span className="text-sm font-medium text-blue-500 underline cursor-pointer">{appt.meetingLink || "Sẽ cập nhật Link sau"}</span>
+                                    </>
+                                    ) : (
+                                    <>
+                                        <span className="material-symbols-outlined text-sm">location_on</span>
+                                        <span className="text-sm">{appt.location || "Phòng khám"}</span>
+                                    </>
+                                    )}
                                 </div>
                             </div>
                             <div className="flex gap-3">
-                                <button className="flex-1 bg-primary text-white py-2.5 rounded-lg text-sm font-bold hover:bg-primary/90 transition-colors">Nhắc tôi</button>
-                                <button className="px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Hủy lịch</button>
+                                <button className="flex-1 bg-primary text-white py-2.5 rounded-lg text-sm font-bold hover:bg-primary/90 transition-colors">
+                                    {appt.appointmentType === 'ONLINE' ? 'Vào phòng chờ' : 'Nhắc tôi'}
+                                </button>
+                                <button onClick={() => handleCancel(appt.id)} className="px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Hủy lịch</button>
                             </div>
                         </div>
-
-                        {/* Appointment Card 2 */}
-                        <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-all group">
-                            <div className="flex items-start justify-between mb-4">
-                                <div className="flex gap-4">
-                                    <div className="size-16 rounded-xl overflow-hidden shadow-inner ring-1 ring-blue-100/50">
-                                        <img className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvda6dwU3lWoctny-heWxDpNckP5ehOjM0MnSJHBC-Ni9fJSLUhDhINVjlLZcWCCyUGjkYHbPJ-eP7ZnyV9Lp-HEu9MB1jAxoJeebCMZfLsFcMNQGzZT19rq9k35Ijsd83tztLM11O4EUxoiL3EMBsqWza3nXCAQ41QN8s_C3JuOmzYwvrKQzHSjhtpXGUmjhYJgzm6LiiXBjWADsjD16ckFbsmmGNMtfhZJ_ZLL5DYPKG4wXtsLx5zj5ZaCg-cwJCncB5li2GG5c" alt="Bác sĩ" />
-                                    </div>
-                                    <div>
-                                        <h4 className="font-bold text-lg text-slate-900 dark:text-white">BS. Trần Thị Mai</h4>
-                                        <p className="text-sm text-primary font-medium">Chuyên khoa Nội tiết</p>
-                                    </div>
-                                </div>
-                                <div className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Online</div>
-                            </div>
-                            <div className="space-y-3 mb-6">
-                                <div className="flex items-center gap-3 text-slate-600 dark:text-slate-400">
-                                    <span className="material-symbols-outlined text-sm">event</span>
-                                    <span className="text-sm">Thứ Sáu, 25 Tháng 10, 2023</span>
-                                </div>
-                                <div className="flex items-center gap-3 text-slate-600 dark:text-slate-400">
-                                    <span className="material-symbols-outlined text-sm">schedule</span>
-                                    <span className="text-sm">14:30 - 15:00</span>
-                                </div>
-                                <div className="flex items-center gap-3 text-slate-600 dark:text-slate-400">
-                                    <span className="material-symbols-outlined text-sm text-blue-500">videocam</span>
-                                    <span className="text-sm font-medium text-blue-500 underline cursor-pointer">Liên kết Google Meet</span>
-                                </div>
-                            </div>
-                            <div className="flex gap-3">
-                                <button className="flex-1 bg-primary text-white py-2.5 rounded-lg text-sm font-bold hover:bg-primary/90 transition-colors">Vào phòng chờ</button>
-                                <button className="px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Hủy lịch</button>
-                            </div>
-                        </div>
+                        ))}
                     </div>
+                    )}
                 </section>
 
                 {/* History Section */}
@@ -142,30 +203,31 @@ const PatientAppointments: React.FC = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                                    {[
-                                        { date: '15/09/2023', name: 'BS. Lê Minh Tâm', diagnosis: 'Huyết áp không ổn định, cần theo dõi...', status: 'Hoàn tất', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCAWRcfVWN7UNQqmFmR_QkId_S16yFYF9D4qL1HCEGGpY5-3KPhxBJEeulAkD4o2y_07OlomR2DODvdhokxKHN3E1plG2S--oSg0AY3yuX7o80xy_4YCf7qFJdn6vXq8whHu05-2d4Zg-Rl2V0DftvfFRyPCkoDMEAXzL1Wz-az_UgvAOmQm0titJ-mFiicY8k1KuO61LfKSQWY00nucGM2bOlz4Fts0NFY9qiNWYinazsxyStpDFQA_XF8kD-kw0PLRpx-MuaWf80' },
-                                        { date: '02/08/2023', name: 'BS. Trần Thị Mai', diagnosis: 'Kiểm tra đường huyết định kỳ...', status: 'Hoàn tất', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBHm3n8TsfIzVQfdVxqHbQ4m_x4IQ07xSA4Jgj59fYOOYMD0E_wJEWw-OxpmjR6cmtM3cVQZCTN74PHKBPrmzlV8-38OaAqZtgaljrg8xFClIP-MO-6vwu56s9WYqeASCNgb5WrgWS7B56XFPgQhGum8Q1nDKhQSDy8hqMg23tLuihSDIHk2QIMDh4JNQCnhURiqgnkZYfMrc1pyYZ6pBcZIu-h4GC5Ucmz_1zNBVwQm79G31J6ybpsJAvurETNYKiLiLCXnoiIJxQ' },
-                                        { date: '10/06/2023', name: 'BS. Ngô Bảo Châu', diagnosis: 'Tư vấn chế độ dinh dưỡng DASH...', status: 'Hoàn tất', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDaSQtZFsHveMivLG8NeYOxoptnO6nchyqB4PJU2S-UGDMDTLdCpnL9qSrqWG0oaoKK_UrXPdxOpOzvH7BWuA-7WAtGw3ZPVRPOyJzVMJvdhGDOXWYd5F6nXXuQZD3jSntCWMpL5Z7F4jlZaPeVhMmfmb6FsnoRTZbjtK2aRNB2o5RPHYiBLvvSX4ss-_fPwgtsFbNYnx3Jnm4f8Gi2gB6CXC6xDkcAP05ud_q-DHXtIv9yL0s0ZArs6g7zVCXW2pk-7PJSsIBwUF8' },
-                                    ].map((row, idx) => (
-                                        <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group">
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-700 dark:text-slate-300">{row.date}</td>
+                                    {history.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={5} className="px-6 py-8 text-center text-slate-500">Chưa có lịch sử khám bệnh</td>
+                                        </tr>
+                                    ) : (
+                                    history.map((row) => (
+                                        <tr key={row.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-700 dark:text-slate-300">{formatDate(row.appointmentTime)}</td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex items-center gap-3">
                                                     <div className="size-8 rounded-full shadow-inner ring-1 ring-slate-100 overflow-hidden">
-                                                        <img src={row.img} alt="Bác sĩ" className="w-full h-full object-cover" />
+                                                        <img src={row.doctorAvatarUrl || "https://ui-avatars.com/api/?name=" + encodeURIComponent(row.doctorName || 'Dr')} alt="Bác sĩ" className="w-full h-full object-cover bg-slate-200" />
                                                     </div>
-                                                    <span className="text-sm font-medium text-slate-900 dark:text-white">{row.name}</span>
+                                                    <span className="text-sm font-medium text-slate-900 dark:text-white">{row.doctorName}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400 max-w-[200px] truncate">{row.diagnosis}</td>
+                                            <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400 max-w-[200px] truncate">{row.diagnosisSummary || "-"}</td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className="px-2.5 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-xs font-bold">{row.status}</span>
+                                                <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${row.status === 'COMPLETED' ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-600'}`}>{row.status === 'COMPLETED' ? 'Hoàn tất' : 'Đã hủy'}</span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right">
                                                 <button className="text-primary hover:text-primary/80 text-sm font-bold transition-colors">Xem kết quả</button>
                                             </td>
                                         </tr>
-                                    ))}
+                                    )))}
                                 </tbody>
                             </table>
                         </div>
@@ -179,7 +241,7 @@ const PatientAppointments: React.FC = () => {
                 <section>
                     <div className="flex items-center justify-between mb-4">
                         <h4 className="font-bold text-slate-900 dark:text-white">Lịch cá nhân</h4>
-                        <span className="text-xs font-medium text-slate-400">Tháng 10, 2023</span>
+                        <span className="text-xs font-medium text-slate-400">Tháng {new Date().getMonth() + 1}, {new Date().getFullYear()}</span>
                     </div>
                     <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
                         <div className="grid grid-cols-7 gap-1 text-center mb-2">
@@ -188,15 +250,9 @@ const PatientAppointments: React.FC = () => {
                             ))}
                         </div>
                         <div className="grid grid-cols-7 gap-1 text-center">
-                            {/* Days before Oct 1 */}
-                            {[26, 27, 28, 29, 30].map(d => (
-                                <div key={d} className="py-2 text-xs text-slate-300">{d}</div>
-                            ))}
-                            {/* Days of Oct */}
+                            {/* Days of current month approx */}
                             {Array.from({ length: 30 }, (_, i) => i + 1).map(d => (
-                                <div key={d} className={`py-2 text-xs font-medium cursor-pointer hover:bg-primary/20 hover:text-primary rounded-full transition-all ${d === 20 ? 'bg-primary text-slate-900 font-bold shadow-lg shadow-primary/20 scale-110' :
-                                    d === 25 ? 'bg-primary/20 text-primary font-bold' : ''
-                                    }`}>
+                                <div key={d} className={`py-2 text-xs font-medium cursor-pointer hover:bg-primary/20 hover:text-primary rounded-full transition-all ${d === new Date().getDate() ? 'bg-primary text-slate-900 font-bold shadow-lg shadow-primary/20 scale-110' : ''}`}>
                                     {d}
                                 </div>
                             ))}
@@ -206,21 +262,17 @@ const PatientAppointments: React.FC = () => {
 
                 {/* My Doctors */}
                 <section>
-                    <h4 className="font-bold mb-4 text-slate-900 dark:text-white">Bác sĩ của tôi</h4>
+                    <h4 className="font-bold mb-4 text-slate-900 dark:text-white">Bác sĩ khả dụng</h4>
                     <div className="space-y-4">
-                        {[
-                            { name: 'BS. Nguyễn Văn An', role: 'Tim mạch', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDNVrX73MBCojMqbDFUwQyjI6TdA9nhpJg97bUY7Cy5BH0fBKLpo0-lxHx_x4o3Ykku8a4AaBKnTcZGGmn71ZM1e407H0cfPqPoiQaRc6PrjsflrG9vG_-ermlc_z9IDMtBwLpnhEzau6AdP3uNvGQ2CceEV-shTXGY7z5WTfpYRKqYw7zLbKNS6nu_lI5CnDYSZsljSUzlk7eezyLBdKpuhMQR09YHhmv_8ADFNhr8IyQ7I492t-cAHTi521L3GeLVaBjXQAAdoBs' },
-                            { name: 'BS. Trần Thị Mai', role: 'Nội tiết', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAOuaAUqu7v46DPyZxwQg5Y-0cRe__Q0CnlGfc2HJfaYT6sb3ZsCURc8yLMFAkOQwvB2K3ZFHxFuiJn5_MOhDlJt-JgImJ1V9h_zSkfpRWGPyENaTzz70uIqmaL6koedomRxRZ67aCI2B4BaUlMxZ-RKbvnnRxHT780Lfm8SbNcWX1Ij1kuSnBJRAy-YpXs8WG1wejPJIiMGdd2A18U_EakTYpLXmqsFsgRR9NnCw5k2TAIgCiA5y2JvQt150APFVQe9CbDS5GYJ_U' },
-                            { name: 'BS. Ngô Bảo Châu', role: 'Nội khoa', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAxjKjDlrSiNxOWus-qSZvA8zg000ZqlSSZuCL0mxv0KS_9NbHYfZtIaXUgFCC7DUwXJcG01uHQkRLiHI_yEVRyMhIuRWJL_vyoPEh7N5AKXj39tl-Pm0_8iUk42jf3Pkj4vlPoR-toF0AqQmrkD9J_ccT_GMaQhd1DgQhVzZHGjW2r2B6hOGMRHqQtDYeS0blXcjW2fHo7Whot-dV2V0mgoarziD6utVOfiXlsalZ80NLJyIuvF0wiRSN7zC9m8XWFCSE1nWVYlGs' }
-                        ].map((doc, idx) => (
-                            <div key={idx} className="flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all cursor-pointer group hover:shadow-sm">
+                        {doctors.slice(0, 3).map((doc) => (
+                            <div key={doc.id} className="flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all cursor-pointer group hover:shadow-sm">
                                 <div className="flex items-center gap-3">
                                     <div className="size-10 rounded-full overflow-hidden shadow-inner ring-1 ring-slate-100">
-                                        <img className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src={doc.img} alt={doc.name} />
+                                        <img className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 bg-slate-200" src={doc.avatarUrl || "https://ui-avatars.com/api/?name=" + encodeURIComponent(doc.name)} alt={doc.name} />
                                     </div>
                                     <div>
                                         <p className="text-sm font-bold leading-tight text-slate-900 dark:text-white">{doc.name}</p>
-                                        <p className="text-[10px] text-slate-500 font-medium">{doc.role}</p>
+                                        <p className="text-[10px] text-slate-500 font-medium">{doc.specialty}</p>
                                     </div>
                                 </div>
                                 <span className="material-symbols-outlined text-primary text-xl group-hover:rotate-12 transition-transform">calendar_add_on</span>
@@ -234,7 +286,7 @@ const PatientAppointments: React.FC = () => {
                     <div className="relative z-10">
                         <span className="material-symbols-outlined text-primary mb-2 animate-bounce">lightbulb</span>
                         <h5 className="font-bold text-sm mb-1 text-slate-900 dark:text-slate-100">Lời khuyên hôm nay</h5>
-                        <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium">Đừng quên ghi lại chỉ số đường huyết trước buổi khám chiều nay để bác sĩ tư vấn chính xác hơn nhé!</p>
+                        <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium">Bạn có thể đặt lịch tư vấn trực tuyến để tiết kiệm thời gian đi lại!</p>
                     </div>
                     <div className="absolute -right-4 -bottom-4 size-24 bg-primary/20 rounded-full blur-2xl group-hover:bg-primary/30 transition-all"></div>
                 </section>
@@ -244,6 +296,7 @@ const PatientAppointments: React.FC = () => {
                 onClose={() => setIsModalOpen(false)}
                 onSave={handleSaveAppointment}
                 isSaving={isSaving}
+                doctors={doctors}
             />
             <Toast
                 show={toast.show}
@@ -251,6 +304,11 @@ const PatientAppointments: React.FC = () => {
                 type={toast.type}
                 onClose={() => setToast({ ...toast, show: false })}
             />
+            <style>{`
+                .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+            `}</style>
         </div>
     );
 };

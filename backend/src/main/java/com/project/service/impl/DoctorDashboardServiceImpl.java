@@ -3,9 +3,10 @@ package com.project.service.impl;
 import com.project.dto.response.AppointmentSnippetDto;
 import com.project.dto.response.DashboardStatsDto;
 import com.project.dto.response.DoctorDashboardResponse;
+import com.project.dto.response.DoctorPatientResponse;
 import com.project.repository.AppointmentRepository;
-import com.project.repository.PatientRepository;
 import com.project.service.DoctorDashboardService;
+import com.project.service.DoctorPatientService;
 import com.project.util.DateTimeUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -21,8 +22,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DoctorDashboardServiceImpl implements DoctorDashboardService {
 
-    private final PatientRepository patientRepository;
     private final AppointmentRepository appointmentRepository;
+    private final DoctorPatientService doctorPatientService;
 
     @Override
     @Transactional(readOnly = true)
@@ -30,16 +31,17 @@ public class DoctorDashboardServiceImpl implements DoctorDashboardService {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime startOfToday = LocalDate.now().atStartOfDay();
         
-        // 1. Fetch Stats
-        long totalPatients = patientRepository.count(); // Simplified for now, should count by doctorId
+        // 1. Fetch Stats - real data
+        long totalPatients = doctorPatientService.getTotalPatientCount(doctorId);
+        long highRiskCount = doctorPatientService.getHighRiskCount(doctorId);
         long pendingAppointments = appointmentRepository.countByDoctorIdAndStatusAndAppointmentTimeAfter(
                 doctorId, "SCHEDULED", now);
         
         DashboardStatsDto stats = DashboardStatsDto.builder()
                 .totalPatients(totalPatients)
-                .highRiskCount(12) // Mock until RiskProfile service is implemented
+                .highRiskCount(highRiskCount)
                 .pendingAppointmentsCount(pendingAppointments)
-                .unreadMessagesCount(3) // Mock
+                .unreadMessagesCount(0) // TODO: implement message counting
                 .build();
 
         // 2. Fetch Upcoming Appointments
@@ -55,9 +57,21 @@ public class DoctorDashboardServiceImpl implements DoctorDashboardService {
                         .build())
                 .collect(Collectors.toList());
 
+        // 3. Recent patients (paginated, top 5)
+        List<DoctorPatientResponse> recentPatients = doctorPatientService
+                .getMyPatients(doctorId, null, null, null, PageRequest.of(0, 5))
+                .getContent();
+
+        // 4. High risk patients
+        List<DoctorPatientResponse> highRiskPatients = doctorPatientService
+                .getMyPatients(doctorId, null, null, "HIGH_RISK", PageRequest.of(0, 5))
+                .getContent();
+
         return DoctorDashboardResponse.builder()
                 .stats(stats)
                 .upcomingAppointments(upcomingAppointments)
+                .recentPatients(recentPatients)
+                .highRiskPatients(highRiskPatients)
                 .build();
     }
 }

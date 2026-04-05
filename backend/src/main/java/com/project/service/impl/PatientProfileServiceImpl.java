@@ -49,6 +49,16 @@ public class PatientProfileServiceImpl implements PatientProfileService {
         patient.setBloodType(request.getBloodType());
         patient.setHeightCm(request.getHeightCm());
         patient.setWeightKg(request.getWeightKg());
+        patient.setIdentityCard(request.getIdentityCard());
+        patient.setOccupation(request.getOccupation());
+        patient.setEthnicity(request.getEthnicity());
+        patient.setHealthInsuranceNumber(request.getHealthInsuranceNumber());
+        if (request.getDateOfBirth() != null) {
+            patient.setDateOfBirth(request.getDateOfBirth());
+        }
+        if (request.getAvatarUrl() != null && !request.getAvatarUrl().isEmpty()) {
+            patient.setAvatarUrl(request.getAvatarUrl());
+        }
 
         Patient saved = patientRepository.save(patient);
         log.info("Patient profile updated: id={}", saved.getId());
@@ -83,7 +93,6 @@ public class PatientProfileServiceImpl implements PatientProfileService {
     }
 
     @Override
-    @Transactional
     public EmergencyContactResponse updateEmergencyContact(Long id, EmergencyContactRequest request) {
         EmergencyContact contact = emergencyContactRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Emergency contact not found: " + id));
@@ -96,6 +105,23 @@ public class PatientProfileServiceImpl implements PatientProfileService {
         EmergencyContact saved = emergencyContactRepository.save(contact);
         log.info("Emergency contact updated: id={}", id);
         return mapToEmergencyContactResponse(saved);
+    }
+
+    @Override
+    public byte[] generateReport() {
+        Patient p = getCurrentPatient();
+        StringBuilder sb = new StringBuilder();
+        sb.append("BÁO CÁO SỨC KHỎE CÁ NHÂN\n");
+        sb.append("---------------------------------\n");
+        sb.append("Họ tên: ").append(p.getFullName()).append("\n");
+        sb.append("Mã BN: ").append(p.getPatientCode() != null ? p.getPatientCode() : "N/A").append("\n");
+        sb.append("SĐT: ").append(p.getPhone()).append("\n");
+        sb.append("Email: ").append(p.getEmail()).append("\n");
+        sb.append("Tình trạng: ").append(p.getChronicCondition() != null ? p.getChronicCondition() : "Bình thường").append("\n");
+        sb.append("---------------------------------\n");
+        sb.append("Ngày xuất báo cáo: ").append(java.time.LocalDate.now()).append("\n");
+        
+        return sb.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
     }
 
     // === Private Helpers ===
@@ -143,6 +169,10 @@ public class PatientProfileServiceImpl implements PatientProfileService {
                 .heightCm(p.getHeightCm())
                 .weightKg(p.getWeightKg())
                 .avatarUrl(p.getAvatarUrl())
+                .identityCard(p.getIdentityCard())
+                .occupation(p.getOccupation())
+                .ethnicity(p.getEthnicity())
+                .healthInsuranceNumber(p.getHealthInsuranceNumber())
                 .joinedDate(p.getJoinedDate())
                 .chronicCondition(p.getChronicCondition())
                 .chronicDiseases(p.getMedicalHistory() != null ? java.util.Arrays.asList(p.getMedicalHistory().split(",")) : java.util.List.of())

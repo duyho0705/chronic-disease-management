@@ -30,6 +30,7 @@ export default function ClinicPatients() {
     // Toast State
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
+    const [toastType, setToastType] = useState<'success' | 'error' | 'warning'>('success');
     const [debouncedSearch, setDebouncedSearch] = useState('');
 
     useEffect(() => {
@@ -70,7 +71,12 @@ export default function ClinicPatients() {
             });
             if (response.data.success) {
                 const pageData = response.data.data;
-                setPatients(pageData.content || []);
+                const cleanedPatients = (pageData.content || []).map((p: any) => ({
+                    ...p,
+                    // Clean prefix "BS" or "Bác sĩ" if any
+                    doctor: p.doctor ? p.doctor.replace(/^(BS\.|Bác sĩ\s*)/i, '').trim() : p.doctor
+                }));
+                setPatients(cleanedPatients);
                 setTotalPages(pageData.totalPages || 0);
                 setTotalElements(pageData.totalElements || 0);
                 setCurrentPage(pageData.number || 0);
@@ -98,11 +104,15 @@ export default function ClinicPatients() {
             try {
                 const response = await axios.get(`/v1/clinics/${currentClinicId}/doctors/names`);
                 if (response.data.success) {
-                    setAvailableDoctors(response.data.data);
+                    // Remove "BS." or "Bác sĩ" prefixes if any to avoid duplication
+                    const cleanedNames = response.data.data.map((name: string) => 
+                        name.replace(/^(BS\.|Bác sĩ\s*)/i, '').trim()
+                    );
+                    setAvailableDoctors(cleanedNames);
                 }
             } catch (error) {
                 console.error('Failed to fetch doctors:', error);
-                setAvailableDoctors(['BS. Lê Thị Mai', 'BS. Nguyễn Văn Hùng', 'BS. Trần Thanh Vân']); // Fallback
+                setAvailableDoctors(['Lê Thị Mai', 'Nguyễn Văn Hùng', 'Trần Thanh Vân']); // Fallback
             }
         };
 
@@ -134,12 +144,15 @@ export default function ClinicPatients() {
             if (response.data.success) {
                 fetchPatients();
                 setIsCreateModalOpen(false);
-                setToastMessage(`Đã thêm hồ sơ bệnh nhân ${patientData.name} thành công!`);
+                setToastMessage('Thêm bệnh nhân thành công');
+                setToastType('success');
                 setShowToast(true);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to save patient:', error);
-            setToastMessage('Có lỗi xảy ra khi lưu hồ sơ. Vui lòng thử lại!');
+            const errorMessage = error.response?.data?.message || 'Có lỗi xảy ra khi lưu hồ sơ. Vui lòng thử lại!';
+            setToastMessage(errorMessage);
+            setToastType('error');
             setShowToast(true);
         } finally {
             setIsSaving(false);
@@ -150,17 +163,19 @@ export default function ClinicPatients() {
         setIsEditing(true);
         try {
             // Use dbId for backend API, keep existing 'id' (patientCode) for UI consistency
-            const response = await axios.put(`/v1/clinics/${currentClinicId}/patients/${patientData.dbId}`, patientData);
+            const response = await axios.put(`/v1/clinics/${currentClinicId}/patients/${selectedPatient.dbId}`, patientData);
             if (response.data.success) {
                 fetchPatients();
                 setIsEditing(false);
                 setIsEditModalOpen(false);
-                setToastMessage(`Đã cập nhật hồ sơ bệnh nhân ${patientData.name}!`);
+                setToastMessage('Cập nhật hồ sơ thành công');
+                setToastType('success');
                 setShowToast(true);
             }
         } catch (error) {
-            console.error('Failed to edit patient:', error);
+            console.error('Lỗi khi cập nhật hồ sơ:', error);
             setToastMessage('Lỗi khi cập nhật hồ sơ');
+            setToastType('error');
             setShowToast(true);
             setIsEditing(false);
         }
@@ -170,19 +185,20 @@ export default function ClinicPatients() {
         setIsDeleting(true);
         // Note: patientId passed from modal could be 'id' or 'dbId' depending on implementation
         // Since we want the database ID for the endpoint:
-        const dbId = typeof patientId === 'object' ? patientId.dbId : patientId;
         try {
-            const response = await axios.delete(`/v1/clinics/${currentClinicId}/patients/${dbId}`);
+            const response = await axios.delete(`/v1/clinics/${currentClinicId}/patients/${patientId}`);
             if (response.data.success) {
                 fetchPatients();
                 setIsDeleting(false);
                 setIsDeleteModalOpen(false);
-                setToastMessage('Đã bỏ hồ sơ bệnh nhân khỏi danh sách theo dõi');
+                setToastMessage('Xóa hồ sơ thành công');
+                setToastType('success');
                 setShowToast(true);
             }
         } catch (error) {
-            console.error('Failed to delete patient:', error);
+            console.error('Lỗi khi xóa hồ sơ:', error);
             setToastMessage('Lỗi khi xóa hồ sơ');
+            setToastType('error');
             setShowToast(true);
             setIsDeleting(false);
         }
@@ -421,7 +437,7 @@ export default function ClinicPatients() {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <span className="text-[14px] font-bold text-slate-700 italic-none">
-                                                    {p.riskLevel.includes('HIGH') ? 'Nguy cơ cao' : p.riskLevel.includes('MONITORING') ? 'Đang theo dõi' : 'Bình thường'}
+                                                    {p.riskLevel?.includes('HIGH') || p.riskLevel?.includes('Nguy cơ cao') ? 'Nguy cơ cao' : p.riskLevel?.includes('MONITORING') || p.riskLevel?.includes('theo dõi') ? 'Đang theo dõi' : 'Bình thường'}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4">
@@ -538,11 +554,14 @@ export default function ClinicPatients() {
                     patientData={selectedPatient}
                 />
 
-                <Toast
-                    show={showToast}
-                    title={toastMessage}
-                    onClose={() => setShowToast(false)}
-                />
+
+                    <Toast
+                        show={showToast}
+                        title={toastMessage}
+                        type={toastType}
+                        onClose={() => setShowToast(false)}
+                    />
+
 
             </main>
         </div>

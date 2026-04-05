@@ -14,6 +14,10 @@ public class ConversationResponse {
     private String doctorName;
     private String doctorSpecialty;
     private String doctorAvatarUrl;
+    
+    private Long patientId;
+    private String patientName;
+    private String patientAvatarUrl;
     private boolean isOnline;
     private String lastMessage;
     private LocalDateTime lastMessageAt;

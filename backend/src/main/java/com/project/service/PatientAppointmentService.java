@@ -16,4 +16,6 @@ public interface PatientAppointmentService {
     Page<PatientAppointmentResponse> getHistory(Pageable pageable);
 
     void cancel(Long id);
+    
+    List<com.project.dto.response.DoctorSimpleResponse> getAvailableDoctors();
 }

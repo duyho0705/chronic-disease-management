@@ -122,7 +122,16 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
     @Override
     @Transactional
     public void createPatient(Long clinicId, CreatePatientRequest request) {
-        String email = request.getPhone() + "@care.com"; 
+        String email = request.getEmail();
+        
+        // If no email provided, use phone-based auto-gen
+        if (email == null || email.isBlank()) {
+            email = request.getPhone() + "@care.com";
+        }
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new RuntimeException("Email này đã được sử dụng. Vui lòng sử dụng email khác!");
+        }
+
         User user = User.builder()
                 .email(email)
                 .password(passwordEncoder.encode(request.getPassword()))
@@ -135,8 +144,9 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
         user = Objects.requireNonNull(userRepository.save(user));
 
         Long drId = null;
-        if (request.getAssignedDoctor() != null) {
-            String drName = request.getAssignedDoctor().replace("BS. ", "");
+        if (request.getAssignedDoctor() != null && !request.getAssignedDoctor().isEmpty()) {
+            // Clean common prefixes to extract real name
+            String drName = request.getAssignedDoctor().replaceAll("^(BS\\.|Bác sĩ\\s*)", "").trim();
             List<User> foundDrs = userRepository.findByFilters("DOCTOR", "ACTIVE", clinicId, drName, null).getContent();
             if (!foundDrs.isEmpty()) {
                 drId = foundDrs.get(0).getId();
@@ -151,9 +161,10 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
                 .clinicId(clinicId)
                 .fullName(request.getName())
                 .phone(request.getPhone())
+                .email(email)
                 .gender(request.getGender())
                 .address(request.getAddress())
-                .dateOfBirth(LocalDate.now().minusYears(ageNum))
+                .dateOfBirth(request.getDateOfBirth() != null ? request.getDateOfBirth() : LocalDate.now().minusYears(ageNum))
                 .patientCode("BN-" + (1000 + new Random().nextInt(9000)))
                 .doctorId(drId)
                 .joinedDate(LocalDate.now())
@@ -162,6 +173,10 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
                 .treatmentStatus("Đang điều trị")
                 .roomLocation("Ngoại trú")
                 .clinicalNotes(request.getNotes())
+                .identityCard(request.getIdentityCard())
+                .occupation(request.getOccupation())
+                .ethnicity(request.getEthnicity())
+                .healthInsuranceNumber(request.getHealthInsuranceNumber())
                 .build();
         patientRepository.save(patient);
     }
@@ -183,9 +198,25 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
         patient.setChronicCondition(request.getCondition());
         patient.setRiskLevel(request.getRiskLevel());
         patient.setClinicalNotes(request.getNotes());
+        patient.setIdentityCard(request.getIdentityCard());
+        patient.setOccupation(request.getOccupation());
+        patient.setEthnicity(request.getEthnicity());
+        patient.setHealthInsuranceNumber(request.getHealthInsuranceNumber());
+        if (request.getDateOfBirth() != null) {
+            patient.setDateOfBirth(request.getDateOfBirth());
+        }
+        
+        // Update user email
+        User user = userRepository.findById(patient.getUserId())
+                .orElse(null);
+        if (user != null && request.getEmail() != null && !request.getEmail().isBlank()) {
+            user.setEmail(request.getEmail());
+            userRepository.save(user);
+            patient.setEmail(request.getEmail());
+        }
         
         if (request.getAssignedDoctor() != null) {
-            String drName = request.getAssignedDoctor().replace("BS. ", "");
+            String drName = request.getAssignedDoctor().replaceAll("^(BS\\.|Bác sĩ\\s*)", "").trim();
             List<User> foundDrs = userRepository.findByFilters("DOCTOR", "ACTIVE", clinicId, drName, null).getContent();
             if (!foundDrs.isEmpty()) {
                 patient.setDoctorId(foundDrs.get(0).getId());

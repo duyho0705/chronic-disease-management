@@ -210,14 +210,23 @@ export default function AdminAuditLogs() {
                     </tr>
                   ))
                 ) : logList.length > 0 ? (
-                  logList.map((log: any) => (
-                    <tr key={log.id} className="hover:bg-primary/5 transition-colors group">
-                      <td className="px-8 py-5">
-                        <div className="flex flex-col">
-                          <span className="text-[14px] font-black text-slate-900 dark:text-white leading-tight">{log.time.split(' ')[0]}</span>
-                          <span className="text-[13px] font-medium text-slate-500 dark:text-slate-500 mt-0.5">{log.time.split(' ')[1]}</span>
-                        </div>
-                      </td>
+                    logList.map((log: any) => {
+                      const dateObj = new Date(log.time);
+                      const displayTime = !isNaN(dateObj.getTime()) 
+                        ? dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+                        : log.time;
+                      const displayDate = !isNaN(dateObj.getTime())
+                        ? dateObj.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                        : '';
+
+                      return (
+                        <tr key={log.id} className="hover:bg-primary/5 transition-colors group">
+                          <td className="px-8 py-5">
+                            <div className="flex flex-col">
+                              <span className="text-[14px] font-black text-slate-900 dark:text-white leading-tight">{displayTime}</span>
+                              <span className="text-[13px] font-medium text-slate-500 dark:text-slate-500 mt-0.5">{displayDate}</span>
+                            </div>
+                          </td>
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-3">
                           <img
@@ -255,9 +264,10 @@ export default function AdminAuditLogs() {
                           {log.ip}
                         </code>
                       </td>
-                    </tr>
-                  ))
-                ) : (
+                        </tr>
+                      );
+                    })
+                  ) : (
                   <tr>
                     <td colSpan={6} className="px-8 py-12 text-center">
                       <div className="flex flex-col items-center gap-2 text-slate-400">

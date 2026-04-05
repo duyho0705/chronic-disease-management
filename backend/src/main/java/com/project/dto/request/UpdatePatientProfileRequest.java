@@ -30,4 +30,10 @@ public class UpdatePatientProfileRequest {
     private BigDecimal heightCm;
 
     private BigDecimal weightKg;
+    private String identityCard;
+    private String occupation;
+    private String ethnicity;
+    private String healthInsuranceNumber;
+    private java.time.LocalDate dateOfBirth;
+    private String avatarUrl;
 }

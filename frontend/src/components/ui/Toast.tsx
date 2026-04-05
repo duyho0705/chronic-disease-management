@@ -54,7 +54,7 @@ const Toast: React.FC<ToastProps> = ({ show, title, type = 'success', onClose })
             <span className="material-symbols-outlined font-extrabold text-xl">{config.icon}</span>
           </div>
           <div className="flex-1 text-left">
-            <p className={`text-[15px] font-bold ${config.text} tracking-tight`}>{title}</p>
+            <p className={`text-[15px] font-medium ${config.text} tracking-tight`}>{title}</p>
           </div>
           <button onClick={onClose} className="w-7 h-7 flex items-center justify-center text-slate-300 hover:text-primary hover:bg-primary/10 rounded-full transition-all">
             <span className="material-symbols-outlined text-base">close</span>

@@ -4,8 +4,28 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
 
+html, body, #root {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+body.admin-theme {
+  background: #f6f8f7 !important; /* Màu xám sáng của giao diện Admin */
+  background-attachment: fixed !important;
+}
+
 html {
   scrollbar-gutter: stable;
+}
+
+/* Fix Autofill Background Color */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px white inset !important;
+    -webkit-text-fill-color: #334155 !important; /* Slate 700 */
 }
 
 :root {

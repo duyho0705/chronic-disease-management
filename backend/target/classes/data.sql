@@ -2,9 +2,25 @@
 -- 0. Ensure columns exist before data load (fixing cached plan mismatch)
 ALTER TABLE patients ADD COLUMN IF NOT EXISTS medical_history TEXT;
 ALTER TABLE patients ADD COLUMN IF NOT EXISTS allergies TEXT;
-ALTER TABLE patients ADD COLUMN IF NOT EXISTS doctor_id INTEGER;
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS doctor_id BIGINT;
 ALTER TABLE patients ADD COLUMN IF NOT EXISTS treatment_status TEXT;
 ALTER TABLE patients ADD COLUMN IF NOT EXISTS risk_level TEXT;
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS patient_code VARCHAR(50);
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS gender VARCHAR(20);
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS phone VARCHAR(20);
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS email VARCHAR(100);
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS address TEXT;
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS blood_type VARCHAR(10);
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS height_cm DECIMAL(5,2);
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS weight_kg DECIMAL(5,2);
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS avatar_url TEXT;
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS joined_date DATE;
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS identity_card VARCHAR(20);
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS occupation VARCHAR(100);
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS ethnicity VARCHAR(50);
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS health_insurance_number VARCHAR(50);
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS clinical_notes TEXT;
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS room_location VARCHAR(100);
 
 -- users columns
 ALTER TABLE users ADD COLUMN IF NOT EXISTS specialization TEXT;
@@ -30,6 +46,6 @@ ON CONFLICT (email) DO UPDATE SET
 INSERT INTO patients (user_id, clinic_id, full_name, phone, email, gender, date_of_birth, address, patient_code, doctor_id, joined_date, chronic_condition, treatment_status, risk_level, is_deleted, created_at)
 VALUES 
 ((SELECT id FROM users WHERE email = 'truongquocan@patient.com' LIMIT 1), 1, 'Trương Quốc An', '0359891652', 'truongquocan@patient.com', 'MALE', '1990-01-01', 'Hà Nội', 'BN-DUC-001', (SELECT id FROM users WHERE email = 'mai.le@care.com' LIMIT 1), CURRENT_DATE, 'Tiểu đường Type 2', 'Đang điều trị', 'Nguy cơ cao', FALSE, CURRENT_TIMESTAMP),
-((SELECT id FROM users WHERE email = 'truonghue@patient.com' LIMIT 1), 1, 'Trương Đình Huệ', '0359891653', 'truonghue@patient.com', 'MALE', '1985-05-05', 'Đà Nẵng', 'BN-DUC-002', (SELECT id FROM users WHERE email = 'hung.nguyen@care.com' LIMIT 1), CURRENT_DATE, 'Cao huyết áp', 'Ổn định', 'Bình thường', FALSE, CURRENT_TIMESTAMP),
-((SELECT id FROM users WHERE email = 'tolam@gmail.com' LIMIT 1), 1, 'Tô Lâm', '0359891654', 'tolam@gmail.com', 'MALE', '1970-10-10', 'TP. HCM', 'BN-DUC-003', (SELECT id FROM users WHERE email = 'van.tran@care.com' LIMIT 1), CURRENT_DATE, 'Bệnh tim mạch', 'Đang theo dõi', 'Đang theo dõi', FALSE, CURRENT_TIMESTAMP)
+((SELECT id FROM users WHERE email = 'truonghue@patient.com' LIMIT 1), 1, 'Trương Đình Huệ', '0359891653', 'truonghue@patient.com', 'MALE', '1985-05-05', 'Đà Nẵng', 'BN-DUC-002', (SELECT id FROM users WHERE email = 'hung.nguyen@care.com' LIMIT 1), CURRENT_DATE, 'Tăng huyết áp', 'Ổn định', 'Bình thường', FALSE, CURRENT_TIMESTAMP),
+((SELECT id FROM users WHERE email = 'tolam@gmail.com' LIMIT 1), 1, 'Tô Lâm', '0359891654', 'tolam@gmail.com', 'MALE', '1970-10-10', 'TP. HCM', 'BN-DUC-003', (SELECT id FROM users WHERE email = 'van.tran@care.com' LIMIT 1), CURRENT_DATE, 'Tim mạch', 'Đang theo dõi', 'Đang theo dõi', FALSE, CURRENT_TIMESTAMP)
 ON CONFLICT (patient_code) DO NOTHING;

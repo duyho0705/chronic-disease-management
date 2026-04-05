@@ -23,10 +23,11 @@ export default function CreatePatientModal({
         age: '',
         gender: 'Nam',
         phone: '',
+        email: '',
         address: '',
-        condition: '', 
+        condition: '',
         riskLevel: 'Theo dõi (MONITORING)',
-        assignedDoctor: '', 
+        assignedDoctor: '',
         notes: '',
         password: '',
         confirmPassword: ''
@@ -78,8 +79,21 @@ export default function CreatePatientModal({
         const errors: Record<string, string> = {};
         if (!formData.name.trim()) errors.name = 'Vui lòng nhập họ và tên bệnh nhân';
         if (!formData.age.trim() || isNaN(Number(formData.age))) errors.age = 'Vui lòng nhập tuổi hợp lệ';
-        if (!formData.phone.trim()) errors.phone = 'Vui lòng nhập số điện thoại liên hệ';
+        const phoneRegex = /^(0|\+84)(\d{9,10})$/;
+        if (!formData.phone.trim()) {
+            errors.phone = 'Vui lòng nhập số điện thoại liên hệ';
+        } else if (!phoneRegex.test(formData.phone.trim())) {
+            errors.phone = 'Số điện thoại phải có 10 chữ số (bắt đầu bằng 0)';
+        }
+
+        if (!formData.email.trim()) {
+            errors.email = 'Vui lòng nhập email đăng nhập';
+        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+            errors.email = 'Email không hợp lệ';
+        }
+
         if (!formData.password) errors.password = 'Vui lòng thiết lập mật khẩu';
+        if (formData.password && formData.password.length < 6) errors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
         if (formData.password !== formData.confirmPassword) errors.confirmPassword = 'Mật khẩu xác nhận không khớp';
 
         setFormErrors(errors);
@@ -115,8 +129,11 @@ export default function CreatePatientModal({
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Left Column: Personal Information */}
                         <div className="space-y-4">
+                            {/* Hidden inputs to trap autofill */}
+                            <input autoComplete="new-password" type="text" style={{ display: 'none' }} />
+                            <input autoComplete="new-password" type="password" style={{ display: 'none' }} />
                             <div className="flex items-center gap-2 pb-2 pl-2 border-l-4 border-l-primary">
-                                <h3 className="font-bold text-slate-900 dark:text-slate-100 text-[15px]">Thông tin hành chính</h3>
+                                <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-[15px] uppercase tracking-wider">Thông tin hành chính</h3>
                             </div>
 
                             <div className="space-y-4 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
@@ -127,6 +144,7 @@ export default function CreatePatientModal({
                                         value={formData.name}
                                         onChange={handleChange}
                                         placeholder="Tên bệnh nhân"
+                                        autoComplete="new-password"
                                         className={`w-full px-4 py-[9px] rounded-xl border-2 ${formErrors.name ? 'border-red-500/50' : 'border-slate-100 dark:border-slate-800'} bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 placeholder:font-medium`}
                                     />
                                     {formErrors.name && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.name}</p>}
@@ -140,7 +158,8 @@ export default function CreatePatientModal({
                                             value={formData.age}
                                             onChange={handleChange}
                                             placeholder="Tuổi bệnh nhân"
-                                            className={`w-full px-4 py-[9px] rounded-xl border-2 ${formErrors.age ? 'border-red-500/50' : 'border-slate-100 dark:border-slate-800'} bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 text-center placeholder:font-medium`}
+                                            autoComplete="new-password"
+                                            className={`w-full px-4 py-[9px] rounded-xl border-2 ${formErrors.age ? 'border-red-500/50' : 'border-slate-100 dark:border-slate-800'} bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 placeholder:font-medium`}
                                         />
                                         {formErrors.age && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.age}</p>}
                                     </div>
@@ -163,10 +182,27 @@ export default function CreatePatientModal({
                                             value={formData.phone}
                                             onChange={handleChange}
                                             placeholder="Số điện thoại bệnh nhân"
+                                            autoComplete="new-password"
                                             className={`w-full pl-11 pr-4 py-[9px] rounded-xl border-2 ${formErrors.phone ? 'border-red-500/50' : 'border-slate-100 dark:border-slate-800'} bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 placeholder:font-medium`}
                                         />
                                     </div>
                                     {formErrors.phone && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.phone}</p>}
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <label className="text-[13px] font-bold text-slate-500 ml-1">Email đăng nhập <span className="text-red-500">*</span></label>
+                                    <div className="relative">
+                                        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">mail</span>
+                                        <input
+                                            name="email"
+                                            value={formData.email}
+                                            onChange={handleChange}
+                                            placeholder="Email của bệnh nhân"
+                                            autoComplete="new-password"
+                                            className={`w-full pl-11 pr-4 py-[9px] rounded-xl border-2 ${formErrors.email ? 'border-red-500/50' : 'border-slate-100 dark:border-slate-800'} bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 placeholder:font-medium`}
+                                        />
+                                    </div>
+                                    {formErrors.email && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.email}</p>}
                                 </div>
 
                                 <div className="space-y-1.5">
@@ -178,6 +214,7 @@ export default function CreatePatientModal({
                                             value={formData.address}
                                             onChange={handleChange}
                                             placeholder="Địa chỉ bệnh nhân"
+                                            autoComplete="new-password"
                                             className="w-full pl-11 pr-4 py-[9px] rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 placeholder:font-medium"
                                         />
                                     </div>
@@ -194,7 +231,7 @@ export default function CreatePatientModal({
                                                 value={formData.password}
                                                 onChange={handleChange}
                                                 placeholder="Mật khẩu"
-                                                className={`w-full pl-11 pr-12 py-[9px] rounded-xl border-2 ${formErrors.password ? 'border-red-500/50' : 'border-slate-100 dark:border-slate-800'} bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 placeholder:font-medium`}
+                                                className={`w-full pl-11 pr-12 py-2 rounded-xl border-2 ${formErrors.password ? 'border-red-500/50' : 'border-slate-300 dark:border-slate-800'} bg-white dark:bg-slate-800/40 text-[14px] font-medium text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 placeholder:font-medium`}
                                             />
                                             <button
                                                 type="button"
@@ -218,7 +255,7 @@ export default function CreatePatientModal({
                                                 value={formData.confirmPassword}
                                                 onChange={handleChange}
                                                 placeholder="Xác nhận mật khẩu"
-                                                className={`w-full pl-11 pr-12 py-[9px] rounded-xl border-2 ${formErrors.confirmPassword ? 'border-red-500/50' : 'border-slate-100 dark:border-slate-800'} bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 placeholder:font-medium`}
+                                                className={`w-full pl-11 pr-12 py-2 rounded-xl border-2 ${formErrors.confirmPassword ? 'border-red-500/50' : 'border-slate-300 dark:border-slate-800'} bg-white dark:bg-slate-800/40 text-[14px] font-medium text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 placeholder:font-medium`}
                                             />
                                             <button
                                                 type="button"
@@ -240,7 +277,7 @@ export default function CreatePatientModal({
                         {/* Right Column: Medical Profile & Assignment */}
                         <div className="space-y-4">
                             <div className="flex items-center gap-2 pb-2 pl-2 border-l-4 border-l-amber-400">
-                                <h3 className="font-bold text-slate-900 text-[15px]">Hồ sơ bệnh lý</h3>
+                                <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-[15px] uppercase tracking-wider">Hồ sơ bệnh lý</h3>
                             </div>
 
                             <div className="space-y-4 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm relative">

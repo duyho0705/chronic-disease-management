@@ -23,11 +23,14 @@ export default function EditPatientModal({
         age: '',
         gender: 'Nam',
         phone: '',
+        email: '',
         address: '',
         condition: 'Tiểu đường Type 2',
         riskLevel: 'Theo dõi (MONITORING)',
         assignedDoctor: '',
-        notes: ''
+        notes: '',
+        password: '',
+        confirmPassword: ''
     });
 
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -39,11 +42,14 @@ export default function EditPatientModal({
                 age: patientData.age || '',
                 gender: patientData.gender || 'Nam',
                 phone: patientData.phone || '',
+                email: patientData.email || '',
                 address: patientData.address || '',
                 condition: patientData.condition || 'Tiểu đường Type 2',
                 riskLevel: patientData.riskLevel || 'Theo dõi (MONITORING)',
-                assignedDoctor: patientData.assignedDoctor || (availableDoctors[0] || ''),
-                notes: patientData.notes || ''
+                assignedDoctor: patientData.doctor || (availableDoctors[0] || ''),
+                notes: patientData.notes || '',
+                password: '',
+                confirmPassword: ''
             });
             setFormErrors({});
             document.body.style.overflow = 'hidden';
@@ -74,6 +80,16 @@ export default function EditPatientModal({
         if (!formData.name.trim()) errors.name = 'Vui lòng nhập họ và tên bệnh nhân';
         if (!formData.age.toString().trim() || isNaN(Number(formData.age))) errors.age = 'Vui lòng nhập tuổi hợp lệ';
         if (!formData.phone.trim()) errors.phone = 'Vui lòng nhập số điện thoại liên hệ';
+        if (!formData.email.trim()) {
+            errors.email = 'Vui lòng nhập email đăng nhập';
+        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+            errors.email = 'Email không hợp lệ';
+        }
+
+        if (formData.password) {
+            if (formData.password.length < 6) errors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
+            if (formData.password !== formData.confirmPassword) errors.confirmPassword = 'Mật khẩu xác nhận không khớp';
+        }
 
         setFormErrors(errors);
         return Object.keys(errors).length === 0;
@@ -112,6 +128,9 @@ export default function EditPatientModal({
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Personal Information */}
                         <div className="space-y-4 text-left">
+                            {/* Hidden inputs to trap autofill */}
+                            <input autoComplete="new-password" type="text" style={{ display: 'none' }} />
+                            <input autoComplete="new-password" type="password" style={{ display: 'none' }} />
                             <div className="flex items-center gap-2 pb-2 pl-2 border-l-4 border-l-primary">
                                 <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-[15px] uppercase tracking-wider">Thông tin hành chính</h3>
                             </div>
@@ -123,6 +142,7 @@ export default function EditPatientModal({
                                         name="name"
                                         value={formData.name}
                                         onChange={handleChange}
+                                        autoComplete="new-password"
                                         className={`w-full px-4 py-[9px] rounded-xl border-2 ${formErrors.name ? 'border-red-500/50' : 'border-slate-100 dark:border-slate-800'} bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10`}
                                     />
                                     {formErrors.name && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.name}</p>}
@@ -135,6 +155,7 @@ export default function EditPatientModal({
                                             name="age"
                                             value={formData.age}
                                             onChange={handleChange}
+                                            autoComplete="new-password"
                                             className={`w-full px-4 py-[9px] rounded-xl border-2 ${formErrors.age ? 'border-red-500/50' : 'border-slate-100 dark:border-slate-800'} bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 text-center`}
                                         />
                                         {formErrors.age && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.age}</p>}
@@ -157,6 +178,7 @@ export default function EditPatientModal({
                                             name="phone"
                                             value={formData.phone}
                                             onChange={handleChange}
+                                            autoComplete="new-password"
                                             className={`w-full pl-11 pr-4 py-[9px] rounded-xl border-2 ${formErrors.phone ? 'border-red-500/50' : 'border-slate-100 dark:border-slate-800'} bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10`}
                                         />
                                     </div>
@@ -164,15 +186,57 @@ export default function EditPatientModal({
                                 </div>
 
                                 <div className="space-y-1.5 text-left">
-                                    <label className="text-[13px] font-bold text-slate-500 ml-1">Địa chỉ thường trú</label>
+                                    <label className="text-[13px] font-bold text-slate-500 ml-1">Email đăng nhập <span className="text-red-500">*</span></label>
                                     <div className="relative">
-                                        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">location_on</span>
+                                        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">mail</span>
                                         <input
-                                            name="address"
-                                            value={formData.address}
+                                            name="email"
+                                            value={formData.email}
                                             onChange={handleChange}
-                                            className="w-full pl-11 pr-4 py-[9px] rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
+                                            autoComplete="new-password"
+                                            className={`w-full pl-11 pr-4 py-[9px] rounded-xl border-2 ${formErrors.email ? 'border-red-500/50' : 'border-slate-100 dark:border-slate-800'} bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10`}
                                         />
+                                    </div>
+                                    {formErrors.email && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.email}</p>}
+                                </div>
+
+                                <div className="space-y-4 pt-2 border-t border-slate-100 dark:border-slate-800">
+                                    <div className="flex items-center gap-2 pl-2 border-l-4 border-l-primary/50 mb-2">
+                                        <h3 className="font-bold text-slate-700 dark:text-slate-300 text-[14px]">Thiết lập lại mật khẩu (Để trống nếu không đổi)</h3>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-1.5 text-left">
+                                            <label className="text-[13px] font-bold text-slate-500 ml-1">Mật khẩu mới</label>
+                                            <div className="relative">
+                                                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">lock</span>
+                                                <input
+                                                    type="password"
+                                                    name="password"
+                                                    value={formData.password}
+                                                    onChange={handleChange}
+                                                    autoComplete="new-password"
+                                                    placeholder="••••••••"
+                                                    className={`w-full pl-11 pr-4 py-[9px] rounded-xl border-2 ${formErrors.password ? 'border-red-500/50' : 'border-slate-100 dark:border-slate-800'} bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10`}
+                                                />
+                                            </div>
+                                            {formErrors.password && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.password}</p>}
+                                        </div>
+                                        <div className="space-y-1.5 text-left">
+                                            <label className="text-[13px] font-bold text-slate-500 ml-1">Xác nhận mật khẩu</label>
+                                            <div className="relative">
+                                                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">shield</span>
+                                                <input
+                                                    type="password"
+                                                    name="confirmPassword"
+                                                    value={formData.confirmPassword}
+                                                    onChange={handleChange}
+                                                    autoComplete="new-password"
+                                                    placeholder="••••••••"
+                                                    className={`w-full pl-11 pr-4 py-[9px] rounded-xl border-2 ${formErrors.confirmPassword ? 'border-red-500/50' : 'border-slate-100 dark:border-slate-800'} bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10`}
+                                                />
+                                            </div>
+                                            {formErrors.confirmPassword && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.confirmPassword}</p>}
+                                        </div>
                                     </div>
                                 </div>
 

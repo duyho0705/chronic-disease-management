@@ -99,7 +99,7 @@ export default function AdminSupport() {
 
   return (
     <AdminLayout>
-      <section className="p-4 md:p-8 space-y-8 animate-in fade-in duration-700 font-display text-left">
+      <section className="py-8 md:py-12 px-4 md:px-8 flex-1 flex flex-col justify-center space-y-8 animate-in fade-in duration-700 font-display text-left">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>

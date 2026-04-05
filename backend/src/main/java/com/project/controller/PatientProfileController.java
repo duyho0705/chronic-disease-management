@@ -62,4 +62,14 @@ public class PatientProfileController {
         return ResponseEntity.ok(ApiResponse.success(
                 "Emergency contact updated", service.updateEmergencyContact(id, request)));
     }
+
+    @GetMapping("/download-report")
+    @Operation(summary = "Download patient health report")
+    public ResponseEntity<byte[]> downloadReport() {
+        byte[] data = service.generateReport();
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=health_report.txt")
+                .header("Content-Type", "text/plain")
+                .body(data);
+    }
 }

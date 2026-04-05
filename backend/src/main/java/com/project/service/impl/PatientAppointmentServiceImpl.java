@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import com.project.dto.response.DoctorSimpleResponse;
 
 @SuppressWarnings("null")
 @Slf4j
@@ -29,11 +30,14 @@ public class PatientAppointmentServiceImpl implements PatientAppointmentService 
 
     private final AppointmentRepository appointmentRepository;
     private final PatientRepository patientRepository;
+    private final com.project.repository.UserRepository userRepository;
 
     @Override
     @Transactional
     public PatientAppointmentResponse create(CreateAppointmentRequest request) {
         Patient patient = getCurrentPatient();
+
+        com.project.entity.User doctor = userRepository.findById(request.getDoctorId()).orElse(null);
 
         Appointment appointment = Appointment.builder()
                 .patient(patient)
@@ -41,6 +45,11 @@ public class PatientAppointmentServiceImpl implements PatientAppointmentService 
                 .appointmentTime(request.getAppointmentTime())
                 .status("SCHEDULED")
                 .type(request.getAppointmentType())
+                .doctorName(doctor != null ? doctor.getFullName() : null)
+                .doctorSpecialty(doctor != null ? doctor.getSpecialization() : null)
+                .doctorAvatarUrl(doctor != null ? doctor.getAvatarUrl() : null)
+                .location(request.getAppointmentType().equals("IN_PERSON") ? "Phòng khám Đa khoa Hoàn Mỹ" : null)
+                .meetingLink(request.getAppointmentType().equals("ONLINE") ? "https://meet.google.com/abc-xyz" : null)
                 .build();
 
         Appointment saved = appointmentRepository.save(appointment);
@@ -75,6 +84,19 @@ public class PatientAppointmentServiceImpl implements PatientAppointmentService 
         appointment.setStatus("CANCELLED");
         appointmentRepository.save(appointment);
         log.info("Appointment cancelled: id={}", id);
+    }
+    
+    @Override
+    public List<DoctorSimpleResponse> getAvailableDoctors() {
+        return userRepository.findByRole("DOCTOR").stream()
+            .filter(u -> "ACTIVE".equals(u.getStatus()))
+            .map(u -> DoctorSimpleResponse.builder()
+                .id(u.getId())
+                .name(u.getFullName())
+                .specialty(u.getSpecialization() != null ? u.getSpecialization() : "Bác sĩ đa khoa")
+                .avatarUrl(u.getAvatarUrl())
+                .build())
+            .collect(Collectors.toList());
     }
 
     // === Private Helpers ===

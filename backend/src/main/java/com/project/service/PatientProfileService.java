@@ -18,4 +18,5 @@ public interface PatientProfileService {
     EmergencyContactResponse addEmergencyContact(EmergencyContactRequest request);
 
     EmergencyContactResponse updateEmergencyContact(Long id, EmergencyContactRequest request);
+    byte[] generateReport();
 }

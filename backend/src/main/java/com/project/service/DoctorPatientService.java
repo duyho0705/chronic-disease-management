@@ -1,0 +1,11 @@
+package com.project.service;
+
+import com.project.dto.response.DoctorPatientResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+public interface DoctorPatientService {
+    Page<DoctorPatientResponse> getMyPatients(Long doctorUserId, String search, String condition, String riskLevel, Pageable pageable);
+    long getTotalPatientCount(Long doctorUserId);
+    long getHighRiskCount(Long doctorUserId);
+}

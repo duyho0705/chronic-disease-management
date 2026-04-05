@@ -19,6 +19,7 @@ public class PatientMapper {
                 .name(p.getFullName())
                 .age(age)
                 .phone(p.getPhone())
+                .email(p.getEmail())
                 .condition(p.getChronicCondition() != null ? p.getChronicCondition() : "N/A")
                 .riskLevel(p.getRiskLevel() != null ? p.getRiskLevel() : "Bình thường")
                 .doctor(p.getDoctorId() != null ? doctorMap.getOrDefault(p.getDoctorId(), "Chưa phân công") : "Chưa phân công")

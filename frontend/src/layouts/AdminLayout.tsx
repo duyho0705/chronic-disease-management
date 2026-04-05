@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ROUTES } from '../constants/routes';
 import TopBar from '../components/common/TopBar';
@@ -8,6 +8,13 @@ interface AdminLayoutProps {
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
+  useEffect(() => {
+    document.body.classList.add('admin-theme');
+    return () => {
+      document.body.classList.remove('admin-theme');
+    };
+  }, []);
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState([
     { id: 1, title: 'Cảnh báo hệ thống', message: 'Phòng khám Quận 1 đang quá tải bệnh nhân.', time: '5 phút trước', type: 'warning' },
@@ -80,7 +87,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       </aside>
 
       {/* Main Content Area */}
-      <div className="lg:ml-72 min-h-screen flex-1 flex flex-col">
+      <div className="lg:ml-72 min-h-screen flex-1 flex flex-col bg-background-light dark:bg-slate-950">
         <TopBar
           setIsSidebarOpen={setIsSidebarOpen}
           notifications={notifications}

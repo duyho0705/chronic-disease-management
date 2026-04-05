@@ -56,6 +56,18 @@ public class Patient extends BaseEntity {
     @Column(name = "joined_date")
     private LocalDate joinedDate;
 
+    @Column(name = "identity_card", length = 20)
+    private String identityCard;
+
+    @Column(length = 100)
+    private String occupation;
+
+    @Column(length = 50)
+    private String ethnicity;
+
+    @Column(name = "health_insurance_number", length = 50)
+    private String healthInsuranceNumber;
+
     // === Clinical Tracking Fields ===
     @Column(name = "chronic_condition", length = 100)
     private String chronicCondition;

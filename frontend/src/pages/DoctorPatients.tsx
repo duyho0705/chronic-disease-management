@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import PrescriptionModal from '../features/prescription/components/PrescriptionModal';
 import AdviceModal from '../features/patient/components/AdviceModal';
 import RescheduleModal from '../features/patient/components/RescheduleModal';
@@ -7,6 +7,7 @@ import TopBar from '../components/common/TopBar';
 import FilterDropdown from '../components/ui/FilterDropdown';
 import PatientDetailModal from '../features/patient/components/PatientDetailModal';
 import AddPatientModal from '../features/patient/components/AddPatientModal';
+import { doctorApi } from '../api/doctor';
 
 export default function DoctorPatients() {
   const [notifications, setNotifications] = useState([
@@ -24,6 +25,44 @@ export default function DoctorPatients() {
   const [isPatientDetailModalOpen, setIsPatientDetailModalOpen] = useState(false);
   const [isAddPatientModalOpen, setIsAddPatientModalOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
+
+  // Real data states
+  const [patients, setPatients] = useState<any[]>([]);
+  const [totalPatients, setTotalPatients] = useState(0);
+  const [highRiskCount, setHighRiskCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [loadingPatients, setLoadingPatients] = useState(true);
+
+  const fetchPatients = useCallback(async () => {
+    setLoadingPatients(true);
+    try {
+      const res = await doctorApi.getMyPatients({
+        page: currentPage,
+        size: 10,
+        condition: diseaseFilter !== 'Tất cả bệnh lý' ? diseaseFilter : undefined,
+        riskLevel: riskFilter !== 'Mọi mức độ' ? riskFilter : undefined,
+      });
+      if (res.success) {
+        setPatients(res.data.content || []);
+        setTotalPages(res.data.totalPages || 0);
+      }
+    } catch (e) { console.error('Failed to fetch patients', e); }
+    setLoadingPatients(false);
+  }, [currentPage, diseaseFilter, riskFilter]);
+
+  const fetchStats = useCallback(async () => {
+    try {
+      const res = await doctorApi.getPatientStats();
+      if (res.success) {
+        setTotalPatients(res.data.totalPatients || 0);
+        setHighRiskCount(res.data.highRiskCount || 0);
+      }
+    } catch (e) { console.error('Failed to fetch stats', e); }
+  }, []);
+
+  useEffect(() => { fetchPatients(); }, [fetchPatients]);
+  useEffect(() => { fetchStats(); }, [fetchStats]);
 
   // Date & Time states for RescheduleModal
   const [selectedDay, setSelectedDay] = useState<number>(1);
@@ -164,7 +203,7 @@ export default function DoctorPatients() {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
             <div className="max-w-2xl">
               <h2 className="text-[22px] font-extrabold tracking-tight text-slate-900 mb-2">Danh sách bệnh nhân</h2>
-              <p className="text-slate-500 text-[15px] font-medium">Quản lý và theo dõi lộ trình chăm sóc sức khỏe của 128 bệnh nhân đang điều trị trực tiếp.</p>
+              <p className="text-slate-500 text-[15px] font-medium">Quản lý và theo dõi lộ trình chăm sóc sức khỏe của {totalPatients} bệnh nhân đang điều trị trực tiếp.</p>
             </div>
             <button
               onClick={() => setIsAddPatientModalOpen(true)}
@@ -191,13 +230,13 @@ export default function DoctorPatients() {
               icon="error"
               iconBgColor="bg-orange-50"
               iconTextColor="text-orange-500"
-              options={['Mọi mức độ', 'Nguy cơ cao', 'Cần theo dõi', 'Bình thường']}
+              options={['Mọi mức độ', 'Nguy cơ cao', 'Đang theo dõi', 'Bình thường']}
               value={riskFilter}
               onChange={setRiskFilter}
               optionColors={{
                 'Mọi mức độ': 'text-primary',
                 'Nguy cơ cao': 'text-red-500 hover:bg-red-50',
-                'Cần theo dõi': 'text-orange-500 hover:bg-orange-50',
+                'Đang theo dõi': 'text-orange-500 hover:bg-orange-50',
                 'Bình thường': 'text-green-500 hover:bg-green-50'
               }}
             />
@@ -208,7 +247,7 @@ export default function DoctorPatients() {
               </div>
               <div className="flex-1 overflow-hidden">
                 <p className="text-sm font-medium text-slate-500 mb-1">Tổng bệnh nhân</p>
-                <p className="text-3xl font-black text-slate-900 mt-1 tracking-tight truncate">1,284</p>
+                <p className="text-3xl font-black text-slate-900 mt-1 tracking-tight truncate">{totalPatients.toLocaleString()}</p>
               </div>
             </div>
 
@@ -218,7 +257,7 @@ export default function DoctorPatients() {
               </div>
               <div className="flex-1 overflow-hidden">
                 <p className="text-sm font-medium text-slate-500 mb-1">Cần can thiệp</p>
-                <p className="text-3xl font-black text-red-500 mt-1 tracking-tight truncate">12</p>
+                <p className="text-3xl font-black text-red-500 mt-1 tracking-tight truncate">{highRiskCount}</p>
               </div>
             </div>
           </div>
@@ -239,50 +278,67 @@ export default function DoctorPatients() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
-                  {[
-                    { name: "Nguyễn Văn An", disease: "Tiểu đường Type 2", id: "BN-001", age: 54, glucose: "8.2", bp: "125/80", update: "10:30 Hôm nay", risk: "Nguy cơ cao", riskColor: "red" },
-                    { name: "Lê Thị Bình", disease: "Tăng huyết áp", id: "BN-042", age: 62, glucose: "5.6", bp: "145/95", update: "08:15 Hôm nay", risk: "Cần theo dõi", riskColor: "orange" },
-                    { name: "Trần Văn Cường", disease: "Tim mạch mãn tính", id: "BN-998", age: 45, glucose: "4.8", bp: "118/75", update: "17:40 Hôm qua", risk: "Bình thường", riskColor: "emerald" },
-                    { name: "Phạm Thị Dung", disease: "Tiểu đường thai kỳ", id: "BN-115", age: 29, glucose: "7.1", bp: "110/70", update: "23/10", risk: "Cần theo dõi", riskColor: "orange" }
-                  ].map((p, i) => (
-                    <tr key={i} className="hover:bg-slate-50 transition-colors">
+                  {loadingPatients ? (
+                    [...Array(4)].map((_, i) => (
+                      <tr key={i} className="animate-pulse">
+                        <td className="px-6 py-5"><div className="flex items-center gap-3"><div className="w-10 h-10 rounded-full bg-slate-100"></div><div className="space-y-2"><div className="h-4 bg-slate-200 rounded w-24"></div><div className="h-3 bg-slate-100 rounded w-32"></div></div></div></td>
+                        <td className="px-6 py-5"><div className="h-4 bg-slate-100 rounded w-16"></div></td>
+                        <td className="px-6 py-5"><div className="h-4 bg-slate-100 rounded w-8"></div></td>
+                        <td className="px-6 py-5"><div className="flex gap-2"><div className="h-8 bg-slate-50 rounded-lg w-20"></div><div className="h-8 bg-slate-50 rounded-lg w-20"></div></div></td>
+                        <td className="px-6 py-5"><div className="h-4 bg-slate-100 rounded w-24"></div></td>
+                        <td className="px-6 py-5"><div className="h-7 bg-slate-200 rounded-full w-20"></div></td>
+                        <td className="px-6 py-5"><div className="h-8 w-8 bg-slate-100 rounded-full ml-auto"></div></td>
+                      </tr>
+                    ))
+                  ) : patients.length === 0 ? (
+                    <tr><td colSpan={7} className="px-6 py-16 text-center text-slate-400 text-sm">Chưa có bệnh nhân nào được phân công</td></tr>
+                  ) : patients.map((p: any) => {
+                    const isHighRisk = p.riskLevel?.includes('Nguy cơ cao') || p.riskLevel === 'HIGH_RISK';
+                    const isMonitor = p.riskLevel?.includes('theo dõi') || p.riskLevel === 'MONITORING';
+                    const riskColor = isHighRisk ? 'red' : isMonitor ? 'orange' : 'emerald';
+                    const riskLabel = p.riskLevel || 'Ổn định';
+                    const menuKey = `p-${p.id}`;
+                    return (
+                    <tr key={p.id} className="hover:bg-slate-50 transition-colors">
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-slate-200"></div>
+                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
+                            {p.fullName?.split(' ').pop()?.charAt(0).toUpperCase() || '?'}
+                          </div>
                           <div>
-                            <p className="text-[16px] font-bold text-slate-900 group-hover:text-primary transition-colors tracking-tight">{p.name}</p>
-                            <p className="text-[13px] text-slate-500 font-medium tracking-tight">{p.disease}</p>
+                            <p className="text-[16px] font-bold text-slate-900 group-hover:text-primary transition-colors tracking-tight">{p.fullName}</p>
+                            <p className="text-[13px] text-slate-500 font-medium tracking-tight">{p.chronicCondition || 'Chưa xác định'}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-5 text-[15px] font-bold text-slate-600">{p.id}</td>
-                      <td className="px-6 py-5 text-[15px] font-bold text-slate-600">{p.age}</td>
+                      <td className="px-6 py-5 text-[15px] font-bold text-slate-600">{p.patientCode || 'N/A'}</td>
+                      <td className="px-6 py-5 text-[15px] font-bold text-slate-600">{p.age || '-'}</td>
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-2">
-                          <span className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-[13px] font-bold rounded-lg border border-slate-100 dark:border-slate-700 shadow-sm">{p.glucose} <span className="text-[11px] font-medium text-slate-400">mmol/L</span></span>
-                          <span className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-[13px] font-bold rounded-lg border border-slate-100 dark:border-slate-700 shadow-sm">{p.bp} <span className="text-[11px] font-medium text-slate-400">mmHg</span></span>
+                          <span className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-[13px] font-bold rounded-lg border border-slate-100 dark:border-slate-700 shadow-sm">{p.latestGlucose || 'N/A'}</span>
+                          <span className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-[13px] font-bold rounded-lg border border-slate-100 dark:border-slate-700 shadow-sm">{p.latestBp || 'N/A'}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-5 text-[14px] text-slate-500 font-medium">{p.update}</td>
+                      <td className="px-6 py-5 text-[14px] text-slate-500 font-medium">{p.lastUpdate || 'Chưa ghi nhận'}</td>
                       <td className="px-6 py-5">
                         <span
                           className={`px-4 py-1.5 text-[13px] font-bold rounded-full text-white shadow-sm whitespace-nowrap inline-flex ${
-                            p.riskColor === 'red' ? 'bg-red-500 shadow-red-500/10' :
-                            p.riskColor === 'orange' ? 'bg-amber-500 shadow-amber-500/10' :
+                            riskColor === 'red' ? 'bg-red-500 shadow-red-500/10' :
+                            riskColor === 'orange' ? 'bg-amber-500 shadow-amber-500/10' :
                             'bg-emerald-500 shadow-emerald-500/10'
                           }`}
                         >
-                          {p.risk}
+                          {riskLabel}
                         </span>
                       </td>
                       <td className="px-6 py-5 text-right relative">
                         <button
-                          onClick={() => setActiveMenu(activeMenu === p.id ? null : p.id)}
+                          onClick={() => setActiveMenu(activeMenu === menuKey ? null : menuKey)}
                           className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 rounded-full transition-all ml-auto">
                           <span className="material-symbols-outlined text-[22px]">more_vert</span>
                         </button>
 
-                        {activeMenu === p.id && (
+                        {activeMenu === menuKey && (
                           <>
                             <div className="fixed inset-0 z-[100]" onClick={() => setActiveMenu(null)}></div>
                             <div className="absolute right-6 top-12 w-56 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 py-2.5 z-[110] animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-200 overflow-hidden text-left">
@@ -293,13 +349,13 @@ export default function DoctorPatients() {
                                   <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Xem chi tiết hồ sơ</span>
                                 </button>
                               <button
-                                onClick={() => { setIsAdviceModalOpen(true); setActiveMenu(null); }}
+                                onClick={() => { setSelectedPatient(p); setIsAdviceModalOpen(true); setActiveMenu(null); }}
                                 className="w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-3 group">
                                 <span className="material-symbols-outlined text-slate-400 group-hover:text-primary text-xl">send</span>
                                 <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Gửi lời khuyên</span>
                               </button>
                               <button
-                                onClick={() => { setIsPrescriptionModalOpen(true); setActiveMenu(null); }}
+                                onClick={() => { setSelectedPatient(p); setIsPrescriptionModalOpen(true); setActiveMenu(null); }}
                                 className="w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-3 group">
                                 <span className="material-symbols-outlined text-slate-400 group-hover:text-primary text-xl">description</span>
                                 <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Kê đơn thuốc</span>
@@ -316,7 +372,8 @@ export default function DoctorPatients() {
                         )}
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -324,20 +381,19 @@ export default function DoctorPatients() {
             {/* Pagination Redesigned */}
             <div className="px-8 py-6 bg-slate-50/30 dark:bg-slate-800/20 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">
               <p className="text-[14px] font-medium text-slate-500">
-                Hiển thị <span className="font-bold text-slate-900 dark:text-white">1</span> đến <span className="font-bold text-slate-900 dark:text-white">10</span> trong số <span className="font-bold text-slate-900 dark:text-white">128</span> bệnh nhân
+                Hiển thị <span className="font-bold text-slate-900 dark:text-white">{currentPage * 10 + 1}</span> đến <span className="font-bold text-slate-900 dark:text-white">{Math.min((currentPage + 1) * 10, totalPatients)}</span> trong số <span className="font-bold text-slate-900 dark:text-white">{totalPatients}</span> bệnh nhân
               </p>
               <div className="flex items-center gap-3">
-                <button className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary transition-all disabled:opacity-30" disabled>
+                <button onClick={() => setCurrentPage(p => Math.max(0, p - 1))} disabled={currentPage === 0} className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary transition-all disabled:opacity-30">
                   <span className="material-symbols-outlined text-[20px]">chevron_left</span>
                 </button>
                 <div className="flex items-center gap-1.5">
-                  <button className="w-10 h-10 rounded-xl bg-primary text-slate-900 text-sm font-black shadow-lg shadow-primary/20">1</button>
-                  <button className="w-10 h-10 rounded-xl hover:bg-white dark:hover:bg-slate-900 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-sm font-bold text-slate-500 transition-all">2</button>
-                  <button className="w-10 h-10 rounded-xl hover:bg-white dark:hover:bg-slate-900 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-sm font-bold text-slate-500 transition-all">3</button>
-                  <span className="text-slate-300 mx-1">...</span>
-                  <button className="w-10 h-10 rounded-xl hover:bg-white dark:hover:bg-slate-900 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-sm font-bold text-slate-500 transition-all">13</button>
+                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => (
+                    <button key={i} onClick={() => setCurrentPage(i)} className={`w-10 h-10 rounded-xl text-sm font-bold transition-all ${currentPage === i ? 'bg-primary text-slate-900 font-black shadow-lg shadow-primary/20' : 'hover:bg-white dark:hover:bg-slate-900 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-slate-500'}`}>{i + 1}</button>
+                  ))}
+                  {totalPages > 5 && <span className="text-slate-300 mx-1">...</span>}
                 </div>
-                <button className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary transition-all">
+                <button onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))} disabled={currentPage >= totalPages - 1} className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary transition-all disabled:opacity-30">
                   <span className="material-symbols-outlined text-[20px]">chevron_right</span>
                 </button>
               </div>
@@ -366,7 +422,7 @@ export default function DoctorPatients() {
             setIsPrescriptionModalOpen(false);
             setToast({ show: true, title: "Đã gửi đơn thuốc thành công!", type: "success" });
           }}
-          patientName="Nguyễn Văn An"
+          patientName={selectedPatient?.fullName || "Bệnh nhân"}
         />
 
         <AdviceModal
@@ -384,7 +440,7 @@ export default function DoctorPatients() {
             setIsAdviceModalOpen(false);
             setToast({ show: true, title: "Đã gửi lời khuyên thành công!", type: "success" });
           }}
-          patientName="Nguyễn Văn An"
+          patientName={selectedPatient?.fullName || "Bệnh nhân"}
         />
 
         <RescheduleModal

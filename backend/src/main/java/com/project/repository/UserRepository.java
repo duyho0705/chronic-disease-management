@@ -13,6 +13,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
 
        Optional<User> findByEmail(String email);
+       java.util.List<User> findByRole(String role);
 
        long countByIsDeletedFalse();
 
@@ -47,8 +48,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
                      "(:role IS NULL OR u.role = :role) AND " +
                      "(:status IS NULL OR u.status = :status) AND " +
                      "(:clinicId IS NULL OR u.clinicId = :clinicId) AND " +
-                     "(:keyword IS NULL OR :keyword = '' OR LOWER(u.fullName) LIKE :keyword " +
-                     "OR LOWER(u.email) LIKE :keyword) " +
+                     "(:keyword IS NULL OR :keyword = '' OR LOWER(u.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+                     "OR LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
                      "ORDER BY u.id DESC")
        Page<User> findByFilters(String role, String status, Long clinicId, String keyword, Pageable pageable);
 

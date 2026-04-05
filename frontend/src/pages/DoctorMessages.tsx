@@ -1,12 +1,20 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import PrescriptionModal from '../features/prescription/components/PrescriptionModal';
 import AdviceModal from '../features/patient/components/AdviceModal';
 import Toast from '../components/ui/Toast';
 import TopBar from '../components/common/TopBar';
 import PatientDetailModal from '../features/patient/components/PatientDetailModal';
 import MedicalHistoryModal from '../features/patient/components/MedicalHistoryModal';
+import { doctorApi } from '../api/doctor';
 
 export default function DoctorMessages() {
+    const [conversations, setConversations] = useState<any[]>([]);
+    const [activeConv, setActiveConv] = useState<any | null>(null);
+    const [messages, setMessages] = useState<any[]>([]);
+    const [msgInput, setMsgInput] = useState('');
+    const [sending, setSending] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const imageInputRef = useRef<HTMLInputElement>(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -37,6 +45,54 @@ export default function DoctorMessages() {
         { id: 1, title: 'Cảnh báo chỉ số', message: 'Bệnh nhân Nguyễn Văn An có chỉ số đường huyết cao bất thường.', time: '5 phút trước', type: 'warning' },
         { id: 2, title: 'Lịch hẹn mới', message: 'Bạn có một yêu cầu đặt lịch hẹn mới từ Lê Thị Bình.', time: '2 giờ trước', type: 'info' }
     ]);
+
+    useEffect(() => {
+        loadConversations();
+    }, []);
+
+    useEffect(() => {
+        if (activeConv) {
+            loadMessages(activeConv.id);
+            doctorApi.markMessagesAsRead(activeConv.id).catch(console.error);
+        }
+    }, [activeConv]);
+
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages]);
+
+    const loadConversations = async () => {
+        try {
+            const res = await doctorApi.getConversations();
+            setConversations(res.data || []);
+            if (res.data?.length > 0 && !activeConv) {
+                setActiveConv(res.data[0]);
+            }
+        } catch (error) { console.error(error); } finally { setLoading(false); }
+    };
+
+    const loadMessages = async (convId: number) => {
+        try {
+            const res = await doctorApi.getMessages(convId, { page: 0, size: 100 });
+            setMessages(res.data?.content?.reverse() || []);
+        } catch (error) { console.error(error); }
+    };
+
+    const handleSendMessage = async () => {
+        if (!msgInput.trim() || !activeConv || sending) return;
+        setSending(true);
+        try {
+            const res = await doctorApi.sendMessage({ conversationId: activeConv.id, content: msgInput.trim(), messageType: 'TEXT' });
+            setMessages((prev) => [...prev, res.data]);
+            setMsgInput('');
+            loadConversations();
+        } catch (error) { console.error(error); } finally { setSending(false); }
+    };
+
+    const formatTime = (dateStr: string) => {
+        if (!dateStr) return '';
+        return new Date(dateStr).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+    };
 
     const removeMedication = (id: number) => {
         setMedications(medications.filter(m => m.id !== id));
@@ -179,58 +235,24 @@ export default function DoctorMessages() {
 
                         <div className="flex-1 overflow-y-auto custom-scrollbar">
                             <div className="p-3 space-y-2">
-                                {/* Nguyễn Văn A - Luôn hiển thị vì là chưa đọc */}
-                                <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/20 cursor-pointer">
-                                    <div className="relative">
-                                        <img className="size-12 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBoRl8NTd68SRL_B98uIoSixtoSFJ_WzA_ARggqrddikGEZU5TvmSR2m3O5T1qeyIddTDbGEQsvKPHA9OaIHqdKNbaEb5u1y6Z7lJWYLA551IOrhSYBeCp6TvkUP0oZmg2-z7exCQilm2RhKk0JK8sQVbBkzugjOEBNCgSHCs-VPqtPnPKKBpqqAOzq715qm4QoA0LGmVrHKy2xEvxEK6dE-Oul3-ud2Yg-oRnIg92B1uE_UK7HuaIQHwfRC0N3gSrAxqZqnfedqwU" alt="A" />
-                                        <span className="absolute bottom-0 right-0 size-3 bg-green-500 border-2 border-white rounded-full"></span>
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex justify-between items-center mb-0.5">
-                                            <h3 className="text-sm font-bold truncate">Nguyễn Văn A</h3>
-                                            <span className="text-[10px] text-slate-400">10:45</span>
+                                {loading && <div className="p-4 text-center text-sm text-slate-500">Đang tải...</div>}
+                                {!loading && conversations.length === 0 && <div className="p-4 text-center text-sm text-slate-500">Chưa có cuộc trò chuyện</div>}
+                                {conversations.filter(c => activeTab === 'all' || c.unreadCount > 0).map(conv => (
+                                    <div key={conv.id} onClick={() => setActiveConv(conv)} className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors ${activeConv?.id === conv.id ? 'bg-primary/5 border border-primary/20' : 'hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
+                                        <div className="relative">
+                                            <img className="size-12 rounded-full object-cover bg-slate-200" src={conv.patientAvatarUrl || "https://ui-avatars.com/api/?name=" + encodeURIComponent(conv.patientName)} alt="Avatar" />
+                                            <span className={`absolute bottom-0 right-0 size-3 border-2 border-white rounded-full ${conv.isOnline ? 'bg-green-500' : 'bg-slate-300'}`}></span>
                                         </div>
-                                        <p className="text-xs text-slate-600 dark:text-slate-400 truncate">Bác sĩ ơi, chỉ số huyết áp...</p>
-                                        <div className="flex items-center gap-2 mt-1">
-                                            <span className="px-1.5 py-0.5 bg-red-100 text-red-600 text-[10px] rounded-md font-bold">Nguy cơ cao</span>
-                                        </div>
-                                    </div>
-                                    <div className="size-5 rounded-full bg-primary flex items-center justify-center text-[10px] text-white font-bold">2</div>
-                                </div>
-
-                                {/* Trần Thị B - Chỉ hiển thị khi tab là "Tất cả" */}
-                                {activeTab === 'all' && (
-                                    <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer">
-                                        <img className="size-12 rounded-full object-cover grayscale" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBhD6WWkEmCMteDAhlg1khjJmteYcqGR_yWPtw7M8cvkR3Pz1-1ppF9o5AMWC6HaT2f-5pYOc8QcYtyOYqIwns5BwN129P-TJ0KCcF__-O9EC29r_C_OwDHLBNK4gPhThgBbxZTnZh6_65fKk1BuXOPABOf5XFyVqBB3elRY41Rw1LVHLJb67lK83eFMaCHBlpb8wxLmEDLfeNEowQbIJP7cHp5YfLb_9os0KnEGIqfCwFAk7CcH4yVH_nP5tWbnE2ExIYImKwspU" alt="B" />
                                         <div className="flex-1 min-w-0">
                                             <div className="flex justify-between items-center mb-0.5">
-                                                <h3 className="text-sm font-bold truncate">Trần Thị B</h3>
-                                                <span className="text-[10px] text-slate-400">Hôm qua</span>
+                                                <h3 className={`text-sm font-bold truncate ${activeConv?.id === conv.id ? 'text-primary' : ''}`}>{conv.patientName}</h3>
+                                                <span className="text-[10px] text-slate-400">{formatTime(conv.lastMessageAt)}</span>
                                             </div>
-                                            <p className="text-xs text-slate-500 truncate">Vâng, tôi đã nhận được đơn thuốc.</p>
-                                            <div className="flex items-center gap-2 mt-1">
-                                                <span className="px-1.5 py-0.5 bg-green-100 text-green-600 text-[10px] rounded-md font-bold">Bình thường</span>
-                                            </div>
+                                            <p className={`text-xs truncate ${conv.unreadCount > 0 ? 'text-slate-900 dark:text-white font-bold' : 'text-slate-500'}`}>{conv.lastMessage || '...'}</p>
                                         </div>
+                                        {conv.unreadCount > 0 && <div className="size-5 rounded-full bg-primary flex items-center justify-center text-[10px] text-white font-bold">{conv.unreadCount}</div>}
                                     </div>
-                                )}
-
-                                {/* Lê Văn C - Chỉ hiển thị khi tab là "Tất cả" */}
-                                {activeTab === 'all' && (
-                                    <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer">
-                                        <img className="size-12 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAc-MU_mpYw71RWBRumDqWQSpX2jT6lqY_yymf4_8OwEvcAeGZzV7l3yAxJ5MF7jROH6_6fdNdNvtucQdPatsAfzP-B49W4vIFviX6tGN97yhtJTuP3BrvS6YgON1wqQxZEmplohMDKvuNYebXLrTKsq0q12FH8pdkhC93H4v8cZNbJLFkBV_JVSSRhTFssTOzM27hXOpef5uBaFNc9JV_YDbeJBtL4rMTTD0AGoZ3LRXHFIL1qr8Avgse8OBgMCCLHYBPdo6QmmNo" alt="C" />
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex justify-between items-center mb-0.5">
-                                                <h3 className="text-[14px] font-bold truncate text-slate-600 dark:text-slate-400">Lê Văn C</h3>
-                                                <span className="text-xs text-slate-400 font-medium">Thứ 2</span>
-                                            </div>
-                                            <p className="text-[13px] text-slate-500 truncate font-medium">Cảm ơn bác sĩ nhiều lắm!</p>
-                                            <div className="flex items-center gap-2 mt-1">
-                                                <span className="px-2 py-0.5 bg-green-100 text-green-600 text-xs rounded-md font-bold tracking-tighter">Bình thường</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
+                                ))}
                             </div>
                         </div>
                     </section>
@@ -238,16 +260,18 @@ export default function DoctorMessages() {
                     {/* Middle Column: Chat Window */}
                     <section className="flex-1 flex flex-col bg-background-light dark:bg-background-dark">
                         {/* Chat Header */}
+                        {activeConv ? (
+                        <>
                         <div className="h-16 px-6 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <div className="size-10 rounded-full bg-slate-200 overflow-hidden">
-                                    <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdl4_kksFbT62gfvrg2CtlonSa7Z4-XZM2ZIIqD7GDwP0MfR5hA225V5R9ZKlvhjbsete2hJmTwvUHA_aosstZHoV6tM2vXEU5Q7nW9_5dd5svAhpeCbuKH5HmqayCaC04rkWo-EfotJUxEp69MkUz4mEdX8saH1A0UNs5zJJID7n-JJeGjmcq0eSP0Mso0S5aDqFBNhamVQmSpaLrCkNv4TaoqSZ06oNBkzC6TNiRCcAwxJsvIX-khxQ-w5pAG3Of0yZJFNenY1M" alt="A" />
+                                <div className="size-10 rounded-full bg-slate-200 overflow-hidden relative">
+                                    <img className="w-full h-full object-cover" src={activeConv.patientAvatarUrl || "https://ui-avatars.com/api/?name=" + encodeURIComponent(activeConv.patientName)} alt="P" />
                                 </div>
                                 <div>
-                                    <h3 className="text-sm font-bold leading-none">Nguyễn Văn A</h3>
+                                    <h3 className="text-sm font-bold leading-none">{activeConv.patientName}</h3>
                                     <div className="flex items-center gap-2 mt-1">
-                                        <span className="size-2 rounded-full bg-green-500"></span>
-                                        <span className="text-xs text-slate-500">Đang hoạt động • 10:45 AM</span>
+                                        <span className={`size-2 rounded-full ${activeConv.isOnline ? 'bg-green-500' : 'bg-slate-300'}`}></span>
+                                        <span className="text-xs text-slate-500">{activeConv.isOnline ? 'Đang hoạt động' : 'Ngoại tuyến'}</span>
                                     </div>
                                 </div>
                             </div>
@@ -259,32 +283,20 @@ export default function DoctorMessages() {
 
                         {/* Chat History */}
                         <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
-                            <div className="flex justify-center">
-                                <span className="text-[12px] bg-slate-200 dark:bg-slate-800 px-3 py-1 rounded-full text-slate-500 font-medium tracking-tight">Hôm nay</span>
-                            </div>
-
-                            <div className="flex gap-3 max-w-[80%]">
-                                <img className="size-8 rounded-full self-end" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCugxZ95a_v-3AW68QiUMCSrPj_G-Cfl0ygNoDoBH7sjAURggNcXC4KC--moLZZMx3B4m2TOx_TS2VSfyS5bdD4YaETWmaqCLr3CZ7R9OdnTHG8Bgj9y_85jABmvPBkBLEG3k9NC8VUHMJaiWJj3VxNxeKgSWQO0R8WO6MAqJUiDUhV_5kwUUr6_pM0uyhB9LlpdE78cWs5v7fs5GdNu-IK_wZy9ueZZJtcxuEnj3qcCXD--kAUEoOF6ST-sWqLlqrhX0FhvBFloJs" alt="P" />
-                                <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl rounded-bl-none shadow-sm border border-slate-100 dark:border-slate-700">
-                                    <p className="text-[15px] font-medium text-slate-700 dark:text-slate-200 leading-relaxed">Bác sĩ ơi, chỉ số huyết áp của tôi sáng nay đo là 160/95 mmHg. Tôi cảm thấy hơi chóng mặt, có cần điều chỉnh thuốc không ạ?</p>
-                                    <span className="text-[12px] text-slate-400 mt-1.5 block font-medium">10:42 AM</span>
+                            {messages.map((msg, i) => (
+                                <div key={msg.id || i} className={`flex gap-3 max-w-[80%] ${msg.senderType === 'DOCTOR' ? 'flex-row-reverse ml-auto' : ''}`}>
+                                    {msg.senderType !== 'DOCTOR' && (
+                                        <img className="size-8 rounded-full self-end bg-slate-200" src={activeConv.patientAvatarUrl || "https://ui-avatars.com/api/?name=" + encodeURIComponent(activeConv.patientName)} alt="P" />
+                                    )}
+                                    <div className={`${msg.senderType === 'DOCTOR' ? 'bg-primary text-slate-900 rounded-br-none' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-bl-none border border-slate-100 dark:border-slate-700'} p-4 rounded-2xl shadow-sm`}>
+                                        <p className="text-[15px] font-medium leading-relaxed">{msg.content}</p>
+                                        <span className={`text-[12px] mt-1.5 block font-medium ${msg.senderType === 'DOCTOR' ? 'text-slate-900/60 text-right' : 'text-slate-400'}`}>
+                                            {formatTime(msg.sentAt)}
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div className="flex flex-row-reverse gap-3 max-w-[80%] ml-auto">
-                                <div className="bg-primary text-slate-900 p-4 rounded-2xl rounded-br-none shadow-md">
-                                    <p className="text-[15px] font-medium leading-relaxed">Chào anh A, chỉ số 160/95 là khá cao. Anh hãy nghỉ ngơi tại chỗ trong 15-20 phút, tránh vận động mạnh và đo lại nhé.</p>
-                                    <span className="text-[12px] text-slate-900/60 mt-1.5 block text-right font-medium">10:44 AM</span>
-                                </div>
-                            </div>
-
-                            <div className="flex gap-3 max-w-[80%]">
-                                <img className="size-8 rounded-full self-end" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbj29KgBXLWBPKSZdaUeM5dWr-bzaBrxa3Dw06ijYcBv7WpYsmU9h9wHJI4ypLmiHnLjbeN_T8jHyd8Qhvi4Cj_v2O2TiOU06IqDmQ0GSixl8-bDsmQxuEgYA4Vfr4z0dld7KPJWUkoFonI5L0C3uYrACQqyPeSvoYFOj5lGL2m9-gAQbUit8mJzvKR7fBr9KqNks5Mlez4_BHEEe_Rr1mqNlJy6Er3yK2YSfLiI8LgKltFrE3Olj4Qx_LS47T4cc8LK8zvADUjmQ" alt="P" />
-                                <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl rounded-bl-none shadow-sm border border-slate-100 dark:border-slate-700">
-                                    <p className="text-[15px] font-medium text-slate-700 dark:text-slate-200 leading-relaxed">Vâng, tôi đang nằm nghỉ rồi ạ. Tôi có nên uống thêm liều thuốc hạ áp dự phòng không?</p>
-                                    <span className="text-[12px] text-slate-400 mt-1.5 block font-medium">10:45 AM</span>
-                                </div>
-                            </div>
+                            ))}
+                            <div ref={messagesEndRef} />
                         </div>
 
                         {/* Message Input Area */}
@@ -339,25 +351,44 @@ export default function DoctorMessages() {
                                     </button>
                                 </div>
                                 <div className="flex-1 relative">
-                                    <textarea rows={1} className="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl py-3 px-4 text-[15px] font-medium focus:ring-2 focus:ring-primary/50 resize-none outline-none text-slate-700 dark:text-slate-200" placeholder="Nhập tin nhắn..." />
+                                    <textarea 
+                                        rows={1} 
+                                        value={msgInput}
+                                        onChange={(e) => setMsgInput(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && !e.shiftKey) {
+                                                e.preventDefault();
+                                                handleSendMessage();
+                                            }
+                                        }}
+                                        className="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl py-3 px-4 text-[15px] font-medium focus:ring-2 focus:ring-primary/50 resize-none outline-none text-slate-700 dark:text-slate-200" placeholder="Nhập tin nhắn..." />
                                 </div>
-                                <button className="bg-primary hover:bg-primary/90 text-slate-900 p-3 rounded-xl shadow-lg transition-transform active:scale-95 flex items-center justify-center">
+                                <button onClick={handleSendMessage} disabled={sending || !msgInput.trim()} className="bg-primary hover:bg-primary/90 text-slate-900 p-3 rounded-xl shadow-lg transition-transform active:scale-95 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
                                     <span className="material-symbols-outlined font-bold">send</span>
                                 </button>
                             </div>
                         </div>
+                        </>
+                        ) : (
+                            <div className="flex-1 flex items-center justify-center flex-col text-slate-400 gap-4">
+                                <span className="material-symbols-outlined text-6xl opacity-20">forum</span>
+                                <p className="font-medium">Vui lòng chọn một cuộc trò chuyện</p>
+                            </div>
+                        )}
                     </section>
 
                     {/* Right Column: Patient Summary */}
                     <section className="w-72 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col p-5 overflow-y-auto custom-scrollbar">
+                        {activeConv ? (
+                        <>
                         <div className="text-center mb-6">
                             <div className="size-20 mx-auto rounded-full border-4 border-primary/20 p-1 mb-3">
-                                <img className="w-full h-full rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFISugC6Rpeutv2EMF1mKJgLNRCsl5qg11rlHsyeW10Tt4IwD3QZojRXX5GNm14e17phWogUWTZ9RbzM7u4B4JLFRLuUJHOm6CwJeyKFiNRnfIKR4EjL8PovYrTnfnrwp4tmXdx_mSmmk1h5zbrLbXWbNLQfGgExg9bpqRJ7FKBe7b4iOWCETJ8kbntW4QnsM9NZPvhI__l-PXLbH3vDpL6RlU37IfywN4bCq7fGM2znIa4C9kC0i69IVkBLa1reGlZjaIyPGD1CA" alt="Profile" />
+                                <img className="w-full h-full rounded-full object-cover bg-slate-200" src={activeConv.patientAvatarUrl || "https://ui-avatars.com/api/?name=" + encodeURIComponent(activeConv.patientName)} alt="Profile" />
                             </div>
-                            <h3 className="font-bold text-xl mb-2">Nguyễn Văn A</h3>
+                            <h3 className="font-bold text-xl mb-2">{activeConv.patientName}</h3>
                             <div className="flex flex-col text-[15px] font-medium text-slate-500">
-                                <span>Giới tính: Nam</span>
-                                <span>Tuổi: 85</span>
+                                <span>Giới tính: Trống</span>
+                                <span>Tuổi: Trống</span>
                             </div>
                         </div>
 
@@ -411,6 +442,10 @@ export default function DoctorMessages() {
                             ))}
                         </div>
                     </div>
+                    </>
+                    ) : (
+                        <div className="text-center text-slate-500 mt-10">Chọn bệnh nhân để xem tóm tắt</div>
+                    )}
                 </section>
             </div>
         </main>
@@ -457,8 +492,8 @@ export default function DoctorMessages() {
             <MedicalHistoryModal
                 isOpen={isHistoryModalOpen}
                 onClose={() => setIsHistoryModalOpen(false)}
-                patientName="Nguyễn Văn A"
-                patientAvatar="https://i.pravatar.cc/150?u=Nguyễn+Văn+A"
+                patientName={activeConv?.patientName || "Bệnh nhân"}
+                patientAvatar={activeConv?.patientAvatarUrl || "https://ui-avatars.com/api/?name=" + encodeURIComponent(activeConv?.patientName || "P")}
             />
 
             <PrescriptionModal
@@ -475,7 +510,7 @@ export default function DoctorMessages() {
                 addMedicationToPrescription={addMedicationToPrescription}
                 isSaving={isSaving}
                 onSave={handleSavePrescription}
-                patientName="Nguyễn Văn A"
+                patientName={activeConv?.patientName || "Bệnh nhân"}
             />
 
             <Toast

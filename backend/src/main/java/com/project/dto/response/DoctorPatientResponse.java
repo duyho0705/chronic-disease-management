@@ -1,0 +1,28 @@
+package com.project.dto.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class DoctorPatientResponse {
+    private Long id;
+    private String patientCode;
+    private String fullName;
+    private int age;
+    private String gender;
+    private String phone;
+    private String email;
+    private String chronicCondition;
+    private String riskLevel;
+    private String treatmentStatus;
+    private String lastUpdate;
+    // Latest metrics
+    private String latestGlucose;
+    private String latestBp;
+    private String avatarUrl;
+}

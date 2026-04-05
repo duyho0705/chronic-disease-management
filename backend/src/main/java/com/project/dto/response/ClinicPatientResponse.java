@@ -15,6 +15,7 @@ public class ClinicPatientResponse {
     private String name;
     private int age;
     private String phone;
+    private String email;
     private String condition;
     private String riskLevel;
     private String doctor;

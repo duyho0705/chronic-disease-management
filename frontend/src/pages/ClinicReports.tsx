@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ClinicSidebar from '../components/common/ClinicSidebar';
 import TopBar from '../components/common/TopBar';
+import axios from '../api/axios';
 
 export default function ClinicReports() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -11,10 +12,40 @@ export default function ClinicReports() {
     ]);
     const [isLoading, setIsLoading] = useState(true);
 
-    useState(() => {
-        const timer = setTimeout(() => setIsLoading(false), 1500);
-        return () => clearTimeout(timer);
-    });
+    const [stats, setStats] = useState<any>(null);
+    const currentClinicId = localStorage.getItem('clinicId') || '1';
+
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            try {
+                // @ts-ignore
+                const response = await axios.get(`/v1/clinics/${currentClinicId}/dashboard`);
+                if (response.data.success) {
+                    setStats(response.data.data);
+                }
+            } catch (error) {
+                console.error('Failed to fetch dashboard stats:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchDashboardData();
+    }, [currentClinicId]);
+
+    const mainStats = {
+        totalPatients: stats?.totalPatients || '0',
+        patientGrowth: stats?.patientGrowth || '+0%',
+        diseaseRatios: stats?.diseaseRatios || [
+            { color: 'bg-primary', label: 'Tiểu đường', value: '40%' },
+            { color: 'bg-[#3b6470]', label: 'Cao huyết áp', value: '35%' },
+            { color: 'bg-[#c9e9d3]', label: 'Tim mạch', value: '25%' },
+        ],
+        chartData: stats?.patientGrowthChart || [
+            { month: 'T.1', height: '30%', active: false },
+            { month: 'T.2', height: '30%', active: false },
+            { month: 'T.3', height: '30%', active: false },
+        ]
+    };
 
     return (
         <div className="flex min-h-screen font-display bg-[#f6f8f7] dark:bg-slate-950 text-slate-900 dark:text-slate-100 italic-none">
@@ -122,10 +153,10 @@ export default function ClinicReports() {
                                         <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
                                             <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>groups</span>
                                         </div>
-                                        <span className="text-emerald-500 font-bold text-sm">+4.2%</span>
+                                        <span className="text-emerald-500 font-bold text-sm">{mainStats.patientGrowth}</span>
                                     </div>
                                     <h3 className="text-slate-500 text-sm font-medium">Tổng số bệnh nhân</h3>
-                                    <p className="text-3xl font-black mt-1 text-slate-900 dark:text-white">1,250</p>
+                                    <p className="text-3xl font-black mt-1 text-slate-900 dark:text-white">{mainStats.totalPatients}</p>
                                     <div className="mt-4 h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                                         <div className="h-full bg-primary w-[75%]"></div>
                                     </div>
@@ -225,9 +256,9 @@ export default function ClinicReports() {
                                             <div className="border-t border-slate-50 dark:border-slate-800 w-full h-0"></div>
                                         </div>
                                         <div className="z-10 w-full h-full relative flex items-end justify-around">
-                                            {[50, 65, 75, 50, 95, 60].map((h, i) => (
-                                                <div key={i} className="w-4 bg-primary/20 h-full rounded-t-full relative group italic-none flex items-end overflow-hidden">
-                                                    <div className="bg-primary w-full rounded-t-full transition-all duration-700" style={{ height: `${h}%` }}></div>
+                                            {mainStats.chartData.map((item: any, i: number) => (
+                                                <div key={i} className="w-8 bg-primary/20 h-full rounded-t-full relative group italic-none flex items-end overflow-hidden">
+                                                    <div className="bg-primary w-full rounded-t-full transition-all duration-700" style={{ height: item.height }}></div>
                                                 </div>
                                             ))}
                                         </div>
@@ -238,14 +269,7 @@ export default function ClinicReports() {
                                                 <div key={i} className="w-12 h-3 bg-slate-50 dark:bg-slate-800 animate-pulse rounded"></div>
                                             ))
                                         ) : (
-                                            <>
-                                                <span>Thứ 2</span>
-                                                <span>Thứ 3</span>
-                                                <span>Thứ 4</span>
-                                                <span>Thứ 5</span>
-                                                <span>Thứ 6</span>
-                                                <span>Thứ 7</span>
-                                            </>
+                                            mainStats.chartData.map((item: any) => <span key={item.month}>{item.month}</span>)
                                         )}
                                     </div>
                                 </>
@@ -292,22 +316,18 @@ export default function ClinicReports() {
                                             <circle className="rotate-[270deg] origin-center" cx="50" cy="50" fill="transparent" r="40" stroke="#c9e9d3" strokeDasharray="251.2" strokeDashoffset="188.4" strokeWidth="12"></circle>
                                         </svg>
                                         <div className="absolute flex flex-col items-center">
-                                            <span className="text-3xl font-black text-slate-900 dark:text-white italic-none">1.2k</span>
+                                            <span className="text-3xl font-black text-slate-900 dark:text-white italic-none">{mainStats.totalPatients}</span>
                                             <span className="text-[12px] font-bold text-slate-400">Ca bệnh</span>
                                         </div>
                                     </div>
                                     <div className="mt-8 w-full space-y-4">
-                                        {[
-                                            { label: 'Tiểu đường', rate: '40%', color: 'bg-primary' },
-                                            { label: 'Cao huyết áp', rate: '35%', color: 'bg-[#3b6470]' },
-                                            { label: 'Tim mạch', rate: '25%', color: 'bg-[#c9e9d3]' }
-                                        ].map((item, i) => (
+                                        {mainStats.diseaseRatios.map((item: any, i: number) => (
                                             <div key={i} className="flex items-center justify-between">
                                                 <div className="flex items-center gap-3">
                                                     <div className={`w-3 h-3 rounded-full ${item.color}`}></div>
                                                     <span className="text-sm font-bold text-slate-600 dark:text-slate-400">{item.label}</span>
                                                 </div>
-                                                <span className="text-sm font-black text-slate-900 dark:text-white">{item.rate}</span>
+                                                <span className="text-sm font-black text-slate-900 dark:text-white">{item.value || item.percentage}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -381,20 +401,7 @@ export default function ClinicReports() {
                                                 </td>
                                             </tr>
                                         ))
-                                    ) : [
-                                        {
-                                            name: 'BS. Trần Ngọc Minh', dept: 'Khoa Nội', cases: 342, rating: '4.9', status: 'Đang trực', active: true,
-                                            img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBFqPS8mYLnxySv4UFUNqM86Dn0L1O090weVBjY9cPfHwWRVd3DmgURNwrRvLo2IzNtsFywzuSgys6agXvIPIbNMtGsmxCni9zbscXzsbIk0BNvBLrFoEGtfhd4wu0j85J6A5sEV6Ch1qmnlpSXvXJekBVujWm62k2FfubufJF-jJyMCPJ1Ec7GnBsmd4skpmN2xjKghbgjLVDu5n3zjoYzIumlmnESXgqmkuEbuKDfg_B03G86kPWzbIinddLMKfWAH4SmO-2q96U'
-                                        },
-                                        {
-                                            name: 'BS. Lê Thị Phương', dept: 'Khoa Tim mạch', cases: 289, rating: '4.8', status: 'Đang trực', active: true,
-                                            img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCUTzVeQgZvYJvp25K5b3SJWqv_sVttWxS1vAvvHT9wiGN2yLzQ-3oAHKIkgZ22edtprAse17xme-Dc16m2BYnY8cqnl8jPdwEV3VkL_23FaJrmXWsf_HpxjDa8wLjwKC46RMjz0_R5p_vGWKHcfgfKo-hLtA8soDc3C54XU7amRf7SHtKvqvVizk21eV4-h2opICd24JqqQH6E93ctZLszdOI3wTL1J8L6BaJ8lR6aZvxdk7Ah3nD632tPuO9Ei9G1bsnS_LamyO4'
-                                        },
-                                        {
-                                            name: 'BS. Phạm Hoàng Anh', dept: 'Khoa Nhi', cases: 215, rating: '4.7', status: 'Nghỉ phép', active: false,
-                                            img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDMy2AWoRyHiE0Nzhr-JHk1uEkSntBx5R2aJvRxDnRWWo1JRozld-kbNktX8TokrrCArrhIbpGIn6kj8BCnIc1llHCUBp_jeO-3q-8AyJrxi8-xZsKQX3CRFfD2f3zZm4Q76EeC3KmgNv-BW5E9a2qup_FnjH6yv3gQUsZspjFPgPXEfVdyMZlq_I7iw2fxeyEkkhRiWi47hD5-LIOn-uQ9BayWj6KaZTaXOb9z2VrqBsEf4FnCE-pQRNOfQ7xjtjceUOQANmRxfTw'
-                                        }
-                                    ].map((dr, idx) => (
+                                    ) : stats?.doctorPerformances?.slice(0, 3).map((dr: any, idx: number) => (
                                         <tr key={idx} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                                             <td className="px-8 py-5">
                                                 <div className="flex items-center gap-3">
@@ -405,7 +412,7 @@ export default function ClinicReports() {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-5 text-sm font-bold text-slate-700 dark:text-slate-300">{dr.cases} ca</td>
+                                            <td className="px-8 py-5 text-sm font-bold text-slate-700 dark:text-slate-300">{dr.load}</td>
                                             <td className="px-8 py-5">
                                                 <div className="flex items-center gap-1 text-amber-500">
                                                     <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
