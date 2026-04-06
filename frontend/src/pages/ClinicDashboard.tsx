@@ -41,22 +41,22 @@ export default function ClinicDashboard() {
         chartData: selectedChartMetric === 'Lượng bệnh nhân'
             ? (stats?.patientGrowthChart && stats.patientGrowthChart.length > 0
                 ? stats.patientGrowthChart.map((d: any) => ({
-                    month: String(d.month).replace(/^T\./, 'Tháng '),
-                    value: parseInt(d.height) || 0
+                    month: d.month,
+                    value: d.value
                 }))
                 : [
                     { month: 'Tháng 12', value: 120 }, { month: 'Tháng 1', value: 156 }, { month: 'Tháng 2', value: 142 },
                     { month: 'Tháng 3', value: 188 }, { month: 'Tháng 4', value: 224 }
                 ])
             : selectedChartMetric === 'Tải lượng bác sĩ'
-                ? doctors.slice(0, 5).map((d: any) => ({
-                    month: d.name.split(' ').pop(),
-                    value: d.load
-                }))
-                : [ // Chỉ số rủi ro
-                    { month: 'Tháng 12', value: 12 }, { month: 'Tháng 1', value: 8 }, { month: 'Tháng 2', value: 15 },
-                    { month: 'Tháng 3', value: 5 }, { month: 'Tháng 4', value: 3 }
-                ]
+                ? (stats?.doctorLoadChart?.map((d: any) => ({
+                    month: d.month,
+                    value: d.value
+                })) || [])
+                : (stats?.riskIndexChart?.map((d: any) => ({
+                    month: d.month,
+                    value: d.value
+                })) || [])
     };
 
     const CustomXAxisTick = ({ x, y, payload, index, length }: any) => {
@@ -73,7 +73,7 @@ export default function ClinicDashboard() {
                     textAnchor={textAnchor}
                     fill="#64748b"
                     fontSize={13}
-                    fontWeight={700}
+                    fontWeight={500}
                 >
                     {payload.value}
                 </text>
@@ -146,7 +146,13 @@ export default function ClinicDashboard() {
     const fetchDashboardData = async (isSilent = false) => {
         if (!isSilent) setIsLoading(true);
         try {
-            const res = await clinicApi.getDashboard(currentClinicId);
+            const periodMap: Record<string, string> = {
+                '7 ngày qua': '7d',
+                '30 ngày qua': '30d',
+                '6 tháng gần nhất': '6m',
+                'Năm nay': '1y'
+            };
+            const res = await clinicApi.getDashboard(currentClinicId, periodMap[dashboardTimeRange] || '6m');
             if (res.success) {
                 setStats(res.data);
             }
@@ -159,7 +165,7 @@ export default function ClinicDashboard() {
 
     useEffect(() => {
         fetchDashboardData();
-    }, [currentClinicId]);
+    }, [currentClinicId, dashboardTimeRange]);
 
     const handleSaveDoctor = async (doctorData: any) => {
         setIsSavingDoctor(true);
@@ -223,7 +229,9 @@ export default function ClinicDashboard() {
                             ) : (
                                 <>
                                     <h3 className="text-[21px] font-semibold tracking-tight text-slate-900 dark:text-white">Tổng quan vận hành hôm nay</h3>
-                                    <p className="text-slate-500 font-medium text-[14px]">Hôm nay có 45 bệnh nhân cần theo dõi tái khám</p>
+                                    <p className="text-slate-500 font-medium text-[14px]">
+                                        {stats?.insights?.[0] || 'Thông tin vận hành phòng khám đang được cập nhật...'}
+                                    </p>
                                 </>
                             )}
                         </div>
@@ -236,6 +244,14 @@ export default function ClinicDashboard() {
                                 </>
                             ) : (
                                 <>
+                                    {stats?.insights?.length > 1 && (
+                                        <div className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 rounded-xl border border-amber-100 dark:border-amber-800 animate-in fade-in slide-in-from-right duration-500">
+                                            <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-[20px] animate-pulse">new_releases</span>
+                                            <p className="text-[13px] font-bold text-amber-700 dark:text-amber-300">
+                                                Cảnh báo mới: {stats.insights[1]}
+                                            </p>
+                                        </div>
+                                    )}
                                     <button
                                         onClick={handleExportExcel}
                                         className="bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-slate-50 transition-all active:scale-95"
@@ -513,20 +529,26 @@ export default function ClinicDashboard() {
                                             {/* Dynamic segments based on diseaseRatios */}
                                             {(() => {
                                                 let currentOffset = 0;
+                                                const totalValue = mainStats.diseaseRatios.reduce((acc: number, item: any) => acc + (parseInt(String(item.value).replace('%', '')) || 0), 0);
+                                                
                                                 return mainStats.diseaseRatios.map((item: any, idx: number) => {
                                                     const percentage = parseInt(String(item.value).replace('%', '')) || 0;
                                                     if (percentage <= 0) return null;
 
-                                                    const dashArray = percentage === 100 ? "100 0" : `${percentage} 100`;
+                                                    // Normalize to 100 for pathLength="100" coordinate system
+                                                    const normalizedPercentage = (percentage / (totalValue || 100)) * 100;
+                                                    const dashArray = `${normalizedPercentage} 100`;
                                                     const dashOffset = -currentOffset;
-                                                    currentOffset += percentage;
+                                                    currentOffset += normalizedPercentage;
 
                                                     // Map color class to stroke color
                                                     let strokeClass = "stroke-emerald-500";
-                                                    if (item.color.includes("amber")) strokeClass = "stroke-amber-400";
-                                                    if (item.color.includes("blue")) strokeClass = "stroke-blue-500";
+                                                    if (item.color.includes("amber") || item.color.includes("yellow")) strokeClass = "stroke-amber-400";
+                                                    if (item.color.includes("blue") || item.color.includes("sky")) strokeClass = "stroke-sky-400";
                                                     if (item.color.includes("indigo")) strokeClass = "stroke-indigo-400";
                                                     if (item.color.includes("teal")) strokeClass = "stroke-teal-500";
+                                                    if (item.color.includes("primary")) strokeClass = "stroke-sky-500";
+                                                    if (item.color.includes("emerald")) strokeClass = "stroke-emerald-500";
 
                                                     return (
                                                         <circle
@@ -537,6 +559,7 @@ export default function ClinicDashboard() {
                                                             strokeDasharray={dashArray}
                                                             strokeDashoffset={dashOffset}
                                                             strokeWidth={hoveredSegment === idx ? 6 : 4}
+                                                            strokeLinecap="round"
                                                             onMouseEnter={() => setHoveredSegment(idx)}
                                                             onMouseLeave={() => setHoveredSegment(null)}
                                                         ></circle>

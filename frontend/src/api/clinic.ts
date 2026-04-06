@@ -2,8 +2,8 @@ import axiosInstance from './axios';
 
 export const clinicApi = {
   // Clinic Manager APIs
-  getDashboard: async (clinicId: string|number) => {
-    const response = await axiosInstance.get(`/v1/clinics/${clinicId}/dashboard`);
+  getDashboard: async (clinicId: string|number, period?: string) => {
+    const response = await axiosInstance.get(`/v1/clinics/${clinicId}/dashboard`, { params: { period } });
     return response.data;
   },
 

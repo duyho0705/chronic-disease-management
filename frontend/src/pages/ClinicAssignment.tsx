@@ -346,8 +346,8 @@ export default function ClinicAssignment() {
                                     <div className="relative">
                                         <div className="absolute inset-0 bg-primary/5 blur-3xl rounded-full scale-150"></div>
                                         <img 
-                                            src="https://img.freepik.com/free-vector/doctor-concept-illustration_114360-1269.jpg" 
-                                            className="w-64 h-auto relative z-10 drop-shadow-2xl" 
+                                            src="medical_assignment_premium_illustration_1775496143715.png" 
+                                            className="w-full max-w-[400px] h-auto relative z-10 drop-shadow-2xl" 
                                             alt="Doctor illustration" 
                                         />
                                     </div>

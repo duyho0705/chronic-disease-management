@@ -11,7 +11,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface ClinicDashboardService {
-    ClinicDashboardResponse getDashboardData(Long clinicId);
+    ClinicDashboardResponse getDashboardData(Long clinicId, String period);
 
     Page<ClinicPatientResponse> getPatientRecords(Long clinicId, String keyword, String condition, String riskLevel,
             String status, Pageable pageable);

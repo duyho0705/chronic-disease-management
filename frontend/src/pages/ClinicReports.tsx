@@ -46,7 +46,13 @@ export default function ClinicReports() {
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
-                const res = await clinicApi.getDashboard(currentClinicId);
+                const periodMap: Record<string, string> = {
+                    '7 ngày': '7d',
+                    '30 ngày': '30d',
+                    '6 tháng gần nhất': '6m',
+                    'Năm nay': '1y'
+                };
+                const res = await clinicApi.getDashboard(currentClinicId, periodMap[reportTimeRange] || '30d');
                 if (res.success) {
                     setStats(res.data);
                 }
@@ -57,7 +63,7 @@ export default function ClinicReports() {
             }
         };
         fetchDashboardData();
-    }, [currentClinicId]);
+    }, [currentClinicId, reportTimeRange]);
 
     const mainStats = {
         totalPatients: stats?.totalPatients || '0',
@@ -65,29 +71,22 @@ export default function ClinicReports() {
         diseaseRatios: stats?.diseaseRatios?.map((dr: any) => ({
             ...dr,
             value: dr.percentage
-        })) || [
-            { color: 'bg-primary', label: 'Tiểu đường', value: '40%' },
-            { color: 'bg-[#3b6470]', label: 'Cao huyết áp', value: '35%' },
-            { color: 'bg-[#c9e9d3]', label: 'Tim mạch', value: '25%' },
-        ],
+        })) || [],
         chartData: selectedChartMetric === 'Lượng bệnh nhân' 
             ? (stats?.patientGrowthChart && stats.patientGrowthChart.length > 0
                 ? stats.patientGrowthChart.map((d: any) => ({
-                    month: String(d.month).replace(/^T\./, 'Tháng '),
-                    value: parseInt(d.height) || 0
+                    month: d.month,
+                    value: d.value
                   }))
-                : [
-                    { month: 'Tháng 12', value: 120 }, { month: 'Tháng 1', value: 156 }, { month: 'Tháng 2', value: 142 }, 
-                    { month: 'Tháng 3', value: 188 }, { month: 'Tháng 4', value: 224 }
-                  ])
+                : [])
             : selectedChartMetric === 'Tải lượng bác sĩ'
-            ? (stats?.doctorPerformances?.slice(0, 5).map((d: any) => ({
-                month: d.name.split(' ').pop(),
-                value: d.load
+            ? (stats?.doctorLoadChart?.map((d: any) => ({
+                month: d.month,
+                value: d.value
               })) || [])
-            : (stats?.patientGrowthChart?.map((d: any) => ({
-                month: String(d.month).replace(/^T\./, 'Tháng '),
-                value: Math.floor(Math.random() * 20)
+            : (stats?.riskIndexChart?.map((d: any) => ({
+                month: d.month,
+                value: d.value
               })) || [])
     };
 
@@ -105,7 +104,7 @@ export default function ClinicReports() {
                     textAnchor={textAnchor}
                     fill="#64748b"
                     fontSize={13}
-                    fontWeight={700}
+                    fontWeight={500}
                 >
                     {payload.value}
                 </text>
@@ -444,10 +443,43 @@ export default function ClinicReports() {
                                     </div>
                                     <div className="relative w-48 h-48 flex items-center justify-center">
                                         <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                                            <circle cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" strokeWidth="12" className="text-slate-100 dark:text-slate-800"></circle>
-                                            <circle cx="50" cy="50" fill="transparent" r="40" stroke="#4ade80" strokeDasharray="251.2" strokeDashoffset="150.72" strokeWidth="12"></circle>
-                                            <circle className="rotate-[144deg] origin-center" cx="50" cy="50" fill="transparent" r="40" stroke="#3b6470" strokeDasharray="251.2" strokeDashoffset="200" strokeWidth="12"></circle>
-                                            <circle className="rotate-[270deg] origin-center" cx="50" cy="50" fill="transparent" r="40" stroke="#c9e9d3" strokeDasharray="251.2" strokeDashoffset="188.4" strokeWidth="12"></circle>
+                                            <circle cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" strokeWidth="10" className="text-slate-100 dark:text-slate-800"></circle>
+                                            {(() => {
+                                                let currentOffset = 0;
+                                                const totalValue = mainStats.diseaseRatios.reduce((acc: number, item: any) => acc + (parseInt(String(item.value || item.percentage).replace('%', '')) || 0), 0);
+                                                
+                                                return mainStats.diseaseRatios.map((item: any, idx: number) => {
+                                                    const percentage = parseInt(String(item.value || item.percentage).replace('%', '')) || 0;
+                                                    if (percentage <= 0) return null;
+
+                                                    // Normalize to 100 for pathLength="100" coordinate system
+                                                    const normalizedPercentage = (percentage / (totalValue || 100)) * 100;
+                                                    const dashArray = `${normalizedPercentage} 100`;
+                                                    const dashOffset = -currentOffset;
+                                                    currentOffset += normalizedPercentage;
+
+                                                    let strokeColor = "#10b981"; // emerald-500
+                                                    if (item.color.includes("amber") || item.color.includes("yellow")) strokeColor = "#fbbf24"; // amber-400
+                                                    if (item.color.includes("blue") || item.color.includes("sky")) strokeColor = "#38bdf8"; // sky-400
+                                                    if (item.color.includes("primary")) strokeColor = "#0ea5e9"; // sky-500
+                                                    if (item.color.includes("indigo")) strokeColor = "#818cf8"; // indigo-400
+                                                    if (item.color.includes("teal")) strokeColor = "#14b8a6"; // teal-500
+
+                                                    return (
+                                                        <circle
+                                                            key={idx}
+                                                            cx="50" cy="50" fill="transparent" r="40"
+                                                            stroke={strokeColor}
+                                                            strokeWidth="10"
+                                                            pathLength="100"
+                                                            strokeDasharray={dashArray}
+                                                            strokeDashoffset={dashOffset}
+                                                            strokeLinecap="round"
+                                                            className="transition-all duration-500 ease-in-out"
+                                                        ></circle>
+                                                    );
+                                                });
+                                            })()}
                                         </svg>
                                         <div className="absolute flex flex-col items-center">
                                             <span className="text-3xl font-black text-slate-900 dark:text-white italic-none">{mainStats.totalPatients}</span>

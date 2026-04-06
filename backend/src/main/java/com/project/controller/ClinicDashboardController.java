@@ -49,9 +49,11 @@ public class ClinicDashboardController {
 
     @GetMapping("/dashboard")
     @Operation(summary = "Get clinic dashboard", description = "Returns statistics for the specified clinic")
-    public ApiResponse<ClinicDashboardResponse> getDashboard(@PathVariable Long clinicId) {
+    public ApiResponse<ClinicDashboardResponse> getDashboard(
+            @PathVariable Long clinicId,
+            @RequestParam(defaultValue = "6m") String period) {
         validateClinicAccess(clinicId);
-        return ApiResponse.success("Dashboard info fetched", clinicDashboardService.getDashboardData(clinicId));
+        return ApiResponse.success("Dashboard info fetched", clinicDashboardService.getDashboardData(clinicId, period));
     }
 
     @GetMapping("/patients")
