@@ -38,6 +38,7 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
     long countByClinicIdAndChronicConditionAndIsDeletedFalse(Long clinicId, String condition);
     long countByCreatedAtBetweenAndIsDeletedFalse(java.time.LocalDateTime start, java.time.LocalDateTime end);
     long countByClinicIdAndCreatedAtBetweenAndIsDeletedFalse(Long clinicId, java.time.LocalDateTime start, java.time.LocalDateTime end);
+    long countByClinicIdAndRiskLevelAndCreatedAtBetweenAndIsDeletedFalse(Long clinicId, String riskLevel, java.time.LocalDateTime start, java.time.LocalDateTime end);
     long countByDoctorIdAndIsDeletedFalse(Long doctorId);
 
     long countByDoctorIdAndRiskLevelAndIsDeletedFalse(Long doctorId, String riskLevel);

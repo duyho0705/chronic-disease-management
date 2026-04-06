@@ -73,10 +73,7 @@ export default function ClinicDoctors() {
         fetchDoctors(0, false);
     }, [currentClinicId, debouncedSearch]);
 
-    const [notifications, setNotifications] = useState([
-        { id: 1, title: 'Báo cáo mới', description: 'Có báo cáo tổng quát tháng 12 vừa được tạo.', time: '5 phút trước', read: false },
-        { id: 2, title: 'Cảnh báo nguy cơ', description: 'Bệnh nhân Nguyễn Văn An có chỉ số bất thường.', time: '1 giờ trước', read: false },
-    ]);
+    const [notifications, setNotifications] = useState<any[]>([]);
 
     // Toast State
     const [showToast, setShowToast] = useState(false);

@@ -29,6 +29,7 @@ public class PatientPrescriptionServiceImpl implements PatientPrescriptionServic
     private final MedicationScheduleRepository medicationScheduleRepository;
     private final MedicationLogRepository medicationLogRepository;
     private final PatientRepository patientRepository;
+    private final NotificationRepository notificationRepository;
 
     @Override
     public List<PatientPrescriptionResponse> getActivePrescriptions() {
@@ -105,6 +106,10 @@ public class PatientPrescriptionServiceImpl implements PatientPrescriptionServic
         MedicationSchedule schedule = medicationScheduleRepository.findById(request.getScheduleId())
                 .orElseThrow(() -> new ResourceNotFoundException("Schedule not found: " + request.getScheduleId()));
 
+        if (!schedule.getPatient().getId().equals(patient.getId())) {
+            throw new RuntimeException("Unauthorized to log medication for this schedule");
+        }
+
         MedicationLog medicationLog = MedicationLog.builder()
                 .schedule(schedule)
                 .patient(patient)
@@ -124,6 +129,18 @@ public class PatientPrescriptionServiceImpl implements PatientPrescriptionServic
                 .orElseThrow(() -> new ResourceNotFoundException("Prescription not found: " + prescriptionId));
         prescription.setStatus(PrescriptionStatus.PENDING_RENEWAL);
         prescriptionRepository.save(prescription);
+
+        // Notify the Doctor
+        Notification notification = Notification.builder()
+                .userId(prescription.getDoctorId())
+                .title("Yêu cầu tái cấp thuốc")
+                .message("Bệnh nhân " + prescription.getPatient().getFullName() + " đã yêu cầu tái cấp đơn thuốc: " + prescription.getPrescriptionCode())
+                .type("info")
+                .read(false)
+                .targetUrl("/doctor/patients/" + prescription.getPatient().getId())
+                .build();
+        notificationRepository.save(notification);
+
         log.info("Prescription refill requested: id={}", prescriptionId);
     }
 

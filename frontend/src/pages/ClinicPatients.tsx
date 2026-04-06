@@ -39,7 +39,7 @@ export default function ClinicPatients() {
         }, 500);
         return () => clearTimeout(timer);
     }, [searchTerm]);
-    const [availableDoctors, setAvailableDoctors] = useState<string[]>([]);
+    const [availableDoctors, setAvailableDoctors] = useState<any[]>([]);
     const [availableConditions, setAvailableConditions] = useState<string[]>([]);
 
     const [patients, setPatients] = useState<any[]>([]);
@@ -48,10 +48,7 @@ export default function ClinicPatients() {
     const [totalElements, setTotalElements] = useState(0);
     const [pageSize] = useState(10);
 
-    const [notifications, setNotifications] = useState([
-        { id: 1, title: 'Báo cáo mới', description: 'Có báo cáo tổng quát tháng 12 vừa được tạo.', time: '5 phút trước', read: false },
-        { id: 2, title: 'Cảnh báo nguy cơ', description: 'Bệnh nhân Nguyễn Văn An có chỉ số bất thường.', time: '1 giờ trước', read: false },
-    ]);
+    const [notifications, setNotifications] = useState<any[]>([]);
 
     const [stats, setStats] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -100,17 +97,17 @@ export default function ClinicPatients() {
     useEffect(() => {
         const fetchDoctors = async () => {
             try {
-                const res = await clinicApi.getDoctorNames(currentClinicId);
+                const res = await clinicApi.getAvailableDoctors(currentClinicId);
                 if (res.success) {
-                    // Remove "BS." or "Bác sĩ" prefixes if any to avoid duplication
-                    const cleanedNames = res.data.map((name: string) => 
-                        name.replace(/^(BS\.|Bác sĩ\s*)/i, '').trim()
-                    );
-                    setAvailableDoctors(cleanedNames);
+                    // Normalize doctor names if they have prefixes
+                    const doctors = res.data.map((d: any) => ({
+                        ...d,
+                        name: d.name.replace(/^(BS\.|Bác sĩ\s*)/i, '').trim()
+                    }));
+                    setAvailableDoctors(doctors);
                 }
             } catch (error) {
                 console.error('Failed to fetch doctors:', error);
-                setAvailableDoctors(['Lê Thị Mai', 'Nguyễn Văn Hùng', 'Trần Thanh Vân']); // Fallback
             }
         };
 

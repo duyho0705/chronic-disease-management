@@ -7,8 +7,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
+
+    List<AuditLog> findTop5ByOrderByCreatedAtDesc();
 
     @Query("SELECT a FROM AuditLog a WHERE " +
            "(:userName IS NULL OR LOWER(a.userName) LIKE CAST(:userName AS text)) AND " +

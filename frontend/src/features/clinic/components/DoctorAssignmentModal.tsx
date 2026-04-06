@@ -190,10 +190,10 @@ export default function DoctorAssignmentModal({
                                 <table className="w-full text-left">
                                     <thead>
                                         <tr className="bg-slate-50/80 dark:bg-slate-800/50">
-                                            <th className="px-6 py-4 text-[13px] font-bold text-slate-500 uppercase tracking-wider">Họ tên & Thông tin Bệnh Nhân</th>
-                                            <th className="px-6 py-4 text-[13px] font-bold text-slate-500 uppercase tracking-wider">Chẩn đoán Chính</th>
-                                            <th className="px-6 py-4 text-[13px] font-bold text-slate-500 uppercase tracking-wider">Bảo hiểm</th>
-                                            <th className="px-6 py-4 text-[13px] font-bold text-slate-500 text-right uppercase tracking-wider">Thao tác</th>
+                                            <th className="px-6 py-4 text-[14px] font-medium text-slate-600">Họ tên & Thông tin Bệnh Nhân</th>
+                                            <th className="px-6 py-4 text-[14px] font-medium text-slate-600">Chẩn đoán Chính</th>
+                                            <th className="px-6 py-4 text-[14px] font-medium text-slate-600">Bảo hiểm</th>
+                                            <th className="px-6 py-4 text-[14px] font-medium text-slate-600 text-right">Thao tác</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">

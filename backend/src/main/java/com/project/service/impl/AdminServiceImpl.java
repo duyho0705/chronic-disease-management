@@ -45,10 +45,10 @@ import com.project.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@SuppressWarnings("null")
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@SuppressWarnings("null")
 public class AdminServiceImpl implements AdminService {
 
     private final ClinicRepository clinicRepository;
@@ -137,21 +137,17 @@ public class AdminServiceImpl implements AdminService {
                 .toList();
 
         // Recent system activities
-        List<AdminDashboardResponse.SystemActivityDto> activities = List.of(
-                AdminDashboardResponse.SystemActivityDto.builder()
-                        .title("Nâng cấp bảo mật")
-                        .description("Cập nhật giao thức mã hóa cho hồ sơ bệnh án.")
-                        .timeAgo("2 giờ trước")
-                        .icon("security")
-                        .color("blue")
-                        .build(),
-                AdminDashboardResponse.SystemActivityDto.builder()
-                        .title("Phòng khám mới được thêm")
-                        .description("Chi nhánh mới đã hoàn tất cấu hình.")
-                        .timeAgo("5 giờ trước")
-                        .icon("add_business")
-                        .color("emerald")
-                        .build());
+        // Recent system activities from DB
+        List<AdminDashboardResponse.SystemActivityDto> activities = auditLogRepository.findTop5ByOrderByCreatedAtDesc()
+                .stream()
+                .map(log -> AdminDashboardResponse.SystemActivityDto.builder()
+                        .title(log.getAction())
+                        .description(log.getDetails())
+                        .timeAgo(com.project.util.DateTimeUtils.formatTimeAgo(log.getCreatedAt()))
+                        .icon(getModuleIcon(log.getModule()))
+                        .color(log.getStatus())
+                        .build())
+                .collect(Collectors.toList());
 
         // Chart data logic
         List<AdminDashboardResponse.ChartDataDto> chartData = new ArrayList<>();
@@ -694,9 +690,39 @@ public class AdminServiceImpl implements AdminService {
     @Transactional(propagation = org.springframework.transaction.annotation.Propagation.REQUIRES_NEW)
     public void recordActivity(String action, String module, String details, String status) {
         try {
-            auditLogRepository.save(Objects.requireNonNull(com.project.entity.AuditLog.builder().userId(1L)
-                    .userName("Admin").action(action).module(module).details(details).status(status).build()));
-        } catch (Exception ignored) {
+            Long userId = 1L;
+            String userName = "Hệ thống";
+            
+            try {
+                org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+                if (auth != null && auth.getPrincipal() instanceof com.project.security.CustomUserDetails) {
+                    com.project.security.CustomUserDetails user = (com.project.security.CustomUserDetails) auth.getPrincipal();
+                    userId = user.getId();
+                    userName = user.getFullName(); // wait, does CustomUserDetails have getFullName()? No, let's check.
+                }
+            } catch (Exception ignored) {}
+
+            auditLogRepository.save(Objects.requireNonNull(com.project.entity.AuditLog.builder()
+                    .userId(userId)
+                    .userName(userName)
+                    .action(action)
+                    .module(module)
+                    .details(details)
+                    .status(status)
+                    .build()));
+        } catch (Exception e) {
+            log.error("Failed to record audit activity: {}", e.getMessage());
         }
+    }
+
+    private String getModuleIcon(String module) {
+        if (module == null) return "info";
+        return switch (module.toLowerCase()) {
+            case "quản lý phòng khám" -> "business";
+            case "quản lý người dùng" -> "group";
+            case "hệ thống" -> "settings";
+            case "bảo mật" -> "security";
+            default -> "analytics";
+        };
     }
 }

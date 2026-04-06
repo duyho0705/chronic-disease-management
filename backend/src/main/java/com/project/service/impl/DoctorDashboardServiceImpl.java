@@ -5,6 +5,8 @@ import com.project.dto.response.DashboardStatsDto;
 import com.project.dto.response.DoctorDashboardResponse;
 import com.project.dto.response.DoctorPatientResponse;
 import com.project.repository.AppointmentRepository;
+import com.project.repository.MessageRepository;
+import com.project.service.ClinicalAnalyticsService;
 import com.project.service.DoctorDashboardService;
 import com.project.service.DoctorPatientService;
 import com.project.util.DateTimeUtils;
@@ -18,12 +20,15 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("null")
 @Service
 @RequiredArgsConstructor
 public class DoctorDashboardServiceImpl implements DoctorDashboardService {
 
     private final AppointmentRepository appointmentRepository;
+    private final MessageRepository messageRepository;
     private final DoctorPatientService doctorPatientService;
+    private final ClinicalAnalyticsService clinicalAnalyticsService;
 
     @Override
     @Transactional(readOnly = true)
@@ -34,14 +39,16 @@ public class DoctorDashboardServiceImpl implements DoctorDashboardService {
         // 1. Fetch Stats - real data
         long totalPatients = doctorPatientService.getTotalPatientCount(doctorId);
         long highRiskCount = doctorPatientService.getHighRiskCount(doctorId);
-        long pendingAppointments = appointmentRepository.countByDoctorIdAndStatusAndAppointmentTimeAfter(
-                doctorId, "SCHEDULED", now);
+        long pendingAppointments = appointmentRepository.countByDoctorIdAndStatusInAndAppointmentTimeAfter(
+                doctorId, java.util.List.of("PENDING", "SCHEDULED"), now);
+        
+        long unreadMessages = messageRepository.countByConversationDoctorIdAndIsReadFalseAndSenderIdNot(doctorId, doctorId);
         
         DashboardStatsDto stats = DashboardStatsDto.builder()
                 .totalPatients(totalPatients)
                 .highRiskCount(highRiskCount)
                 .pendingAppointmentsCount(pendingAppointments)
-                .unreadMessagesCount(0) // TODO: implement message counting
+                .unreadMessagesCount(unreadMessages)
                 .build();
 
         // 2. Fetch Upcoming Appointments
@@ -50,10 +57,10 @@ public class DoctorDashboardServiceImpl implements DoctorDashboardService {
                 .stream()
                 .map(apt -> AppointmentSnippetDto.builder()
                         .id(apt.getId())
-                        .patientName(apt.getPatient().getFullName())
-                        .displayTime(DateTimeUtils.formatForDashboard(apt.getAppointmentTime()))
+                        .patientName(apt.getPatient() != null ? apt.getPatient().getFullName() : "N/A")
+                        .displayTime(apt.getAppointmentTime() != null ? DateTimeUtils.formatForDashboard(apt.getAppointmentTime()) : "N/A")
                         .type(apt.getType())
-                        .isPast(apt.getAppointmentTime().isBefore(now))
+                        .isPast(apt.getAppointmentTime() != null && apt.getAppointmentTime().isBefore(now))
                         .build())
                 .collect(Collectors.toList());
 
@@ -71,7 +78,15 @@ public class DoctorDashboardServiceImpl implements DoctorDashboardService {
                 .stats(stats)
                 .upcomingAppointments(upcomingAppointments)
                 .recentPatients(recentPatients)
-                .highRiskPatients(highRiskPatients)
+                .highRiskPatients(highRiskPatients.stream().map(p -> DoctorDashboardResponse.DoctorPatientResponseSnippet.builder()
+                        .id(p.getId())
+                        .name(p.getFullName())
+                        .condition(p.getChronicCondition())
+                        .riskLevel(p.getRiskLevel())
+                        .lastUpdate(p.getLastUpdate() != null ? p.getLastUpdate() : "Vừa xong")
+                        .img(p.getAvatarUrl())
+                        .build()).collect(Collectors.toList()))
+                .insights(clinicalAnalyticsService.getDoctorInsights(doctorId))
                 .build();
     }
 }

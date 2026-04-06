@@ -18,8 +18,11 @@ public class ClinicDashboardResponse {
 
     private List<DiseaseRatioDto> diseaseRatios;
     private List<PatientGrowthChartDto> patientGrowthChart;
+    private List<PatientGrowthChartDto> riskIndexChart;
+    private List<PatientGrowthChartDto> doctorLoadChart;
     private GrowthStatsDto growthStats;
     private List<DoctorPerformanceDto> doctorPerformances;
+    private List<String> insights;
 
     @Data
     @Builder
@@ -33,7 +36,7 @@ public class ClinicDashboardResponse {
     @Builder
     public static class PatientGrowthChartDto {
         private String month;
-        private String height;
+        private int value;
         private boolean active;
     }
 

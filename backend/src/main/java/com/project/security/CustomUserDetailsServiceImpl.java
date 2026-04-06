@@ -24,8 +24,10 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
         return CustomUserDetails.builder()
                 .id(user.getId())
                 .email(user.getEmail())
+                .fullName(user.getFullName())
                 .password(user.getPassword())
                 .clinicId(user.getClinicId())
+                .role(user.getRole())
                 .authorities(Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole())))
                 .build();
     }

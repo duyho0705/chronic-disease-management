@@ -41,10 +41,7 @@ export default function DoctorMessages() {
     const [showToast, setShowToast] = useState(false);
     const [toastTitle, setToastTitle] = useState('');
     const [isSaving, setIsSaving] = useState(false);
-    const [notifications, setNotifications] = useState([
-        { id: 1, title: 'Cảnh báo chỉ số', message: 'Bệnh nhân Nguyễn Văn An có chỉ số đường huyết cao bất thường.', time: '5 phút trước', type: 'warning' },
-        { id: 2, title: 'Lịch hẹn mới', message: 'Bạn có một yêu cầu đặt lịch hẹn mới từ Lê Thị Bình.', time: '2 giờ trước', type: 'info' }
-    ]);
+    const [notifications, setNotifications] = useState<any[]>([]);
 
     useEffect(() => {
         loadConversations();
@@ -119,21 +116,40 @@ export default function DoctorMessages() {
     };
 
     const handleSaveAdvice = async () => {
+        if (!activeConv) return;
         setIsSaving(true);
-        await new Promise(r => setTimeout(r, 1000));
-        setIsSaving(false);
-        setIsAdviceModalOpen(false);
-        setToastTitle('Gửi tư vấn thành công');
-        setShowToast(true);
+        try {
+            const messageContent = `[Tư vấn ${adviceCategory}] ${adviceContent}`;
+            await doctorApi.sendMessage({ conversationId: activeConv.id, content: messageContent, messageType: 'TEXT' });
+            setIsAdviceModalOpen(false);
+            setAdviceContent('');
+            setToastTitle('Gửi tư vấn thành công');
+            setShowToast(true);
+            loadMessages(activeConv.id);
+        } catch (e) {
+            setToastTitle('Có lỗi khi gửi tư vấn');
+            setShowToast(true);
+        } finally {
+            setIsSaving(false);
+        }
     };
 
-    const handleSavePrescription = async () => {
+    const handleSavePrescription = async (prescriptionData: any) => {
         setIsSaving(true);
-        await new Promise(r => setTimeout(r, 1500));
-        setIsSaving(false);
-        setIsPrescriptionModalOpen(false);
-        setToastTitle('Kê đơn thành công');
-        setShowToast(true);
+        try {
+            const res = await doctorApi.createPrescription(prescriptionData);
+            if (res.success) {
+                setIsPrescriptionModalOpen(false);
+                setMedications([]);
+                setToastTitle('Kê đơn thành công');
+                setShowToast(true);
+            }
+        } catch (e) {
+            setToastTitle('Có lỗi khi kê đơn');
+            setShowToast(true);
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -459,7 +475,7 @@ export default function DoctorMessages() {
                 setAdviceContent={setAdviceContent}
                 isSaving={isSaving}
                 onSave={handleSaveAdvice}
-                patientName="Nguyễn Văn A"
+                patientName={activeConv?.patientName || "Bệnh nhân"}
             />
 
             <PatientDetailModal
@@ -510,7 +526,7 @@ export default function DoctorMessages() {
                 addMedicationToPrescription={addMedicationToPrescription}
                 isSaving={isSaving}
                 onSave={handleSavePrescription}
-                patientName={activeConv?.patientName || "Bệnh nhân"}
+                patients={activeConv ? [{ id: activeConv.patientId, name: activeConv.patientName }] : []}
             />
 
             <Toast

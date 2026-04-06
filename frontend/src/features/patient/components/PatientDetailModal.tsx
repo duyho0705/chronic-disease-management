@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Dropdown from '../../../components/ui/Dropdown';
+import { doctorApi } from '../../../api/doctor';
 
 interface PatientDetailModalProps {
   isOpen: boolean;
@@ -9,17 +10,35 @@ interface PatientDetailModalProps {
 
 export default function PatientDetailModal({ isOpen, onClose, patient }: PatientDetailModalProps) {
   const [timeRange, setTimeRange] = useState('30 ngày qua');
+  const [detailData, setDetailData] = useState<any>(null);
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && patient?.id) {
       document.body.style.overflow = 'hidden';
+      const fetchDetail = async () => {
+        try {
+          const res = await doctorApi.getPatientDetail(patient.id);
+          if (res.success) {
+            setDetailData(res.data);
+          }
+        } catch (e) {
+          console.error("Failed to fetch patient detail", e);
+        }
+      };
+      fetchDetail();
     } else {
       document.body.style.overflow = 'unset';
     }
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen]);
+  }, [isOpen, patient?.id]);
+
+  const profile = detailData?.profile || patient || {};
+  const metrics = detailData?.recentMetrics || [];
+  const prescriptions = detailData?.prescriptionHistory || [];
+  const appointments = detailData?.appointmentHistory || [];
+  const adherence = detailData?.adherenceRate || 0;
 
   const handlePrint = () => {
     window.print();
@@ -108,33 +127,33 @@ export default function PatientDetailModal({ isOpen, onClose, patient }: Patient
           <div className="col-span-8 bg-[#f1f4f2] p-4 rounded-xl flex items-center gap-6">
             <div className="w-16 h-16 rounded-full bg-[#dde5de] flex items-center justify-center overflow-hidden border-2 border-white shadow-sm">
               <img
-                alt={patient?.name}
+                alt={profile?.fullName}
                 className="w-full h-full object-cover"
-                src={patient?.avatar || "https://i.pravatar.cc/150?u=BN0892"}
+                src={profile?.avatarUrl || "https://i.pravatar.cc/150?u=BN0892"}
               />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-bold text-[#0f1711]">{patient?.name || 'Nguyễn Văn A'}</h3>
+              <h3 className="text-lg font-bold text-[#0f1711]">{profile?.fullName || 'Nguyễn Văn A'}</h3>
               <div className="grid grid-cols-2 gap-x-4 mt-1">
                 <div className="flex flex-col">
                   <span className="text-[11px] text-[#707972] font-bold">Tuổi</span>
-                  <span className="text-[13px] font-semibold">{patient?.age || '65'} Tuổi</span>
+                  <span className="text-[13px] font-semibold">{profile?.age || '65'} Tuổi</span>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-[11px] text-[#707972] font-bold">Mã bệnh nhân</span>
-                  <span className="text-[13px] font-semibold tracking-wide text-[#047857]">{patient?.id || 'BN0892'}</span>
+                  <span className="text-[13px] font-semibold tracking-wide text-[#047857]">{profile?.patientCode || 'BN0892'}</span>
                 </div>
               </div>
             </div>
           </div>
-          <div className={`col-span-4 p-4 rounded-xl flex flex-col justify-between border-l-4 ${patient?.risk === 'Nguy cơ cao' ? 'bg-[#ffdad6] border-[#ba1a1a]' : 'bg-[#d1f9e1] border-[#059669]'}`}>
-            <span className={`text-[11px] font-bold ${patient?.risk === 'Nguy cơ cao' ? 'text-[#410002]' : 'text-[#00210e]'}`}>Mức độ rủi ro</span>
+          <div className={`col-span-4 p-4 rounded-xl flex flex-col justify-between border-l-4 ${profile?.riskLevel?.includes('Nguy cơ cao') ? 'bg-[#ffdad6] border-[#ba1a1a]' : 'bg-[#d1f9e1] border-[#059669]'}`}>
+            <span className={`text-[11px] font-bold ${profile?.riskLevel?.includes('Nguy cơ cao') ? 'text-[#410002]' : 'text-[#00210e]'}`}>Mức độ rủi ro</span>
             <div>
-              <span className={`text-lg font-extrabold tracking-tight ${patient?.risk === 'Nguy cơ cao' ? 'text-[#ba1a1a]' : 'text-[#059669]'}`}>
-                {patient?.risk || 'Nguy cơ cao'}
+              <span className={`text-lg font-extrabold tracking-tight ${profile?.riskLevel?.includes('Nguy cơ cao') ? 'text-[#ba1a1a]' : 'text-[#059669]'}`}>
+                {profile?.riskLevel || 'Ổn định'}
               </span>
-              <p className={`text-[12px] opacity-80 leading-snug mt-1 font-medium ${patient?.risk === 'Nguy cơ cao' ? 'text-[#410002]' : 'text-[#00210e]'}`}>
-                {patient?.risk === 'Nguy cơ cao' ? 'Cần can thiệp lâm sàng ngay lập tức.' : 'Tiếp tục duy trì lối sống lành mạnh.'}
+              <p className={`text-[12px] opacity-80 leading-snug mt-1 font-medium ${profile?.riskLevel?.includes('Nguy cơ cao') ? 'text-[#410002]' : 'text-[#00210e]'}`}>
+                {profile?.riskLevel?.includes('Nguy cơ cao') ? 'Cần can thiệp lâm sàng ngay lập tức.' : 'Tiếp tục duy trì lối sống lành mạnh.'}
               </p>
             </div>
           </div>
@@ -150,9 +169,9 @@ export default function PatientDetailModal({ isOpen, onClose, patient }: Patient
             <div className="bg-white p-4 rounded-xl border border-[#c0c9c1]/40 shadow-sm">
               <div className="flex justify-between items-start mb-2">
                 <span className="material-symbols-outlined text-[#ba1a1a] text-xl">blood_pressure</span>
-                {patient?.risk === 'Nguy cơ cao' && <span className="text-[11px] bg-[#ba1a1a]/10 text-[#ba1a1a] px-2 py-0.5 rounded-full font-bold">Cao</span>}
+                {(profile?.latestBp && parseInt(profile.latestBp) > 140) && <span className="text-[11px] bg-[#ba1a1a]/10 text-[#ba1a1a] px-2 py-0.5 rounded-full font-bold">Cao</span>}
               </div>
-              <p className="text-xl font-extrabold text-[#0f1711]">165/105</p>
+              <p className="text-xl font-extrabold text-[#0f1711]">{profile?.latestBp || 'N/A'}</p>
               <p className="text-[12px] font-bold text-[#3f4942]">Huyết áp (mmHg)</p>
             </div>
             <div className="bg-white p-4 rounded-xl border border-[#c0c9c1]/40 shadow-sm">
@@ -160,7 +179,7 @@ export default function PatientDetailModal({ isOpen, onClose, patient }: Patient
                 <span className="material-symbols-outlined text-[#059669] text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>glucose</span>
                 <span className="text-[11px] bg-[#d1f9e1] text-[#047857] px-2 py-0.5 rounded-full font-bold">Ổn định</span>
               </div>
-              <p className="text-xl font-extrabold text-[#0f1711]">5.8</p>
+              <p className="text-xl font-extrabold text-[#0f1711]">{profile?.latestGlucose?.split(' ')[0] || 'N/A'}</p>
               <p className="text-[12px] font-bold text-[#3f4942]">Đường huyết (mmol/L)</p>
             </div>
             <div className="bg-white p-4 rounded-xl border border-[#c0c9c1]/40 shadow-sm">
@@ -168,7 +187,7 @@ export default function PatientDetailModal({ isOpen, onClose, patient }: Patient
                 <span className="material-symbols-outlined text-[#f43f5e] text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
                 <span className="text-[11px] bg-[#fdf2f2] text-[#f43f5e] px-2 py-0.5 rounded-full font-bold">Bình thường</span>
               </div>
-              <p className="text-xl font-extrabold text-[#0f1711]">82</p>
+              <p className="text-xl font-extrabold text-[#0f1711]">{metrics.find((m: any) => m.metricType === 'HEART_RATE')?.value || '82'}</p>
               <p className="text-[12px] font-bold text-[#3f4942]">Nhịp tim (BPM)</p>
             </div>
             <div className="bg-white p-4 rounded-xl border border-[#c0c9c1]/40 shadow-sm">
@@ -176,7 +195,7 @@ export default function PatientDetailModal({ isOpen, onClose, patient }: Patient
                 <span className="material-symbols-outlined text-[#0ea5e9] text-xl">air</span>
                 <span className="text-[11px] bg-[#f0f9ff] text-[#0ea5e9] px-2 py-0.5 rounded-full font-bold">Tốt</span>
               </div>
-              <p className="text-xl font-extrabold text-[#0f1711]">98%</p>
+              <p className="text-xl font-extrabold text-[#0f1711]">{metrics.find((m: any) => m.metricType === 'SPO2')?.value || '98'}%</p>
               <p className="text-[12px] font-bold text-[#3f4942]">SpO2 (Oxy máu)</p>
             </div>
           </div>
@@ -223,28 +242,30 @@ export default function PatientDetailModal({ isOpen, onClose, patient }: Patient
         {/* Medications & Remarks */}
         <section className="grid grid-cols-2 gap-6 mb-5">
           <div className="bg-[#f1f4f2] p-4 rounded-xl border border-[#c0c9c1]/20">
-            <h4 className="text-[13px] font-bold text-[#0f1711] mb-3 border-b border-[#c0c9c1]/30 pb-2">Thuốc đang sử dụng</h4>
+            <h4 className="text-[13px] font-bold text-[#0f1711] mb-3 border-b border-[#c0c9c1]/30 pb-2">Đơn thuốc gần nhất</h4>
             <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <span className="material-symbols-outlined text-primary text-sm mt-0.5">pill</span>
-                <div>
-                  <p className="text-[13px] font-bold text-[#0f1711]">Amlodipine 5mg</p>
-                  <p className="text-[12px] text-[#3f4942] italic">1 viên sáng sau ăn</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <span className="material-symbols-outlined text-primary text-sm mt-0.5">pill</span>
-                <div>
-                  <p className="text-[13px] font-bold text-[#0f1711]">Metformin 500mg</p>
-                  <p className="text-[12px] text-[#3f4942] italic">2 viên/ngày (sáng-chiều)</p>
-                </div>
-              </div>
+              {prescriptions.length > 0 ? (
+                prescriptions[0].items.slice(0, 3).map((item: any, idx: number) => (
+                  <div key={idx} className="flex items-start gap-3">
+                    <span className="material-symbols-outlined text-primary text-sm mt-0.5">pill</span>
+                    <div>
+                      <p className="text-[13px] font-bold text-[#0f1711]">{item.medicationName} {item.dosage}</p>
+                      <p className="text-[12px] text-[#3f4942] italic">{item.usageInstructions}</p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-[12px] text-slate-400">Không có đơn thuốc gần đây</p>
+              )}
             </div>
           </div>
           <div className="bg-[#f1f4f2] p-4 rounded-xl border border-[#c0c9c1]/20">
-            <h4 className="text-[13px] font-bold text-[#0f1711] mb-3 border-b border-[#c0c9c1]/30 pb-2">Ghi chú lâm sàng</h4>
+            <h4 className="text-[13px] font-bold text-[#0f1711] mb-3 border-b border-[#c0c9c1]/30 pb-2">Ghi chú & Tuân thủ</h4>
             <p className="text-[13px] leading-relaxed text-[#3f4942] font-medium">
-              Bệnh nhân có chỉ số huyết áp tăng cao. Cần giảm lượng muối trong khẩu phần ăn. Tiếp tục duy trì phác đồ điều trị và tái khám định kỳ sau 1 tuần.
+              Chỉ số tuân thủ điều trị: <span className="font-bold text-primary">{adherence.toFixed(1)}%</span>.
+            </p>
+            <p className="text-[12px] text-slate-500 mt-2">
+              Bệnh nhân {adherence < 70 ? 'cần được nhắc nhở uống thuốc đều đặn hơn.' : 'đang tuân thủ phác đồ điều trị rất tốt.'}
             </p>
           </div>
         </section>
@@ -295,42 +316,40 @@ export default function PatientDetailModal({ isOpen, onClose, patient }: Patient
                 <div className="relative shrink-0">
                   <img
                     className="size-32 rounded-2xl object-cover"
-                    src={patient?.avatar || "https://lh3.googleusercontent.com/aida-public/AB6AXuBQIVC5UVVnYFrHotJWRdOzSC_E3FBCQEoE184wQ53tVIU99mCmsnvpRBP8AxOgPqY4ybn9yh-ls0TdYzrW84tXyVp1chICLHuqh24SPAwmF-JJMZOAY5b6sWBcWHx0HE2pfkknQ3kbNOCOHncZou8wv9681_qfeqqF6ei7-c2tYKJiOih9gpWegaVqMzBBcsL__BBf1ERBs4ya9r4R9MusSrAo8G1F6a0xU-jwmEaQav_vPqmUpMzOJYXGCugRCcfNmQ_TNYls7KQ"}
-                    alt={patient?.name}
+                    src={profile?.avatarUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuBQIVC5UVVnYFrHotJWRdOzSC_E3FBCQEoE184wQ53tVIU99mCmsnvpRBP8AxOgPqY4ybn9yh-ls0TdYzrW84tXyVp1chICLHuqh24SPAwmF-JJMZOAY5b6sWBcWHx0HE2pfkknQ3kbNOCOHncZou8wv9681_qfeqqF6ei7-c2tYKJiOih9gpWegaVqMzBBcsL__BBf1ERBs4ya9r4R9MusSrAo8G1F6a0xU-jwmEaQav_vPqmUpMzOJYXGCugRCcfNmQ_TNYls7KQ"}
+                    alt={profile?.fullName}
                   />
                 </div>
                 <div className="flex-1 space-y-4">
                   <div>
                     <div className="flex items-center gap-3 flex-wrap">
-                      <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{patient?.name || 'Nguyễn Văn A'}</h2>
+                      <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{profile?.fullName || 'Nguyễn Văn A'}</h2>
                       <span
-                        style={patient?.risk === 'Nguy cơ cao' ? { backgroundColor: 'rgb(255, 197, 197)', borderColor: 'rgb(237, 152, 152)' } : {}}
-                        className={`px-3 py-1 text-[13px] font-bold rounded-full tracking-wide border ${patient?.risk === 'Nguy cơ cao' ? 'text-red-500' :
-                          patient?.risk === 'Cần theo dõi' ? 'bg-orange-50 text-orange-500 border-orange-100' :
+                        className={`px-3 py-1 text-[13px] font-bold rounded-full tracking-wide border ${profile?.riskLevel?.includes('Nguy cơ cao') ? 'bg-red-50 text-red-500 border-red-100' :
+                          profile?.riskLevel?.includes('theo dõi') ? 'bg-orange-50 text-orange-500 border-orange-100' :
                             'bg-green-50 text-green-500 border-green-100'
                           }`}>
-                        {patient?.risk || 'Nguy cơ cao'}
+                        {profile?.riskLevel || 'Ổn định'}
                       </span>
                     </div>
                     <div className="flex flex-col gap-0.5 mt-1">
-                      <p className="text-slate-500 text-sm">Giới tính: {patient?.gender || 'Nam'}</p>
-                      <p className="text-slate-500 text-sm">Tuổi: {patient?.age || '65'}</p>
-                      <p className="text-slate-500 text-sm">Mã bệnh nhân: {patient?.id || 'BN0892'}</p>
-                      <p className="text-slate-500 text-sm">Đã tham gia 2 năm</p>
+                      <p className="text-slate-500 text-sm">Giới tính: {profile?.gender || 'Nam'}</p>
+                      <p className="text-slate-500 text-sm">Tuổi: {profile?.age || '65'}</p>
+                      <p className="text-slate-500 text-sm">Mã bệnh nhân: {profile?.patientCode || 'BN0892'}</p>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                     <div className="space-y-1">
                       <p className="text-xs text-slate-400 uppercase font-bold">Bệnh lý nền</p>
-                      <p className="text-sm font-semibold">{patient?.disease || 'Cao huyết áp'}</p>
+                      <p className="text-sm font-semibold">{profile?.chronicCondition || 'Cao huyết áp'}</p>
                     </div>
                     <div className="space-y-1">
                       <p className="text-xs text-slate-400 uppercase font-bold">Dị ứng</p>
-                      <p className="text-sm font-semibold text-red-500">Penicillin</p>
+                      <p className="text-sm font-semibold text-red-500">{profile?.allergies?.join(', ') || 'Không'}</p>
                     </div>
                     <div className="space-y-1">
                       <p className="text-xs text-slate-400 uppercase font-bold">Nhóm máu</p>
-                      <p className="text-sm font-semibold">O+</p>
+                      <p className="text-sm font-semibold">{profile?.bloodType || 'N/A'}</p>
                     </div>
                   </div>
                 </div>
@@ -375,11 +394,11 @@ export default function PatientDetailModal({ isOpen, onClose, patient }: Patient
               <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
                 <div className="flex items-center justify-between mb-2">
                   <span className="material-symbols-outlined text-red-500">blood_pressure</span>
-                  <span className="text-[13px] font-bold text-red-500 bg-red-50 dark:bg-red-900/20 px-2 py-0.5 rounded">Nguy hiểm</span>
+                  {profile?.latestBp && parseInt(profile.latestBp) > 140 && <span className="text-[13px] font-bold text-red-500 bg-red-50 dark:bg-red-900/20 px-2 py-0.5 rounded">Cao</span>}
                 </div>
                 <p className="text-slate-400 text-[13px] font-medium">Huyết áp</p>
                 <div className="flex items-baseline gap-1 mt-1">
-                  <h4 className="text-[22px] font-bold text-slate-900 dark:text-white">{patient?.bp || '165/105'}</h4>
+                  <h4 className="text-[22px] font-bold text-slate-900 dark:text-white">{profile?.latestBp || 'N/A'}</h4>
                   <span className="text-[12px] text-slate-400 font-medium ml-1">mmHg</span>
                 </div>
               </div>
@@ -390,7 +409,7 @@ export default function PatientDetailModal({ isOpen, onClose, patient }: Patient
                 </div>
                 <p className="text-slate-400 text-[13px] font-medium">Đường huyết</p>
                 <div className="flex items-baseline gap-1 mt-1">
-                  <h4 className="text-[22px] font-bold text-slate-900 dark:text-white">{patient?.glucose || '5.8'}</h4>
+                  <h4 className="text-[22px] font-bold text-slate-900 dark:text-white">{profile?.latestGlucose?.split(' ')[0] || 'N/A'}</h4>
                   <span className="text-[12px] text-slate-400 font-medium ml-1">mmol/L</span>
                 </div>
               </div>
@@ -401,29 +420,29 @@ export default function PatientDetailModal({ isOpen, onClose, patient }: Patient
                 </div>
                 <p className="text-slate-400 text-[13px] font-medium">Nhịp tim</p>
                 <div className="flex items-baseline gap-1 mt-1">
-                  <h4 className="text-[22px] font-bold text-slate-900 dark:text-white">82</h4>
+                  <h4 className="text-[22px] font-bold text-slate-900 dark:text-white">{metrics.find((m: any) => m.metricType === 'HEART_RATE')?.value || '82'}</h4>
                   <span className="text-[12px] text-slate-400 font-medium ml-1">bpm</span>
                 </div>
               </div>
               <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
                 <div className="flex items-center justify-between mb-2">
                   <span className="material-symbols-outlined text-blue-500">air</span>
-                  <span className="text-[13px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">Bình thường</span>
+                  <span className="text-[13px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">Tốt</span>
                 </div>
                 <p className="text-slate-400 text-[13px] font-medium">SpO2</p>
                 <div className="flex items-baseline gap-1 mt-1">
-                  <h4 className="text-[22px] font-bold text-slate-900 dark:text-white">98</h4>
+                  <h4 className="text-[22px] font-bold text-slate-900 dark:text-white">{metrics.find((m: any) => m.metricType === 'SPO2')?.value || '98'}</h4>
                   <span className="text-[12px] text-slate-400 font-medium ml-1">%</span>
                 </div>
               </div>
               <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
                 <div className="flex items-center justify-between mb-2">
                   <span className="material-symbols-outlined text-purple-500">body_fat</span>
-                  <span className="text-[13px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">Bình thường</span>
+                  <span className="text-[13px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">BMI</span>
                 </div>
-                <p className="text-slate-400 text-[13px] font-medium">Chỉ số BMI</p>
+                <p className="text-slate-400 text-[13px] font-medium">BMI</p>
                 <div className="flex items-baseline gap-1 mt-1">
-                  <h4 className="text-[22px] font-bold text-slate-900 dark:text-white">24.5</h4>
+                  <h4 className="text-[22px] font-bold text-slate-900 dark:text-white">{(profile?.weightKg / ((profile?.heightCm/100)**2)).toFixed(1) || '24.5'}</h4>
                   <span className="text-[12px] text-slate-400 font-medium ml-1">kg/m²</span>
                 </div>
               </div>
@@ -475,33 +494,24 @@ export default function PatientDetailModal({ isOpen, onClose, patient }: Patient
                 <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-800">
                   <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-6">Lịch sử khám bệnh</h3>
                   <div className="space-y-8 relative before:absolute before:inset-y-0 before:left-[11px] before:w-0.5 before:bg-slate-100 dark:before:bg-slate-800">
-                    <div className="relative pl-10">
-                      <div className="absolute left-0 top-1 size-6 bg-primary/20 rounded-full flex items-center justify-center">
-                        <div className="size-2.5 bg-primary rounded-full"></div>
-                      </div>
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                        <p className="text-xs font-bold text-slate-400 uppercase">20 Tháng 10, 2023</p>
-                        <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-500 text-[10px] rounded uppercase font-bold">Khám định kỳ</span>
-                      </div>
-                      <h4 className="font-bold text-slate-900 dark:text-white mt-1">Kiểm tra huyết áp & Tư vấn dinh dưỡng</h4>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">Bệnh nhân có dấu hiệu mệt mỏi, huyết áp tăng nhẹ. Khuyến nghị giảm muối trong khẩu phần ăn và tập thể dục nhẹ 15 phút mỗi ngày.</p>
-                      <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">
-                        <p className="text-xs italic text-slate-500">Chẩn đoán: Tăng huyết áp độ 2</p>
-                      </div>
-                    </div>
-                    <div className="relative pl-10">
-                      <div className="absolute left-0 top-1 size-6 bg-slate-200 dark:bg-slate-700 rounded-full flex items-center justify-center">
-                        <div className="size-2.5 bg-slate-400 rounded-full"></div>
-                      </div>
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                        <p className="text-xs font-bold text-slate-400 uppercase">05 Tháng 09, 2023</p>
-                        <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-500 text-[10px] rounded uppercase font-bold">Xét nghiệm</span>
-                      </div>
-                      <h4 className="font-bold text-slate-900 dark:text-white mt-1">Xét nghiệm máu tổng quát</h4>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">Chỉ số mỡ máu hơi cao (Cholesterol: 6.2 mmol/L). Các chỉ số khác trong ngưỡng bình thường.</p>
-                    </div>
+                    {appointments.length > 0 ? (
+                      appointments.slice(0, 5).map((app: any, idx: number) => (
+                        <div key={idx} className="relative pl-10">
+                          <div className={`absolute left-0 top-1 size-6 ${app.status === 'COMPLETED' ? 'bg-primary/20' : 'bg-slate-200'} rounded-full flex items-center justify-center`}>
+                            <div className={`size-2.5 ${app.status === 'COMPLETED' ? 'bg-primary' : 'bg-slate-400'} rounded-full`}></div>
+                          </div>
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <p className="text-xs font-bold text-slate-400 uppercase">{new Date(app.appointmentTime).toLocaleDateString('vi-VN')}</p>
+                            <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-500 text-[10px] rounded uppercase font-bold">{app.appointmentType}</span>
+                          </div>
+                          <h4 className="font-bold text-slate-900 dark:text-white mt-1">{app.reason}</h4>
+                          <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">Trạng thái: {app.status}</p>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-slate-400 pl-10">Không có lịch sử khám bệnh</p>
+                    )}
                   </div>
-                  <button className="w-full mt-8 py-3 text-sm font-bold text-primary hover:bg-primary/5 rounded-xl transition-colors border border-dashed border-primary/30">Xem tất cả lịch sử</button>
                 </div>
               </div>
 
@@ -516,28 +526,19 @@ export default function PatientDetailModal({ isOpen, onClose, patient }: Patient
                     </span>
                   </div>
                   <div className="space-y-4">
-                    <div className="p-5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
-                      <div className="flex justify-between items-start">
-                        <h4 className="font-bold text-[17px] text-slate-900 dark:text-white leading-tight">Amlodipine 5mg</h4>
-                        <span className="text-[11px] font-bold text-sky-500 uppercase">ĐANG DÙNG</span>
-                      </div>
-                      <p className="text-[14px] text-slate-500 mt-2 font-medium">Uống 1 viên vào buổi sáng sau ăn</p>
-                      <div className="mt-4 flex items-center gap-2 text-[11px] font-bold text-slate-400 uppercase tracking-wide">
-                        <span className="material-symbols-outlined text-[16px]">schedule</span>
-                        CÒN 12 NGÀY THUỐC
-                      </div>
-                    </div>
-                    <div className="p-5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
-                      <div className="flex justify-between items-start">
-                        <h4 className="font-bold text-[17px] text-slate-900 dark:text-white leading-tight">Metformin 500mg</h4>
-                        <span className="text-[11px] font-bold text-sky-500 uppercase">ĐANG DÙNG</span>
-                      </div>
-                      <p className="text-[14px] text-slate-500 mt-2 font-medium">Uống 2 viên chia 2 lần (Sáng/Chiều)</p>
-                      <div className="mt-4 flex items-center gap-2 text-[11px] font-bold text-slate-400 uppercase tracking-wide">
-                        <span className="material-symbols-outlined text-[16px]">schedule</span>
-                        CÒN 5 NGÀY THUỐC
-                      </div>
-                    </div>
+                    {prescriptions.filter((p: any) => p.status === 'ACTIVE').length > 0 ? (
+                      prescriptions.filter((p: any) => p.status === 'ACTIVE')[0].items.map((item: any, idx: number) => (
+                        <div key={idx} className="p-5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
+                          <div className="flex justify-between items-start">
+                            <h4 className="font-bold text-[17px] text-slate-900 dark:text-white leading-tight">{item.medicationName}</h4>
+                            <span className="text-[11px] font-bold text-sky-500 uppercase">ĐANG DÙNG</span>
+                          </div>
+                          <p className="text-[14px] text-slate-500 mt-2 font-medium">{item.dosage} - {item.usageInstructions}</p>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-slate-400 italic">Không có đơn thuốc đang hoạt động</p>
+                    )}
                   </div>
                 </div>
 

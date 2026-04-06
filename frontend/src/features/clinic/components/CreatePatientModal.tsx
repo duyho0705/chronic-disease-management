@@ -6,7 +6,7 @@ interface CreatePatientModalProps {
     onClose: () => void;
     isSaving: boolean;
     onSave: (patientData: any) => Promise<void>;
-    availableDoctors: string[];
+    availableDoctors: any[];
     availableConditions: string[];
 }
 
@@ -33,10 +33,16 @@ export default function CreatePatientModal({
         confirmPassword: ''
     });
 
+    // Map available doctors for Dropdown
+    const doctorOptions = availableDoctors.map(d => ({
+        label: d.name,
+        value: d.id.toString()
+    }));
+
     // Auto-update default values when lists are loaded
     useEffect(() => {
         if (!formData.assignedDoctor && availableDoctors.length > 0) {
-            setFormData(prev => ({ ...prev, assignedDoctor: availableDoctors[0] }));
+            setFormData(prev => ({ ...prev, assignedDoctor: availableDoctors[0].id.toString() }));
         }
         if (!formData.condition && availableConditions.length > 0) {
             setFormData(prev => ({ ...prev, condition: availableConditions[0] }));
@@ -298,7 +304,7 @@ export default function CreatePatientModal({
                                         <label className="text-[13px] font-bold text-slate-500 ml-1">Bác sĩ phụ trách</label>
                                         <div className="relative">
                                             <Dropdown
-                                                options={availableDoctors}
+                                                options={doctorOptions}
                                                 value={formData.assignedDoctor}
                                                 onChange={(assignedDoctor: string) => setFormData(prev => ({ ...prev, assignedDoctor }))}
                                             />

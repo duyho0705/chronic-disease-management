@@ -8,10 +8,7 @@ export default function DoctorAppointments() {
     const [appointments, setAppointments] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [notifications, setNotifications] = useState([
-        { id: 1, title: 'Cảnh báo chỉ số', message: 'Bệnh nhân Nguyễn Văn An có chỉ số đường huyết cao bất thường.', time: '5 phút trước', type: 'warning' },
-        { id: 2, title: 'Lịch hẹn mới', message: 'Bạn có một yêu cầu đặt lịch hẹn mới từ Lê Thị Bình.', time: '2 giờ trước', type: 'info' }
-    ]);
+    const [notifications, setNotifications] = useState<any[]>([]);
     const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
     const [selectedDay, setSelectedDay] = useState<number>(1);
     const [selectedTime, setSelectedTime] = useState<string>('09:00');
@@ -21,12 +18,20 @@ export default function DoctorAppointments() {
     const [toast, setToast] = useState({ show: false, title: '', type: 'success' as 'success' | 'warning' | 'error' });
     const [activeView, setActiveView] = useState<'month' | 'week' | 'day'>('month');
 
-    const handleSaveReschedule = async () => {
+    const handleSaveReschedule = async (appointmentData: any) => {
         setIsSaving(true);
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        setIsSaving(false);
-        setIsRescheduleModalOpen(false);
-        setToast({ show: true, title: 'Đặt lịch thành công!', type: 'success' });
+        try {
+            const res = await doctorApi.createAppointment(appointmentData);
+            if (res.success) {
+                setIsRescheduleModalOpen(false);
+                setToast({ show: true, title: 'Đặt lịch thành công!', type: 'success' });
+                loadAppointments();
+            }
+        } catch (e) {
+            setToast({ show: true, title: 'Có lỗi khi đặt lịch', type: 'error' });
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     useEffect(() => {

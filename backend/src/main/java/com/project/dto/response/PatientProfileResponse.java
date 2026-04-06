@@ -12,6 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 public class PatientProfileResponse {
     private Long id;
+    private Long userId;
     private String patientCode;
     private String fullName;
     private LocalDate dateOfBirth;

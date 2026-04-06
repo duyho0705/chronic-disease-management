@@ -42,4 +42,12 @@ public class DoctorAppointmentController {
         return ResponseEntity.ok(ApiResponse.success(
                 "Status updated", service.updateStatus(id, status)));
     }
+
+    @PostMapping
+    @Operation(summary = "Create a new appointment")
+    public ResponseEntity<ApiResponse<DoctorAppointmentResponse>> createAppointment(
+            @jakarta.validation.Valid @RequestBody com.project.dto.request.DoctorCreateAppointmentRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(
+                "Appointment created successfully", service.createAppointment(request)));
+    }
 }

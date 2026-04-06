@@ -11,8 +11,10 @@ import com.project.exception.ResourceNotFoundException;
 import com.project.mapper.PrescriptionMapper;
 import com.project.repository.PatientRepository;
 import com.project.repository.PrescriptionRepository;
+import com.project.service.NotificationService;
 import com.project.service.PrescriptionService;
 import lombok.RequiredArgsConstructor;
+import java.util.Objects;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     private final PrescriptionRepository prescriptionRepository;
     private final PatientRepository patientRepository;
     private final PrescriptionMapper prescriptionMapper;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional(readOnly = true)
@@ -85,7 +88,17 @@ public class PrescriptionServiceImpl implements PrescriptionService {
                     .build());
         });
         
-        Prescription saved = prescriptionRepository.save(prescription);
+        Prescription saved = Objects.requireNonNull(prescriptionRepository.save(prescription));
+        
+        // Notify Patient
+        if (patient.getUserId() != null) {
+            notificationService.sendNotification(patient.getUserId(), 
+                "Đơn thuốc mới: " + saved.getPrescriptionCode(),
+                "Bác sĩ đã kê đơn thuốc mới cho bạn. Vui lòng kiểm tra chi tiết trong hồ sơ.",
+                "prescription",
+                "/patient/profile");
+        }
+        
         return prescriptionMapper.toResponseDTO(saved);
     }
 

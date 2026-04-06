@@ -9,7 +9,6 @@ import com.project.entity.Patient;
 import com.project.exception.ResourceNotFoundException;
 import com.project.repository.ConversationRepository;
 import com.project.repository.MessageRepository;
-import com.project.repository.PatientRepository;
 import com.project.service.DoctorMessageService;
 import com.project.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("null")
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -30,15 +30,12 @@ public class DoctorMessageServiceImpl implements DoctorMessageService {
 
     private final ConversationRepository conversationRepository;
     private final MessageRepository messageRepository;
-    private final PatientRepository patientRepository;
 
     @Override
     public List<ConversationResponse> getConversations() {
         Long doctorId = SecurityUtils.getCurrentUserId().orElseThrow();
 
-        return conversationRepository.findAll().stream()
-                .filter(c -> c.getDoctorId().equals(doctorId) && c.isActive())
-                .sorted((a, b) -> b.getLastMessageAt().compareTo(a.getLastMessageAt()))
+        return conversationRepository.findByDoctorIdAndIsActiveTrueOrderByLastMessageAtDesc(doctorId).stream()
                 .map(conv -> {
                     String lastMsg = messageRepository
                             .findTopByConversationIdOrderBySentAtDesc(conv.getId())

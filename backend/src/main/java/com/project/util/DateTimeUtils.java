@@ -40,5 +40,18 @@ public class DateTimeUtils {
         return (int) ChronoUnit.YEARS.between(birthDay, LocalDate.now());
     }
 
+    /**
+     * Format time ago string in Vietnamese.
+     * Example: "2 phút trước", "1 ngày trước"
+     */
+    public static String formatTimeAgo(LocalDateTime time) {
+        if (time == null) return "Vừa xong";
+        long seconds = java.time.Duration.between(time, LocalDateTime.now()).getSeconds();
+        if (seconds < 60) return seconds + " giây trước";
+        if (seconds < 3600) return (seconds / 60) + " phút trước";
+        if (seconds < 86400) return (seconds / 3600) + " giờ trước";
+        return (seconds / 86400) + " ngày trước";
+    }
+
     private DateTimeUtils() {}
 }

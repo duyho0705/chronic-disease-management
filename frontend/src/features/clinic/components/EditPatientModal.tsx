@@ -7,7 +7,7 @@ interface EditPatientModalProps {
     isSaving: boolean;
     onSave: (patientData: any) => Promise<void>;
     patientData: any;
-    availableDoctors: string[];
+    availableDoctors: any[];
 }
 
 export default function EditPatientModal({
@@ -35,8 +35,19 @@ export default function EditPatientModal({
 
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
+    // Map available doctors for Dropdown
+    const doctorOptions = availableDoctors.map(d => ({
+        label: d.name,
+        value: d.id.toString()
+    }));
+
     useEffect(() => {
         if (isOpen && patientData) {
+            // Find doctor ID by name if doctorId not present in patientData, 
+            // or use patientData.doctorId if available (which it should be in the new version)
+            const currentDoctorId = patientData.doctorId ? patientData.doctorId.toString() : 
+                                   (availableDoctors.find(d => d.name === patientData.doctor)?.id.toString() || (availableDoctors[0]?.id.toString() || ''));
+
             setFormData({
                 name: patientData.name || '',
                 age: patientData.age || '',
@@ -46,7 +57,7 @@ export default function EditPatientModal({
                 address: patientData.address || '',
                 condition: patientData.condition || 'Tiểu đường Type 2',
                 riskLevel: patientData.riskLevel || 'Theo dõi (MONITORING)',
-                assignedDoctor: patientData.doctor || (availableDoctors[0] || ''),
+                assignedDoctor: currentDoctorId,
                 notes: patientData.notes || '',
                 password: '',
                 confirmPassword: ''
@@ -263,7 +274,7 @@ export default function EditPatientModal({
                                 <div className="space-y-1.5 text-left relative z-20">
                                     <label className="text-[13px] font-bold text-slate-500 ml-1">Bác sĩ phụ trách</label>
                                     <Dropdown
-                                        options={availableDoctors}
+                                        options={doctorOptions}
                                         value={formData.assignedDoctor}
                                         onChange={(assignedDoctor: string) => setFormData(prev => ({ ...prev, assignedDoctor }))}
                                     />

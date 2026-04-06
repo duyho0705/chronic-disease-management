@@ -47,8 +47,8 @@ export const clinicApi = {
     return response.data;
   },
 
-  getDoctorNames: async (clinicId: string|number) => {
-    const response = await axiosInstance.get(`/v1/clinics/${clinicId}/doctors/names`);
+  getAvailableDoctors: async (clinicId: string|number) => {
+    const response = await axiosInstance.get(`/v1/clinics/${clinicId}/doctors/available`);
     return response.data;
   },
 

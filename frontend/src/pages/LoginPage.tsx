@@ -35,11 +35,12 @@ const LoginPage = () => {
                 return;
             }
 
-            const { accessToken, role, clinicId } = response.data;
+            const { accessToken, role, clinicId, id } = response.data;
             console.log('Role from backend:', role);
             
             localStorage.setItem('token', accessToken);
             localStorage.setItem('userRole', role);
+            localStorage.setItem('userId', id.toString());
             if (clinicId) localStorage.setItem('clinicId', clinicId.toString());
             
             // Navigate based on real role from backend

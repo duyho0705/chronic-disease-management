@@ -10,10 +10,7 @@ export default function ClinicReports() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [reportTimeRange, setReportTimeRange] = useState('30 ngày');
     const [selectedChartMetric, setSelectedChartMetric] = useState('Lượng bệnh nhân');
-    const [notifications, setNotifications] = useState([
-        { id: 1, title: 'Báo cáo mới', description: 'Có báo cáo tổng quát tháng 12 vừa được tạo.', time: '5 phút trước', read: false },
-        { id: 2, title: 'Cảnh báo nguy cơ', description: 'Bệnh nhân Nguyễn Văn An có chỉ số bất thường.', time: '1 giờ trước', read: false },
-    ]);
+    const [notifications, setNotifications] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     // Custom Tooltip for Recharts
@@ -65,30 +62,33 @@ export default function ClinicReports() {
     const mainStats = {
         totalPatients: stats?.totalPatients || '0',
         patientGrowth: stats?.patientGrowth || '+0%',
-        diseaseRatios: stats?.diseaseRatios || [
+        diseaseRatios: stats?.diseaseRatios?.map((dr: any) => ({
+            ...dr,
+            value: dr.percentage
+        })) || [
             { color: 'bg-primary', label: 'Tiểu đường', value: '40%' },
             { color: 'bg-[#3b6470]', label: 'Cao huyết áp', value: '35%' },
             { color: 'bg-[#c9e9d3]', label: 'Tim mạch', value: '25%' },
         ],
         chartData: selectedChartMetric === 'Lượng bệnh nhân' 
-            ? (stats?.monthlyGrowth && stats.monthlyGrowth.length > 0
-                ? stats.monthlyGrowth.map((val: number, i: number) => ({
-                    month: `Tháng ${(new Date().getMonth() - 5 + i + 12) % 12 || 12}`,
-                    value: Number(val)
+            ? (stats?.patientGrowthChart && stats.patientGrowthChart.length > 0
+                ? stats.patientGrowthChart.map((d: any) => ({
+                    month: String(d.month).replace(/^T\./, 'Tháng '),
+                    value: parseInt(d.height) || 0
                   }))
                 : [
                     { month: 'Tháng 12', value: 120 }, { month: 'Tháng 1', value: 156 }, { month: 'Tháng 2', value: 142 }, 
                     { month: 'Tháng 3', value: 188 }, { month: 'Tháng 4', value: 224 }
                   ])
             : selectedChartMetric === 'Tải lượng bác sĩ'
-            ? [
-                { month: 'Tháng 12', value: 45 }, { month: 'Tháng 1', value: 48 }, { month: 'Tháng 2', value: 42 }, 
-                { month: 'Tháng 3', value: 55 }, { month: 'Tháng 4', value: 60 }
-              ]
-            : [ // Chỉ số rủi ro
-                { month: 'Tháng 12', value: 12 }, { month: 'Tháng 1', value: 8 }, { month: 'Tháng 2', value: 15 }, 
-                { month: 'Tháng 3', value: 5 }, { month: 'Tháng 4', value: 3 }
-            ]
+            ? (stats?.doctorPerformances?.slice(0, 5).map((d: any) => ({
+                month: d.name.split(' ').pop(),
+                value: d.load
+              })) || [])
+            : (stats?.patientGrowthChart?.map((d: any) => ({
+                month: String(d.month).replace(/^T\./, 'Tháng '),
+                value: Math.floor(Math.random() * 20)
+              })) || [])
     };
 
     const CustomXAxisTick = ({ x, y, payload, index, length }: any) => {

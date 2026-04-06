@@ -11,6 +11,8 @@ import java.util.Optional;
 public interface ConversationRepository extends JpaRepository<Conversation, Long> {
 
     List<Conversation> findByPatientIdAndIsActiveTrueOrderByLastMessageAtDesc(Long patientId);
+    
+    List<Conversation> findByDoctorIdAndIsActiveTrueOrderByLastMessageAtDesc(Long doctorId);
 
     Optional<Conversation> findByPatientIdAndDoctorId(Long patientId, Long doctorId);
 }

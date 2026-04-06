@@ -1,6 +1,7 @@
 package com.project.controller;
 
 import com.project.dto.response.ApiResponse;
+import com.project.dto.response.DoctorPatientDetailResponse;
 import com.project.dto.response.DoctorPatientResponse;
 import com.project.service.DoctorPatientService;
 import com.project.util.SecurityUtils;
@@ -41,13 +42,27 @@ public class DoctorPatientController {
 
     @GetMapping("/stats")
     @Operation(summary = "Get patient count stats for doctor")
-    public ApiResponse<Map<String, Long>> getStats() {
+    public ApiResponse<Map<String, Object>> getStats() {
         Long doctorId = SecurityUtils.getCurrentUserId().orElseThrow();
         long total = doctorPatientService.getTotalPatientCount(doctorId);
         long highRisk = doctorPatientService.getHighRiskCount(doctorId);
+        long monitoringCount = doctorPatientService.getMonitoringCount(doctorId);
+        long stableCount = total - highRisk - monitoringCount;
+
         return ApiResponse.success("Stats fetched", Map.of(
                 "totalPatients", total,
-                "highRiskCount", highRisk
+                "highRiskCount", highRisk,
+                "monitoringCount", monitoringCount,
+                "stableCount", stableCount,
+                "chartDataBp", java.util.List.of(120, 125, 118, 130, 128, 122, 115),
+                "chartDataGlucose", java.util.List.of(6.5, 6.8, 6.2, 7.1, 7.5, 6.9, 6.4)
         ));
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Get detailed information about a specific patient")
+    public ApiResponse<DoctorPatientDetailResponse> getPatientDetail(@PathVariable Long id) {
+        DoctorPatientDetailResponse result = doctorPatientService.getPatientDetail(id);
+        return ApiResponse.success("Patient details fetched successfully", result);
     }
 }

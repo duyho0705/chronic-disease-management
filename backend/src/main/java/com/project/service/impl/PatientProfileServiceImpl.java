@@ -37,6 +37,13 @@ public class PatientProfileServiceImpl implements PatientProfileService {
     }
 
     @Override
+    public PatientProfileResponse getPatientProfileById(Long patientId) {
+        Patient patient = patientRepository.findById(patientId)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found: " + patientId));
+        return mapToProfileResponse(patient);
+    }
+
+    @Override
     @Transactional
     public PatientProfileResponse updateProfile(UpdatePatientProfileRequest request) {
         Patient patient = getCurrentPatient();
@@ -127,17 +134,10 @@ public class PatientProfileServiceImpl implements PatientProfileService {
     // === Private Helpers ===
 
     private Patient getCurrentPatient() {
-        try {
-            Long userId = SecurityUtils.getCurrentUserId()
-                    .orElseThrow(() -> new ResourceNotFoundException("User not authenticated"));
-            return patientRepository.findByUserId(userId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Patient profile not found"));
-        } catch (Exception e) {
-            // --- DEVELOPMENT BYPASS ---
-            log.warn("Security context not found, using first patient for development");
-            return patientRepository.findAll().stream().findFirst()
-                    .orElseThrow(() -> new ResourceNotFoundException("No patient profile found in database"));
-        }
+        Long userId = SecurityUtils.getCurrentUserId()
+                .orElseThrow(() -> new ResourceNotFoundException("User not authenticated"));
+        return patientRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient profile not found"));
     }
 
     private PatientProfileResponse mapToProfileResponse(Patient p) {
@@ -157,6 +157,7 @@ public class PatientProfileServiceImpl implements PatientProfileService {
 
         return PatientProfileResponse.builder()
                 .id(p.getId())
+                .userId(p.getUserId())
                 .patientCode(p.getPatientCode())
                 .fullName(p.getFullName())
                 .dateOfBirth(p.getDateOfBirth())

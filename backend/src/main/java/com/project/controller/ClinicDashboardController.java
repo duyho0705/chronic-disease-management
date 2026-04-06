@@ -24,17 +24,24 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import com.project.dto.response.DoctorSnippetDto;
+
 @RestController
 @RequestMapping("/api/v1/clinics/{clinicId}")
 @RequiredArgsConstructor
 @Tag(name = "Clinic Management", description = "APIs for clinic managers")
 @PreAuthorize("hasAnyRole('CLINIC_MANAGER', 'ADMIN')")
 public class ClinicDashboardController {
-    
+
     private final ClinicDashboardService clinicDashboardService;
 
     private void validateClinicAccess(Long pathClinicId) {
-        CustomUserDetails user = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        CustomUserDetails user = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        // System Admins (ADMIN) can access any clinic
+        if ("ADMIN".equals(user.getRole())) {
+            return;
+        }
         if (!user.getClinicId().equals(pathClinicId)) {
             throw new AccessDeniedException("You do not have permission to access data from this clinic");
         }
@@ -59,12 +66,14 @@ public class ClinicDashboardController {
             @RequestParam(defaultValue = "10") int size) {
         validateClinicAccess(clinicId);
         Pageable pageable = PageRequest.of(page, size);
-        return ApiResponse.success("Patients fetched", clinicDashboardService.getPatientRecords(clinicId, keyword, condition, riskLevel, status, pageable));
+        return ApiResponse.success("Patients fetched",
+                clinicDashboardService.getPatientRecords(clinicId, keyword, condition, riskLevel, status, pageable));
     }
 
     @PostMapping("/patients")
     @Operation(summary = "Add patient", description = "Registers a new patient for the specified clinic")
-    public ApiResponse<Void> createPatient(@PathVariable Long clinicId, @Valid @RequestBody CreatePatientRequest request) {
+    public ApiResponse<Void> createPatient(@PathVariable Long clinicId,
+            @Valid @RequestBody CreatePatientRequest request) {
         validateClinicAccess(clinicId);
         clinicDashboardService.createPatient(clinicId, request);
         return ApiResponse.success("Patient registered successfully", null);
@@ -72,7 +81,8 @@ public class ClinicDashboardController {
 
     @PutMapping("/patients/{patientId}")
     @Operation(summary = "Update patient", description = "Updates patient record")
-    public ApiResponse<Void> updatePatient(@PathVariable Long clinicId, @PathVariable Long patientId, @Valid @RequestBody CreatePatientRequest request) {
+    public ApiResponse<Void> updatePatient(@PathVariable Long clinicId, @PathVariable Long patientId,
+            @Valid @RequestBody CreatePatientRequest request) {
         validateClinicAccess(clinicId);
         clinicDashboardService.updatePatient(clinicId, patientId, request);
         return ApiResponse.success("Patient updated successfully", null);
@@ -86,7 +96,6 @@ public class ClinicDashboardController {
         return ApiResponse.success("Patient deleted successfully", null);
     }
 
-
     @GetMapping("/doctors")
     @Operation(summary = "Get doctors", description = "Returns active doctor records for the specified clinic")
     public ApiResponse<Page<ClinicDoctorResponse>> getDoctors(
@@ -96,12 +105,14 @@ public class ClinicDashboardController {
             @RequestParam(defaultValue = "10") int size) {
         validateClinicAccess(clinicId);
         Pageable pageable = PageRequest.of(page, size);
-        return ApiResponse.success("Doctors fetched", clinicDashboardService.getDoctorRecords(clinicId, keyword, pageable));
+        return ApiResponse.success("Doctors fetched",
+                clinicDashboardService.getDoctorRecords(clinicId, keyword, pageable));
     }
 
     @PostMapping("/doctors")
     @Operation(summary = "Add doctor", description = "Registers a new doctor for the specified clinic")
-    public ApiResponse<Void> createDoctor(@PathVariable Long clinicId, @Valid @RequestBody CreateDoctorRequest request) {
+    public ApiResponse<Void> createDoctor(@PathVariable Long clinicId,
+            @Valid @RequestBody CreateDoctorRequest request) {
         validateClinicAccess(clinicId);
         clinicDashboardService.createDoctor(clinicId, request);
         return ApiResponse.success("Doctor registered successfully", null);
@@ -109,7 +120,8 @@ public class ClinicDashboardController {
 
     @PutMapping("/doctors/{doctorId}")
     @Operation(summary = "Update doctor", description = "Updates doctor record")
-    public ApiResponse<Void> updateDoctor(@PathVariable Long clinicId, @PathVariable Long doctorId, @Valid @RequestBody CreateDoctorRequest request) {
+    public ApiResponse<Void> updateDoctor(@PathVariable Long clinicId, @PathVariable Long doctorId,
+            @Valid @RequestBody CreateDoctorRequest request) {
         validateClinicAccess(clinicId);
         clinicDashboardService.updateDoctor(clinicId, doctorId, request);
         return ApiResponse.success("Doctor updated successfully", null);
@@ -123,10 +135,11 @@ public class ClinicDashboardController {
         return ApiResponse.success("Doctor deleted successfully", null);
     }
 
-    @GetMapping("/doctors/names")
-    public ApiResponse<List<String>> getDoctorNames(@PathVariable Long clinicId) {
+    @GetMapping("/doctors/available")
+    public ApiResponse<List<DoctorSnippetDto>> getAvailableDoctors(@PathVariable Long clinicId) {
         validateClinicAccess(clinicId);
-        return ApiResponse.success("Doctors fetched successfully", clinicDashboardService.getDoctorNames(clinicId));
+        return ApiResponse.success("Doctors fetched successfully",
+                clinicDashboardService.getAvailableDoctors(clinicId));
     }
 
     @GetMapping("/conditions")

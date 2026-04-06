@@ -23,6 +23,7 @@ const ClinicSidebar: React.FC<ClinicSidebarProps> = ({
         { path: ROUTES.CLINIC.DOCTORS, label: 'Bác sĩ', icon: 'medical_services' },
         { path: ROUTES.CLINIC.REPORTS, label: 'Báo cáo', icon: 'analytics' },
         { path: ROUTES.CLINIC.ALERTS, label: 'Cảnh báo nguy cơ', icon: 'emergency' },
+        { path: ROUTES.CLINIC.ASSIGNMENT, label: 'Điều phối bệnh nhân', icon: 'assignment_ind' },
     ];
 
     return (

@@ -6,6 +6,7 @@ import com.project.entity.Patient;
 import com.project.exception.ResourceNotFoundException;
 import com.project.repository.AppointmentRepository;
 import com.project.service.DoctorAppointmentService;
+import com.project.service.NotificationService;
 import com.project.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,23 +17,22 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("null")
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class DoctorAppointmentServiceImpl implements DoctorAppointmentService {
 
     private final AppointmentRepository appointmentRepository;
+    private final NotificationService notificationService;
+    private final com.project.repository.PatientRepository patientRepository;
 
     @Override
     public List<DoctorAppointmentResponse> getUpcomingAppointments() {
         Long doctorId = SecurityUtils.getCurrentUserId().orElseThrow();
-        // Since AppointmentRepository only has finds for patientId, we need to create one or use findAll
-        // Actually, let's use findAll and filter since there might be no custom method for doctorId
-        return appointmentRepository.findAll().stream()
-                .filter(a -> a.getDoctorId().equals(doctorId))
-                .filter(a -> "SCHEDULED".equals(a.getStatus()) || "PENDING".equals(a.getStatus()))
-                .filter(a -> a.getAppointmentTime().isAfter(LocalDateTime.now().minusDays(1)))
-                .sorted((a, b) -> a.getAppointmentTime().compareTo(b.getAppointmentTime()))
+        return appointmentRepository.findByDoctorIdAndStatusInAndAppointmentTimeAfterOrderByAppointmentTimeAsc(
+                        doctorId, java.util.List.of("PENDING", "SCHEDULED"), LocalDateTime.now().minusDays(1))
+                .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -40,9 +40,7 @@ public class DoctorAppointmentServiceImpl implements DoctorAppointmentService {
     @Override
     public List<DoctorAppointmentResponse> getAllAppointments() {
         Long doctorId = SecurityUtils.getCurrentUserId().orElseThrow();
-        return appointmentRepository.findAll().stream()
-                .filter(a -> a.getDoctorId().equals(doctorId))
-                .sorted((a, b) -> a.getAppointmentTime().compareTo(b.getAppointmentTime()))
+        return appointmentRepository.findByDoctorIdOrderByAppointmentTimeDesc(doctorId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -60,6 +58,19 @@ public class DoctorAppointmentServiceImpl implements DoctorAppointmentService {
 
         appointment.setStatus(status);
         Appointment saved = appointmentRepository.save(appointment);
+
+        // Notify Patient
+        String title = "Cập nhật lịch hẹn";
+        String message = "Lịch hẹn của bạn đã được chuyển sang trạng thái: " + (status.equals("SCHEDULED") ? "Đã xác nhận" : status.equals("CANCELLED") ? "Đã hủy" : status);
+        
+        notificationService.sendNotification(
+            saved.getPatient().getUserId(),
+            title,
+            message,
+            status.equals("SCHEDULED") ? "success" : status.equals("CANCELLED") ? "warning" : "info",
+            "/patient/appointments"
+        );
+
         return mapToResponse(saved);
     }
 
@@ -78,5 +89,39 @@ public class DoctorAppointmentServiceImpl implements DoctorAppointmentService {
                 .meetingLink(a.getMeetingLink())
                 .reason(a.getReason())
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public DoctorAppointmentResponse createAppointment(com.project.dto.request.DoctorCreateAppointmentRequest request) {
+        Long doctorId = SecurityUtils.getCurrentUserId().orElseThrow();
+        
+        Patient patient = patientRepository.findById(request.getPatientId())
+                .orElseThrow(() -> new ResourceNotFoundException("Bệnh nhân không tồn tại"));
+
+        // Format: yyyy-MM-dd HH:mm
+        LocalDateTime appointmentTime = LocalDateTime.parse(request.getAppointmentDate() + "T" + request.getAppointmentTime());
+
+        Appointment appointment = Appointment.builder()
+                .doctorId(doctorId)
+                .patient(patient)
+                .appointmentTime(appointmentTime)
+                .status("SCHEDULED")
+                .type(request.getType())
+                .reason(request.getNotes())
+                .build();
+
+        Appointment saved = appointmentRepository.save(appointment);
+
+        // Notify patient
+        notificationService.sendNotification(
+            patient.getUserId(),
+            "Lịch hẹn mới",
+            "Bác sĩ đã đặt lịch hẹn mới cho bạn vào lúc " + request.getAppointmentTime() + " ngày " + request.getAppointmentDate(),
+            "info",
+            "/patient/appointments"
+        );
+
+        return mapToResponse(saved);
     }
 }

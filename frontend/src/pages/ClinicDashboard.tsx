@@ -19,10 +19,7 @@ export default function ClinicDashboard() {
     const currentClinicId = localStorage.getItem('clinicId') || '1';
 
 
-    const [notifications, setNotifications] = useState([
-        { id: 1, title: 'Báo cáo mới', description: 'Có báo cáo tổng quát tháng 12 vừa được tạo.', time: '5 phút trước', read: false },
-        { id: 2, title: 'Cảnh báo nguy cơ', description: 'Bệnh nhân Nguyễn Văn An có chỉ số bất thường.', time: '1 giờ trước', read: false },
-    ]);
+    const [notifications, setNotifications] = useState<any[]>([]);
     const [dashboardTimeRange, setDashboardTimeRange] = useState('6 tháng gần nhất');
     const [selectedChartMetric, setSelectedChartMetric] = useState('Lượng bệnh nhân');
 
@@ -33,26 +30,29 @@ export default function ClinicDashboard() {
         pendingFollowUps: stats?.pendingFollowUps || '0',
         patientGrowth: stats?.patientGrowth || '+0%',
         highRiskGrowth: stats?.highRiskGrowth || '+0 ca',
-        diseaseRatios: stats?.diseaseRatios || [
-            { color: 'bg-emerald-500', label: 'Tiểu đường', value: '40%' },
-            { color: 'bg-amber-400', label: 'Cao huyết áp', value: '35%' },
-            { color: 'bg-sky-400', label: 'Bệnh tim mạch', value: '25%' },
-        ],
+        diseaseRatios: stats?.diseaseRatios?.map((dr: any) => ({
+            ...dr,
+            value: dr.percentage // Map percentage from backend to value used in frontend
+        })) || [
+                { color: 'bg-emerald-500', label: 'Tiểu đường', value: '40%' },
+                { color: 'bg-amber-400', label: 'Cao huyết áp', value: '35%' },
+                { color: 'bg-sky-400', label: 'Bệnh tim mạch', value: '25%' },
+            ],
         chartData: selectedChartMetric === 'Lượng bệnh nhân'
-            ? (stats?.monthlyGrowth && stats.monthlyGrowth.length > 0
-                ? stats.monthlyGrowth.map((val: number, i: number) => ({
-                    month: `Tháng ${(new Date().getMonth() - 5 + i + 12) % 12 || 12}`,
-                    value: Number(val)
+            ? (stats?.patientGrowthChart && stats.patientGrowthChart.length > 0
+                ? stats.patientGrowthChart.map((d: any) => ({
+                    month: String(d.month).replace(/^T\./, 'Tháng '),
+                    value: parseInt(d.height) || 0
                 }))
                 : [
                     { month: 'Tháng 12', value: 120 }, { month: 'Tháng 1', value: 156 }, { month: 'Tháng 2', value: 142 },
                     { month: 'Tháng 3', value: 188 }, { month: 'Tháng 4', value: 224 }
                 ])
             : selectedChartMetric === 'Tải lượng bác sĩ'
-                ? [
-                    { month: 'Tháng 12', value: 45 }, { month: 'Tháng 1', value: 48 }, { month: 'Tháng 2', value: 42 },
-                    { month: 'Tháng 3', value: 55 }, { month: 'Tháng 4', value: 60 }
-                ]
+                ? doctors.slice(0, 5).map((d: any) => ({
+                    month: d.name.split(' ').pop(),
+                    value: d.load
+                }))
                 : [ // Chỉ số rủi ro
                     { month: 'Tháng 12', value: 12 }, { month: 'Tháng 1', value: 8 }, { month: 'Tháng 2', value: 15 },
                     { month: 'Tháng 3', value: 5 }, { month: 'Tháng 4', value: 3 }
@@ -95,7 +95,7 @@ export default function ClinicDashboard() {
             'Tải lượng bác sĩ': [
                 { label: 'Tổng lượt khám', value: `${totalDoctorLoad} ca`, trend: true, icon: 'medical_services' },
                 { label: 'TB/Bác sĩ', value: `${avgLoad} ca/tháng`, icon: 'person_apron' },
-                { label: 'Số bác sĩ', value: `${doctors.length} BS`, icon: 'group' }
+                { label: 'Số bác sĩ', value: `${doctors.length} Bác sĩ`, icon: 'group' }
             ],
             'Chỉ số rủi ro': [
                 { label: 'Tổng số rủi ro', value: `${mainStats.highRiskAlerts} ca`, trend: false, icon: 'emergency_home' },
@@ -112,6 +112,7 @@ export default function ClinicDashboard() {
     const [isSavingDoctor, setIsSavingDoctor] = useState(false);
     const [showAssignmentModal, setShowAssignmentModal] = useState(false);
     const [showExportModal, setShowExportModal] = useState(false);
+    const [hoveredSegment, setHoveredSegment] = useState<number | null>(null);
 
     // Custom Tooltip for Recharts
     const CustomTooltip = ({ active, payload, label }: any) => {
@@ -221,8 +222,8 @@ export default function ClinicDashboard() {
                                 </div>
                             ) : (
                                 <>
-                                    <h3 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Chào buổi sáng, Quản trị viên</h3>
-                                    <p className="text-slate-500 font-medium">Hôm nay có 45 bệnh nhân cần theo dõi tái khám.</p>
+                                    <h3 className="text-[21px] font-semibold tracking-tight text-slate-900 dark:text-white">Tổng quan vận hành hôm nay</h3>
+                                    <p className="text-slate-500 font-medium text-[14px]">Hôm nay có 45 bệnh nhân cần theo dõi tái khám</p>
                                 </>
                             )}
                         </div>
@@ -378,17 +379,17 @@ export default function ClinicDashboard() {
                                     <div>
                                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
                                             <div>
-                                                <h2 className="text-[19px] font-bold text-slate-900 dark:text-white tracking-tight">Thống kê vận hành phòng khám</h2>
-                                                <p className="text-[15px] text-slate-500 mt-1">Báo cáo chi tiết theo {selectedChartMetric.toLowerCase()}</p>
+                                                <h2 className="text-[19px] font-semibold text-slate-900 dark:text-white tracking-tight">Thống kê vận hành phòng khám</h2>
+                                                <p className="text-[14px] text-slate-500 mt-1">Báo cáo chi tiết theo {selectedChartMetric.toLowerCase()}</p>
                                             </div>
                                             <div className="flex items-center gap-4">
-                                                <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+                                                <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700/50">
                                                     {['Lượng bệnh nhân', 'Tải lượng bác sĩ', 'Chỉ số rủi ro'].map((m) => (
                                                         <button
                                                             key={m}
                                                             onClick={() => setSelectedChartMetric(m)}
-                                                            className={`px-3 py-1.5 text-[13px] font-medium rounded-lg transition-all ${selectedChartMetric === m
-                                                                ? `bg-white dark:bg-slate-700 ${selectedChartMetric === 'Chỉ số rủi ro' ? 'text-red-500' : selectedChartMetric === 'Tải lượng bác sĩ' ? 'text-emerald-500' : 'text-sky-500'} shadow-sm font-bold`
+                                                            className={`px-3 py-1.5 text-[13px] font-bold rounded-lg transition-all ${selectedChartMetric === m
+                                                                ? `bg-white dark:bg-slate-700 ${selectedChartMetric === 'Chỉ số rủi ro' ? 'text-red-500' : selectedChartMetric === 'Tải lượng bác sĩ' ? 'text-emerald-500' : 'text-sky-500'} shadow-sm font-bold border border-slate-200/60`
                                                                 : 'text-slate-600 hover:text-slate-700'
                                                                 }`}
                                                         >
@@ -454,7 +455,7 @@ export default function ClinicDashboard() {
                                         {getMetricSummary().items.map((item, idx) => (
                                             <div key={idx} className={`flex flex-col items-center ${idx === 1 ? 'border-x border-slate-100 dark:border-slate-800/50' : ''}`}>
                                                 <p className="text-[14px] font-medium text-slate-500 mb-1 flex items-center gap-1">
-                                                    <span className="material-symbols-outlined text-[16px]">{item.icon}</span>
+                                                    <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
                                                     {item.label}
                                                 </p>
                                                 <div className="flex items-center gap-1">
@@ -502,27 +503,71 @@ export default function ClinicDashboard() {
                             ) : (
                                 <>
                                     <div>
-                                        <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Cơ cấu bệnh lý</h3>
-                                        <p className="text-sm text-slate-500 font-medium">Phân tích theo danh mục</p>
+                                        <h3 className="text-[19px] font-semibold text-slate-900 dark:text-white tracking-tight">Cơ cấu bệnh lý</h3>
+                                        <p className="text-[14px] text-slate-500 font-medium">Phân tích theo danh mục</p>
                                     </div>
                                     <div className="relative w-48 h-48 mx-auto my-10">
                                         <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                                            <circle className="stroke-slate-50 dark:stroke-slate-800" cx="18" cy="18" fill="none" r="16" strokeWidth="4"></circle>
-                                            <circle className="stroke-emerald-500" cx="18" cy="18" fill="none" r="16" strokeDasharray="40 100" strokeWidth="4"></circle>
-                                            <circle className="stroke-amber-400" cx="18" cy="18" fill="none" r="16" strokeDasharray="35 100" strokeDashoffset="-40" strokeWidth="4"></circle>
-                                            <circle className="stroke-sky-400" cx="18" cy="18" fill="none" r="16" strokeDasharray="25 100" strokeDashoffset="-75" strokeWidth="4"></circle>
+                                            <circle className="stroke-slate-100 dark:stroke-slate-800" cx="18" cy="18" fill="none" r="15" pathLength="100" strokeWidth="4"></circle>
+
+                                            {/* Dynamic segments based on diseaseRatios */}
+                                            {(() => {
+                                                let currentOffset = 0;
+                                                return mainStats.diseaseRatios.map((item: any, idx: number) => {
+                                                    const percentage = parseInt(String(item.value).replace('%', '')) || 0;
+                                                    if (percentage <= 0) return null;
+
+                                                    const dashArray = percentage === 100 ? "100 0" : `${percentage} 100`;
+                                                    const dashOffset = -currentOffset;
+                                                    currentOffset += percentage;
+
+                                                    // Map color class to stroke color
+                                                    let strokeClass = "stroke-emerald-500";
+                                                    if (item.color.includes("amber")) strokeClass = "stroke-amber-400";
+                                                    if (item.color.includes("blue")) strokeClass = "stroke-blue-500";
+                                                    if (item.color.includes("indigo")) strokeClass = "stroke-indigo-400";
+                                                    if (item.color.includes("teal")) strokeClass = "stroke-teal-500";
+
+                                                    return (
+                                                        <circle
+                                                            key={idx}
+                                                            className={`${strokeClass} cursor-pointer transition-all duration-300 ease-in-out`}
+                                                            cx="18" cy="18" fill="none" r="15"
+                                                            pathLength="100"
+                                                            strokeDasharray={dashArray}
+                                                            strokeDashoffset={dashOffset}
+                                                            strokeWidth={hoveredSegment === idx ? 6 : 4}
+                                                            onMouseEnter={() => setHoveredSegment(idx)}
+                                                            onMouseLeave={() => setHoveredSegment(null)}
+                                                        ></circle>
+                                                    );
+                                                });
+                                            })()}
                                         </svg>
-                                        <div className="absolute inset-0 flex flex-col items-center justify-center font-display">
-                                            <span className="text-3xl font-bold text-slate-900 dark:text-white">75%</span>
-                                            <span className="text-[15px] font-medium text-slate-400 mt-1">Mãn tính</span>
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center font-display pointer-events-none">
+                                            <span className="text-3xl font-bold text-slate-900 dark:text-white transition-all duration-300">
+                                                {hoveredSegment !== null 
+                                                    ? mainStats.diseaseRatios[hoveredSegment].value 
+                                                    : (mainStats.diseaseRatios[0]?.value || '0%')}
+                                            </span>
+                                            <span className="text-[14px] font-medium text-slate-400 mt-1 transition-all duration-300 text-center px-4">
+                                                {hoveredSegment !== null 
+                                                    ? mainStats.diseaseRatios[hoveredSegment].label 
+                                                    : (mainStats.diseaseRatios[0]?.label || 'Bệnh lý')}
+                                            </span>
                                         </div>
                                     </div>
                                     <div className="space-y-4">
                                         {mainStats.diseaseRatios.map((item: any, idx: number) => (
-                                            <div key={idx} className="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50">
+                                            <div 
+                                                key={idx} 
+                                                className={`flex justify-between items-center p-3 rounded-xl border transition-all duration-300 cursor-pointer ${hoveredSegment === idx ? 'bg-white dark:bg-slate-700 shadow-md border-slate-200 dark:border-slate-600 scale-[1.02]' : 'bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-700/50'}`}
+                                                onMouseEnter={() => setHoveredSegment(idx)}
+                                                onMouseLeave={() => setHoveredSegment(null)}
+                                            >
                                                 <div className="flex items-center gap-3">
                                                     <div className={`w-3 h-3 rounded-full ${item.color}`}></div>
-                                                    <span className="font-bold text-slate-600 dark:text-slate-300 text-sm">{item.label}</span>
+                                                    <span className={`font-bold text-sm transition-colors ${hoveredSegment === idx ? 'text-primary' : 'text-slate-600 dark:text-slate-300'}`}>{item.label}</span>
                                                 </div>
                                                 <span className="font-black text-slate-900 dark:text-white text-sm">{item.value}</span>
                                             </div>
@@ -544,8 +589,8 @@ export default function ClinicDashboard() {
                                     </>
                                 ) : (
                                     <>
-                                        <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Hiệu suất Bác sĩ</h3>
-                                        <p className="text-sm text-slate-500 font-medium">Tổng hợp đánh giá và tải lượng bệnh nhân</p>
+                                        <h3 className="text-[19px] font-semibold text-slate-900 dark:text-white tracking-tight">Hiệu suất Bác sĩ</h3>
+                                        <p className="text-[14px] text-slate-500 font-medium">Tổng hợp đánh giá và tải lượng bệnh nhân</p>
                                     </>
                                 )}
                             </div>

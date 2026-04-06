@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -19,10 +20,12 @@ import com.project.dto.response.HealthMetricSummaryResponse;
 import com.project.entity.HealthMetric;
 import com.project.entity.MetricType;
 import com.project.entity.Patient;
+import com.project.entity.PatientAlert;
 import com.project.exception.ResourceNotFoundException;
 import com.project.repository.HealthMetricRepository;
 import com.project.repository.PatientRepository;
 import com.project.service.PatientHealthMetricService;
+import com.project.util.SecurityUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +38,10 @@ public class PatientHealthMetricServiceImpl implements PatientHealthMetricServic
 
     private final HealthMetricRepository healthMetricRepository;
     private final PatientRepository patientRepository;
+    private final com.project.service.NotificationService notificationService;
+    private final com.project.repository.PatientAlertRepository patientAlertRepository;
+    private final com.project.repository.SystemConfigRepository systemConfigRepository;
+    private final com.project.repository.ClinicRepository clinicRepository;
 
     private static final Map<MetricType, String> DISPLAY_NAMES = Map.of(
             MetricType.BLOOD_SUGAR, "Blood Sugar",
@@ -76,7 +83,46 @@ public class PatientHealthMetricServiceImpl implements PatientHealthMetricServic
                 .measuredAt(request.getMeasuredAt() != null ? request.getMeasuredAt() : LocalDateTime.now())
                 .build();
 
-        HealthMetric saved = healthMetricRepository.save(metric);
+        HealthMetric saved = Objects.requireNonNull(healthMetricRepository.save(metric));
+        
+        // Notify Doctor and update risk level if risk detected
+        if ("HIGH".equals(status) || "LOW".equals(status)) {
+            patient.setRiskLevel("HIGH_RISK");
+            patientRepository.save(patient);
+
+            if (patient.getDoctorId() != null) {
+                String title = "Cảnh báo chỉ số sức khỏe: " + DISPLAY_NAMES.get(metricType);
+                String message = "Bệnh nhân " + patient.getFullName() + " có chỉ số " + DISPLAY_NAMES.get(metricType) + " bất thường: " + saved.getValue().toString() + (saved.getValueSecondary() != null ? "/" + saved.getValueSecondary().toString() : "") + " " + saved.getUnit();
+                
+                // Notify Doctor
+                notificationService.sendNotification(patient.getDoctorId(), title, message, "warning", "/doctor/patients/" + patient.getId());
+
+                // Notify Clinic Manager
+                clinicRepository.findById(patient.getClinicId()).ifPresent(clinic -> {
+                    if (clinic.getManagerId() != null) {
+                        notificationService.sendNotification(clinic.getManagerId(), "[Clinic Alert] " + title, "Bệnh nhân của phòng khám: " + message, "warning", "/clinic/risk-alerts");
+                    }
+                });
+
+                // Also notify the Patient via PatientAlert
+                PatientAlert patientAlert = PatientAlert.builder()
+                        .patient(patient)
+                        .alertType("HEALTH_WARNING")
+                        .severity("WARNING")
+                        .title("Cảnh báo chỉ số " + DISPLAY_NAMES.get(metricType))
+                        .message("Chỉ số " + DISPLAY_NAMES.get(metricType) + " của bạn đang ở mức " + status + " (" + saved.getValue().toString() + (saved.getValueSecondary() != null ? "/" + saved.getValueSecondary().toString() : "") + " " + saved.getUnit() + "). Vui lòng chú ý sức khỏe và liên hệ bác sĩ nếu cần thiết.")
+                        .isRead(false)
+                        .isDismissed(false)
+                        .build();
+                patientAlertRepository.save(Objects.requireNonNull(patientAlert));
+            }
+        } else if ("NORMAL".equals(status)) {
+            if ("HIGH_RISK".equals(patient.getRiskLevel())) {
+                patient.setRiskLevel("STABLE");
+                patientRepository.save(patient);
+            }
+        }
+
         log.info("Health metric created: type={}, patientId={}", metricType, patient.getId());
         return mapToResponse(saved);
     }
@@ -156,7 +202,7 @@ public class PatientHealthMetricServiceImpl implements PatientHealthMetricServic
     @Override
     @Transactional
     public void delete(Long id) {
-        HealthMetric metric = healthMetricRepository.findById(id)
+        HealthMetric metric = healthMetricRepository.findById(Objects.requireNonNull(id))
                 .orElseThrow(() -> new ResourceNotFoundException("Health metric not found: " + id));
         metric.setDeleted(true);
         healthMetricRepository.save(metric);
@@ -166,11 +212,11 @@ public class PatientHealthMetricServiceImpl implements PatientHealthMetricServic
     // === Private Helpers ===
 
     private Patient getCurrentPatient() {
-        // --- DEVELOPMENT BYPASS ---
-        // Fetch the first patient in the database if no user is authenticated
-        return patientRepository.findAll().stream().findFirst()
+        Long userId = SecurityUtils.getCurrentUserId()
+                .orElseThrow(() -> new ResourceNotFoundException("User not authenticated"));
+        return patientRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "No patient profile found in database. Please create one."));
+                        "No patient profile found for this user."));
     }
 
     private HealthMetricResponse mapToResponse(HealthMetric m) {
@@ -188,54 +234,46 @@ public class PatientHealthMetricServiceImpl implements PatientHealthMetricServic
     }
 
     private String evaluateStatus(MetricType type, BigDecimal value, BigDecimal secondary) {
+        com.project.entity.SystemConfig config = systemConfigRepository.findFirstByOrderByIdAsc().orElse(null);
+        
         return switch (type) {
             case BLOOD_SUGAR -> {
                 double v = value.doubleValue();
-                if (v < 3.9)
-                    yield "LOW";
-                else if (v <= 6.1)
-                    yield "NORMAL";
-                else if (v <= 7.0)
-                    yield "BORDERLINE_HIGH";
-                else
-                    yield "HIGH";
+                if (v < 3.9) yield "LOW";
+                else if (v <= 6.1) yield "NORMAL";
+                else if (v <= 7.0) yield "BORDERLINE_HIGH";
+                else yield "HIGH";
             }
             case BLOOD_PRESSURE -> {
                 double systolic = value.doubleValue();
                 double diastolic = secondary != null ? secondary.doubleValue() : 0;
-                if (systolic < 120 && diastolic < 80)
-                    yield "NORMAL";
-                else if (systolic <= 130 && diastolic <= 85)
-                    yield "BORDERLINE_HIGH";
-                else
-                    yield "HIGH";
+                
+                double sysThreshold = config != null ? Double.parseDouble(config.getBpSysThreshold()) : 140.0;
+                double diaThreshold = config != null ? Double.parseDouble(config.getBpDiaThreshold()) : 90.0;
+                
+                if (systolic < 120 && diastolic < 80) yield "NORMAL";
+                else if (systolic <= sysThreshold && diastolic <= diaThreshold) yield "BORDERLINE_HIGH";
+                else yield "HIGH";
             }
             case HEART_RATE -> {
                 double v = value.doubleValue();
-                if (v >= 60 && v <= 100)
-                    yield "NORMAL";
-                else if (v < 60)
-                    yield "LOW";
-                else
-                    yield "HIGH";
+                double hrThreshold = config != null ? Double.parseDouble(config.getHrThreshold()) : 100.0;
+                if (v >= 60 && v <= hrThreshold) yield "NORMAL";
+                else if (v < 60) yield "LOW";
+                else yield "HIGH";
             }
             case HBA1C -> {
                 double v = value.doubleValue();
-                if (v < 5.7)
-                    yield "NORMAL";
-                else if (v <= 6.4)
-                    yield "BORDERLINE_HIGH";
-                else
-                    yield "HIGH";
+                if (v < 5.7) yield "NORMAL";
+                else if (v <= 6.4) yield "BORDERLINE_HIGH";
+                else yield "HIGH";
             }
             case SPO2 -> {
                 double v = value.doubleValue();
-                if (v >= 95)
-                    yield "NORMAL";
-                else if (v >= 90)
-                    yield "BORDERLINE_LOW";
-                else
-                    yield "LOW";
+                double spo2Threshold = config != null ? Double.parseDouble(config.getSpo2Threshold()) : 94.0;
+                if (v >= spo2Threshold) yield "NORMAL";
+                else if (v >= 90) yield "BORDERLINE_LOW";
+                else yield "LOW";
             }
         };
     }

@@ -6,20 +6,23 @@ interface Notification {
   message: string;
   time: string;
   type: string;
+  read?: boolean;
 }
 
 interface NotificationDropdownProps {
   isOpen: boolean;
   onClose: () => void;
   notifications: Notification[];
-  setNotifications: React.Dispatch<React.SetStateAction<Notification[]>>;
+  onMarkRead?: (id: number) => void;
+  onClearAll?: () => void;
 }
 
 const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
   isOpen,
   onClose,
   notifications,
-  setNotifications
+  onMarkRead,
+  onClearAll
 }) => {
   if (!isOpen) return null;
 
@@ -31,7 +34,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
           <h3 className="font-extrabold text-sm text-slate-900 dark:text-white text-left">Thông báo</h3>
           {notifications.length > 0 && (
             <button 
-              onClick={() => setNotifications([])} 
+              onClick={() => onClearAll?.()} 
               className="text-[13px] font-extrabold text-primary hover:underline tracking-tight"
             >
               Xóa tất cả
@@ -42,17 +45,24 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
           {notifications.length > 0 ? (
             <div className="divide-y divide-slate-50 dark:divide-slate-800">
               {notifications.map((notif) => (
-                <div key={notif.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group">
+                <div 
+                  key={notif.id} 
+                  onClick={() => onMarkRead?.(notif.id)}
+                  className={`p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group relative ${!notif.read ? 'bg-primary/5' : ''}`}
+                >
                   <div className="flex gap-3">
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${notif.type === 'warning' ? 'bg-red-50 text-red-500' : 'bg-primary/10 text-primary'}`}>
                       <span className="material-symbols-outlined text-lg">{notif.type === 'warning' ? 'error' : 'info'}</span>
                     </div>
                     <div className="space-y-1 text-left">
-                      <p className="text-sm font-bold text-slate-800 dark:text-slate-200 leading-tight group-hover:text-primary transition-colors">{notif.title}</p>
+                      <p className={`text-sm font-bold leading-tight group-hover:text-primary transition-colors ${!notif.read ? 'text-slate-900 dark:text-white' : 'text-slate-500'}`}>{notif.title}</p>
                       <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">{notif.message}</p>
                       <p className="text-[10px] font-medium text-slate-400 mt-1">{notif.time}</p>
                     </div>
                   </div>
+                  {!notif.read && (
+                    <span className="absolute top-4 right-4 w-2 h-2 bg-primary rounded-full"></span>
+                  )}
                 </div>
               ))}
             </div>

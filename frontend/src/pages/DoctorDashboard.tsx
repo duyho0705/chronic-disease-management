@@ -52,6 +52,7 @@ export default function DoctorDashboard() {
   const [adviceCategory, setAdviceCategory] = useState('Theo dõi');
   const [adviceContent, setAdviceContent] = useState('');
   const [isAdviceSaving, setIsAdviceSaving] = useState(false);
+  const [advicePatientId, setAdvicePatientId] = useState<number | null>(null);
   const [advicePatientName, setAdvicePatientName] = useState('');
 
   // Toast State
@@ -59,14 +60,24 @@ export default function DoctorDashboard() {
   const [toastTitle, setToastTitle] = useState('');
 
   const handleSaveAdvice = async () => {
+    if (!advicePatientId) return;
     setIsAdviceSaving(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsAdviceSaving(false);
-    setIsAdviceModalOpen(false);
-    setAdviceContent('');
-    setToastTitle(`Đã gửi lời khuyên đến ${advicePatientName} thành công!`);
-    setShowToast(true);
+    try {
+      // Find or create a conversation for this patient in a real app
+      // For now, let's just send the message payload directly (assumes backend handles conversation creation if not exists)
+      const messageContent = `[Tư vấn ${adviceCategory}] ${adviceContent}`;
+      await doctorApi.sendMessage({ receiverId: advicePatientId, content: messageContent });
+      
+      setToastTitle(`Đã gửi lời khuyên đến ${advicePatientName} thành công!`);
+      setShowToast(true);
+      setIsAdviceModalOpen(false);
+      setAdviceContent('');
+    } catch (e) {
+      setToastTitle('Có lỗi xảy ra khi gửi lời khuyên');
+      setShowToast(true);
+    } finally {
+      setIsAdviceSaving(false);
+    }
   };
   const [medications, setMedications] = useState([
     { id: 1, name: 'Metformin 500mg', intakeType: 'Uống sau khi ăn', dosage: '1 viên', frequency: 'Sáng 1, Tối 1', duration: '30 ngày' },
@@ -86,14 +97,12 @@ export default function DoctorDashboard() {
   const [selectedDay, setSelectedDay] = useState(5);
   // const [adviceCategory, setAdviceCategory] = useState('Dinh dưỡng'); // Duplicate, removed
   // const [adviceContent, setAdviceContent] = useState(''); // Duplicate, removed
-  const [currentMonth, setCurrentMonth] = useState(10); // November (0-indexed)
-  const [currentYear, setCurrentYear] = useState(2024);
+  const now = new Date();
+  const [currentMonth, setCurrentMonth] = useState(now.getMonth());
+  const [currentYear, setCurrentYear] = useState(now.getFullYear());
   const [isSaving, setIsSaving] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [notifications, setNotifications] = useState([
-    { id: 1, title: 'Cảnh báo chỉ số', message: 'Bệnh nhân Nguyễn Văn An có chỉ số đường huyết cao bất thường.', time: '5 phút trước', type: 'warning' },
-    { id: 2, title: 'Lịch hẹn mới', message: 'Bạn có một yêu cầu đặt lịch hẹn mới từ Lê Thị Bình.', time: '2 giờ trước', type: 'info' }
-  ]);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const [dashboardTimeRange, setDashboardTimeRange] = useState('7 ngày qua');
 
   const removeMedication = (id: number) => {
@@ -118,25 +127,23 @@ export default function DoctorDashboard() {
     setIsAddingNewMedicine(false);
   };
 
-  const handleSaveReschedule = async () => {
+  const handleSaveReschedule = async (appointmentData: any) => {
     setIsSaving(true);
-    // Simulate API call processing
-    await new Promise(r => setTimeout(r, 1200));
-    setIsSaving(false);
-    setIsModalOpen(false);
-    setToastTitle('Đặt lịch thành công');
-    setShowToast(true);
+    try {
+      const res = await doctorApi.createAppointment(appointmentData);
+      if (res.success) {
+        setIsModalOpen(false);
+        setToastTitle('Đặt lịch thành công');
+        setShowToast(true);
+        fetchDashboardData();
+      }
+    } catch (e) {
+      setToastTitle('Có lỗi xảy ra khi đặt lịch');
+      setShowToast(true);
+    } finally {
+      setIsSaving(false);
+    }
   };
-
-  // const handleSaveAdvice = async () => { // Duplicate, removed
-  //   setIsSaving(true);
-  //   // Process Advice Sending
-  //   await new Promise(r => setTimeout(r, 1000));
-  //   setIsSaving(false);
-  //   setIsAdviceModalOpen(false);
-  //   setToastTitle('Gửi lời khuyên thành công');
-  //   setShowToast(true);
-  // };
 
   const handleSavePrescription = async (prescriptionData: any) => {
     setIsSaving(true);
@@ -348,7 +355,7 @@ export default function DoctorDashboard() {
                                 <span className="material-symbols-outlined text-base">chat</span>
                               </Link>
                               <button
-                                onClick={() => { setIsAdviceModalOpen(true); setAdvicePatientName(p.fullName); }}
+                                onClick={() => { setIsAdviceModalOpen(true); setAdvicePatientName(p.fullName); setAdvicePatientId(p.id); }}
                                 className="flex-1 sm:flex-none bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center">
                                 <span className="material-symbols-outlined text-base">campaign</span>
                               </button>
@@ -621,7 +628,7 @@ export default function DoctorDashboard() {
                                         <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Xem chi tiết hồ sơ</span>
                                       </button>
                                       <button
-                                        onClick={() => { setIsAdviceModalOpen(true); setAdvicePatientName(p.fullName); setActiveMenu(null); }}
+                                        onClick={() => { setIsAdviceModalOpen(true); setAdvicePatientName(p.fullName); setAdvicePatientId(p.id); setActiveMenu(null); }}
                                         className="w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-3 group">
                                         <span className="material-symbols-outlined text-slate-400 group-hover:text-primary text-xl">send</span>
                                         <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Gửi lời khuyên</span>
@@ -658,6 +665,7 @@ export default function DoctorDashboard() {
           setSelectedTime={setSelectedTime}
           isSaving={isSaving}
           onSave={handleSaveReschedule}
+          patients={myPatients}
         />
 
         <PrescriptionModal

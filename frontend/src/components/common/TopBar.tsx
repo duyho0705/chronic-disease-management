@@ -1,22 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import NotificationDropdown from './NotificationDropdown';
+import { notificationApi } from '../../api/notification';
 
 interface TopBarProps {
   setIsSidebarOpen: (isOpen: boolean) => void;
   notifications: any[];
   setNotifications: React.Dispatch<React.SetStateAction<any[]>>;
   actionButton?: React.ReactNode;
-  hideProfile?: boolean;
 }
 
 const TopBar: React.FC<TopBarProps> = ({
   setIsSidebarOpen,
   notifications,
   setNotifications,
-  actionButton,
-  hideProfile
+  actionButton
 }) => {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const fetchNotifications = async () => {
+    try {
+      const res = await notificationApi.getNotifications();
+      if (res.success) {
+        setNotifications(res.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch notifications', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 30000); // Poll every 30s
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleMarkRead = async (id: number) => {
+    try {
+      await notificationApi.markAsRead(id);
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleClearAll = async () => {
+    try {
+      await notificationApi.markAllAsRead();
+      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <header className="h-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-primary/5 px-4 md:px-8 flex items-center justify-between sticky top-0 z-[100] transition-all">
@@ -46,7 +79,7 @@ const TopBar: React.FC<TopBarProps> = ({
             className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl bg-background-light dark:bg-slate-800 text-slate-600 relative transition-all hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95"
           >
             <span className="material-symbols-outlined text-xl">notifications</span>
-            {notifications.length > 0 && (
+            {notifications.some(n => !n.read) && (
               <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
             )}
           </button>
@@ -55,7 +88,8 @@ const TopBar: React.FC<TopBarProps> = ({
             isOpen={isNotificationOpen}
             onClose={() => setIsNotificationOpen(false)}
             notifications={notifications}
-            setNotifications={setNotifications}
+            onMarkRead={handleMarkRead}
+            onClearAll={handleClearAll}
           />
         </div>
 

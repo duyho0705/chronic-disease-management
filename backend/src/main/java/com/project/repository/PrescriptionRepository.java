@@ -28,4 +28,6 @@ public interface PrescriptionRepository extends JpaRepository<Prescription, Long
     java.util.List<Prescription> findByPatientIdAndStatus(Long patientId, PrescriptionStatus status);
 
     java.util.List<Prescription> findByPatientIdAndStatusNot(Long patientId, PrescriptionStatus status);
+
+    java.util.List<Prescription> findByPatientIdOrderByCreatedAtDesc(Long patientId);
 }

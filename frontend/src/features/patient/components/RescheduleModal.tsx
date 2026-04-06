@@ -13,7 +13,8 @@ interface RescheduleModalProps {
   selectedTime: string;
   setSelectedTime: React.Dispatch<React.SetStateAction<string>>;
   isSaving: boolean;
-  onSave: () => Promise<void>;
+  onSave: (appointmentData: any) => Promise<void>;
+  patients?: any[];
 }
 
 const RescheduleModal: React.FC<RescheduleModalProps> = ({
@@ -28,9 +29,13 @@ const RescheduleModal: React.FC<RescheduleModalProps> = ({
   selectedTime,
   setSelectedTime,
   isSaving,
-  onSave
+  onSave,
+  patients = []
 }) => {
-  const [selectedPatientId, setSelectedPatientId] = useState('1');
+  const [selectedPatientId, setSelectedPatientId] = useState<string>(patients.length > 0 ? patients[0].id.toString() : '');
+  const [appointmentType, setAppointmentType] = useState('OFFLINE');
+  const [notes, setNotes] = useState('');
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -64,11 +69,10 @@ const RescheduleModal: React.FC<RescheduleModalProps> = ({
               <div className="space-y-2">
                 <label className="text-sm font-bold border-l-4 border-primary pl-2">Thông tin bệnh nhân</label>
                   <Dropdown 
-                    options={[
-                      { label: 'Nguyễn Văn A - ID: BN-8842', value: '1' },
-                      { label: 'Trần Thị B - ID: BN-8839', value: '2' },
-                      { label: 'Lê Văn C - ID: BN-2034', value: '3' },
-                    ]}
+                    options={patients.map(p => ({
+                      label: `${p.fullName} - ID: ${p.patientCode || p.id}`,
+                      value: p.id.toString()
+                    }))}
                     value={selectedPatientId}
                     onChange={setSelectedPatientId}
                     className="w-full"
@@ -139,14 +143,26 @@ const RescheduleModal: React.FC<RescheduleModalProps> = ({
                 <label className="text-sm font-bold border-l-4 border-primary pl-2">Hình thức khám bệnh</label>
                 <div className="flex gap-4">
                   <label className="flex-1 cursor-pointer group">
-                    <input defaultChecked className="peer hidden" name="resched-type" type="radio" />
+                    <input 
+                      checked={appointmentType === 'OFFLINE'} 
+                      onChange={() => setAppointmentType('OFFLINE')} 
+                      className="peer hidden" 
+                      name="resched-type" 
+                      type="radio" 
+                    />
                     <div className="flex flex-col items-center gap-3 px-4 py-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary transition-all hover:border-primary/30">
                       <span className="material-symbols-outlined text-3xl font-light group-hover:scale-110 transition-transform">person_pin_circle</span>
                       <span className="text-[13px] font-extrabold tracking-wide">Trực tiếp</span>
                     </div>
                   </label>
                   <label className="flex-1 cursor-pointer group">
-                    <input className="peer hidden" name="resched-type" type="radio" />
+                    <input 
+                      checked={appointmentType === 'ONLINE'} 
+                      onChange={() => setAppointmentType('ONLINE')} 
+                      className="peer hidden" 
+                      name="resched-type" 
+                      type="radio" 
+                    />
                     <div className="flex flex-col items-center gap-3 px-4 py-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary transition-all hover:border-primary/30">
                       <span className="material-symbols-outlined text-3xl font-light group-hover:scale-110 transition-transform">videocam</span>
                       <span className="text-[13px] font-extrabold tracking-wide">Online</span>
@@ -177,6 +193,8 @@ const RescheduleModal: React.FC<RescheduleModalProps> = ({
               <div className="space-y-3">
                 <label className="text-sm font-bold border-l-4 border-primary pl-2">Ghi chú lâm sàng</label>
                 <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
                   className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-primary/50 text-slate-900 dark:text-white placeholder:text-slate-400 text-sm font-medium transition-all shadow-sm outline-none resize-none"
                   placeholder="BS ghi chú thêm dặn dò cho bệnh nhân tại đây..."
                   rows={3}
@@ -194,8 +212,14 @@ const RescheduleModal: React.FC<RescheduleModalProps> = ({
             Hủy bỏ
           </button>
           <button
-            onClick={onSave}
-            disabled={isSaving}
+            onClick={() => onSave({
+              patientId: Number(selectedPatientId),
+              appointmentDate: `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`,
+              appointmentTime: selectedTime,
+              type: appointmentType,
+              notes: notes
+            })}
+            disabled={isSaving || !selectedPatientId}
             className="px-10 py-3 text-sm font-extrabold text-slate-900 bg-primary hover:bg-primary/90 rounded-xl transition-all shadow-xl shadow-primary/20 flex items-center gap-3 active:scale-95 transform disabled:opacity-50 disabled:cursor-wait"
           >
             {isSaving ? (

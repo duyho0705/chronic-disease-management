@@ -12,6 +12,11 @@ export const patientApi = {
     return response.data;
   },
 
+  getDashboard: async () => {
+    const response = await axiosInstance.get('/v1/patient/dashboard');
+    return response.data;
+  },
+
   getMetricsSummary: async (period = 'WEEK') => {
     const response = await axiosInstance.get(`/v1/patient/health-metrics/summary?period=${period}`);
     return response.data;
@@ -118,6 +123,28 @@ export const patientApi = {
   },
   markMessagesAsRead: async (conversationId: number) => {
     const response = await axiosInstance.put(`/v1/patient/messages/conversations/${conversationId}/read`);
+    return response.data;
+  },
+
+  // Notification management
+  getNotifications: async () => {
+    const response = await axiosInstance.get('/v1/notifications');
+    return response.data;
+  },
+  getUnreadNotificationsCount: async () => {
+    const response = await axiosInstance.get('/v1/notifications/unread-count');
+    return response.data;
+  },
+  markNotificationAsRead: async (id: number) => {
+    const response = await axiosInstance.put(`/v1/notifications/${id}/read`);
+    return response.data;
+  },
+  markAllNotificationsAsRead: async () => {
+    const response = await axiosInstance.put('/v1/notifications/read-all');
+    return response.data;
+  },
+  deleteNotification: async (id: number) => {
+    const response = await axiosInstance.delete(`/v1/notifications/${id}`);
     return response.data;
   }
 };

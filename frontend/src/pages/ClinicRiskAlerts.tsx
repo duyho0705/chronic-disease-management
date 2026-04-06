@@ -6,10 +6,7 @@ import { clinicApi } from '../api/clinic';
 export default function ClinicRiskAlerts() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [alertTimeFilter, setAlertTimeFilter] = useState('Hôm nay');
-    const [notifications, setNotifications] = useState([
-        { id: 1, title: 'Báo cáo mới', description: 'Có báo cáo tổng quát tháng 12 vừa được tạo.', time: '5 phút trước', read: false },
-        { id: 2, title: 'Cảnh báo nguy cơ', description: 'Bệnh nhân Nguyễn Văn An có chỉ số bất thường.', time: '1 giờ trước', read: false },
-    ]);
+    const [notifications, setNotifications] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     const [dashboardStats, setDashboardStats] = useState<any>(null);
@@ -348,11 +345,19 @@ export default function ClinicRiskAlerts() {
                                     <>
                                         <div className="flex items-center gap-2 mb-4 text-emerald-600 dark:text-primary">
                                             <span className="material-symbols-outlined font-variation-settings: 'FILL' 1" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
-                                            <h5 className="text-sm font-bold">AI Insights</h5>
+                                            <h5 className="text-sm font-bold">Health Insights</h5>
                                         </div>
-                                        <p className="text-slate-700 dark:text-slate-300 font-medium leading-relaxed mb-6 text-sm">
-                                            "Phát hiện <span className="text-red-500 font-bold">3 bệnh nhân</span> có xu hướng tăng huyết áp liên tục. Khuyến nghị kiểm tra phác đồ điều trị."
-                                        </p>
+                                        <div className="space-y-4 mb-6">
+                                            {(dashboardStats?.insights && dashboardStats.insights.length > 0) ? (
+                                                dashboardStats.insights.map((insight: string, idx: number) => (
+                                                    <p key={idx} className="text-slate-700 dark:text-slate-300 font-medium leading-relaxed text-sm">
+                                                        "{insight}"
+                                                    </p>
+                                                ))
+                                            ) : (
+                                                <p className="text-slate-500 italic text-sm">Chưa có phân tích mới trong hôm nay.</p>
+                                            )}
+                                        </div>
                                         <div className="flex items-center gap-4">
                                             <div className="flex -space-x-2">
                                                 {[1, 2, 3].map((_, i) => (

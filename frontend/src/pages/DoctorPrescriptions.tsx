@@ -54,10 +54,7 @@ export default function DoctorPrescriptions() {
         intakeType: false,
     });
 
-    const [notifications, setNotifications] = useState([
-        { id: 1, title: 'Cảnh báo chỉ số', message: 'Bệnh nhân Nguyễn Văn An có chỉ số đường huyết cao bất thường.', time: '5 phút trước', type: 'warning' },
-        { id: 2, title: 'Lịch hẹn mới', message: 'Bạn có một yêu cầu đặt lịch hẹn mới từ Lê Thị Bình.', time: '2 giờ trước', type: 'info' }
-    ]);
+    const [notifications, setNotifications] = useState<any[]>([]);
 
     const addMedicationToPrescription = () => {
         const errors = {

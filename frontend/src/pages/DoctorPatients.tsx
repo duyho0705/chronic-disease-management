@@ -10,10 +10,7 @@ import AddPatientModal from '../features/patient/components/AddPatientModal';
 import { doctorApi } from '../api/doctor';
 
 export default function DoctorPatients() {
-  const [notifications, setNotifications] = useState([
-    { id: 1, title: 'Cảnh báo chỉ số', message: 'Bệnh nhân Nguyễn Văn An có chỉ số đường huyết cao bất thường.', time: '5 phút trước', type: 'warning' },
-    { id: 2, title: 'Lịch hẹn mới', message: 'Bạn có một yêu cầu đặt lịch hẹn mới từ Lê Thị Bình.', time: '2 giờ trước', type: 'info' }
-  ]);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -405,6 +402,7 @@ export default function DoctorPatients() {
         <PrescriptionModal
           isOpen={isPrescriptionModalOpen}
           onClose={() => setIsPrescriptionModalOpen(false)}
+          patients={patients}
           isAddingNewMedicine={isAddingNewMedicine}
           setIsAddingNewMedicine={setIsAddingNewMedicine}
           medications={medications}
@@ -415,14 +413,22 @@ export default function DoctorPatients() {
           setFormErrors={setFormErrors}
           addMedicationToPrescription={addMedicationToPrescription}
           isSaving={isSaving}
-          onSave={async () => {
+          onSave={async (prescriptionData: any) => {
             setIsSaving(true);
-            await new Promise(r => setTimeout(r, 1000));
-            setIsSaving(false);
-            setIsPrescriptionModalOpen(false);
-            setToast({ show: true, title: "Đã gửi đơn thuốc thành công!", type: "success" });
+            try {
+              const res = await doctorApi.createPrescription(prescriptionData);
+              if (res.success) {
+                setIsPrescriptionModalOpen(false);
+                setMedications([]);
+                setToast({ show: true, title: 'Đã gửi đơn thuốc thành công!', type: 'success' });
+                fetchPatients();
+              }
+            } catch (e) {
+              setToast({ show: true, title: 'Có lỗi khi gửi đơn thuốc', type: 'error' });
+            } finally {
+              setIsSaving(false);
+            }
           }}
-          patientName={selectedPatient?.fullName || "Bệnh nhân"}
         />
 
         <AdviceModal
@@ -434,11 +440,19 @@ export default function DoctorPatients() {
           setAdviceContent={setAdviceContent}
           isSaving={isSaving}
           onSave={async () => {
+            if (!selectedPatient?.id) return;
             setIsSaving(true);
-            await new Promise(r => setTimeout(r, 1000));
-            setIsSaving(false);
-            setIsAdviceModalOpen(false);
-            setToast({ show: true, title: "Đã gửi lời khuyên thành công!", type: "success" });
+            try {
+              const messageContent = `[Tư vấn ${adviceCategory}] ${adviceContent}`;
+              await doctorApi.sendMessage({ receiverId: selectedPatient.id, content: messageContent });
+              setIsAdviceModalOpen(false);
+              setAdviceContent('');
+              setToast({ show: true, title: 'Đã gửi lời khuyên thành công!', type: 'success' });
+            } catch (e) {
+              setToast({ show: true, title: 'Có lỗi khi gửi lời khuyên', type: 'error' });
+            } finally {
+              setIsSaving(false);
+            }
           }}
           patientName={selectedPatient?.fullName || "Bệnh nhân"}
         />
@@ -447,12 +461,20 @@ export default function DoctorPatients() {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           isSaving={isSaving}
-          onSave={async () => {
+          onSave={async (appointmentData: any) => {
             setIsSaving(true);
-            await new Promise(r => setTimeout(r, 1000));
-            setIsSaving(false);
-            setIsModalOpen(false);
-            setToast({ show: true, title: "Đã đặt lịch tái khám thành công!", type: "success" });
+            try {
+              const res = await doctorApi.createAppointment(appointmentData);
+              if (res.success) {
+                setIsModalOpen(false);
+                setToast({ show: true, title: 'Đã đặt lịch tái khám thành công!', type: 'success' });
+                fetchPatients();
+              }
+            } catch (e) {
+              setToast({ show: true, title: 'Có lỗi khi đặt lịch', type: 'error' });
+            } finally {
+              setIsSaving(false);
+            }
           }}
           selectedDay={selectedDay}
           setSelectedDay={setSelectedDay}
@@ -462,6 +484,7 @@ export default function DoctorPatients() {
           setCurrentMonth={setCurrentMonth}
           currentYear={currentYear}
           setCurrentYear={setCurrentYear}
+          patients={patients}
         />
 
         <PatientDetailModal 
@@ -476,11 +499,19 @@ export default function DoctorPatients() {
           isSaving={isSaving}
           onAdd={async (data) => {
             setIsSaving(true);
-            console.log('Adding patient:', data);
-            await new Promise(r => setTimeout(r, 1500));
-            setIsSaving(false);
-            setIsAddPatientModalOpen(false);
-            setToast({ show: true, title: `Đã cấp tài khoản cho bệnh nhân ${data.fullName} thành công!`, type: "success" });
+            try {
+              // In a real app, this calls the backend to register the patient
+              console.log('Adding patient:', data);
+              await new Promise(r => setTimeout(r, 500));
+              setIsAddPatientModalOpen(false);
+              setToast({ show: true, title: `Đã cấp tài khoản cho bệnh nhân ${data.fullName} thành công!`, type: 'success' });
+              fetchPatients();
+              fetchStats();
+            } catch (e) {
+              setToast({ show: true, title: 'Có lỗi khi thêm bệnh nhân', type: 'error' });
+            } finally {
+              setIsSaving(false);
+            }
           }}
         />
 

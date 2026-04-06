@@ -1,398 +1,145 @@
-<!DOCTYPE html><html lang="vi"><head>
-<meta charset="utf-8">
-<meta content="width=device-width, initial-scale=1.0" name="viewport">
-<title>VitalCare - Chỉ số sức khỏe</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#4ade80",
-                        "background-light": "#f6f8f7",
-                        "background-dark": "#122017",
-                    },
-                    fontFamily: {
-                        "display": ["Manrope"]
-                    },
-                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
-                },
-            },
-        }
-    </script>
-<style>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Doctor Appointment Form</title>
+    <style>
         body {
-            font-family: 'Manrope', sans-serif;
+            font-family: Arial, sans-serif;
+            background: #2c3e50;
+            margin: 0;
+            padding: 0;
         }
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+
+        .container {
+            width: 80%;
+            margin: 50px auto;
+            background: #f4f4f4;
+            border-radius: 10px;
+            padding: 30px;
+            display: flex;
+            gap: 30px;
         }
-        .filled-icon {
-            font-variation-settings: 'FILL' 1;
+
+        .form-left {
+            flex: 2;
+        }
+
+        .form-right {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .row input,
+        .row select {
+            flex: 1;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            outline: none;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #4a6cf7;
+        }
+
+        .full {
+            margin-bottom: 15px;
+        }
+
+        button {
+            background: #4a6cf7;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto 0;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #3a56d4;
+        }
+
+        img {
+            max-width: 100%;
         }
     </style>
-<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}[type='text'],input:where(:not([type])),[type='email'],[type='url'],[type='password'],[type='number'],[type='date'],[type='datetime-local'],[type='month'],[type='search'],[type='tel'],[type='time'],[type='week'],[multiple],textarea,select{-webkit-appearance:none;appearance:none;background-color:#fff;border-color:#6b7280;border-width:1px;border-radius:0px;padding-top:0.5rem;padding-right:0.75rem;padding-bottom:0.5rem;padding-left:0.75rem;font-size:1rem;line-height:1.5rem;--tw-shadow:0 0 #0000;}[type='text']:focus, input:where(:not([type])):focus, [type='email']:focus, [type='url']:focus, [type='password']:focus, [type='number']:focus, [type='date']:focus, [type='datetime-local']:focus, [type='month']:focus, [type='search']:focus, [type='tel']:focus, [type='time']:focus, [type='week']:focus, [multiple]:focus, textarea:focus, select:focus{outline:2px solid transparent;outline-offset:2px;--tw-ring-inset:var(--tw-empty,/*!*/ /*!*/);--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:#2563eb;--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);border-color:#2563eb}input::placeholder,textarea::placeholder{color:#6b7280;opacity:1}::-webkit-datetime-edit-fields-wrapper{padding:0}::-webkit-date-and-time-value{min-height:1.5em;text-align:inherit}::-webkit-datetime-edit{display:inline-flex}::-webkit-datetime-edit,::-webkit-datetime-edit-year-field,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute-field,::-webkit-datetime-edit-second-field,::-webkit-datetime-edit-millisecond-field,::-webkit-datetime-edit-meridiem-field{padding-top:0;padding-bottom:0}select{background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");background-position:right 0.5rem center;background-repeat:no-repeat;background-size:1.5em 1.5em;padding-right:2.5rem;print-color-adjust:exact}[multiple],[size]:where(select:not([size="1"])){background-image:initial;background-position:initial;background-repeat:unset;background-size:initial;padding-right:0.75rem;print-color-adjust:unset}[type='checkbox'],[type='radio']{-webkit-appearance:none;appearance:none;padding:0;print-color-adjust:exact;display:inline-block;vertical-align:middle;background-origin:border-box;-webkit-user-select:none;user-select:none;flex-shrink:0;height:1rem;width:1rem;color:#2563eb;background-color:#fff;border-color:#6b7280;border-width:1px;--tw-shadow:0 0 #0000}[type='checkbox']{border-radius:0px}[type='radio']{border-radius:100%}[type='checkbox']:focus,[type='radio']:focus{outline:2px solid transparent;outline-offset:2px;--tw-ring-inset:var(--tw-empty,/*!*/ /*!*/);--tw-ring-offset-width:2px;--tw-ring-offset-color:#fff;--tw-ring-color:#2563eb;--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}[type='checkbox']:checked,[type='radio']:checked{border-color:transparent;background-color:currentColor;background-size:100% 100%;background-position:center;background-repeat:no-repeat}[type='checkbox']:checked{background-image:url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");}@media (forced-colors: active) {[type='checkbox']:checked{-webkit-appearance:auto;appearance:auto}}[type='radio']:checked{background-image:url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='8' cy='8' r='3'/%3e%3c/svg%3e");}@media (forced-colors: active) {[type='radio']:checked{-webkit-appearance:auto;appearance:auto}}[type='checkbox']:checked:hover,[type='checkbox']:checked:focus,[type='radio']:checked:hover,[type='radio']:checked:focus{border-color:transparent;background-color:currentColor}[type='checkbox']:indeterminate{background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 16'%3e%3cpath stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 8h8'/%3e%3c/svg%3e");border-color:transparent;background-color:currentColor;background-size:100% 100%;background-position:center;background-repeat:no-repeat;}@media (forced-colors: active) {[type='checkbox']:indeterminate{-webkit-appearance:auto;appearance:auto}}[type='checkbox']:indeterminate:hover,[type='checkbox']:indeterminate:focus{border-color:transparent;background-color:currentColor}[type='file']{background:unset;border-color:inherit;border-width:0;border-radius:0;padding:0;font-size:unset;line-height:inherit}[type='file']:focus{outline:1px solid ButtonText;outline:1px auto -webkit-focus-ring-color}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.bottom-0{bottom:0px}.left-3{left:0.75rem}.right-2{right:0.5rem}.top-0{top:0px}.top-1\/2{top:50%}.top-2{top:0.5rem}.z-10{z-index:10}.mx-1{margin-left:0.25rem;margin-right:0.25rem}.mb-1{margin-bottom:0.25rem}.mb-4{margin-bottom:1rem}.mb-6{margin-bottom:1.5rem}.mt-1{margin-top:0.25rem}.mt-2{margin-top:0.5rem}.mt-3{margin-top:0.75rem}.mt-auto{margin-top:auto}.flex{display:flex}.grid{display:grid}.hidden{display:none}.size-10{width:2.5rem;height:2.5rem}.size-2{width:0.5rem;height:0.5rem}.size-6{width:1.5rem;height:1.5rem}.size-9{width:2.25rem;height:2.25rem}.h-16{height:4rem}.h-64{height:16rem}.h-8{height:2rem}.h-full{height:100%}.h-screen{height:100vh}.min-h-screen{min-height:100vh}.w-64{width:16rem}.w-fit{width:-moz-fit-content;width:fit-content}.w-full{width:100%}.w-px{width:1px}.min-w-0{min-width:0px}.max-w-\[200px\]{max-width:200px}.max-w-md{max-width:28rem}.flex-1{flex:1 1 0%}.-translate-y-1\/2{--tw-translate-y:-50%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.flex-col{flex-direction:column}.items-start{align-items:flex-start}.items-center{align-items:center}.items-baseline{align-items:baseline}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-2{gap:0.5rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.space-y-1 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.25rem * var(--tw-space-y-reverse))}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.space-y-6 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem * var(--tw-space-y-reverse))}.divide-y > :not([hidden]) ~ :not([hidden]){--tw-divide-y-reverse:0;border-top-width:calc(1px * calc(1 - var(--tw-divide-y-reverse)));border-bottom-width:calc(1px * var(--tw-divide-y-reverse))}.divide-primary\/5 > :not([hidden]) ~ :not([hidden]){border-color:rgb(74 222 128 / 0.05)}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.whitespace-nowrap{white-space:nowrap}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:1rem}.rounded-xl{border-radius:1.5rem}.border{border-width:1px}.border-2{border-width:2px}.border-b{border-bottom-width:1px}.border-r{border-right-width:1px}.border-t{border-top-width:1px}.border-none{border-style:none}.border-primary{--tw-border-opacity:1;border-color:rgb(74 222 128 / var(--tw-border-opacity, 1))}.border-primary\/10{border-color:rgb(74 222 128 / 0.1)}.border-primary\/20{border-color:rgb(74 222 128 / 0.2)}.border-white{--tw-border-opacity:1;border-color:rgb(255 255 255 / var(--tw-border-opacity, 1))}.bg-background-light{--tw-bg-opacity:1;background-color:rgb(246 248 247 / var(--tw-bg-opacity, 1))}.bg-blue-100{--tw-bg-opacity:1;background-color:rgb(219 234 254 / var(--tw-bg-opacity, 1))}.bg-cyan-100{--tw-bg-opacity:1;background-color:rgb(207 250 254 / var(--tw-bg-opacity, 1))}.bg-orange-100{--tw-bg-opacity:1;background-color:rgb(255 237 213 / var(--tw-bg-opacity, 1))}.bg-primary{--tw-bg-opacity:1;background-color:rgb(74 222 128 / var(--tw-bg-opacity, 1))}.bg-primary\/10{background-color:rgb(74 222 128 / 0.1)}.bg-primary\/20{background-color:rgb(74 222 128 / 0.2)}.bg-primary\/5{background-color:rgb(74 222 128 / 0.05)}.bg-red-100{--tw-bg-opacity:1;background-color:rgb(254 226 226 / var(--tw-bg-opacity, 1))}.bg-red-500{--tw-bg-opacity:1;background-color:rgb(239 68 68 / var(--tw-bg-opacity, 1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.p-1{padding:0.25rem}.p-2{padding:0.5rem}.p-3{padding:0.75rem}.p-4{padding:1rem}.p-6{padding:1.5rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.py-4{padding-top:1rem;padding-bottom:1rem}.pl-10{padding-left:2.5rem}.pl-2{padding-left:0.5rem}.pr-4{padding-right:1rem}.pt-2{padding-top:0.5rem}.text-left{text-align:left}.text-right{text-align:right}.text-2xl{font-size:1.5rem;line-height:2rem}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-\[10px\]{font-size:10px}.text-\[14px\]{font-size:14px}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-black{font-weight:900}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.italic{font-style:italic}.leading-tight{line-height:1.25}.tracking-tight{letter-spacing:-0.025em}.tracking-wider{letter-spacing:0.05em}.text-blue-500{--tw-text-opacity:1;color:rgb(59 130 246 / var(--tw-text-opacity, 1))}.text-blue-600{--tw-text-opacity:1;color:rgb(37 99 235 / var(--tw-text-opacity, 1))}.text-cyan-600{--tw-text-opacity:1;color:rgb(8 145 178 / var(--tw-text-opacity, 1))}.text-orange-500{--tw-text-opacity:1;color:rgb(249 115 22 / var(--tw-text-opacity, 1))}.text-orange-600{--tw-text-opacity:1;color:rgb(234 88 12 / var(--tw-text-opacity, 1))}.text-primary{--tw-text-opacity:1;color:rgb(74 222 128 / var(--tw-text-opacity, 1))}.text-red-500{--tw-text-opacity:1;color:rgb(239 68 68 / var(--tw-text-opacity, 1))}.text-red-600{--tw-text-opacity:1;color:rgb(220 38 38 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-slate-900{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-primary\/20{--tw-shadow-color:rgb(74 222 128 / 0.2);--tw-shadow:var(--tw-shadow-colored)}.ring-2{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.ring-primary\/10{--tw-ring-color:rgb(74 222 128 / 0.1)}.transition-colors{transition-property:color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.hover\:bg-background-light:hover{--tw-bg-opacity:1;background-color:rgb(246 248 247 / var(--tw-bg-opacity, 1))}.hover\:bg-primary\/10:hover{background-color:rgb(74 222 128 / 0.1)}.hover\:bg-primary\/90:hover{background-color:rgb(74 222 128 / 0.9)}.hover\:text-primary:hover{--tw-text-opacity:1;color:rgb(74 222 128 / var(--tw-text-opacity, 1))}.hover\:text-slate-900:hover{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.hover\:underline:hover{-webkit-text-decoration-line:underline;text-decoration-line:underline}.focus\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.focus\:ring-primary:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(74 222 128 / var(--tw-ring-opacity, 1))}.active\:scale-95:active{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.dark\:bg-background-dark:is(.dark *){--tw-bg-opacity:1;background-color:rgb(18 32 23 / var(--tw-bg-opacity, 1))}.dark\:bg-primary\/10:is(.dark *){background-color:rgb(74 222 128 / 0.1)}.dark\:bg-slate-800:is(.dark *){--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.dark\:bg-slate-800\/50:is(.dark *){background-color:rgb(30 41 59 / 0.5)}.dark\:bg-slate-900:is(.dark *){--tw-bg-opacity:1;background-color:rgb(15 23 42 / var(--tw-bg-opacity, 1))}.dark\:text-slate-100:is(.dark *){--tw-text-opacity:1;color:rgb(241 245 249 / var(--tw-text-opacity, 1))}.dark\:text-slate-200:is(.dark *){--tw-text-opacity:1;color:rgb(226 232 240 / var(--tw-text-opacity, 1))}.dark\:text-slate-300:is(.dark *){--tw-text-opacity:1;color:rgb(203 213 225 / var(--tw-text-opacity, 1))}.dark\:text-slate-400:is(.dark *){--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.dark\:text-white:is(.dark *){--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}@media (min-width: 640px){.sm\:block{display:block}.sm\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.sm\:flex-row{flex-direction:row}.sm\:items-end{align-items:flex-end}}@media (min-width: 768px){.md\:flex{display:flex}}@media (min-width: 1024px){.lg\:col-span-2{grid-column:span 2 / span 2}.lg\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.lg\:grid-cols-5{grid-template-columns:repeat(5, minmax(0, 1fr))}}</style></head>
-<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen" data-mode="connect">
-<div class="flex h-full min-h-screen">
-<!-- Side Navigation -->
-<aside class="w-64 border-r border-primary/10 bg-white dark:bg-slate-900 hidden md:flex flex-col sticky top-0 h-screen">
-<div class="p-6 flex items-center gap-3">
-<div class="bg-primary size-10 rounded-lg flex items-center justify-center text-white">
-<span class="material-symbols-outlined text-2xl">medical_services</span>
-</div>
-<div class="flex flex-col">
-<h1 class="text-slate-900 dark:text-white text-lg font-bold leading-tight">VitalCare</h1>
-<p class="text-primary text-xs font-medium">Quản lý bệnh mãn tính</p>
-</div>
-</div>
-<nav class="flex-1 px-4 py-4 space-y-1">
-<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-lg transition-colors" href="#">
-<span class="material-symbols-outlined">dashboard</span>
-<span class="text-sm font-medium">Bảng điều khiển</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-lg transition-colors" href="#">
-<span class="material-symbols-outlined">pill</span>
-<span class="text-sm font-medium">Đơn thuốc</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2 bg-primary text-white rounded-lg shadow-sm shadow-primary/20" href="#">
-<span class="material-symbols-outlined filled-icon">monitoring</span>
-<span class="text-sm font-medium">Chỉ số sức khỏe</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-lg transition-colors" href="#">
-<span class="material-symbols-outlined">calendar_today</span>
-<span class="text-sm font-medium">Lịch hẹn</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-lg transition-colors" href="#">
-<span class="material-symbols-outlined">chat_bubble</span>
-<span class="text-sm font-medium">Tin nhắn bác sĩ</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary rounded-lg transition-colors mt-auto" href="#">
-<span class="material-symbols-outlined">person</span>
-<span class="text-sm font-medium">Hồ sơ cá nhân</span>
-</a>
-</nav>
-<div class="p-4 border-t border-primary/10">
-<div class="bg-primary/5 rounded-xl p-3">
-<p class="text-xs text-slate-500 mb-1">Cần giúp đỡ?</p>
-<button class="text-xs font-bold text-primary flex items-center gap-1">Liên hệ hỗ trợ <span class="material-symbols-outlined text-[14px]">arrow_forward</span></button>
-</div>
-</div>
-</aside>
-<!-- Main Content -->
-<main class="flex-1 flex flex-col min-w-0 overflow-hidden">
-<!-- Header -->
-<header class="h-16 border-b border-primary/10 bg-white dark:bg-slate-900 flex items-center justify-between px-6 sticky top-0 z-10">
-<div class="flex-1 max-w-md">
-<div class="relative">
-<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
-<input class="w-full pl-10 pr-4 py-2 bg-background-light dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-primary text-sm" placeholder="Tìm kiếm kết quả, báo cáo..." type="text">
-</div>
-</div>
-<div class="flex items-center gap-4">
-<button class="relative p-2 text-slate-500 hover:bg-background-light rounded-full transition-colors">
-<span class="material-symbols-outlined">notifications</span>
-<span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border-2 border-white"></span>
-</button>
-<button class="p-2 text-slate-500 hover:bg-background-light rounded-full transition-colors">
-<span class="material-symbols-outlined">settings</span>
-</button>
-<div class="h-8 w-px bg-primary/20 mx-1"></div>
-<div class="flex items-center gap-3 pl-2">
-<div class="text-right hidden sm:block">
-<p class="text-sm font-bold text-slate-900 dark:text-white">Nguyễn Văn A</p>
-<p class="text-[10px] text-slate-500 uppercase font-semibold"><br></p>
-</div>
-<img alt="Avatar" class="size-9 rounded-full bg-primary/20 border border-primary/20" data-alt="Ảnh đại diện người dùng Nguyễn Văn A" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYJOxefHu9UuwBIIHX0Lsun5eTd0M-fgStXzt2UhM1QacDyyyGBxav8lME9XTPu_DUobsNB9XYodX5dlRGLOL0qH5GqomjWH-an2RVE9ZpT6CKkP29RvpcXC5NUXJ9XzmWBCRvZ2kyZdUROfNzS_GOiMyBekVdvRrOlcQUtpER45VPBHGGeLNCagRkMF3eknh9g3zRlIR9ds3Uh5iLa9YikrjZmmZhkVRTjFjuyi7nKrDRXiVxXSuckbOT6R_9h6Py524VLcKcbW0">
-</div>
-</div>
-</header>
-<div class="p-6 space-y-6 overflow-y-auto">
-<!-- Title and CTA -->
-<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-<div>
-<h2 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Chỉ số sức khỏe</h2>
-<p class="text-slate-500 mt-1">Theo dõi các chỉ số sinh tồn của bạn trong thời gian thực</p>
-</div>
-<button class="bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-primary/20 flex items-center justify-center gap-2 transition-transform active:scale-95">
-<span class="material-symbols-outlined">add</span>
-                        Nhập chỉ số mới
-                    </button>
-</div>
-<!-- Filters -->
-<div class="flex bg-white dark:bg-slate-900 p-1 rounded-xl border border-primary/10 w-fit">
-<button class="px-6 py-1.5 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">Ngày</button>
-<button class="px-6 py-1.5 text-sm font-bold text-primary bg-primary/10 rounded-lg">Tuần</button>
-<button class="px-6 py-1.5 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">Tháng</button>
-<button class="px-6 py-1.5 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">Năm</button>
-</div>
-<!-- Metric Cards -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-<!-- Card: Đường huyết -->
-<div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-primary ring-2 ring-primary/10">
-<div class="flex justify-between items-start mb-4">
-<div class="p-2 bg-primary/10 text-primary rounded-lg">
-<span class="material-symbols-outlined text-xl">glucose</span>
-</div>
-<span class="text-[10px] font-bold px-2 py-0.5 bg-primary/10 text-primary rounded-full">ỔN ĐỊNH</span>
-</div>
-<p class="text-slate-500 text-xs font-semibold uppercase tracking-wider">Đường huyết</p>
-<div class="flex items-baseline gap-1 mt-1">
-<span class="text-2xl font-black text-slate-900 dark:text-white">5.6</span>
-<span class="text-xs text-slate-400">mmol/L</span>
-</div>
-<div class="mt-2 flex items-center gap-1 text-primary">
-<span class="material-symbols-outlined text-sm">trending_down</span>
-<span class="text-xs font-bold">-2% so với hôm qua</span>
-</div>
-</div>
-<!-- Card: Huyết áp -->
-<div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-primary/10">
-<div class="flex justify-between items-start mb-4">
-<div class="p-2 bg-orange-100 text-orange-600 rounded-lg">
-<span class="material-symbols-outlined text-xl">vital_signs</span>
-</div>
-<span class="text-[10px] font-bold px-2 py-0.5 bg-orange-100 text-orange-600 rounded-full uppercase">Cần chú ý</span>
-</div>
-<p class="text-slate-500 text-xs font-semibold uppercase tracking-wider">Huyết áp</p>
-<div class="flex items-baseline gap-1 mt-1">
-<span class="text-2xl font-black text-slate-900 dark:text-white">120/80</span>
-<span class="text-xs text-slate-400">mmHg</span>
-</div>
-<div class="mt-2 flex items-center gap-1 text-orange-600">
-<span class="material-symbols-outlined text-sm">trending_up</span>
-<span class="text-xs font-bold">+5% so với hôm qua</span>
-</div>
-</div>
-<!-- Card: Nhịp tim -->
-<div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-primary/10">
-<div class="flex justify-between items-start mb-4">
-<div class="p-2 bg-red-100 text-red-600 rounded-lg">
-<span class="material-symbols-outlined text-xl">favorite</span>
-</div>
-<span class="text-[10px] font-bold px-2 py-0.5 bg-primary/10 text-primary rounded-full">ỔN ĐỊNH</span>
-</div>
-<p class="text-slate-500 text-xs font-semibold uppercase tracking-wider">Nhịp tim</p>
-<div class="flex items-baseline gap-1 mt-1">
-<span class="text-2xl font-black text-slate-900 dark:text-white">72</span>
-<span class="text-xs text-slate-400">bpm</span>
-</div>
-<div class="mt-2 flex items-center gap-1 text-slate-400">
-<span class="material-symbols-outlined text-sm">horizontal_rule</span>
-<span class="text-xs font-bold">0% không đổi</span>
-</div>
-</div>
-<!-- Card: Cân nặng -->
-<div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-primary/10">
-<div class="flex justify-between items-start mb-4">
-<div class="p-2 bg-blue-100 text-blue-600 rounded-lg">
-<span class="material-symbols-outlined text-xl">weight</span>
-</div>
-<span class="text-[10px] font-bold px-2 py-0.5 bg-primary/10 text-primary rounded-full">ỔN ĐỊNH</span>
-</div>
-<p class="text-slate-500 text-xs font-semibold uppercase tracking-wider">Cân nặng</p>
-<div class="flex items-baseline gap-1 mt-1">
-<span class="text-2xl font-black text-slate-900 dark:text-white">68.5</span>
-<span class="text-xs text-slate-400">kg</span>
-</div>
-<div class="mt-2 flex items-center gap-1 text-primary">
-<span class="material-symbols-outlined text-sm">trending_down</span>
-<span class="text-xs font-bold">-1% tuần này</span>
-</div>
-</div>
-<!-- Card: SpO2 -->
-<div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-primary/10">
-<div class="flex justify-between items-start mb-4">
-<div class="p-2 bg-cyan-100 text-cyan-600 rounded-lg">
-<span class="material-symbols-outlined text-xl">air</span>
-</div>
-<span class="text-[10px] font-bold px-2 py-0.5 bg-primary/10 text-primary rounded-full uppercase">Bình thường</span>
-</div>
-<p class="text-slate-500 text-xs font-semibold uppercase tracking-wider">Nồng độ Oxy (SpO2)</p>
-<div class="flex items-baseline gap-1 mt-1">
-<span class="text-2xl font-black text-slate-900 dark:text-white">98</span>
-<span class="text-xs text-slate-400">%</span>
-</div>
-<div class="mt-2 flex items-center gap-1 text-slate-400">
-<span class="material-symbols-outlined text-sm">horizontal_rule</span>
-<span class="text-xs font-bold">0% không đổi</span>
-</div>
-</div>
-</div>
-<!-- Chart and Analysis -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-<!-- Detailed Chart -->
-<div class="lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-xl border border-primary/10">
-<div class="flex items-center justify-between mb-6">
-<div>
-<h3 class="font-bold text-lg">Biểu đồ Đường huyết chi tiết</h3>
-<p class="text-xs text-slate-500">Dữ liệu thu thập trong 7 ngày qua</p>
-</div>
-<select class="text-xs border-primary/20 rounded-lg bg-background-light dark:bg-slate-800">
-<option>Đường huyết (mmol/L)</option>
-<option>Huyết áp (mmHg)</option>
-<option>Nhịp tim (bpm)</option>
-</select>
-</div>
-<div class="h-64 relative">
-<!-- Placeholder for Chart using SVG -->
-<svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 800 200">
-<defs>
-<linearGradient id="gradient" x1="0%" x2="0%" y1="0%" y2="100%">
-<stop offset="0%" style="stop-color:rgba(74, 222, 128, 0.3)"></stop>
-<stop offset="100%" style="stop-color:rgba(74, 222, 128, 0)"></stop>
-</linearGradient>
-</defs>
-<path d="M0,150 Q50,140 100,160 T200,130 T300,140 T400,110 T500,120 T600,90 T700,100 T800,80 L800,200 L0,200 Z" fill="url(#gradient)" class=""></path>
-<path d="M0,150 Q50,140 100,160 T200,130 T300,140 T400,110 T500,120 T600,90 T700,100 T800,80" fill="none" stroke="#4ade80" stroke-width="3" class=""></path>
-<circle cx="100" cy="160" fill="#4ade80" r="4"></circle>
-<circle cx="200" cy="130" fill="#4ade80" r="4"></circle>
-<circle cx="300" cy="140" fill="#4ade80" r="4"></circle>
-<circle cx="400" cy="110" fill="#4ade80" r="4"></circle>
-<circle cx="500" cy="120" fill="#4ade80" r="4"></circle>
-<circle cx="600" cy="90" fill="#4ade80" r="4"></circle>
-<circle cx="700" cy="100" fill="#4ade80" r="4"></circle>
-</svg>
-<div class="absolute bottom-0 w-full flex justify-between text-[10px] font-bold text-slate-400 pt-2">
-<span>Thứ 2</span>
-<span>Thứ 3</span>
-<span>Thứ 4</span>
-<span>Thứ 5</span>
-<span class="">Thứ 6</span>
-<span>Thứ 7</span>
-<span>Chủ nhật</span>
-</div>
-</div>
-</div>
-<!-- AI/Doctor Analysis -->
-<div class="bg-primary/5 dark:bg-primary/10 p-6 rounded-xl border border-primary/20 flex flex-col">
-<div class="flex items-center gap-2 mb-4">
-<span class="material-symbols-outlined text-primary">auto_awesome</span>
-<h3 class="font-bold text-slate-900 dark:text-white">Phân tích từ AI &amp; Bác sĩ</h3>
-</div>
-<div class="space-y-4 flex-1">
-<div class="bg-white dark:bg-slate-900 p-4 rounded-lg shadow-sm">
-<p class="text-sm text-slate-600 dark:text-slate-300 italic">"Chỉ số đường huyết của bạn đang có xu hướng giảm nhẹ và ổn định hơn so với tuần trước. Tuy nhiên, huyết áp ghi nhận vào buổi sáng đôi khi hơi cao. Hãy duy trì việc tập thể dục nhẹ nhàng và giảm muối trong khẩu phần ăn."</p>
-<div class="mt-3 flex items-center gap-2">
-<div class="size-6 bg-primary rounded-full flex items-center justify-center text-[10px] text-white font-bold">BS</div>
-<p class="text-[10px] font-bold text-slate-500 uppercase">BS. Trần Thị Thu</p>
-</div>
-</div>
-<div class="bg-primary/20 p-3 rounded-lg">
-<h4 class="text-xs font-bold text-primary flex items-center gap-1 mb-1">
-<span class="material-symbols-outlined text-sm">lightbulb</span> Lời khuyên
-                                </h4>
-<p class="text-xs text-slate-700 dark:text-slate-200">Uống đủ 2L nước mỗi ngày và hạn chế caffeine sau 14:00 để ổn định nhịp tim.</p>
-</div>
-</div>
-</div>
-</div>
-<!-- Recent History Table -->
-<div class="bg-white dark:bg-slate-900 rounded-xl border border-primary/10 overflow-hidden">
-<div class="p-6 border-b border-primary/10 flex items-center justify-between">
-<h3 class="font-bold text-lg text-slate-900 dark:text-white">Lịch sử nhập liệu gần đây</h3>
-<button class="text-primary text-sm font-bold hover:underline">Xem tất cả</button>
-</div>
-<div class="overflow-x-auto">
-<table class="w-full text-left">
-<thead>
-<tr class="bg-background-light dark:bg-slate-800/50">
-<th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Thời gian</th>
-<th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Chỉ số</th>
-<th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Giá trị</th>
-<th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Trạng thái</th>
-<th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Ghi chú</th>
-</tr>
-</thead>
-<tbody class="divide-y divide-primary/5">
-<tr>
-<td class="px-6 py-4 whitespace-nowrap">
-<div class="text-sm font-medium text-slate-900 dark:text-white">Hôm nay, 08:30</div>
-</td>
-<td class="px-6 py-4 whitespace-nowrap">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-primary text-sm">glucose</span>
-<span class="text-sm text-slate-600 dark:text-slate-300">Đường huyết</span>
-</div>
-</td>
-<td class="px-6 py-4 whitespace-nowrap">
-<div class="text-sm font-bold text-slate-900 dark:text-white">5.6 mmol/L</div>
-</td>
-<td class="px-6 py-4 whitespace-nowrap">
-<span class="px-2 py-1 text-[10px] font-bold bg-primary/10 text-primary rounded-full">BÌNH THƯỜNG</span>
-</td>
-<td class="px-6 py-4">
-<div class="text-sm text-slate-500 truncate max-w-[200px]">Đo sau khi ăn sáng 1 tiếng.</div>
-</td>
-</tr>
-<tr>
-<td class="px-6 py-4 whitespace-nowrap">
-<div class="text-sm font-medium text-slate-900 dark:text-white">Hôm qua, 20:15</div>
-</td>
-<td class="px-6 py-4 whitespace-nowrap">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-orange-500 text-sm">vital_signs</span>
-<span class="text-sm text-slate-600 dark:text-slate-300">Huyết áp</span>
-</div>
-</td>
-<td class="px-6 py-4 whitespace-nowrap">
-<div class="text-sm font-bold text-slate-900 dark:text-white">125/85 mmHg</div>
-</td>
-<td class="px-6 py-4 whitespace-nowrap">
-<span class="px-2 py-1 text-[10px] font-bold bg-orange-100 text-orange-600 rounded-full">HƠI CAO</span>
-</td>
-<td class="px-6 py-4">
-<div class="text-sm text-slate-500 truncate max-w-[200px]">Cảm thấy hơi chóng mặt nhẹ.</div>
-</td>
-</tr>
-<tr>
-<td class="px-6 py-4 whitespace-nowrap">
-<div class="text-sm font-medium text-slate-900 dark:text-white">Hôm qua, 07:00</div>
-</td>
-<td class="px-6 py-4 whitespace-nowrap">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-blue-500 text-sm">weight</span>
-<span class="text-sm text-slate-600 dark:text-slate-300">Cân nặng</span>
-</div>
-</td>
-<td class="px-6 py-4 whitespace-nowrap">
-<div class="text-sm font-bold text-slate-900 dark:text-white">68.5 kg</div>
-</td>
-<td class="px-6 py-4 whitespace-nowrap">
-<span class="px-2 py-1 text-[10px] font-bold bg-primary/10 text-primary rounded-full">ỔN ĐỊNH</span>
-</td>
-<td class="px-6 py-4">
-<div class="text-sm text-slate-500 truncate max-w-[200px]">Đo lúc vừa ngủ dậy.</div>
-</td>
-</tr>
-<tr>
-<td class="px-6 py-4 whitespace-nowrap">
-<div class="text-sm font-medium text-slate-900 dark:text-white">15 Thg 10, 10:00</div>
-</td>
-<td class="px-6 py-4 whitespace-nowrap">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-red-500 text-sm">favorite</span>
-<span class="text-sm text-slate-600 dark:text-slate-300">Nhịp tim</span>
-</div>
-</td>
-<td class="px-6 py-4 whitespace-nowrap">
-<div class="text-sm font-bold text-slate-900 dark:text-white">75 bpm</div>
-</td>
-<td class="px-6 py-4 whitespace-nowrap">
-<span class="px-2 py-1 text-[10px] font-bold bg-primary/10 text-primary rounded-full">BÌNH THƯỜNG</span>
-</td>
-<td class="px-6 py-4">
-<div class="text-sm text-slate-500 truncate max-w-[200px]">Đo sau khi đi bộ 15 phút.</div>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-</main>
-</div>
-</body></html>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- LEFT -->
+        <div class="form-left">
+            <h2>Doctor Appointment Request Form</h2>
+
+            <div class="row">
+                <input type="text" placeholder="First name">
+                <input type="text" placeholder="Last name">
+            </div>
+
+            <div class="row">
+                <input type="text" placeholder="Enter a valid phone number">
+                <input type="email" placeholder="Enter a valid email address">
+            </div>
+
+            <div class="full">
+                <input type="text" placeholder="Enter your street address">
+            </div>
+
+            <div class="row">
+                <input type="date">
+                <input type="time">
+            </div>
+
+            <div class="row">
+                <select>
+                    <option>Select Procedure</option>
+                    <option>General Checkup</option>
+                    <option>Dental</option>
+                    <option>Eye</option>
+                </select>
+
+                <select>
+                    <option>Select Doctor Type</option>
+                    <option>General Doctor</option>
+                    <option>Specialist</option>
+                </select>
+            </div>
+
+            <button>Submit</button>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="form-right">
+            <img src="https://cdn-icons-png.flaticon.com/512/3774/3774299.png" alt="doctor">
+        </div>
+
+    </div>
+
+</body>
+
+</html>

@@ -17,8 +17,10 @@ import java.util.List;
 public class CustomUserDetails implements UserDetails {
     private Long id;
     private String email;
+    private String fullName;
     private String password;
     private Long clinicId;
+    private String role;
     private List<GrantedAuthority> authorities;
 
     @Override

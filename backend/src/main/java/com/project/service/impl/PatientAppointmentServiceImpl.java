@@ -7,6 +7,7 @@ import com.project.entity.Patient;
 import com.project.exception.ResourceNotFoundException;
 import com.project.repository.AppointmentRepository;
 import com.project.repository.PatientRepository;
+import com.project.service.NotificationService;
 import com.project.service.PatientAppointmentService;
 import com.project.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class PatientAppointmentServiceImpl implements PatientAppointmentService 
     private final AppointmentRepository appointmentRepository;
     private final PatientRepository patientRepository;
     private final com.project.repository.UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
@@ -43,7 +45,7 @@ public class PatientAppointmentServiceImpl implements PatientAppointmentService 
                 .patient(patient)
                 .doctorId(request.getDoctorId())
                 .appointmentTime(request.getAppointmentTime())
-                .status("SCHEDULED")
+                .status("PENDING")
                 .type(request.getAppointmentType())
                 .doctorName(doctor != null ? doctor.getFullName() : null)
                 .doctorSpecialty(doctor != null ? doctor.getSpecialization() : null)
@@ -53,6 +55,18 @@ public class PatientAppointmentServiceImpl implements PatientAppointmentService 
                 .build();
 
         Appointment saved = appointmentRepository.save(appointment);
+        
+        // Notify Doctor
+        if (doctor != null) {
+            notificationService.sendNotification(
+                doctor.getId(),
+                "Yêu cầu lịch hẹn mới",
+                "Bệnh nhân " + patient.getFullName() + " đã gửi yêu cầu đặt lịch hẹn vào " + saved.getAppointmentTime().toString(),
+                "info",
+                "/doctor/appointments"
+            );
+        }
+
         log.info("Appointment created for patient: patientId={}, doctorId={}",
                 patient.getId(), request.getDoctorId());
         return mapToResponse(saved);
@@ -61,8 +75,8 @@ public class PatientAppointmentServiceImpl implements PatientAppointmentService 
     @Override
     public List<PatientAppointmentResponse> getUpcoming() {
         Patient patient = getCurrentPatient();
-        return appointmentRepository.findByPatientIdAndStatusAndAppointmentTimeAfterOrderByAppointmentTimeAsc(
-                        patient.getId(), "SCHEDULED", LocalDateTime.now())
+        return appointmentRepository.findByPatientIdAndStatusInAndAppointmentTimeAfterOrderByAppointmentTimeAsc(
+                        patient.getId(), List.of("PENDING", "SCHEDULED"), LocalDateTime.now())
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());

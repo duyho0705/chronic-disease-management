@@ -15,6 +15,13 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
         // === Doctor-side queries ===
         long countByDoctorIdAndStatusAndAppointmentTimeAfter(Long doctorId, String status, LocalDateTime time);
+        long countByDoctorIdAndStatusInAndAppointmentTimeAfter(Long doctorId, List<String> statuses, LocalDateTime time);
+        long countByDoctorIdAndStatus(Long doctorId, String status);
+
+        List<Appointment> findByDoctorIdAndStatusInAndAppointmentTimeAfterOrderByAppointmentTimeAsc(
+                        Long doctorId, List<String> statuses, LocalDateTime time);
+
+        List<Appointment> findByDoctorIdOrderByAppointmentTimeDesc(Long doctorId);
 
         @Query("SELECT a FROM Appointment a JOIN FETCH a.patient WHERE a.doctorId = :doctorId " +
                         "AND a.status = 'SCHEDULED' AND a.appointmentTime >= :startOfDay " +
@@ -22,11 +29,16 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
         List<Appointment> findUpcomingAppointments(Long doctorId, LocalDateTime startOfDay, Pageable pageable);
 
         // === Patient-side queries ===
+        List<Appointment> findByPatientIdAndStatusInAndAppointmentTimeAfterOrderByAppointmentTimeAsc(
+                        Long patientId, List<String> statuses, LocalDateTime after);
+
         List<Appointment> findByPatientIdAndStatusAndAppointmentTimeAfterOrderByAppointmentTimeAsc(
                         Long patientId, String status, LocalDateTime after);
 
         Page<Appointment> findByPatientIdAndStatusOrderByAppointmentTimeDesc(
                         Long patientId, String status, Pageable pageable);
+
+        List<Appointment> findByPatientIdOrderByAppointmentTimeDesc(Long patientId);
 
         @Query(value = "SELECT u.clinic_id, COUNT(a.id) FROM appointments a " +
                        "JOIN users u ON a.doctor_id = u.id " +
@@ -43,4 +55,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
                        "FROM appointments a JOIN users u ON a.doctor_id = u.id " +
                        "WHERE a.is_deleted = false AND a.status != 'CANCELLED' GROUP BY u.clinic_id", nativeQuery = true)
         List<Object[]> calculateComplianceRateByClinicNative();
+
+        long countByDoctorIdInAndCreatedAtBetweenAndIsDeletedFalse(List<Long> doctorIds, LocalDateTime start, LocalDateTime end);
 }

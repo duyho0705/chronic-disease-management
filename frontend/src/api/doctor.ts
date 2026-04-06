@@ -18,6 +18,11 @@ export const doctorApi = {
     return response.data;
   },
 
+  getPatientDetail: async (id: number) => {
+    const response = await axiosInstance.get(`/v1/doctor/patients/${id}`);
+    return response.data;
+  },
+
   // Prescriptions
   getPrescriptions: async (params?: any) => {
     const response = await axiosInstance.get('/v1/doctor/prescriptions', { params });
@@ -42,6 +47,11 @@ export const doctorApi = {
   
   getAllAppointments: async () => {
     const response = await axiosInstance.get('/v1/doctor/appointments');
+    return response.data;
+  },
+
+  createAppointment: async (data: any) => {
+    const response = await axiosInstance.post('/v1/doctor/appointments', data);
     return response.data;
   },
 

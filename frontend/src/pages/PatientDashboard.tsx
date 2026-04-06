@@ -11,6 +11,7 @@ const PatientDashboard: React.FC = () => {
     const [medications, setMedications] = useState<any[]>([]);
     const [appointments, setAppointments] = useState<any[]>([]);
     const [conversation, setConversation] = useState<any>(null);
+    const [alerts, setAlerts] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isAddAppointmentModalOpen, setIsAddAppointmentModalOpen] = useState(false);
     const [isSavingAppointment, setIsSavingAppointment] = useState(false);
@@ -25,22 +26,16 @@ const PatientDashboard: React.FC = () => {
     const fetchData = useCallback(async () => {
         setIsLoading(true);
         try {
-            const [summaryRes, profileRes, medRes, apptRes, convRes] = await Promise.all([
-                patientApi.getMetricsSummary('WEEK'),
-                patientApi.getProfile().catch(() => ({ success: false })), // Profile might not be ready
-                patientApi.getTodayMedicationSchedule().catch(() => ({ success: false, data: [] })),
-                patientApi.getUpcomingAppointments().catch(() => ({ success: false, data: [] })),
-                patientApi.getConversations().catch(() => ({ data: [] }))
-            ]);
-
-            if (summaryRes.success) setSummary(summaryRes.data);
-            if (profileRes.success) setProfile(profileRes.data);
-            if (medRes.success) setMedications(medRes.data);
-            if (apptRes.success) setAppointments(apptRes.data);
-            if (convRes.data && convRes.data.length > 0) setConversation(convRes.data[0]);
-
-            // Artificial delay for smooth skeleton transition
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            const res = await patientApi.getDashboard();
+            if (res.success) {
+                const data = res.data;
+                setSummary(data.healthMetrics || []);
+                setProfile(data.profile);
+                setMedications(data.todayMedications || []);
+                setAppointments(data.nextAppointment ? [data.nextAppointment] : []);
+                setAlerts(data.alerts || []);
+                setConversation(data.primaryDoctorChat);
+            }
         } catch (error) {
             console.error('Failed to fetch dashboard data:', error);
         } finally {
@@ -334,11 +329,18 @@ const PatientDashboard: React.FC = () => {
                         </div>
                         {isLoading ? (
                             <div className="h-10 bg-red-100/50 dark:bg-red-900/40 animate-pulse rounded w-full"></div>
+                        ) : alerts.length > 0 ? (
+                            <div className="space-y-3">
+                                {alerts.slice(0, 2).map((alert: any) => (
+                                    <div key={alert.id} className="border-b border-red-200 dark:border-red-900/40 pb-2 last:border-0">
+                                        <p className="text-red-800 dark:text-red-400 font-bold text-xs uppercase mb-1">{alert.title}</p>
+                                        <p className="text-sm text-red-700 dark:text-red-300">{alert.message}</p>
+                                    </div>
+                                ))}
+                            </div>
                         ) : (
                             <p className="text-sm text-red-700 dark:text-red-300">
-                                {summary.some(s => s.status === 'HIGH' || s.status === 'LOW')
-                                    ? "Có chỉ số sức khỏe của bạn đang vượt mức bình thường. Vui lòng kiểm tra lại chế độ ăn uống và thông báo cho bác sĩ."
-                                    : "Chỉ số hiện tại ổn định. Vui lòng duy trì các thói quen vận động và ăn uống khoa học."}
+                                Chỉ số hiện tại ổn định. Vui lòng duy trì các thói quen vận động và ăn uống khoa học.
                             </p>
                         )}
                     </div>
