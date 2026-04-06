@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Dropdown from '../../../components/ui/Dropdown';
+import { patientApi } from '../../../api/patient';
 
 interface AddAppointmentModalProps {
     isOpen: boolean;
@@ -11,27 +12,55 @@ interface AddAppointmentModalProps {
 }
 
 const AddAppointmentModal: React.FC<AddAppointmentModalProps> = ({ isOpen, onClose, onSave, isSaving, doctors = [] }) => {
+    const [localDoctors, setLocalDoctors] = useState<any[]>(doctors);
+    const [isLoadingDoctors, setIsLoadingDoctors] = useState(false);
+    
     const [appointmentType, setAppointmentType] = useState('direct');
-    const [selectedDate, setSelectedDate] = useState(new Date().getDate() + 1); // tomorrow as default
+    const [selectedDateObj, setSelectedDateObj] = useState(new Date(new Date().setDate(new Date().getDate() + 1)));
     const [selectedTime, setSelectedTime] = useState('08:30');
     const [specialty, setSpecialty] = useState('');
     const [reason, setReason] = useState('');
 
     const specialtyOptions = [
         { label: 'Chọn bác sĩ', value: '' },
-        ...doctors.map(d => ({ label: `${d.name} - ${d.specialty}`, value: d.id.toString() }))
+        ...localDoctors.map(d => ({ label: `${d.name} - ${d.specialty}`, value: d.id.toString() }))
     ];
+
+    const today = new Date();
+    const next7Days = Array.from({ length: 7 }, (_, i) => {
+        const d = new Date();
+        d.setDate(today.getDate() + i + 1);
+        return d;
+    });
+    const dayLabels = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
 
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = 'hidden';
+            if (!doctors || doctors.length === 0) {
+                fetchDoctors();
+            }
         } else {
             document.body.style.overflow = 'unset';
         }
         return () => {
             document.body.style.overflow = 'unset';
         };
-    }, [isOpen]);
+    }, [isOpen, doctors]);
+
+    const fetchDoctors = async () => {
+        setIsLoadingDoctors(true);
+        try {
+            const res = await patientApi.getAvailableDoctors();
+            if (res.success) {
+                setLocalDoctors(res.data || []);
+            }
+        } catch (error) {
+            console.error('Failed to fetch available doctors:', error);
+        } finally {
+            setIsLoadingDoctors(false);
+        }
+    };
 
     if (!isOpen) return null;
 
@@ -133,7 +162,11 @@ const AddAppointmentModal: React.FC<AddAppointmentModalProps> = ({ isOpen, onClo
 
                         {/* Doctor Avatars List (Quick Select) */}
                         <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
-                            {doctors.map(dr => (
+                            {isLoadingDoctors ? (
+                                <div className="flex gap-4 animate-pulse">
+                                    {[1, 2, 3].map(i => <div key={i} className="size-14 rounded-full bg-slate-100 dark:bg-slate-800"></div>)}
+                                </div>
+                            ) : localDoctors.map(dr => (
                                 <div key={dr.id} onClick={() => setSpecialty(dr.id.toString())} className="flex-shrink-0 flex flex-col items-center gap-2 group cursor-pointer">
                                     <div className={`size-14 rounded-full border-2 ${specialty === dr.id.toString() ? 'border-primary' : 'border-transparent group-hover:border-slate-200'} p-0.5 transition-all`}>
                                         <img alt={dr.name} className="rounded-full bg-slate-100 size-full object-cover" src={dr.avatarUrl || "https://ui-avatars.com/api/?name=" + encodeURIComponent(dr.name)} />
@@ -153,7 +186,7 @@ const AddAppointmentModal: React.FC<AddAppointmentModalProps> = ({ isOpen, onClo
                             <h3 className="text-base font-bold text-slate-900 dark:text-white mb-4">Ngày khám</h3>
                             <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
                                 <div className="flex items-center justify-between mb-4">
-                                    <span className="font-bold text-sm dark:text-white">Tháng 10, 2023</span>
+                                    <span className="font-bold text-sm dark:text-white">Tháng {today.getMonth() + 1}, {today.getFullYear()}</span>
                                     <div className="flex gap-2">
                                         <button className="size-8 flex items-center justify-center rounded-lg bg-white dark:bg-slate-700 shadow-sm border border-slate-100 dark:border-slate-600">
                                             <ChevronLeft className="w-4 h-4" />
@@ -164,19 +197,21 @@ const AddAppointmentModal: React.FC<AddAppointmentModalProps> = ({ isOpen, onClo
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-slate-400 mb-2">
-                                    <div>T2</div><div>T3</div><div>T4</div><div>T5</div><div>T6</div><div>T7</div><div>CN</div>
+                                    {next7Days.map((d, i) => (
+                                        <div key={i}>{dayLabels[d.getDay()]}</div>
+                                    ))}
                                 </div>
                                 <div className="grid grid-cols-7 gap-1">
-                                    {[23, 24, 25, 26, 27, 28, 29].map(day => (
+                                    {next7Days.map(d => (
                                         <button
-                                            key={day}
-                                            onClick={() => setSelectedDate(day)}
-                                            className={`h-8 rounded-lg text-xs transition-all font-bold ${selectedDate === day
+                                            key={d.getTime()}
+                                            onClick={() => setSelectedDateObj(d)}
+                                            className={`h-8 rounded-lg text-xs transition-all font-bold ${selectedDateObj.getDate() === d.getDate()
                                                     ? 'bg-primary text-slate-900'
-                                                    : day > 27 ? 'text-slate-300 pointer-events-none' : 'hover:bg-slate-200 dark:hover:bg-slate-700 dark:text-slate-300'
+                                                    : 'hover:bg-slate-200 dark:hover:bg-slate-700 dark:text-slate-300'
                                                 }`}
                                         >
-                                            {day}
+                                            {d.getDate()}
                                         </button>
                                     ))}
                                 </div>
@@ -227,7 +262,7 @@ const AddAppointmentModal: React.FC<AddAppointmentModalProps> = ({ isOpen, onClo
                         onClick={() => onSave?.({ 
                             appointmentType: appointmentType === 'direct' ? 'IN_PERSON' : 'ONLINE', 
                             doctorId: specialty, 
-                            selectedDate, 
+                            selectedDate: selectedDateObj, 
                             selectedTime, 
                             reason 
                         })}

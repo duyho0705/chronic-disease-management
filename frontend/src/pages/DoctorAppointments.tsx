@@ -60,10 +60,7 @@ export default function DoctorAppointments() {
         return new Date(dateStr).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
     };
 
-    const formatShortDate = (dateStr: string) => {
-        if (!dateStr) return '';
-        return new Date(dateStr).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    };
+
 
     // Filter for current selected day visually
     const agendaAppointments = appointments.filter(a => {
@@ -196,7 +193,9 @@ export default function DoctorAppointments() {
                                 </div>
                             </div>
                             <div className="flex items-end justify-between">
-                                <span className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">14</span>
+                                <span className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
+                                    {appointments.filter(a => a.appointmentType === 'ONSITE').length}
+                                </span>
                                 <span className="text-xs font-bold text-primary flex items-center gap-0.5">
                                     <span className="material-symbols-outlined text-xs">trending_up</span>
                                     +2%
@@ -213,7 +212,9 @@ export default function DoctorAppointments() {
                                 </div>
                             </div>
                             <div className="flex items-end justify-between">
-                                <span className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">10</span>
+                                <span className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
+                                    {appointments.filter(a => a.appointmentType === 'ONLINE').length}
+                                </span>
                                 <span className="text-xs font-bold text-red-500 flex items-center gap-0.5">
                                     <span className="material-symbols-outlined text-xs">trending_down</span>
                                     -1%
@@ -230,7 +231,9 @@ export default function DoctorAppointments() {
                                 </div>
                             </div>
                             <div className="flex items-end justify-between">
-                                <span className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">3</span>
+                                <span className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
+                                    {appointments.filter(a => a.status === 'PENDING').length}
+                                </span>
                                 <span className="text-xs font-bold text-slate-400 flex items-center gap-0.5">
                                     <span className="material-symbols-outlined text-xs">horizontal_rule</span>
                                     0%

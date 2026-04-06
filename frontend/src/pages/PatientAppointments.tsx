@@ -21,7 +21,7 @@ const PatientAppointments: React.FC = () => {
         try {
             const [docsRes, upcomingRes, historyRes] = await Promise.all([
                 patientApi.getAvailableDoctors(),
-                patientApi.getUpcoming(),
+                patientApi.getUpcomingAppointments(),
                 patientApi.getAppointmentHistory(0, 100)
             ]);
             setDoctors(docsRes.data || []);
@@ -39,10 +39,10 @@ const PatientAppointments: React.FC = () => {
         setIsSaving(true);
         try {
             // Build LocalDateTime from selectedDate and selectedTime
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(data.selectedDate).padStart(2, '0');
+            const dateObj = new Date(data.selectedDate);
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const day = String(dateObj.getDate()).padStart(2, '0');
             // Assuming time is HH:mm
             const timeStr = data.selectedTime + ':00';
             const appointmentTime = `${year}-${month}-${day}T${timeStr}`;

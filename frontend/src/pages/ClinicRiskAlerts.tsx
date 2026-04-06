@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import ClinicSidebar from '../components/common/ClinicSidebar';
 import TopBar from '../components/common/TopBar';
-import axios from '../api/axios';
+import { clinicApi } from '../api/clinic';
 
 export default function ClinicRiskAlerts() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -19,18 +19,15 @@ export default function ClinicRiskAlerts() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // @ts-ignore
                 const [dashRes, patientsRes] = await Promise.all([
-                    // @ts-ignore
-                    axios.get(`/v1/clinics/${currentClinicId}/dashboard`),
-                    // @ts-ignore
-                    axios.get(`/v1/clinics/${currentClinicId}/patients`, { params: { riskLevel: 'Nguy cơ cao', size: 5 } })
+                    clinicApi.getDashboard(currentClinicId),
+                    clinicApi.getPatients(currentClinicId, { riskLevel: 'Nguy cơ cao', size: 5 })
                 ]);
-                if (dashRes.data.success) {
-                    setDashboardStats(dashRes.data.data);
+                if (dashRes.success) {
+                    setDashboardStats(dashRes.data);
                 }
-                if (patientsRes.data.success) {
-                    setHighRiskPatients(patientsRes.data.data.content);
+                if (patientsRes.success) {
+                    setHighRiskPatients(patientsRes.data.content);
                 }
             } catch (error) {
                 console.error('Failed to fetch risk alerts:', error);
@@ -307,7 +304,7 @@ export default function ClinicRiskAlerts() {
                                     ) : (
                                         <>
                                             <p className="text-[14px] font-medium text-slate-500">
-                                                Hiển thị <span className="font-bold text-slate-900 dark:text-white">1</span> đến <span className="font-bold text-slate-900 dark:text-white">3</span> trong số <span className="font-bold text-slate-900 dark:text-white">24</span> ca
+                                                Hiển thị <span className="font-bold text-slate-900 dark:text-white">1</span> đến <span className="font-bold text-slate-900 dark:text-white">{highRiskPatients.length}</span> trong số <span className="font-bold text-slate-900 dark:text-white">{highRiskPatients.length}</span> ca
                                             </p>
                                             <div className="flex items-center gap-3">
                                                 <button className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary transition-all disabled:opacity-30" disabled>
@@ -315,9 +312,8 @@ export default function ClinicRiskAlerts() {
                                                 </button>
                                                 <div className="flex items-center gap-1.5">
                                                     <button className="w-10 h-10 rounded-xl bg-primary text-white text-sm font-black shadow-lg shadow-primary/20 transition-all">1</button>
-                                                    <button className="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 text-slate-500 hover:text-primary border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-sm font-bold transition-all">2</button>
                                                 </div>
-                                                <button className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary transition-all">
+                                                <button className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary transition-all disabled:opacity-30" disabled>
                                                     <span className="material-symbols-outlined text-[20px]">chevron_right</span>
                                                 </button>
                                             </div>

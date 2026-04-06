@@ -47,8 +47,8 @@ interface PrescriptionModalProps {
   }>>;
   addMedicationToPrescription: () => void;
   isSaving: boolean;
-  onSave: () => Promise<void>;
-  patientName: string;
+  onSave: (prescriptionData: any) => Promise<void>;
+  patients: any[];
 }
 
 const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
@@ -65,9 +65,12 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
   addMedicationToPrescription,
   isSaving,
   onSave,
-  patientName
+  patients
 }) => {
-  const [selectedPatientName, setSelectedPatientName] = useState(patientName);
+  const [selectedPatientId, setSelectedPatientId] = useState<string>('');
+  const [diagnosis, setDiagnosis] = useState('');
+  const [note, setNote] = useState('');
+  const [returnDate, setReturnDate] = useState('');
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -108,18 +111,24 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
               <div className="space-y-2 text-left">
                 <label className="text-[15px] font-medium text-slate-500 dark:text-slate-400">Bệnh nhân</label>
                   <Dropdown 
-                    options={[
-                      patientName,
-                      'Trần Thị B'
-                    ]}
-                    value={selectedPatientName}
-                    onChange={setSelectedPatientName}
+                    options={patients.map(p => ({ label: p.name, value: p.id }))}
+                    value={selectedPatientId}
+                    onChange={(val: any) => {
+                      setSelectedPatientId(String(val));
+                    }}
                     className="w-full"
                   />
               </div>
               <div className="space-y-2 text-left">
                 <label className="text-[15px] font-medium text-slate-500 dark:text-slate-400">Chẩn đoán hiện tại</label>
-                <input className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all text-slate-900 dark:text-white font-medium text-[15px]" defaultValue="Viêm họng cấp / Theo dõi đái tháo đường" />
+                <input 
+                  className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all text-slate-900 dark:text-white font-medium text-[15px]" 
+                  value={diagnosis}
+                  onChange={(e) => {
+                    setDiagnosis(e.target.value);
+                  }}
+                  placeholder="Nhập chẩn đoán..."
+                />
               </div>
             </div>
 
@@ -185,7 +194,15 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
                   <span className="material-symbols-outlined text-slate-400 text-sm">edit_note</span>
                   Ghi chú dược sĩ/bệnh nhân
                 </label>
-                <textarea rows={3} className="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all resize-none text-slate-900 dark:text-white text-sm" placeholder="Nhập hướng dẫn sử dụng thuốc chi tiết..." />
+                <textarea 
+                  rows={3} 
+                  className="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all resize-none text-slate-900 dark:text-white text-sm" 
+                  placeholder="Nhập hướng dẫn sử dụng thuốc chi tiết..." 
+                  value={note}
+                  onChange={(e) => {
+                    setNote(e.target.value);
+                  }}
+                />
               </div>
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 bg-primary/5 rounded-xl border border-primary/10">
@@ -202,7 +219,14 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
                   <label className="text-[14px] font-semibold text-slate-500 dark:text-slate-400 tracking-wide">Ngày tái khám dự kiến</label>
                   <div className="relative">
                     <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">calendar_today</span>
-                    <input type="date" defaultValue="2023-12-25" className="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all text-slate-900 dark:text-white font-medium" />
+                    <input 
+                      type="date" 
+                      className="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all text-slate-900 dark:text-white font-medium" 
+                      value={returnDate}
+                      onChange={(e) => {
+                        setReturnDate(e.target.value);
+                      }}
+                    />
                   </div>
                 </div>
               </div>
@@ -212,8 +236,20 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
           <div className="sticky bottom-0 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 px-6 py-4 flex items-center justify-end gap-3 z-10">
             <button onClick={onClose} className="px-6 py-2.5 rounded-lg font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Hủy</button>
             <button
-              onClick={onSave}
-              disabled={isSaving}
+              onClick={() => onSave({
+                patientId: selectedPatientId,
+                diagnosis,
+                note,
+                returnVisitDate: returnDate,
+                medications: medications.map(m => ({
+                  medicineName: m.name,
+                  dosage: m.dosage,
+                  frequency: m.frequency,
+                  duration: m.duration,
+                  intakeType: m.intakeType
+                }))
+              })}
+              disabled={isSaving || !selectedPatientId}
               className="px-8 py-2.5 rounded-lg font-bold bg-primary text-slate-900 hover:shadow-lg hover:shadow-primary/20 transition-all flex items-center gap-2 active:scale-95 disabled:opacity-50 disabled:cursor-wait"
             >
               {isSaving ? (

@@ -1,16 +1,47 @@
 import { useState, useEffect } from 'react';
 import ClinicSidebar from '../components/common/ClinicSidebar';
 import TopBar from '../components/common/TopBar';
-import axios from '../api/axios';
+import { clinicApi } from '../api/clinic';
+import {
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+} from 'recharts';
 
 export default function ClinicReports() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [reportTimeRange, setReportTimeRange] = useState('30 ngày');
+    const [selectedChartMetric, setSelectedChartMetric] = useState('Lượng bệnh nhân');
     const [notifications, setNotifications] = useState([
         { id: 1, title: 'Báo cáo mới', description: 'Có báo cáo tổng quát tháng 12 vừa được tạo.', time: '5 phút trước', read: false },
         { id: 2, title: 'Cảnh báo nguy cơ', description: 'Bệnh nhân Nguyễn Văn An có chỉ số bất thường.', time: '1 giờ trước', read: false },
     ]);
     const [isLoading, setIsLoading] = useState(true);
+
+    // Custom Tooltip for Recharts
+    const CustomTooltip = ({ active, payload, label }: any) => {
+        if (active && payload && payload.length) {
+            const getColor = () => {
+                if (selectedChartMetric === 'Lượng bệnh nhân') return 'text-primary';
+                if (selectedChartMetric === 'Tải lượng bác sĩ') return 'text-emerald-500';
+                return 'text-red-500';
+            };
+            const getSuffix = () => {
+                if (selectedChartMetric === 'Lượng bệnh nhân') return 'bệnh nhân mới';
+                if (selectedChartMetric === 'Tải lượng bác sĩ') return 'ca khám/ngày';
+                return 'ca nguy kịch';
+            };
+            return (
+                <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-3 border border-slate-100 dark:border-slate-800 rounded-xl shadow-xl">
+                    <p className="text-[13px] font-bold text-slate-700 dark:text-slate-200 mb-1">{label}</p>
+                    <div className="flex items-center gap-2">
+                        <p className={`text-[14px] font-black ${getColor()}`}>
+                            {payload[0].value} <span className="text-slate-500 font-medium text-[12px]">{getSuffix()}</span>
+                        </p>
+                    </div>
+                </div>
+            );
+        }
+        return null;
+    };
 
     const [stats, setStats] = useState<any>(null);
     const currentClinicId = localStorage.getItem('clinicId') || '1';
@@ -18,10 +49,9 @@ export default function ClinicReports() {
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
-                // @ts-ignore
-                const response = await axios.get(`/v1/clinics/${currentClinicId}/dashboard`);
-                if (response.data.success) {
-                    setStats(response.data.data);
+                const res = await clinicApi.getDashboard(currentClinicId);
+                if (res.success) {
+                    setStats(res.data);
                 }
             } catch (error) {
                 console.error('Failed to fetch dashboard stats:', error);
@@ -40,11 +70,69 @@ export default function ClinicReports() {
             { color: 'bg-[#3b6470]', label: 'Cao huyết áp', value: '35%' },
             { color: 'bg-[#c9e9d3]', label: 'Tim mạch', value: '25%' },
         ],
-        chartData: stats?.patientGrowthChart || [
-            { month: 'T.1', height: '30%', active: false },
-            { month: 'T.2', height: '30%', active: false },
-            { month: 'T.3', height: '30%', active: false },
-        ]
+        chartData: selectedChartMetric === 'Lượng bệnh nhân' 
+            ? (stats?.monthlyGrowth && stats.monthlyGrowth.length > 0
+                ? stats.monthlyGrowth.map((val: number, i: number) => ({
+                    month: `Tháng ${(new Date().getMonth() - 5 + i + 12) % 12 || 12}`,
+                    value: Number(val)
+                  }))
+                : [
+                    { month: 'Tháng 12', value: 120 }, { month: 'Tháng 1', value: 156 }, { month: 'Tháng 2', value: 142 }, 
+                    { month: 'Tháng 3', value: 188 }, { month: 'Tháng 4', value: 224 }
+                  ])
+            : selectedChartMetric === 'Tải lượng bác sĩ'
+            ? [
+                { month: 'Tháng 12', value: 45 }, { month: 'Tháng 1', value: 48 }, { month: 'Tháng 2', value: 42 }, 
+                { month: 'Tháng 3', value: 55 }, { month: 'Tháng 4', value: 60 }
+              ]
+            : [ // Chỉ số rủi ro
+                { month: 'Tháng 12', value: 12 }, { month: 'Tháng 1', value: 8 }, { month: 'Tháng 2', value: 15 }, 
+                { month: 'Tháng 3', value: 5 }, { month: 'Tháng 4', value: 3 }
+            ]
+    };
+
+    const CustomXAxisTick = ({ x, y, payload, index, length }: any) => {
+        let textAnchor: "start" | "middle" | "end" = "middle";
+        if (index === 0) textAnchor = "start";
+        else if (index === length - 1) textAnchor = "end";
+
+        return (
+            <g transform={`translate(${x},${y})`}>
+                <text
+                    x={0}
+                    y={0}
+                    dy={16}
+                    textAnchor={textAnchor}
+                    fill="#64748b"
+                    fontSize={13}
+                    fontWeight={700}
+                >
+                    {payload.value}
+                </text>
+            </g>
+        );
+    };
+
+    const getMetricSummary = () => {
+        const color = selectedChartMetric === 'Chỉ số rủi ro' ? 'text-red-500' : selectedChartMetric === 'Tải lượng bác sĩ' ? 'text-emerald-500' : 'text-sky-500';
+        const statsMap: Record<string, any[]> = {
+            'Lượng bệnh nhân': [
+                { label: 'Tăng trưởng', value: mainStats.patientGrowth, trend: mainStats.patientGrowth.startsWith('+'), icon: 'show_chart' },
+                { label: 'Trung bình', value: `${Math.round(parseInt(String(mainStats.totalPatients).replace(/,/g, '')) / 6)} ca/tháng`, icon: 'analytics' },
+                { label: 'Đỉnh điểm', value: 'Tháng 3 (224 ca)', icon: 'leaderboard' }
+            ],
+            'Tải lượng bác sĩ': [
+                { label: 'Tổng lượt khám', value: '250 ca', trend: true, icon: 'medical_services' },
+                { label: 'TB/Bác sĩ', value: '15 ca/ngày', icon: 'person_apron' },
+                { label: 'Ngày cao điểm', value: 'Thứ 2 (45 ca)', icon: 'calendar_month' }
+            ],
+            'Chỉ số rủi ro': [
+                { label: 'Tỷ lệ rủi ro', value: '5.2%', trend: false, icon: 'emergency_home' },
+                { label: 'Mới phát hiện', value: '12 ca/tháng', icon: 'new_releases' },
+                { label: 'Đã xử lý', value: '95 ca', icon: 'task_alt' }
+            ]
+        };
+        return { color, items: statsMap[selectedChartMetric] || [] };
     };
 
     return (
@@ -222,55 +310,101 @@ export default function ClinicReports() {
                                 </div>
                             ) : (
                                 <>
-                                    <div className="flex justify-between items-start mb-8">
+                                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                                         <div>
-                                            <h3 className="text-[22px] font-bold text-slate-900 dark:text-white tracking-tight">Xu hướng bệnh nhân</h3>
-                                            <p className="text-[15px] text-slate-500 font-medium italic-none">Lượng bệnh nhân nội trú & ngoại trú hàng ngày</p>
+                                            <h3 className="text-[22px] font-bold text-slate-900 dark:text-white tracking-tight">Thống kê xu hướng</h3>
+                                            <p className="text-[15px] text-slate-500 font-medium italic-none">Dữ liệu phân tích theo {selectedChartMetric.toLowerCase()}</p>
+                                        </div>
+                                        <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+                                            {['Lượng bệnh nhân', 'Tải lượng bác sĩ', 'Chỉ số rủi ro'].map((m) => (
+                                                <button
+                                                    key={m}
+                                                    onClick={() => setSelectedChartMetric(m)}
+                                                    className={`px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all ${selectedChartMetric === m
+                                                        ? `bg-white dark:bg-slate-700 ${selectedChartMetric === 'Chỉ số rủi ro' ? 'text-red-500' : selectedChartMetric === 'Tải lượng bác sĩ' ? 'text-emerald-500' : 'text-sky-500'} shadow-sm`
+                                                        : 'text-slate-500 hover:text-slate-700'
+                                                        }`}
+                                                >
+                                                    {m}
+                                                </button>
+                                            ))}
                                         </div>
                                         <div className="flex gap-4">
-                                            {isLoading ? (
-                                                <div className="flex gap-4">
-                                                    <div className="w-20 h-4 bg-slate-100 dark:bg-slate-800 animate-pulse rounded"></div>
-                                                    <div className="w-20 h-4 bg-slate-100 dark:bg-slate-800 animate-pulse rounded"></div>
-                                                </div>
-                                            ) : (
-                                                <>
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="w-2.5 h-2.5 rounded-full bg-primary"></div>
-                                                        <span className="text-[13px] font-bold text-slate-600 dark:text-slate-400">Ngoại trú</span>
-                                                    </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700"></div>
-                                                        <span className="text-[13px] font-bold text-slate-600 dark:text-slate-400">Nội trú</span>
-                                                    </div>
-                                                </>
-                                            )}
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-2.5 h-2.5 rounded-full bg-primary"></div>
+                                                <span className="text-[13px] font-bold text-slate-600 dark:text-slate-400">Ngoại trú</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700"></div>
+                                                <span className="text-[13px] font-bold text-slate-600 dark:text-slate-400">Nội trú</span>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div className="relative h-64 w-full mt-4 flex items-end justify-between px-2 italic-none">
-                                        <div className="absolute inset-0 border-b-2 border-slate-100 dark:border-slate-800 flex flex-col justify-between">
-                                            <div className="border-t border-slate-50 dark:border-slate-800 w-full h-0"></div>
-                                            <div className="border-t border-slate-50 dark:border-slate-800 w-full h-0"></div>
-                                            <div className="border-t border-slate-50 dark:border-slate-800 w-full h-0"></div>
-                                            <div className="border-t border-slate-50 dark:border-slate-800 w-full h-0"></div>
-                                        </div>
-                                        <div className="z-10 w-full h-full relative flex items-end justify-around">
-                                            {mainStats.chartData.map((item: any, i: number) => (
-                                                <div key={i} className="w-8 bg-primary/20 h-full rounded-t-full relative group italic-none flex items-end overflow-hidden">
-                                                    <div className="bg-primary w-full rounded-t-full transition-all duration-700" style={{ height: item.height }}></div>
-                                                </div>
-                                            ))}
-                                        </div>
+                                    <div className="h-[300px] w-full mt-4">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <AreaChart data={mainStats.chartData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
+                                                <defs>
+                                                    <linearGradient id="colorValueReport" x1="0" y1="0" x2="0" y2="1">
+                                                        <stop offset="5%" stopColor={selectedChartMetric === 'Chỉ số rủi ro' ? '#ef4444' : selectedChartMetric === 'Tải lượng bác sĩ' ? '#10b981' : '#0ea5e9'} stopOpacity={0.2} />
+                                                        <stop offset="95%" stopColor={selectedChartMetric === 'Chỉ số rủi ro' ? '#ef4444' : selectedChartMetric === 'Tải lượng bác sĩ' ? '#10b981' : '#0ea5e9'} stopOpacity={0} />
+                                                    </linearGradient>
+                                                </defs>
+                                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(203, 213, 225, 0.4)" />
+                                                <XAxis
+                                                    dataKey="month"
+                                                    axisLine={false}
+                                                    tickLine={false}
+                                                    tick={<CustomXAxisTick length={mainStats.chartData.length} />}
+                                                    interval={0}
+                                                />
+                                                <YAxis hide domain={['auto', 'auto']} />
+                                                <Tooltip content={<CustomTooltip />} cursor={{ stroke: selectedChartMetric === 'Chỉ số rủi ro' ? '#ef4444' : selectedChartMetric === 'Tải lượng bác sĩ' ? '#10b981' : '#0ea5e9', strokeWidth: 1, strokeDasharray: '4 4' }} />
+                                                <Area
+                                                    type="monotone"
+                                                    dataKey="value"
+                                                    stroke={selectedChartMetric === 'Chỉ số rủi ro' ? '#ef4444' : selectedChartMetric === 'Tải lượng bác sĩ' ? '#10b981' : '#0ea5e9'}
+                                                    strokeWidth={4}
+                                                    fillOpacity={1}
+                                                    fill="url(#colorValueReport)"
+                                                    animationDuration={1500}
+                                                    dot={{
+                                                        r: 4,
+                                                        fill: '#fff',
+                                                        stroke: selectedChartMetric === 'Chỉ số rủi ro' ? '#ef4444' : selectedChartMetric === 'Tải lượng bác sĩ' ? '#10b981' : '#0ea5e9',
+                                                        strokeWidth: 2,
+                                                    }}
+                                                    activeDot={{
+                                                        r: 6,
+                                                        fill: selectedChartMetric === 'Chỉ số rủi ro' ? '#ef4444' : selectedChartMetric === 'Tải lượng bác sĩ' ? '#10b981' : '#0ea5e9',
+                                                        stroke: '#fff',
+                                                        strokeWidth: 2,
+                                                    }}
+                                                />
+                                            </AreaChart>
+                                        </ResponsiveContainer>
                                     </div>
-                                    <div className="flex justify-between mt-6 px-4 text-[13px] font-medium text-slate-500 italic-none">
-                                        {isLoading ? (
-                                            [...Array(6)].map((_, i) => (
-                                                <div key={i} className="w-12 h-3 bg-slate-50 dark:bg-slate-800 animate-pulse rounded"></div>
-                                            ))
-                                        ) : (
-                                            mainStats.chartData.map((item: any) => <span key={item.month}>{item.month}</span>)
-                                        )}
+
+                                    {/* Sync Stats Bar */}
+                                    <div className="grid grid-cols-3 gap-4 pt-8 border-t border-slate-50 dark:border-slate-800/50 mt-6 pb-2">
+                                        {getMetricSummary().items.map((item, idx) => (
+                                            <div key={idx} className={`flex flex-col items-center ${idx === 1 ? 'border-x border-slate-100 dark:border-slate-800/50' : ''}`}>
+                                                <p className="text-[14px] font-medium text-slate-500 mb-1 flex items-center gap-1">
+                                                    <span className="material-symbols-outlined text-[16px]">{item.icon}</span>
+                                                    {item.label}
+                                                </p>
+                                                <div className="flex items-center gap-1">
+                                                    <span className={`text-lg font-bold ${idx === 0 && item.trend !== undefined ? (item.trend ? 'text-emerald-500' : 'text-red-500') : getMetricSummary().color}`}>
+                                                        {item.value}
+                                                    </span>
+                                                    {idx === 0 && item.trend !== undefined && (
+                                                        <span className={`material-symbols-outlined text-sm ${item.trend ? 'text-emerald-500' : 'text-red-500'}`}>
+                                                            {item.trend ? 'trending_up' : 'trending_down'}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
                                 </>
                             )}

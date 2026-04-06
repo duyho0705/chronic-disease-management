@@ -1,9 +1,36 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PrescriptionModal from '../features/prescription/components/PrescriptionModal';
 import Toast from '../components/ui/Toast';
 import TopBar from '../components/common/TopBar';
+import { doctorApi } from '../api/doctor';
 
 export default function DoctorPrescriptions() {
+    const [prescriptions, setPrescriptions] = useState<any[]>([]);
+    const [myPatients, setMyPatients] = useState<any[]>([]);
+    const [stats, setStats] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            const [pRes, sRes, patRes] = await Promise.all([
+                doctorApi.getPrescriptions(),
+                doctorApi.getPrescriptionStats(),
+                doctorApi.getMyPatients({ size: 100 })
+            ]);
+            if (pRes.success) setPrescriptions(pRes.data.content || []);
+            if (sRes.success) setStats(sRes.data);
+            if (patRes.success) setMyPatients(patRes.data.content || []);
+        } catch (error) {
+            console.error('Failed to fetch prescriptions', error);
+        } finally {
+            setLoading(false);
+        }
+    };
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
     const [selectedStatus, setSelectedStatus] = useState('Tất cả trạng thái');
@@ -59,16 +86,21 @@ export default function DoctorPrescriptions() {
         setMedications(medications.filter(m => m.id !== id));
     };
 
-    const handleSavePrescription = async () => {
+    const handleSavePrescription = async (prescriptionData: any) => {
         setIsSavingPrescription(true);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        setIsSavingPrescription(false);
-        setIsPrescriptionModalOpen(false);
-        setMedications([]);
-
-        // Trigger success toast
-        setShowSuccessToast(true);
+        try {
+            const res = await doctorApi.createPrescription(prescriptionData);
+            if (res.success) {
+                setIsPrescriptionModalOpen(false);
+                setMedications([]);
+                setShowSuccessToast(true);
+                fetchData(); // Refresh list
+            }
+        } catch (error) {
+            console.error('Failed to save prescription', error);
+        } finally {
+            setIsSavingPrescription(false);
+        }
     };
 
     return (
@@ -168,7 +200,7 @@ export default function DoctorPrescriptions() {
                             <div className="flex justify-between items-start mb-4">
                                 <div>
                                     <p className="text-sm font-medium text-slate-500 mb-1">Tổng đơn thuốc</p>
-                                    <h3 className="text-3xl font-black text-slate-900 tracking-tight">1,284</h3>
+                                    <h3 className="text-3xl font-black text-slate-900 tracking-tight">{stats?.totalPrescriptions || 0}</h3>
                                 </div>
                                 <div className="size-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                                     <span className="material-symbols-outlined text-2xl">description</span>
@@ -184,7 +216,7 @@ export default function DoctorPrescriptions() {
                             <div className="flex justify-between items-start mb-4">
                                 <div>
                                     <p className="text-sm font-medium text-slate-500 mb-1">Đang hiệu lực</p>
-                                    <h3 className="text-3xl font-black text-slate-900 tracking-tight">452</h3>
+                                    <h3 className="text-3xl font-black text-slate-900 tracking-tight">{stats?.activePrescriptions || 0}</h3>
                                 </div>
                                 <div className="size-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                                     <span className="material-symbols-outlined text-2xl">medication</span>
@@ -219,7 +251,7 @@ export default function DoctorPrescriptions() {
                                     <span className="material-symbols-outlined text-2xl">task_alt</span>
                                 </div>
                             </div>
-                            <p className="mt-4 text-[14px] text-blue-500 font-bold tracking-wide">Tỷ lệ hồi phục: 94.2%</p>
+                            <p className="mt-4 text-[14px] text-blue-500 font-bold tracking-wide">Hoàn thành: {stats?.completedPrescriptions || 0}</p>
                         </div>
                     </div>
 
@@ -282,35 +314,40 @@ export default function DoctorPrescriptions() {
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-50">
-                                            {[
-                                                { id: '#RX-8842', name: 'Nguyễn Văn Hùng', initial: 'NH', diagnosis: 'Viêm họng cấp tính, sốt nhẹ', status: 'Đang hiệu lực', color: 'emerald' },
-                                                { id: '#RX-8839', name: 'Trần Thị Mai', initial: 'TM', diagnosis: 'Tăng huyết áp vô căn', status: 'Hết hạn', color: 'slate' },
-                                                { id: '#RX-8831', name: 'Lê Anh Dũng', initial: 'LD', diagnosis: 'Phát ban do dị ứng', status: 'Đã hủy', color: 'red' },
-                                                { id: '#RX-8825', name: 'Vũ Anh Kiệt', initial: 'VK', diagnosis: 'Đau dây thần kinh tọa', status: 'Đang hiệu lực', color: 'emerald' },
-                                            ].map((row, i) => (
-                                                <tr key={i} className="transition-colors group border-b border-slate-50/50 last:border-0">
-                                                    <td className="px-6 py-5 text-[15px] font-medium text-slate-500">{row.id}</td>
-                                                    <td className="px-6 py-5">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className={`w-9 h-9 rounded-full bg-${row.color}-100 flex items-center justify-center text-[11px] font-bold text-${row.color}-600`}>
-                                                                {row.initial}
-                                                            </div>
-                                                            <span className="text-[15px] font-bold text-slate-900 dark:text-white">{row.name}</span>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-6 py-5 text-[15px] text-slate-600 dark:text-slate-400 font-medium max-w-[250px] truncate">{row.diagnosis}</td>
-                                                    <td className="px-6 py-4 text-right">
-                                                        <div className="flex items-center justify-end gap-1 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity">
-                                                            <button className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-primary transition-colors">
-                                                                <span className="material-symbols-outlined text-lg">visibility</span>
-                                                            </button>
-                                                            <button className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-900 transition-colors">
-                                                                <span className="material-symbols-outlined text-lg">print</span>
-                                                            </button>
-                                                        </div>
-                                                    </td>
+                                            {loading ? (
+                                                <tr>
+                                                    <td colSpan={4} className="px-6 py-10 text-center text-slate-500">Đang tải đơn thuốc...</td>
                                                 </tr>
-                                            ))}
+                                            ) : prescriptions.length > 0 ? (
+                                                prescriptions.map((row, i) => (
+                                                    <tr key={i} className="transition-colors group border-b border-slate-50/50 last:border-0">
+                                                        <td className="px-6 py-5 text-[15px] font-medium text-slate-500">{row.prescriptionCode || `#RX-${row.id}`}</td>
+                                                        <td className="px-6 py-5">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className={`w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-[11px] font-bold text-primary`}>
+                                                                    {row.patientName?.charAt(0)}
+                                                                </div>
+                                                                <span className="text-[15px] font-bold text-slate-900 dark:text-white">{row.patientName}</span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-5 text-[15px] text-slate-600 dark:text-slate-400 font-medium max-w-[250px] truncate">{row.diagnosis}</td>
+                                                        <td className="px-6 py-4 text-right">
+                                                            <div className="flex items-center justify-end gap-1 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                <button className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-primary transition-colors">
+                                                                    <span className="material-symbols-outlined text-lg">visibility</span>
+                                                                </button>
+                                                                <button className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-900 transition-colors">
+                                                                    <span className="material-symbols-outlined text-lg">print</span>
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            ) : (
+                                                <tr>
+                                                    <td colSpan={4} className="px-6 py-10 text-center text-slate-500 italic">Chưa có đơn thuốc nào</td>
+                                                </tr>
+                                            )}
                                         </tbody>
                                     </table>
                                 </div>
@@ -416,7 +453,7 @@ export default function DoctorPrescriptions() {
                 addMedicationToPrescription={addMedicationToPrescription}
                 isSaving={isSavingPrescription}
                 onSave={handleSavePrescription}
-                patientName="Nguyễn Văn Hùng"
+                patients={myPatients}
             />
             {/* Success Toast Notification */}
             <Toast

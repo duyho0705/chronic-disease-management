@@ -1,13 +1,19 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { patientApi } from '../api/patient';
+import AddAppointmentModal from '../features/patient/components/AddAppointmentModal';
 import { AreaChart, Area, BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 const PatientDashboard: React.FC = () => {
     const navigate = useNavigate();
     const [summary, setSummary] = useState<any[]>([]);
     const [profile, setProfile] = useState<any>(null);
+    const [medications, setMedications] = useState<any[]>([]);
+    const [appointments, setAppointments] = useState<any[]>([]);
+    const [conversation, setConversation] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isAddAppointmentModalOpen, setIsAddAppointmentModalOpen] = useState(false);
+    const [isSavingAppointment, setIsSavingAppointment] = useState(false);
 
     const getDayVn = (dateStr: string) => {
         if (!dateStr) return '';
@@ -19,13 +25,19 @@ const PatientDashboard: React.FC = () => {
     const fetchData = useCallback(async () => {
         setIsLoading(true);
         try {
-            const [summaryRes, profileRes] = await Promise.all([
+            const [summaryRes, profileRes, medRes, apptRes, convRes] = await Promise.all([
                 patientApi.getMetricsSummary('WEEK'),
-                patientApi.getProfile().catch(() => ({ success: false })) // Profile might not be ready
+                patientApi.getProfile().catch(() => ({ success: false })), // Profile might not be ready
+                patientApi.getTodayMedicationSchedule().catch(() => ({ success: false, data: [] })),
+                patientApi.getUpcomingAppointments().catch(() => ({ success: false, data: [] })),
+                patientApi.getConversations().catch(() => ({ data: [] }))
             ]);
 
             if (summaryRes.success) setSummary(summaryRes.data);
             if (profileRes.success) setProfile(profileRes.data);
+            if (medRes.success) setMedications(medRes.data);
+            if (apptRes.success) setAppointments(apptRes.data);
+            if (convRes.data && convRes.data.length > 0) setConversation(convRes.data[0]);
 
             // Artificial delay for smooth skeleton transition
             await new Promise(resolve => setTimeout(resolve, 1500));
@@ -174,7 +186,8 @@ const PatientDashboard: React.FC = () => {
                                                 axisLine={false}
                                                 tickLine={false}
                                                 tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }}
-                                                interval={0}
+                                                interval="preserveStartEnd"
+                                                minTickGap={30}
                                                 height={30}
                                             />
                                             <Tooltip
@@ -241,7 +254,8 @@ const PatientDashboard: React.FC = () => {
                                                 axisLine={false}
                                                 tickLine={false}
                                                 tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }}
-                                                interval={0}
+                                                interval="preserveStartEnd"
+                                                minTickGap={30}
                                                 height={30}
                                             />
                                             <Tooltip
@@ -354,47 +368,59 @@ const PatientDashboard: React.FC = () => {
                                         </div>
                                     </div>
                                 ))
+                            ) : medications && medications.length > 0 ? (
+                                medications.map((med: any) => (
+                                    <div key={med.id} className="flex items-center gap-3">
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                                            med.todayStatus === 'TAKEN' 
+                                            ? 'bg-primary/10 text-primary' 
+                                            : 'border-2 border-primary text-primary animate-pulse'
+                                        }`}>
+                                            <span className="material-symbols-outlined text-lg">
+                                                {med.todayStatus === 'TAKEN' ? 'done' : 'alarm'}
+                                            </span>
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-sm font-bold">{med.medicationName} {med.dosage}</p>
+                                            <p className="text-[13px] text-slate-500">
+                                                {med.scheduledTime} - {med.todayStatus === 'TAKEN' ? 'Đã uống' : 'Cần uống'}
+                                            </p>
+                                        </div>
+                                        {med.todayStatus !== 'TAKEN' && (
+                                            <button 
+                                                onClick={async () => {
+                                                    try {
+                                                        await patientApi.logMedication({ scheduleId: med.id, status: 'TAKEN' });
+                                                        fetchData();
+                                                    } catch (e) {}
+                                                }}
+                                                className="bg-primary text-slate-900 px-3 py-1 rounded-lg text-xs font-bold active:scale-95 transition-transform"
+                                            >
+                                                Uống
+                                            </button>
+                                        )}
+                                    </div>
+                                ))
                             ) : (
-                                <>
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                                            <span className="material-symbols-outlined text-lg">done</span>
-                                        </div>
-                                        <div className="flex-1">
-                                            <p className="text-sm font-bold">Metformin 500mg</p>
-                                            <p className="text-[13px] text-slate-500">08:00 Sáng- Đã uống</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full border-2 border-primary flex items-center justify-center text-primary animate-pulse">
-                                            <span className="material-symbols-outlined text-lg">alarm</span>
-                                        </div>
-                                        <div className="flex-1">
-                                            <p className="text-sm font-bold">Lisinopril 10mg</p>
-                                            <p className="text-[13px] text-slate-500">01:00 Chiều - Cần uống</p>
-                                        </div>
-                                        <button className="bg-primary text-slate-900 px-3 py-1 rounded-lg text-xs font-bold active:scale-95 transition-transform">Đã uống</button>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
-                                            <span className="material-symbols-outlined text-lg">schedule</span>
-                                        </div>
-                                        <div className="flex-1">
-                                            <p className="text-sm font-bold">Atorvastatin 20mg</p>
-                                            <p className="text-[13px] text-slate-500">09:00 Tối - Chờ</p>
-                                        </div>
-                                    </div>
-                                </>
+                                <div className="text-sm text-slate-500 font-medium py-2 text-center">Không có lịch uống thuốc hôm nay</div>
                             )}
                         </div>
                     </div>
 
                     {/* 5. Follow-up Appointments */}
                     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-4 text-left">
-                        <h3 className="font-bold mb-4 flex items-center gap-2 text-slate-900 dark:text-white">
-                            <span className="material-symbols-outlined text-primary">event_note</span>
-                            Lịch khám sắp tới
-                        </h3>
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="font-bold flex items-center gap-2 text-slate-900 dark:text-white">
+                                <span className="material-symbols-outlined text-primary">event_note</span>
+                                Lịch khám sắp tới
+                            </h3>
+                            <button 
+                                onClick={() => setIsAddAppointmentModalOpen(true)}
+                                className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
+                            >
+                                <span className="material-symbols-outlined text-sm">add</span> Đặt lịch ngay
+                            </button>
+                        </div>
                         {isLoading ? (
                             <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border-l-4 border-slate-200 animate-pulse space-y-3">
                                 <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-20"></div>
@@ -404,34 +430,60 @@ const PatientDashboard: React.FC = () => {
                                     <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-24"></div>
                                 </div>
                             </div>
+                        ) : appointments && appointments.length > 0 ? (
+                            appointments.slice(0, 1).map((appt: any) => {
+                                const d = new Date(appt.appointmentTime);
+                                const dateStr = `Ngày ${d.getDate()} Tháng ${d.getMonth() + 1}`;
+                                const timeStr = d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+
+                                return (
+                                <div key={appt.id} className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border-l-4 border-primary relative overflow-hidden group">
+                                    <div className="flex justify-between items-start mb-2 relative z-10">
+                                        <div>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <p className="text-xs font-bold text-primary uppercase tracking-widest">{dateStr}</p>
+                                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                                    appt.status === 'PENDING' ? 'bg-amber-100 text-amber-700' :
+                                                    appt.status === 'SCHEDULED' ? 'bg-green-100 text-green-700' :
+                                                    'bg-slate-100 text-slate-500'
+                                                }`}>
+                                                    {appt.status === 'PENDING' ? 'Chờ xác nhận' : 
+                                                     appt.status === 'SCHEDULED' ? 'Đã xác nhận' : 
+                                                     appt.status === 'CANCELLED' ? 'Đã hủy' : 'Hoàn thành'}
+                                                </span>
+                                            </div>
+                                            <p className="text-base font-bold text-slate-900 dark:text-white">{appt.reason || (appt.appointmentType === 'ONLINE' ? 'Khám Online' : 'Khám Trực tiếp')}</p>
+                                        </div>
+                                        <span className="material-symbols-outlined text-slate-400 cursor-pointer">more_vert</span>
+                                    </div>
+                                    <div className="relative z-10">
+                                        <div className="flex items-center gap-2 text-xs text-slate-500">
+                                            <span className="material-symbols-outlined text-sm">person_pin</span>
+                                            {appt.doctorName}
+                                        </div>
+                                        <div className="flex items-center gap-2 text-xs text-slate-500 mt-1">
+                                            <span className="material-symbols-outlined text-sm">schedule</span>
+                                            {timeStr}
+                                        </div>
+                                    </div>
+                                    <button 
+                                        onClick={() => navigate('/patient/appointments')}
+                                        className="w-full mt-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-white dark:hover:bg-slate-800 transition-colors relative z-10"
+                                    >
+                                        Chi tiết lịch khám
+                                    </button>
+                                </div>
+                                );
+                            })
                         ) : (
-                            <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border-l-4 border-primary relative overflow-hidden group">
-                                <div className="flex justify-between items-start mb-2 relative z-10">
-                                    <div>
-                                        <p className="text-xs font-bold text-primary uppercase tracking-widest">Ngày 15 Tháng 10</p>
-                                        <p className="text-base font-bold text-slate-900 dark:text-white">Khám định kỳ Tiểu đường</p>
-                                    </div>
-                                    <span className="material-symbols-outlined text-slate-400 cursor-pointer">more_vert</span>
-                                </div>
-                                <div className="relative z-10">
-                                    <div className="flex items-center gap-2 text-xs text-slate-500">
-                                        <span className="material-symbols-outlined text-sm">person_pin</span>
-                                        BS. Lê Minh Tâm
-                                    </div>
-                                    <div className="flex items-center gap-2 text-xs text-slate-500 mt-1">
-                                        <span className="material-symbols-outlined text-sm">schedule</span>
-                                        09:30 - 10:30 Sáng
-                                    </div>
-                                </div>
-                                <button className="w-full mt-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-white dark:hover:bg-slate-800 transition-colors relative z-10">
-                                    Đặt lại lịch
-                                </button>
-                            </div>
+                            <div className="text-sm text-slate-500 font-medium py-2 text-center">Không có lịch khám sắp tới</div>
                         )}
                     </div>
 
                     {/* 6. Doctor Chat */}
-                    <div className="bg-primary/10 dark:bg-primary/5 rounded-xl border border-primary/20 p-4 flex items-center gap-4 group cursor-pointer hover:bg-primary/15 transition-all text-left">
+                    <div 
+                        onClick={() => navigate('/patient/messages')}
+                        className="bg-primary/10 dark:bg-primary/5 rounded-xl border border-primary/20 p-4 flex items-center gap-4 group cursor-pointer hover:bg-primary/15 transition-all text-left">
                         {isLoading ? (
                             <>
                                 <div className="h-12 w-12 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse"></div>
@@ -441,24 +493,48 @@ const PatientDashboard: React.FC = () => {
                                 </div>
                                 <div className="h-10 w-10 rounded-full bg-primary/20 animate-pulse"></div>
                             </>
-                        ) : (
+                        ) : conversation ? (
                             <>
                                 <div className="h-12 w-12 rounded-full bg-primary/20 flex-shrink-0 relative overflow-hidden">
-                                    <img alt="Doctor" className="object-cover h-full w-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcFUhTbj4SPfWKM3951CEKYvigAczulFrCd8MjzxK28AaIMv7rvM-pUcSN0_6i5RwtX13a876QeZic-WXjKbruzJO_MU1VLhaf8sTaTC6xMBJBLlegIlBVQ7-ay4KFBKDc9Kp4d4VxiW4W55X3BgzMhYJVpEUOsX5zvapaAutwwZ5jNXGYRXvYYdfIxJ3NoXT7vE_s_WQFoBz8nq_gOTbZG2UuGnw6hWILVqM-4JvKFVl6gyFJVzgir_vEEj_UoPOP31YKYoxzHN8" />
-                                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-slate-900 rounded-full"></span>
+                                    <img alt="Doctor" className="object-cover h-full w-full" src={conversation.doctorAvatarUrl || "https://ui-avatars.com/api/?name=" + encodeURIComponent(conversation.doctorName)} />
+                                    <span className={`absolute bottom-0 right-0 w-3 h-3 border-2 border-white dark:border-slate-900 rounded-full ${conversation.isOnline ? 'bg-green-500' : 'bg-slate-300'}`}></span>
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-bold truncate">BS. Lê Minh Tâm</p>
-                                    <p className="text-xs text-slate-500">Đang trực tuyến</p>
+                                    <p className="text-sm font-bold truncate">{conversation.doctorName}</p>
+                                    <p className="text-xs text-slate-500 truncate">{conversation.lastMessage || 'Bắt đầu trò chuyện'}</p>
                                 </div>
                                 <button className="bg-primary p-2 rounded-full text-slate-900 shadow-md hover:scale-110 transition-transform active:scale-95">
                                     <span className="material-symbols-outlined">send</span>
                                 </button>
                             </>
+                        ) : (
+                            <div className="flex-1 text-center text-sm font-medium text-slate-500">
+                                Chưa có cuộc trò chuyện nào
+                            </div>
                         )}
                     </div>
                 </div>
             </div>
+
+            <AddAppointmentModal 
+                isOpen={isAddAppointmentModalOpen}
+                onClose={() => setIsAddAppointmentModalOpen(false)}
+                onSave={async (data) => {
+                    setIsSavingAppointment(true);
+                    try {
+                        const res = await patientApi.createAppointment(data);
+                        if (res.success) {
+                            setIsAddAppointmentModalOpen(false);
+                            fetchData();
+                        }
+                    } catch (e) {
+                        console.error('Failed to create appointment', e);
+                    } finally {
+                        setIsSavingAppointment(false);
+                    }
+                }}
+                isSaving={isSavingAppointment}
+            />
 
             <style>{`
                 .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }

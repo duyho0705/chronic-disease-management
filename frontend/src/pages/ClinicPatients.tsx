@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from '../api/axios';
+import { clinicApi } from '../api/clinic';
 import ClinicSidebar from '../components/common/ClinicSidebar';
 import TopBar from '../components/common/TopBar';
 import CreatePatientModal from '../features/clinic/components/CreatePatientModal';
@@ -59,18 +59,16 @@ export default function ClinicPatients() {
     const fetchPatients = async (page = currentPage, isSilent = false) => {
         if (!isSilent) setIsLoading(true);
         try {
-            const response = await axios.get(`/v1/clinics/${currentClinicId}/patients`, {
-                params: {
-                    keyword: debouncedSearch || undefined,
-                    condition: conditionFilter !== 'Tất cả bệnh lý' ? conditionFilter : undefined,
-                    riskLevel: riskFilter !== 'Mức độ rủi ro' ? riskFilter : undefined,
-                    status: statusFilter !== 'Tất cả trạng thái' ? statusFilter : undefined,
-                    page: page,
-                    size: pageSize
-                }
+            const res = await clinicApi.getPatients(currentClinicId, {
+                keyword: debouncedSearch || undefined,
+                condition: conditionFilter !== 'Tất cả bệnh lý' ? conditionFilter : undefined,
+                riskLevel: riskFilter !== 'Mức độ rủi ro' ? riskFilter : undefined,
+                status: statusFilter !== 'Tất cả trạng thái' ? statusFilter : undefined,
+                page: page,
+                size: pageSize
             });
-            if (response.data.success) {
-                const pageData = response.data.data;
+            if (res.success) {
+                const pageData = res.data;
                 const cleanedPatients = (pageData.content || []).map((p: any) => ({
                     ...p,
                     // Clean prefix "BS" or "Bác sĩ" if any
@@ -90,9 +88,9 @@ export default function ClinicPatients() {
 
     const fetchStats = async () => {
         try {
-            const response = await axios.get(`/v1/clinics/${currentClinicId}/dashboard`);
-            if (response.data.success) {
-                setStats(response.data.data);
+            const res = await clinicApi.getDashboard(currentClinicId);
+            if (res.success) {
+                setStats(res.data);
             }
         } catch (error) {
             console.error('Failed to fetch stats:', error);
@@ -102,10 +100,10 @@ export default function ClinicPatients() {
     useEffect(() => {
         const fetchDoctors = async () => {
             try {
-                const response = await axios.get(`/v1/clinics/${currentClinicId}/doctors/names`);
-                if (response.data.success) {
+                const res = await clinicApi.getDoctorNames(currentClinicId);
+                if (res.success) {
                     // Remove "BS." or "Bác sĩ" prefixes if any to avoid duplication
-                    const cleanedNames = response.data.data.map((name: string) => 
+                    const cleanedNames = res.data.map((name: string) => 
                         name.replace(/^(BS\.|Bác sĩ\s*)/i, '').trim()
                     );
                     setAvailableDoctors(cleanedNames);
@@ -118,9 +116,9 @@ export default function ClinicPatients() {
 
         const fetchConditions = async () => {
             try {
-                const response = await axios.get(`/v1/clinics/${currentClinicId}/conditions`);
-                if (response.data.success) {
-                    setAvailableConditions(response.data.data);
+                const res = await clinicApi.getConditions(currentClinicId);
+                if (res.success) {
+                    setAvailableConditions(res.data);
                 }
             } catch (error) {
                 console.error('Failed to fetch conditions:', error);
@@ -140,8 +138,8 @@ export default function ClinicPatients() {
     const handleSavePatient = async (patientData: any) => {
         setIsSaving(true);
         try {
-            const response = await axios.post(`/v1/clinics/${currentClinicId}/patients`, patientData);
-            if (response.data.success) {
+            const res = await clinicApi.createPatient(currentClinicId, patientData);
+            if (res.success) {
                 fetchPatients();
                 setIsCreateModalOpen(false);
                 setToastMessage('Thêm bệnh nhân thành công');
@@ -163,8 +161,8 @@ export default function ClinicPatients() {
         setIsEditing(true);
         try {
             // Use dbId for backend API, keep existing 'id' (patientCode) for UI consistency
-            const response = await axios.put(`/v1/clinics/${currentClinicId}/patients/${selectedPatient.dbId}`, patientData);
-            if (response.data.success) {
+            const res = await clinicApi.updatePatient(currentClinicId, selectedPatient.dbId, patientData);
+            if (res.success) {
                 fetchPatients();
                 setIsEditing(false);
                 setIsEditModalOpen(false);
@@ -186,8 +184,8 @@ export default function ClinicPatients() {
         // Note: patientId passed from modal could be 'id' or 'dbId' depending on implementation
         // Since we want the database ID for the endpoint:
         try {
-            const response = await axios.delete(`/v1/clinics/${currentClinicId}/patients/${patientId}`);
-            if (response.data.success) {
+            const res = await clinicApi.deletePatient(currentClinicId, patientId);
+            if (res.success) {
                 fetchPatients();
                 setIsDeleting(false);
                 setIsDeleteModalOpen(false);

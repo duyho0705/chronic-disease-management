@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from '../api/axios';
+import { clinicApi } from '../api/clinic';
 import ClinicSidebar from '../components/common/ClinicSidebar';
 import TopBar from '../components/common/TopBar';
 import Dropdown from '../components/ui/Dropdown';
@@ -7,6 +7,9 @@ import CreateDoctorModal from '../features/clinic/components/CreateDoctorModal';
 import DoctorAssignmentModal from '../features/clinic/components/DoctorAssignmentModal';
 import Toast from '../components/ui/Toast';
 import DevelopmentModal from '../features/admin/components/DevelopmentModal';
+import {
+    AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+} from 'recharts';
 
 export default function ClinicDashboard() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -14,6 +17,14 @@ export default function ClinicDashboard() {
     const [isLoading, setIsLoading] = useState(true);
 
     const currentClinicId = localStorage.getItem('clinicId') || '1';
+
+
+    const [notifications, setNotifications] = useState([
+        { id: 1, title: 'Báo cáo mới', description: 'Có báo cáo tổng quát tháng 12 vừa được tạo.', time: '5 phút trước', read: false },
+        { id: 2, title: 'Cảnh báo nguy cơ', description: 'Bệnh nhân Nguyễn Văn An có chỉ số bất thường.', time: '1 giờ trước', read: false },
+    ]);
+    const [dashboardTimeRange, setDashboardTimeRange] = useState('6 tháng gần nhất');
+    const [selectedChartMetric, setSelectedChartMetric] = useState('Lượng bệnh nhân');
 
     const doctors = stats?.doctorPerformances || [];
     const mainStats = {
@@ -27,36 +38,116 @@ export default function ClinicDashboard() {
             { color: 'bg-amber-400', label: 'Cao huyết áp', value: '35%' },
             { color: 'bg-sky-400', label: 'Bệnh tim mạch', value: '25%' },
         ],
-        chartData: stats?.patientGrowthChart || [
-            { month: 'T.1', height: '30%', active: false },
-            { month: 'T.2', height: '30%', active: false },
-            { month: 'T.3', height: '30%', active: false },
-            { month: 'T.4', height: '30%', active: false },
-            { month: 'T.5', height: '30%', active: false },
-            { month: 'T.6', height: '30%', active: false },
-        ]
+        chartData: selectedChartMetric === 'Lượng bệnh nhân'
+            ? (stats?.monthlyGrowth && stats.monthlyGrowth.length > 0
+                ? stats.monthlyGrowth.map((val: number, i: number) => ({
+                    month: `Tháng ${(new Date().getMonth() - 5 + i + 12) % 12 || 12}`,
+                    value: Number(val)
+                }))
+                : [
+                    { month: 'Tháng 12', value: 120 }, { month: 'Tháng 1', value: 156 }, { month: 'Tháng 2', value: 142 },
+                    { month: 'Tháng 3', value: 188 }, { month: 'Tháng 4', value: 224 }
+                ])
+            : selectedChartMetric === 'Tải lượng bác sĩ'
+                ? [
+                    { month: 'Tháng 12', value: 45 }, { month: 'Tháng 1', value: 48 }, { month: 'Tháng 2', value: 42 },
+                    { month: 'Tháng 3', value: 55 }, { month: 'Tháng 4', value: 60 }
+                ]
+                : [ // Chỉ số rủi ro
+                    { month: 'Tháng 12', value: 12 }, { month: 'Tháng 1', value: 8 }, { month: 'Tháng 2', value: 15 },
+                    { month: 'Tháng 3', value: 5 }, { month: 'Tháng 4', value: 3 }
+                ]
     };
 
-    const [notifications, setNotifications] = useState([
-        { id: 1, title: 'Báo cáo mới', description: 'Có báo cáo tổng quát tháng 12 vừa được tạo.', time: '5 phút trước', read: false },
-        { id: 2, title: 'Cảnh báo nguy cơ', description: 'Bệnh nhân Nguyễn Văn An có chỉ số bất thường.', time: '1 giờ trước', read: false },
-    ]);
-    const [dashboardTimeRange, setDashboardTimeRange] = useState('Năm 2024');
+    const CustomXAxisTick = ({ x, y, payload, index, length }: any) => {
+        let textAnchor: "start" | "middle" | "end" = "middle";
+        if (index === 0) textAnchor = "start";
+        else if (index === length - 1) textAnchor = "end";
+
+        return (
+            <g transform={`translate(${x},${y})`}>
+                <text
+                    x={0}
+                    y={0}
+                    dy={16}
+                    textAnchor={textAnchor}
+                    fill="#64748b"
+                    fontSize={13}
+                    fontWeight={700}
+                >
+                    {payload.value}
+                </text>
+            </g>
+        );
+    };
+
+    const getMetricSummary = () => {
+        const color = selectedChartMetric === 'Chỉ số rủi ro' ? 'text-red-500' : selectedChartMetric === 'Tải lượng bác sĩ' ? 'text-emerald-500' : 'text-sky-500';
+        const totalDoctorLoad = doctors.reduce((acc: number, d: any) => acc + (d.load || 0), 0);
+        const avgLoad = doctors.length > 0 ? Math.round(totalDoctorLoad / doctors.length) : 0;
+
+        const statsMap: Record<string, any[]> = {
+            'Lượng bệnh nhân': [
+                { label: 'Tăng trưởng', value: mainStats.patientGrowth, trend: mainStats.patientGrowth.startsWith('+'), icon: 'show_chart' },
+                { label: 'Trung bình', value: `${Math.round(parseInt(String(mainStats.totalPatients).replace(/,/g, '')) / 6)} ca/tháng`, icon: 'analytics' },
+                { label: 'Chỉ số rủi ro', value: `${mainStats.highRiskAlerts} ca`, icon: 'warning' }
+            ],
+            'Tải lượng bác sĩ': [
+                { label: 'Tổng lượt khám', value: `${totalDoctorLoad} ca`, trend: true, icon: 'medical_services' },
+                { label: 'TB/Bác sĩ', value: `${avgLoad} ca/tháng`, icon: 'person_apron' },
+                { label: 'Số bác sĩ', value: `${doctors.length} BS`, icon: 'group' }
+            ],
+            'Chỉ số rủi ro': [
+                { label: 'Tổng số rủi ro', value: `${mainStats.highRiskAlerts} ca`, trend: false, icon: 'emergency_home' },
+                { label: 'Tỉ lệ rủi ro', value: `${((parseInt(mainStats.highRiskAlerts) || 1) / (parseInt(mainStats.totalPatients) || 1) * 100).toFixed(1)}%`, icon: 'analytics' },
+                { label: 'Đang chờ', value: `${mainStats.pendingFollowUps} ca`, icon: 'pending' }
+            ]
+        };
+        return { color, items: statsMap[selectedChartMetric] || [] };
+    };
+
 
     // Modal & Toast States
     const [showCreateDoctorModal, setShowCreateDoctorModal] = useState(false);
     const [isSavingDoctor, setIsSavingDoctor] = useState(false);
     const [showAssignmentModal, setShowAssignmentModal] = useState(false);
     const [showExportModal, setShowExportModal] = useState(false);
+
+    // Custom Tooltip for Recharts
+    const CustomTooltip = ({ active, payload, label }: any) => {
+        if (active && payload && payload.length) {
+            const getColor = () => {
+                if (selectedChartMetric === 'Lượng bệnh nhân') return 'text-primary';
+                if (selectedChartMetric === 'Tải lượng bác sĩ') return 'text-emerald-500';
+                return 'text-red-500';
+            };
+            const getSuffix = () => {
+                if (selectedChartMetric === 'Lượng bệnh nhân') return 'bệnh nhân mới';
+                if (selectedChartMetric === 'Tải lượng bác sĩ') return 'ca khám/ngày';
+                return 'ca nguy kịch';
+            };
+            return (
+                <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-3 border border-slate-100 dark:border-slate-800 rounded-xl shadow-xl">
+                    <p className="text-[13px] font-bold text-slate-700 dark:text-slate-200 mb-1">{label}</p>
+                    <div className="flex items-center gap-2">
+                        <p className={`text-[14px] font-black ${getColor()}`}>
+                            {payload[0].value} <span className="text-slate-500 font-medium text-[12px]">{getSuffix()}</span>
+                        </p>
+                    </div>
+                </div>
+            );
+        }
+        return null;
+    };
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
 
     const fetchDashboardData = async (isSilent = false) => {
         if (!isSilent) setIsLoading(true);
         try {
-            const response = await axios.get(`/v1/clinics/${currentClinicId}/dashboard`);
-            if (response.data.success) {
-                setStats(response.data.data);
+            const res = await clinicApi.getDashboard(currentClinicId);
+            if (res.success) {
+                setStats(res.data);
             }
         } catch (error) {
             console.error('Failed to fetch dashboard data:', error);
@@ -72,8 +163,8 @@ export default function ClinicDashboard() {
     const handleSaveDoctor = async (doctorData: any) => {
         setIsSavingDoctor(true);
         try {
-            const response = await axios.post(`/v1/clinics/${currentClinicId}/doctors`, doctorData);
-            if (response.data.success) {
+            const res = await clinicApi.createDoctor(currentClinicId, doctorData);
+            if (res.success) {
                 fetchDashboardData();
                 setShowCreateDoctorModal(false);
                 setToastMessage(`Đã thêm bác sĩ ${doctorData.name} thành công!`);
@@ -287,50 +378,97 @@ export default function ClinicDashboard() {
                                     <div>
                                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
                                             <div>
-                                                <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Bệnh nhân mới theo tháng</h3>
-                                                <p className="text-sm text-slate-500 font-medium mt-1">Thống kê dữ liệu trong 6 tháng gần nhất</p>
+                                                <h2 className="text-[19px] font-bold text-slate-900 dark:text-white tracking-tight">Thống kê vận hành phòng khám</h2>
+                                                <p className="text-[15px] text-slate-500 mt-1">Báo cáo chi tiết theo {selectedChartMetric.toLowerCase()}</p>
                                             </div>
-                                            <Dropdown
-                                                options={['Năm 2024', 'Năm 2023']}
-                                                value={dashboardTimeRange}
-                                                onChange={setDashboardTimeRange}
-                                                className="min-w-[140px]"
-                                            />
-                                        </div>
-                                        <div className="flex items-end justify-between h-64 gap-3 md:gap-6 px-4">
-                                            {mainStats.chartData.map((item: any, idx: number) => (
-                                                <div key={idx} className="flex flex-col items-center flex-1 gap-4">
-                                                    <div className="w-full bg-slate-50 dark:bg-slate-800 rounded-t-2xl relative overflow-hidden group h-48 border border-primary/5">
-                                                        <div
-                                                            style={{ height: item.height }}
-                                                            className={`absolute bottom-0 w-full transition-all duration-700 rounded-t-2xl ${item.active ? 'bg-[#38bdf8] shadow-[0_-10px_20px_rgba(56,189,248,0.2)]' : 'bg-[#93e2fb] group-hover:bg-[#38bdf8]/60'}`}
+                                            <div className="flex items-center gap-4">
+                                                <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+                                                    {['Lượng bệnh nhân', 'Tải lượng bác sĩ', 'Chỉ số rủi ro'].map((m) => (
+                                                        <button
+                                                            key={m}
+                                                            onClick={() => setSelectedChartMetric(m)}
+                                                            className={`px-3 py-1.5 text-[13px] font-medium rounded-lg transition-all ${selectedChartMetric === m
+                                                                ? `bg-white dark:bg-slate-700 ${selectedChartMetric === 'Chỉ số rủi ro' ? 'text-red-500' : selectedChartMetric === 'Tải lượng bác sĩ' ? 'text-emerald-500' : 'text-sky-500'} shadow-sm font-bold`
+                                                                : 'text-slate-600 hover:text-slate-700'
+                                                                }`}
                                                         >
-                                                            {item.active && <div className="absolute top-0 w-full h-2 bg-white/20"></div>}
-                                                        </div>
-                                                    </div>
-                                                    <span className={`text-[11px] font-black tracking-tighter ${item.active ? 'text-[#0ea5e9]' : 'text-slate-400'}`}>{item.month}</span>
+                                                            {m}
+                                                        </button>
+                                                    ))}
                                                 </div>
-                                            ))}
+                                                <Dropdown
+                                                    options={['7 ngày qua', '30 ngày qua', '6 tháng gần nhất', 'Năm nay']}
+                                                    value={dashboardTimeRange}
+                                                    onChange={setDashboardTimeRange}
+                                                    className="min-w-[150px]"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="h-[300px] w-full mt-4">
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <AreaChart data={mainStats.chartData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
+                                                    <defs>
+                                                        <linearGradient id="colorValueClinic" x1="0" y1="0" x2="0" y2="1">
+                                                            <stop offset="5%" stopColor={selectedChartMetric === 'Chỉ số rủi ro' ? '#ef4444' : selectedChartMetric === 'Tải lượng bác sĩ' ? '#10b981' : '#0ea5e9'} stopOpacity={0.2} />
+                                                            <stop offset="95%" stopColor={selectedChartMetric === 'Chỉ số rủi ro' ? '#ef4444' : selectedChartMetric === 'Tải lượng bác sĩ' ? '#10b981' : '#0ea5e9'} stopOpacity={0} />
+                                                        </linearGradient>
+                                                    </defs>
+                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(203, 213, 225, 0.4)" />
+                                                    <XAxis
+                                                        dataKey="month"
+                                                        axisLine={false}
+                                                        tickLine={false}
+                                                        tick={<CustomXAxisTick length={mainStats.chartData.length} />}
+                                                        interval={0}
+                                                    />
+                                                    <YAxis hide domain={['auto', 'auto']} />
+                                                    <Tooltip content={<CustomTooltip />} cursor={{ stroke: selectedChartMetric === 'Chỉ số rủi ro' ? '#ef4444' : selectedChartMetric === 'Tải lượng bác sĩ' ? '#10b981' : '#0ea5e9', strokeWidth: 1, strokeDasharray: '4 4' }} />
+                                                    <Area
+                                                        type="monotone"
+                                                        dataKey="value"
+                                                        stroke={selectedChartMetric === 'Chỉ số rủi ro' ? '#ef4444' : selectedChartMetric === 'Tải lượng bác sĩ' ? '#10b981' : '#0ea5e9'}
+                                                        strokeWidth={4}
+                                                        fillOpacity={1}
+                                                        fill="url(#colorValueClinic)"
+                                                        animationDuration={1500}
+                                                        dot={{
+                                                            r: 4,
+                                                            fill: '#fff',
+                                                            stroke: selectedChartMetric === 'Chỉ số rủi ro' ? '#ef4444' : selectedChartMetric === 'Tải lượng bác sĩ' ? '#10b981' : '#0ea5e9',
+                                                            strokeWidth: 2,
+                                                        }}
+                                                        activeDot={{
+                                                            r: 6,
+                                                            fill: selectedChartMetric === 'Chỉ số rủi ro' ? '#ef4444' : selectedChartMetric === 'Tải lượng bác sĩ' ? '#10b981' : '#0ea5e9',
+                                                            stroke: '#fff',
+                                                            strokeWidth: 2,
+                                                        }}
+                                                    />
+                                                </AreaChart>
+                                            </ResponsiveContainer>
                                         </div>
                                     </div>
 
                                     {/* Key Stats Bar at Bottom to Balance Height */}
                                     <div className="grid grid-cols-3 gap-4 pt-8 border-t border-slate-50 dark:border-slate-800/50 mt-6 pb-2">
-                                        <div className="flex flex-col items-center">
-                                            <p className="text-[14px] font-medium text-slate-500 mb-1">Tăng trưởng</p>
-                                            <div className="flex items-center gap-1">
-                                                <span className={`text-lg font-bold ${mainStats.patientGrowth.startsWith('+') ? 'text-emerald-500' : 'text-red-500'}`}>{mainStats.patientGrowth}</span>
-                                                <span className={`material-symbols-outlined text-sm ${mainStats.patientGrowth.startsWith('+') ? 'text-emerald-500' : 'text-red-500'}`}>{mainStats.patientGrowth.startsWith('+') ? 'trending_up' : 'trending_down'}</span>
+                                        {getMetricSummary().items.map((item, idx) => (
+                                            <div key={idx} className={`flex flex-col items-center ${idx === 1 ? 'border-x border-slate-100 dark:border-slate-800/50' : ''}`}>
+                                                <p className="text-[14px] font-medium text-slate-500 mb-1 flex items-center gap-1">
+                                                    <span className="material-symbols-outlined text-[16px]">{item.icon}</span>
+                                                    {item.label}
+                                                </p>
+                                                <div className="flex items-center gap-1">
+                                                    <span className={`text-lg font-bold ${idx === 0 && item.trend !== undefined ? (item.trend ? 'text-emerald-500' : 'text-red-500') : getMetricSummary().color}`}>
+                                                        {item.value}
+                                                    </span>
+                                                    {idx === 0 && item.trend !== undefined && (
+                                                        <span className={`material-symbols-outlined text-sm ${item.trend ? 'text-emerald-500' : 'text-red-500'}`}>
+                                                            {item.trend ? 'trending_up' : 'trending_down'}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="flex flex-col items-center border-x border-slate-100 dark:border-slate-800/50">
-                                            <p className="text-[14px] font-medium text-slate-500 mb-1">Trung bình</p>
-                                            <span className="text-lg font-bold text-slate-700 dark:text-slate-200">{Math.round(parseInt(String(mainStats.totalPatients).replace(/,/g, '')) / 6)} ca/tháng</span>
-                                        </div>
-                                        <div className="flex flex-col items-center">
-                                            <p className="text-[14px] font-medium text-slate-500 mb-1">Đỉnh điểm</p>
-                                            <span className="text-lg font-bold text-sky-500">T.3 (224 ca)</span>
-                                        </div>
+                                        ))}
                                     </div>
                                 </>
                             )}

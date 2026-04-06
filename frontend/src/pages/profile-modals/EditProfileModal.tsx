@@ -53,9 +53,9 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose, on
     };
 
     return (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 font-display">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 font-display">
             {/* Backdrop */}
-            <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose}></div>
+            <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] transition-all duration-300" onClick={onClose}></div>
 
             {/* Modal */}
             <div className="relative bg-white dark:bg-slate-900 w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-300 max-h-[90vh]">

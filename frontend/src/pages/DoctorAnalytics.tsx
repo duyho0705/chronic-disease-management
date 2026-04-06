@@ -1,11 +1,34 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import TopBar from '../components/common/TopBar';
 import PatientDetailModal from '../features/patient/components/PatientDetailModal';
 import AdviceModal from '../features/patient/components/AdviceModal';
 import Toast from '../components/ui/Toast';
+import { doctorApi } from '../api/doctor';
 
 export default function DoctorAnalytics() {
+    const [patients, setPatients] = useState<any[]>([]);
+    const [stats, setStats] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            const [pRes, sRes] = await Promise.all([
+                doctorApi.getMyPatients({ riskLevel: 'HIGH_RISK', size: 10 }),
+                doctorApi.getPatientStats()
+            ]);
+            if (pRes.success) setPatients(pRes.data.content || []);
+            if (sRes.success) setStats(sRes.data);
+        } catch (error) {
+            console.error('Failed to fetch analytics data', error);
+        } finally {
+            setLoading(false);
+        }
+    };
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [notifications, setNotifications] = useState([
         { id: 1, title: 'Cảnh báo chỉ số', message: 'Bệnh nhân Nguyễn Văn An có chỉ số đường huyết cao bất thường.', time: '5 phút trước', type: 'warning' },
@@ -124,8 +147,8 @@ export default function DoctorAnalytics() {
                         <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-primary/5">
                             <div className="flex justify-between items-start">
                                 <div>
-                                    <p className="text-sm font-medium text-slate-500 mb-1">Tổng ca nguy cơ</p>
-                                    <h3 className="text-3xl font-extrabold mt-1 text-slate-900 dark:text-white">1,284</h3>
+                                    <p className="text-sm font-medium text-slate-500 mb-1">Tổng bệnh nhân</p>
+                                    <h3 className="text-3xl font-extrabold mt-1 text-slate-900 dark:text-white">{stats?.totalPatients || 0}</h3>
                                 </div>
                                 <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/30 rounded-xl flex items-center justify-center text-blue-500">
                                     <span className="material-symbols-outlined text-3xl">monitoring</span>
@@ -140,7 +163,7 @@ export default function DoctorAnalytics() {
                             <div className="flex justify-between items-start">
                                 <div>
                                     <p className="text-sm font-medium text-slate-500 mb-1">Nguy cơ cao</p>
-                                    <h3 className="text-3xl font-extrabold mt-1 text-red-500">42</h3>
+                                    <h3 className="text-3xl font-extrabold mt-1 text-red-500">{stats?.highRiskCount || 0}</h3>
                                 </div>
                                 <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center text-red-500">
                                     <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>warning</span>
@@ -151,8 +174,8 @@ export default function DoctorAnalytics() {
                         <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-primary/5">
                             <div className="flex justify-between items-start">
                                 <div>
-                                    <p className="text-sm font-medium text-slate-500 mb-1">Xu hướng xấu</p>
-                                    <h3 className="text-3xl font-extrabold mt-1 text-orange-500">156</h3>
+                                    <p className="text-sm font-medium text-slate-500 mb-1">Cần theo dõi</p>
+                                    <h3 className="text-3xl font-extrabold mt-1 text-orange-500">{stats?.monitoringCount || 0}</h3>
                                 </div>
                                 <div className="w-12 h-12 bg-orange-50 dark:bg-orange-900/30 rounded-xl flex items-center justify-center text-orange-500">
                                     <span className="material-symbols-outlined text-3xl">trending_down</span>
@@ -166,7 +189,7 @@ export default function DoctorAnalytics() {
                             <div className="flex justify-between items-start">
                                 <div>
                                     <p className="text-sm font-medium text-slate-500 mb-1">Ổn định</p>
-                                    <h3 className="text-3xl font-extrabold mt-1 text-primary">1,086</h3>
+                                    <h3 className="text-3xl font-extrabold mt-1 text-primary">{stats?.stableCount || 0}</h3>
                                 </div>
                                 <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
                                     <span className="material-symbols-outlined text-3xl"
@@ -302,66 +325,56 @@ export default function DoctorAnalytics() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
-                                    {[
-                                        { name: "Nguyễn Văn Nam", id: "001", initials: "NN", bp: "158/95", icon: "arrow_upward", alert: "Huyết áp tăng liên tục 3 ngày", color: "red" },
-                                        { name: "Trần Thị Hoa", id: "045", initials: "TH", bp: "8.2 mmol/L", icon: "trending_up", alert: "Đường huyết sau ăn bất thường", color: "orange" },
-                                        { name: "Lý Văn Mạnh", id: "112", initials: "LM", bp: "91 bpm", icon: "heart_broken", alert: "Nhịp tim nhanh kèm hạ áp", color: "red" }
-                                    ].map((p, i) => (
-                                        <tr key={i} className="hover:bg-slate-50/50 transition-colors group">
-                                            <td className="px-8 py-5">
-                                                <div className="flex items-center gap-3">
-                                                    <div
-                                                        className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold">
-                                                        {p.initials}</div>
-                                                    <div>
-                                                        <p className="text-[16px] font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors tracking-tight">{p.name}</p>
-                                                        <p className="text-[13px] text-slate-400 dark:text-slate-500 font-medium tracking-tight">Mã hồ sơ: SK-{p.id}</p>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-8 py-5">
-                                                <div className="flex items-center gap-2">
-                                                    <span className={`text-[15px] font-extrabold text-${p.color}-500`}>{p.bp}</span>
-                                                    <span className={`material-symbols-outlined text-${p.color}-500 text-[14px]`}>{p.icon}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-8 py-5">
-                                                <span
-                                                    className={`inline-flex items-center px-4 py-1.5 rounded-full text-[13px] font-bold gap-2 text-white shadow-sm whitespace-nowrap ${
-                                                        p.color === 'red' ? 'bg-red-500' :
-                                                        p.color === 'orange' ? 'bg-amber-500' :
-                                                        'bg-emerald-500'
-                                                    }`}>
-                                                    <span className="material-symbols-outlined text-[13px] font-variation-settings: 'FILL' 1" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
-                                                    {p.alert}
-                                                </span>
-                                            </td>
-                                            <td className="px-8 py-5 text-right">
-                                                <div className="flex justify-end gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
-                                                    <a
-                                                        href="/doctor/messages"
-                                                        className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all flex items-center justify-center cursor-pointer"
-                                                    >
-                                                        <span className="material-symbols-outlined text-xl">chat</span>
-                                                    </a>
-                                                    <button
-                                                        onClick={() => { setSelectedPatient({ name: p.name, id: `SK-${p.id}`, risk: p.color === 'red' ? 'Nguy cơ cao' : 'Cần theo dõi' }); setIsPatientDetailModalOpen(true); }}
-                                                        className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all">
-                                                        <span className="material-symbols-outlined text-xl">visibility</span>
-                                                    </button>
-                                                    <button
-                                                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all"
-                                                        onClick={() => {
-                                                            setAdvicePatientName(p.name);
-                                                            setIsAdviceModalOpen(true);
-                                                        }}
-                                                    >
-                                                        <span className="material-symbols-outlined text-xl">campaign</span>
-                                                    </button>
-                                                </div>
-                                            </td>
+                                    {loading ? (
+                                        <tr>
+                                            <td colSpan={4} className="px-8 py-10 text-center text-slate-500">Đang tải bệnh nhân nguy cơ...</td>
                                         </tr>
-                                    ))}
+                                    ) : patients.length > 0 ? (
+                                        patients.map((p, i) => (
+                                            <tr key={i} className="hover:bg-slate-50/50 transition-colors group">
+                                                <td className="px-8 py-5">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold">
+                                                            {p.fullName?.charAt(0)}
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-[16px] font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors tracking-tight">{p.fullName}</p>
+                                                            <p className="text-[13px] text-slate-400 dark:text-slate-500 font-medium tracking-tight">Mã hồ sơ: {p.patientCode}</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-8 py-5">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={`text-[15px] font-extrabold text-red-500`}>{p.latestBp || p.latestGlucose || 'N/A'}</span>
+                                                        <span className={`material-symbols-outlined text-red-500 text-[14px]`}>arrow_upward</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-8 py-5">
+                                                    <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-[13px] font-bold gap-2 text-white shadow-sm whitespace-nowrap bg-red-500`}>
+                                                        <span className="material-symbols-outlined text-[13px] font-variation-settings: 'FILL' 1" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
+                                                        {p.chronicCondition || 'Cần kiểm tra ngay'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-8 py-5 text-right">
+                                                    <div className="flex justify-end gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                                                        <a href="/doctor/messages" className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all flex items-center justify-center cursor-pointer">
+                                                            <span className="material-symbols-outlined text-xl">chat</span>
+                                                        </a>
+                                                        <button onClick={() => { setSelectedPatient(p); setIsPatientDetailModalOpen(true); }} className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all">
+                                                            <span className="material-symbols-outlined text-xl">visibility</span>
+                                                        </button>
+                                                        <button className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all" onClick={() => { setAdvicePatientName(p.fullName); setIsAdviceModalOpen(true); }}>
+                                                            <span className="material-symbols-outlined text-xl">campaign</span>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={4} className="px-8 py-10 text-center text-slate-500 italic">Không có bệnh nhân nguy cơ cao nào</td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>

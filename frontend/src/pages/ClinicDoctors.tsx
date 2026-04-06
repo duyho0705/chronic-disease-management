@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from '../api/axios';
+import { clinicApi } from '../api/clinic';
 import ClinicSidebar from '../components/common/ClinicSidebar';
 import TopBar from '../components/common/TopBar';
 import CreateDoctorModal from '../features/clinic/components/CreateDoctorModal';
@@ -50,15 +50,13 @@ export default function ClinicDoctors() {
     const fetchDoctors = async (page = 0, isSilent = false) => {
         if (!isSilent) setIsLoading(true);
         try {
-            const response = await axios.get(`/v1/clinics/${currentClinicId}/doctors`, {
-                params: {
-                    keyword: debouncedSearch || undefined,
-                    page: page,
-                    size: pageSize
-                }
+            const res = await clinicApi.getDoctors(currentClinicId, {
+                keyword: debouncedSearch || undefined,
+                page: page,
+                size: pageSize
             });
-            if (response.data.success) {
-                const pageData = response.data.data;
+            if (res.success) {
+                const pageData = res.data;
                 setDoctors(pageData.content || []);
                 setTotalPages(pageData.totalPages || 0);
                 setTotalElements(pageData.totalElements || 0);
@@ -87,8 +85,8 @@ export default function ClinicDoctors() {
     const handleCreateDoctor = async (doctorData: any) => {
         setIsSaving(true);
         try {
-            const response = await axios.post(`/v1/clinics/${currentClinicId}/doctors`, doctorData);
-            if (response.data.success) {
+            const res = await clinicApi.createDoctor(currentClinicId, doctorData);
+            if (res.success) {
                 fetchDoctors();
                 setIsCreateModalOpen(false);
                 setToastMessage(`Đã thêm bác sĩ ${doctorData.name} vào hệ thống!`);
@@ -106,8 +104,8 @@ export default function ClinicDoctors() {
     const handleEditDoctor = async (doctorData: any) => {
         setIsEditing(true);
         try {
-            const response = await axios.put(`/v1/clinics/${currentClinicId}/doctors/${doctorData.dbId}`, doctorData);
-            if (response.data.success) {
+            const res = await clinicApi.updateDoctor(currentClinicId, doctorData.dbId, doctorData);
+            if (res.success) {
                 fetchDoctors();
                 setIsEditing(false);
                 setIsEditModalOpen(false);
@@ -128,8 +126,8 @@ export default function ClinicDoctors() {
         // Note: Modal works like DeletePatientModal
         const dbId = typeof doctorId === 'object' ? doctorId.dbId : doctorId;
         try {
-            const response = await axios.delete(`/v1/clinics/${currentClinicId}/doctors/${dbId}`);
-            if (response.data.success) {
+            const res = await clinicApi.deleteDoctor(currentClinicId, dbId);
+            if (res.success) {
                 fetchDoctors();
                 setIsDeleting(false);
                 setIsDeleteModalOpen(false);
