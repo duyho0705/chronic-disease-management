@@ -92,7 +92,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           setIsSidebarOpen={setIsSidebarOpen}
           notifications={notifications}
           setNotifications={setNotifications}
-          hideProfile={true}
         />
         {children}
       </div>
