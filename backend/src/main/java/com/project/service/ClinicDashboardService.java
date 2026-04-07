@@ -36,4 +36,8 @@ public interface ClinicDashboardService {
     List<String> getChronicConditions();
     
     List<DoctorSnippetDto> getAvailableDoctors(Long clinicId);
+    
+    org.springframework.data.domain.Page<com.project.dto.response.ClinicAppointmentResponse> getAppointmentRecords(Long clinicId, org.springframework.data.domain.Pageable pageable);
+    
+    void sendNotificationToPatient(Long clinicId, Long patientId, String message);
 }

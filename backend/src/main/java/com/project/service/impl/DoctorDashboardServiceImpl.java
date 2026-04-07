@@ -9,6 +9,7 @@ import com.project.repository.MessageRepository;
 import com.project.service.ClinicalAnalyticsService;
 import com.project.service.DoctorDashboardService;
 import com.project.service.DoctorPatientService;
+import com.project.util.AppConstants;
 import com.project.util.DateTimeUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -40,7 +41,7 @@ public class DoctorDashboardServiceImpl implements DoctorDashboardService {
         long totalPatients = doctorPatientService.getTotalPatientCount(doctorId);
         long highRiskCount = doctorPatientService.getHighRiskCount(doctorId);
         long pendingAppointments = appointmentRepository.countByDoctorIdAndStatusInAndAppointmentTimeAfter(
-                doctorId, java.util.List.of("PENDING", "SCHEDULED"), now);
+                doctorId, java.util.List.of(AppConstants.APPT_STATUS_PENDING, AppConstants.APPT_STATUS_SCHEDULED), now);
         
         long unreadMessages = messageRepository.countByConversationDoctorIdAndIsReadFalseAndSenderIdNot(doctorId, doctorId);
         
@@ -71,7 +72,7 @@ public class DoctorDashboardServiceImpl implements DoctorDashboardService {
 
         // 4. High risk patients
         List<DoctorPatientResponse> highRiskPatients = doctorPatientService
-                .getMyPatients(doctorId, null, null, "HIGH_RISK", PageRequest.of(0, 5))
+                .getMyPatients(doctorId, null, null, AppConstants.RISK_HIGH, PageRequest.of(0, 5))
                 .getContent();
 
         return DoctorDashboardResponse.builder()

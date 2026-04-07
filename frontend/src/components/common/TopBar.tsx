@@ -52,7 +52,7 @@ const TopBar: React.FC<TopBarProps> = ({
   };
 
   return (
-    <header className="h-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-primary/5 px-4 md:px-8 flex items-center justify-between sticky top-0 z-[100] transition-all">
+    <header className="h-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800/50 px-4 md:px-8 flex items-center justify-between sticky top-0 z-[100] transition-all">
       <div className="flex items-center gap-4 flex-1 text-left">
         <button
           onClick={() => setIsSidebarOpen(true)}

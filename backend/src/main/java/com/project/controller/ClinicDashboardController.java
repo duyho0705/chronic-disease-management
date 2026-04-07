@@ -25,6 +25,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import com.project.dto.response.DoctorSnippetDto;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/clinics/{clinicId}")
@@ -148,5 +149,26 @@ public class ClinicDashboardController {
     public ApiResponse<List<String>> getConditions(@PathVariable Long clinicId) {
         validateClinicAccess(clinicId);
         return ApiResponse.success("Conditions fetched successfully", clinicDashboardService.getChronicConditions());
+    }
+
+    @GetMapping("/appointments")
+    public ApiResponse<Page<com.project.dto.response.ClinicAppointmentResponse>> getAppointments(
+            @PathVariable Long clinicId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        validateClinicAccess(clinicId);
+        Pageable pageable = PageRequest.of(page, size);
+        return ApiResponse.success("Appointments fetched",
+                clinicDashboardService.getAppointmentRecords(clinicId, pageable));
+    }
+
+    @PostMapping("/patients/{patientId}/notify")
+    public ApiResponse<Void> notifyPatient(
+            @PathVariable Long clinicId,
+            @PathVariable Long patientId,
+            @RequestBody Map<String, String> body) {
+        validateClinicAccess(clinicId);
+        clinicDashboardService.sendNotificationToPatient(clinicId, patientId, body.get("message"));
+        return ApiResponse.success("Notification sent", null);
     }
 }

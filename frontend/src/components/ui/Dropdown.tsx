@@ -46,20 +46,20 @@ export default function Dropdown({
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={`
-          flex items-center justify-between gap-3 transition-all duration-300
+          flex items-center justify-between gap-3 transition-all duration-300 active:scale-100
           ${variant === 'badge' 
             ? 'px-4 py-1.5 bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800' 
             : 'px-4 h-[40px] bg-white dark:bg-slate-900 border rounded-xl shadow-sm'
           }
           ${isOpen
             ? 'border-primary shadow-lg shadow-primary/10 ring-4 ring-primary/5'
-            : variant !== 'badge' ? 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600' : ''
+            : variant !== 'badge' ? 'border-slate-400 dark:border-slate-600 hover:border-slate-500 dark:hover:border-slate-500' : ''
           }
           ${className}
           w-full
         `}
       >
-        <span className={`text-[13px] font-bold font-display ${variant === 'badge' ? 'text-slate-600 dark:text-slate-300' : 'text-slate-700 dark:text-slate-200'}`}>
+        <span className={`text-[14px] font-medium font-display ${variant === 'badge' ? 'text-slate-600 dark:text-slate-300' : 'text-slate-700 dark:text-slate-200'}`}>
           {selectedOption?.label}
         </span>
         <ChevronDown
@@ -100,7 +100,7 @@ export default function Dropdown({
                   w-full flex items-center justify-between px-4 py-2 
                   text-sm font-medium transition-colors
                   ${isSelected
-                    ? 'bg-primary/10 text-primary font-bold'
+                    ? 'bg-primary/10 text-primary font-medium'
                     : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
                   }
                 `}

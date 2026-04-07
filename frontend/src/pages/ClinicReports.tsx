@@ -235,7 +235,7 @@ export default function ClinicReports() {
                             ))
                         ) : (
                             <>
-                                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group border border-primary/5">
+                                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group">
                                     <div className="flex justify-between items-start mb-4">
                                         <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
                                             <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>groups</span>
@@ -248,7 +248,7 @@ export default function ClinicReports() {
                                         <div className="h-full bg-primary w-[75%]"></div>
                                     </div>
                                 </div>
-                                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group border border-primary/5">
+                                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group">
                                     <div className="flex justify-between items-start mb-4">
                                         <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center text-emerald-600">
                                             <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>trending_up</span>
@@ -259,7 +259,7 @@ export default function ClinicReports() {
                                     <p className="text-3xl font-black mt-1 text-slate-900 dark:text-white">+12%</p>
                                     <p className="text-[13px] text-slate-400 mt-2 font-medium">So với tháng trước</p>
                                 </div>
-                                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group border border-primary/5">
+                                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group">
                                     <div className="flex justify-between items-start mb-4">
                                         <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center text-blue-500">
                                             <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>event_available</span>
@@ -281,7 +281,7 @@ export default function ClinicReports() {
                     {/* Charts Section */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {/* Xu hướng bệnh nhân */}
-                        <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl p-8 shadow-sm border border-primary/5">
+                        <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl p-8 border border-slate-200/60 dark:border-slate-800/60 shadow-sm transition-all duration-300 hover:shadow-md">
                             {isLoading ? (
                                 <div className="animate-pulse space-y-10">
                                     <div className="flex justify-between items-center">
@@ -410,7 +410,7 @@ export default function ClinicReports() {
                         </div>
 
                         {/* Bệnh mãn tính Chart */}
-                        <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 shadow-sm border border-primary/5 flex flex-col items-center">
+                        <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 border border-slate-200/60 dark:border-slate-800/60 shadow-sm transition-all duration-300 hover:shadow-md flex flex-col items-center">
                             {isLoading ? (
                                 <div className="w-full animate-pulse space-y-10">
                                     <div className="space-y-3 text-left">
@@ -503,7 +503,7 @@ export default function ClinicReports() {
                     </div>
 
                     {/* Doctor Performance Table */}
-                    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-primary/5 overflow-hidden">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800/60 shadow-sm transition-all duration-300 hover:shadow-md overflow-hidden">
                         <div className="px-8 py-6 flex justify-between items-center border-b border-slate-50 dark:border-slate-800">
                             {isLoading ? (
                                 <>

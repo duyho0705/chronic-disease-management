@@ -15,11 +15,20 @@ public class ClinicPatientResponse {
     private String name;
     private int age;
     private String phone;
+    private String phoneNumber; // Added for UI consistency
+    private String gender; // Added for UI consistency
     private String email;
     private String condition;
+    private String primaryCondition;
     private String riskLevel;
     private String doctor;
     private String location;
     private String status;
     private String img;
+    private String insuranceNumber;
+    private String address;
+    private String identityCard;
+    private String occupation;
+    private String ethnicity;
+    private String notes;
 }

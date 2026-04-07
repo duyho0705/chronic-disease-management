@@ -194,7 +194,7 @@ export default function ClinicDoctors() {
                     </div>
 
                     {/* Filters Bar (Standardized) */}
-                    <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-primary/5 shadow-sm flex flex-wrap items-center gap-6">
+                    <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-sm flex flex-wrap items-center gap-6 transition-all duration-300 hover:shadow-md">
                         {isLoading ? (
                             <>
                                 <div className="flex-1 min-w-[300px] h-12 bg-slate-50 dark:bg-slate-800 rounded-2xl animate-pulse"></div>
@@ -235,7 +235,7 @@ export default function ClinicDoctors() {
                         )}
                     </div>
 
-                    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-primary/5 overflow-hidden">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/60 dark:border-slate-800/50 overflow-hidden transition-all duration-300 hover:shadow-md">
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead>

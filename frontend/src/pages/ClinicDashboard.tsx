@@ -15,6 +15,7 @@ export default function ClinicDashboard() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [stats, setStats] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isUpdating, setIsUpdating] = useState(false);
 
     const currentClinicId = localStorage.getItem('clinicId') || '1';
 
@@ -145,6 +146,8 @@ export default function ClinicDashboard() {
 
     const fetchDashboardData = async (isSilent = false) => {
         if (!isSilent) setIsLoading(true);
+        else setIsUpdating(true);
+        
         try {
             const periodMap: Record<string, string> = {
                 '7 ngày qua': '7d',
@@ -159,12 +162,15 @@ export default function ClinicDashboard() {
         } catch (error) {
             console.error('Failed to fetch dashboard data:', error);
         } finally {
-            if (!isSilent) setIsLoading(false);
+            setIsLoading(false);
+            setIsUpdating(false);
         }
     };
 
     useEffect(() => {
-        fetchDashboardData();
+        // First load gets the full skeleton
+        // Subsequent time range changes only load the chart box
+        fetchDashboardData(stats !== null);
     }, [currentClinicId, dashboardTimeRange]);
 
     const handleSaveDoctor = async (doctorData: any) => {
@@ -254,23 +260,30 @@ export default function ClinicDashboard() {
                                     )}
                                     <button
                                         onClick={handleExportExcel}
-                                        className="bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-slate-50 transition-all active:scale-95"
+                                        className="bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 px-5 py-2.5 rounded-xl font-bold text-[13.5px] flex items-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95 border border-slate-200 dark:border-slate-800"
                                     >
-                                        <span className="material-symbols-outlined text-emerald-500">upload_file</span>
+                                        <span className="material-symbols-outlined text-emerald-500 text-[20px]">upload_file</span>
                                         Xuất báo cáo Excel
                                     </button>
                                     <button
                                         onClick={() => setShowCreateDoctorModal(true)}
-                                        className="bg-primary text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-95"
+                                        className="bg-sky-500 hover:bg-sky-600 text-white px-5 py-2.5 rounded-xl font-bold text-[13.5px] flex items-center gap-2 shadow-sm shadow-sky-500/10 hover:shadow-lg hover:shadow-sky-500/20 transition-all active:scale-95"
                                     >
-                                        <span className="material-symbols-outlined">person_add</span>
+                                        <span className="material-symbols-outlined text-[20px]">person_add</span>
                                         Thêm bác sĩ mới
                                     </button>
                                     <button
-                                        onClick={() => setShowAssignmentModal(true)}
-                                        className="bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-teal-100 transition-all border border-teal-100/50 dark:border-teal-800/50 active:scale-95"
+                                        onClick={() => {
+                                            if (doctors.length > 0) {
+                                                setShowAssignmentModal(true);
+                                            } else {
+                                                setToastMessage('Vui lòng thêm bác sĩ trước khi thực hiện phân công');
+                                                setShowToast(true);
+                                            }
+                                        }}
+                                        className="bg-indigo-500 hover:bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold text-[13.5px] flex items-center gap-2 shadow-sm shadow-indigo-500/10 hover:shadow-lg hover:shadow-indigo-500/20 transition-all active:scale-95"
                                     >
-                                        <span className="material-symbols-outlined">assignment_ind</span>
+                                        <span className="material-symbols-outlined text-[20px]">assignment_ind</span>
                                         Phân công bệnh nhân
                                     </button>
                                 </>
@@ -294,7 +307,7 @@ export default function ClinicDashboard() {
                         ) : (
                             <>
                                 {/* Total Patients */}
-                                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
+                                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
                                     <div className="flex justify-between items-start mb-4">
                                         <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
                                             <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>groups</span>
@@ -309,7 +322,7 @@ export default function ClinicDashboard() {
                                 </div>
 
                                 {/* Disease Ratio */}
-                                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
+                                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
                                     <div className="flex justify-between items-start mb-4">
                                         <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center text-amber-500">
                                             <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>monitoring</span>
@@ -326,7 +339,7 @@ export default function ClinicDashboard() {
                                 </div>
 
                                 {/* High Risk Alerts */}
-                                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
+                                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
                                     <div className="flex justify-between items-start mb-4">
                                         <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center text-red-500">
                                             <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>warning</span>
@@ -341,7 +354,7 @@ export default function ClinicDashboard() {
                                 </div>
 
                                 {/* Pending follow-up */}
-                                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
+                                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
                                     <div className="flex justify-between items-start mb-4">
                                         <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center text-blue-500">
                                             <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>event_busy</span>
@@ -357,7 +370,15 @@ export default function ClinicDashboard() {
                     {/* Charts Section */}
                     <section className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         {/* New Patients Chart */}
-                        <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
+                        <div className={`lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/70 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between relative ${isUpdating ? 'opacity-60 pointer-events-none' : ''}`}>
+                            {isUpdating && (
+                                <div className="absolute inset-0 bg-white/40 dark:bg-slate-900/40 backdrop-blur-[2px] z-10 flex items-center justify-center rounded-2xl">
+                                    <div className="flex flex-col items-center gap-3">
+                                        <div className="w-8 h-8 border-4 border-sky-500/30 border-t-sky-500 rounded-full animate-spin"></div>
+                                        <p className="text-[12px] font-bold text-sky-600">Đang cập nhật biểu đồ...</p>
+                                    </div>
+                                </div>
+                            )}
                             {isLoading ? (
                                 <div className="space-y-12 animate-pulse">
                                     <div className="flex justify-between items-center">
@@ -393,7 +414,7 @@ export default function ClinicDashboard() {
                             ) : (
                                 <>
                                     <div>
-                                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
+                                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                                             <div>
                                                 <h2 className="text-[19px] font-semibold text-slate-900 dark:text-white tracking-tight">Thống kê vận hành phòng khám</h2>
                                                 <p className="text-[14px] text-slate-500 mt-1">Báo cáo chi tiết theo {selectedChartMetric.toLowerCase()}</p>
@@ -421,7 +442,7 @@ export default function ClinicDashboard() {
                                                 />
                                             </div>
                                         </div>
-                                        <div className="h-[300px] w-full mt-4">
+                                        <div className="h-[220px] w-full mt-4">
                                             <ResponsiveContainer width="100%" height="100%">
                                                 <AreaChart data={mainStats.chartData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
                                                     <defs>
@@ -467,7 +488,7 @@ export default function ClinicDashboard() {
                                     </div>
 
                                     {/* Key Stats Bar at Bottom to Balance Height */}
-                                    <div className="grid grid-cols-3 gap-4 pt-8 border-t border-slate-50 dark:border-slate-800/50 mt-6 pb-2">
+                                    <div className="grid grid-cols-3 gap-4 pt-4 border-t border-slate-50 dark:border-slate-800/50 mt-6 pb-2">
                                         {getMetricSummary().items.map((item, idx) => (
                                             <div key={idx} className={`flex flex-col items-center ${idx === 1 ? 'border-x border-slate-100 dark:border-slate-800/50' : ''}`}>
                                                 <p className="text-[14px] font-medium text-slate-500 mb-1 flex items-center gap-1">
@@ -492,7 +513,7 @@ export default function ClinicDashboard() {
                         </div>
 
                         {/* Pathology Pie Chart */}
-                        <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
+                        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/70 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between">
                             {isLoading ? (
                                 <div className="space-y-10 animate-pulse">
                                     <div className="space-y-3">
@@ -530,7 +551,7 @@ export default function ClinicDashboard() {
                                             {(() => {
                                                 let currentOffset = 0;
                                                 const totalValue = mainStats.diseaseRatios.reduce((acc: number, item: any) => acc + (parseInt(String(item.value).replace('%', '')) || 0), 0);
-                                                
+
                                                 return mainStats.diseaseRatios.map((item: any, idx: number) => {
                                                     const percentage = parseInt(String(item.value).replace('%', '')) || 0;
                                                     if (percentage <= 0) return null;
@@ -549,6 +570,8 @@ export default function ClinicDashboard() {
                                                     if (item.color.includes("teal")) strokeClass = "stroke-teal-500";
                                                     if (item.color.includes("primary")) strokeClass = "stroke-sky-500";
                                                     if (item.color.includes("emerald")) strokeClass = "stroke-emerald-500";
+                                                    if (item.color.includes("slate") || item.color.includes("gray")) strokeClass = "stroke-slate-400";
+                                                    if (item.color.includes("rose") || item.color.includes("pink")) strokeClass = "stroke-rose-400";
 
                                                     return (
                                                         <circle
@@ -569,30 +592,30 @@ export default function ClinicDashboard() {
                                         </svg>
                                         <div className="absolute inset-0 flex flex-col items-center justify-center font-display pointer-events-none">
                                             <span className="text-3xl font-bold text-slate-900 dark:text-white transition-all duration-300">
-                                                {hoveredSegment !== null 
-                                                    ? mainStats.diseaseRatios[hoveredSegment].value 
-                                                    : (mainStats.diseaseRatios[0]?.value || '0%')}
+                                                {hoveredSegment !== null
+                                                    ? mainStats.diseaseRatios[hoveredSegment].value
+                                                    : mainStats.totalPatients}
                                             </span>
                                             <span className="text-[14px] font-medium text-slate-400 mt-1 transition-all duration-300 text-center px-4">
-                                                {hoveredSegment !== null 
-                                                    ? mainStats.diseaseRatios[hoveredSegment].label 
-                                                    : (mainStats.diseaseRatios[0]?.label || 'Bệnh lý')}
+                                                {hoveredSegment !== null
+                                                    ? mainStats.diseaseRatios[hoveredSegment].label
+                                                    : 'Bệnh nhân'}
                                             </span>
                                         </div>
                                     </div>
-                                    <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-3">
                                         {mainStats.diseaseRatios.map((item: any, idx: number) => (
-                                            <div 
-                                                key={idx} 
-                                                className={`flex justify-between items-center p-3 rounded-xl border transition-all duration-300 cursor-pointer ${hoveredSegment === idx ? 'bg-white dark:bg-slate-700 shadow-md border-slate-200 dark:border-slate-600 scale-[1.02]' : 'bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-700/50'}`}
+                                            <div
+                                                key={idx}
+                                                className={`flex justify-between items-center p-2.5 rounded-xl border transition-all duration-300 cursor-pointer ${hoveredSegment === idx ? 'bg-white dark:bg-slate-700 shadow-md border-slate-200 dark:border-slate-600 scale-[1.02]' : 'bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-700/50'}`}
                                                 onMouseEnter={() => setHoveredSegment(idx)}
                                                 onMouseLeave={() => setHoveredSegment(null)}
                                             >
-                                                <div className="flex items-center gap-3">
-                                                    <div className={`w-3 h-3 rounded-full ${item.color}`}></div>
-                                                    <span className={`font-bold text-sm transition-colors ${hoveredSegment === idx ? 'text-primary' : 'text-slate-600 dark:text-slate-300'}`}>{item.label}</span>
+                                                <div className="flex items-center gap-2 min-w-0">
+                                                    <div className={`w-2 h-2 rounded-full flex-shrink-0 ${item.color}`}></div>
+                                                    <span className={`font-bold text-[12px] truncate transition-colors ${hoveredSegment === idx ? 'text-primary' : 'text-slate-600 dark:text-slate-300'}`}>{item.label}</span>
                                                 </div>
-                                                <span className="font-black text-slate-900 dark:text-white text-sm">{item.value}</span>
+                                                <span className="text-[12px] font-black text-slate-700 dark:text-slate-200 ml-1 flex-shrink-0">{item.value}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -602,7 +625,7 @@ export default function ClinicDashboard() {
                     </section>
 
                     {/* Doctor Performance Table */}
-                    <section className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm overflow-hidden border border-slate-100 dark:border-slate-800">
+                    <section className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800/70 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden">
                         <div className="px-8 py-6 border-b border-slate-50 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                             <div>
                                 {isLoading ? (

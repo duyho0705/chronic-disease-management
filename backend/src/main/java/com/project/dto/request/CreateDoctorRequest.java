@@ -20,4 +20,5 @@ public class CreateDoctorRequest {
     private String specialty;
     
     private String password;
+    private String avatarUrl;
 }

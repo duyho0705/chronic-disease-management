@@ -41,6 +41,12 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
     long countByClinicIdAndRiskLevelAndCreatedAtBetweenAndIsDeletedFalse(Long clinicId, String riskLevel, java.time.LocalDateTime start, java.time.LocalDateTime end);
     long countByDoctorIdAndIsDeletedFalse(Long doctorId);
 
+    @Query("SELECT p.chronicCondition, COUNT(p) FROM Patient p WHERE p.clinicId = :clinicId AND p.isDeleted = false GROUP BY p.chronicCondition")
+    List<Object[]> countPatientsByChronicCondition(Long clinicId);
+
+    @Query("SELECT p.riskLevel, COUNT(p) FROM Patient p WHERE p.clinicId = :clinicId AND p.isDeleted = false GROUP BY p.riskLevel")
+    List<Object[]> countPatientsByRiskLevel(Long clinicId);
+
     long countByDoctorIdAndRiskLevelAndIsDeletedFalse(Long doctorId, String riskLevel);
 
     @Query("SELECT p FROM Patient p WHERE p.isDeleted = false AND p.doctorId = :doctorId AND " +
@@ -53,6 +59,9 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
     Page<Patient> findByDoctorIdAndFilters(Long doctorId, String keyword, String condition, String riskLevel, Pageable pageable);
 
     List<Patient> findByDoctorIdAndRiskLevelAndIsDeletedFalse(Long doctorId, String riskLevel);
+
+    @Query("SELECT p.riskLevel, COUNT(p) FROM Patient p WHERE p.doctorId = :doctorId AND p.isDeleted = false GROUP BY p.riskLevel")
+    List<Object[]> countPatientsByRiskLevelForDoctor(Long doctorId);
 
     List<Patient> findByDoctorIdAndIsDeletedFalse(Long doctorId);
 }

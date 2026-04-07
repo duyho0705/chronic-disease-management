@@ -122,8 +122,8 @@ export default function DoctorAssignmentModal({
                 <div className="p-6 md:p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1 bg-slate-50/50 dark:bg-slate-900/50 text-left relative">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
                         <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm relative overflow-hidden group">
-                            <h4 className="text-[13px] font-bold text-slate-400 mb-4 uppercase tracking-wider flex items-center gap-2">
-                                <span className="material-symbols-outlined text-[16px]">speed</span> Tải trọng bác sĩ
+                            <h4 className="text-[15px] font-medium text-slate-500 mb-4 flex items-center gap-2">
+                                <span className="material-symbols-outlined text-[20px] text-slate-400">speed</span> Tải trọng bác sĩ
                             </h4>
                             <div className="flex items-end justify-between mb-3">
                                 <div className="text-3xl font-black text-slate-900 dark:text-white">
@@ -140,16 +140,17 @@ export default function DoctorAssignmentModal({
 
                         <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex items-center justify-between">
                             <div>
-                                <h4 className="text-[13px] font-bold text-slate-400 mb-2 uppercase tracking-wider flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-[16px]">group</span> Đang quản lý
+                                <h4 className="text-[15px] font-medium text-slate-500 mb-4 flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-[20px] text-slate-400">group</span> Đang quản lý
                                 </h4>
-                                <div className="text-3xl font-black text-slate-900 dark:text-white">{assignedPatients.length} BN</div>
+                                <div className="text-2xl font-bold text-slate-900 dark:text-white">{assignedPatients.length} Bệnh nhân</div>
                             </div>
                             <button
                                 onClick={() => setActiveTab('new')}
-                                className="bg-primary text-white p-4 rounded-2xl shadow-lg shadow-primary/20 hover:scale-105 transition-all active:scale-95"
+                                className="flex items-center gap-2 px-5 py-2.5 bg-sky-500 hover:bg-sky-600 text-white rounded-xl font-bold text-[13.5px] shadow-sm shadow-sky-500/10 hover:shadow-lg hover:shadow-sky-500/20 transition-all active:scale-95"
                             >
-                                <span className="material-symbols-outlined">person_add</span>
+                                <span className="material-symbols-outlined text-[18px]">person_add</span>
+                                Chỉ định mới
                             </button>
                         </div>
                     </div>
@@ -159,13 +160,13 @@ export default function DoctorAssignmentModal({
                             <div className="flex bg-slate-200/50 dark:bg-slate-800 p-1 rounded-xl">
                                 <button
                                     onClick={() => setActiveTab('assigned')}
-                                    className={`px-4 py-1.5 rounded-lg text-[13px] font-bold transition-all ${activeTab === 'assigned' ? 'bg-white dark:bg-slate-700 text-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                                    className={`px-4 py-1.5 rounded-lg text-[13px] font-bold transition-all ${activeTab === 'assigned' ? 'bg-white dark:bg-slate-700 text-primary shadow-sm' : 'text-slate-700 hover:text-slate-700'}`}
                                 >
                                     Bệnh nhân đang trực
                                 </button>
                                 <button
                                     onClick={() => setActiveTab('new')}
-                                    className={`px-4 py-1.5 rounded-lg text-[13px] font-bold transition-all ${activeTab === 'new' ? 'bg-white dark:bg-slate-700 text-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                                    className={`px-4 py-1.5 rounded-lg text-[13px] font-bold transition-all ${activeTab === 'new' ? 'bg-white dark:bg-slate-700 text-primary shadow-sm' : 'text-slate-700 hover:text-slate-700'}`}
                                 >
                                     Chỉ định Bệnh Nhân mới
                                 </button>
@@ -173,9 +174,9 @@ export default function DoctorAssignmentModal({
                             <div className="relative w-full md:w-64">
                                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-slate-400">search</span>
                                 <input
-                                    type="text" placeholder="Tìm tên, mã BN..." value={searchQuery}
+                                    type="text" placeholder="Tìm tên, mã Bệnh nhân..." value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-[13px] focus:ring-2 focus:ring-primary/20 transition-all font-medium"
+                                    className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-[14px] text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium outline-none shadow-sm"
                                 />
                             </div>
                         </div>
@@ -190,7 +191,7 @@ export default function DoctorAssignmentModal({
                                 <table className="w-full text-left">
                                     <thead>
                                         <tr className="bg-slate-50/80 dark:bg-slate-800/50">
-                                            <th className="px-6 py-4 text-[14px] font-medium text-slate-600">Họ tên & Thông tin Bệnh Nhân</th>
+                                            <th className="px-6 py-4 text-[14px] font-medium text-slate-600">Thông tin Bệnh Nhân</th>
                                             <th className="px-6 py-4 text-[14px] font-medium text-slate-600">Chẩn đoán Chính</th>
                                             <th className="px-6 py-4 text-[14px] font-medium text-slate-600">Bảo hiểm</th>
                                             <th className="px-6 py-4 text-[14px] font-medium text-slate-600 text-right">Thao tác</th>
@@ -200,8 +201,17 @@ export default function DoctorAssignmentModal({
                                         {filteredPatients.length > 0 ? filteredPatients.map((patient, idx) => (
                                             <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
                                                 <td className="px-6 py-4">
-                                                    <p className="text-[14px] font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">{patient.name}</p>
-                                                    <p className="text-[12px] font-medium text-slate-400 mt-0.5">{patient.id} • {patient.gender === 'MALE' ? 'Nam' : 'Nữ'}</p>
+                                                    <div className="flex items-center gap-3">
+                                                        <img 
+                                                            src={patient.img} 
+                                                            alt={patient.name}
+                                                            className="w-10 h-10 rounded-full object-cover border border-slate-100"
+                                                        />
+                                                        <div>
+                                                            <p className="text-[14px] font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">{patient.name}</p>
+                                                            <p className="text-[12px] font-medium text-slate-500 mt-0.5">{patient.id}, {patient.gender}</p>
+                                                        </div>
+                                                    </div>
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <p className="text-[14px] font-medium text-slate-700 dark:text-slate-300">{patient.primaryCondition || 'Chưa cập nhật'}</p>

@@ -20,6 +20,7 @@ import com.project.dto.response.DoctorPatientResponse;
 import com.project.dto.response.HealthMetricResponse;
 import com.project.dto.response.PatientPrescriptionResponse;
 import com.project.dto.response.PatientProfileResponse;
+import com.project.util.AppConstants;
 import com.project.entity.Appointment;
 import com.project.entity.HealthMetric;
 import com.project.entity.MedicationLog;
@@ -75,13 +76,13 @@ public class DoctorPatientServiceImpl implements DoctorPatientService {
     @Override
     @Transactional(readOnly = true)
     public long getHighRiskCount(Long doctorUserId) {
-        return patientRepository.countByDoctorIdAndRiskLevelAndIsDeletedFalse(doctorUserId, "Nguy cơ cao");
+        return patientRepository.countByDoctorIdAndRiskLevelAndIsDeletedFalse(doctorUserId, AppConstants.RISK_HIGH);
     }
 
     @Override
     @Transactional(readOnly = true)
     public long getMonitoringCount(Long doctorUserId) {
-        return patientRepository.countByDoctorIdAndRiskLevelAndIsDeletedFalse(doctorUserId, "Đang theo dõi");
+        return patientRepository.countByDoctorIdAndRiskLevelAndIsDeletedFalse(doctorUserId, AppConstants.RISK_MONITORING);
     }
 
     @Override
@@ -124,10 +125,8 @@ public class DoctorPatientServiceImpl implements DoctorPatientService {
             List<MedicationLog> logs = medicationLogRepository.findByPatientIdAndCreatedAtBetween(patientId, last7Days,
                     LocalDateTime.now());
 
-            long takenCount = logs.stream().filter(l -> "TAKEN".equals(l.getStatus())).count();
-
-            // This is a simplified calculation
-            // Ideally should check total expected schedules
+            long takenCount = logs.stream().filter(l -> AppConstants.MED_STATUS_TAKEN.equals(l.getStatus())).count();
+            
             List<MedicationSchedule> activeSchedules = medicationScheduleRepository
                     .findByPatientIdAndIsActiveTrue(patientId);
             long expectedCount = activeSchedules.size() * 7;
@@ -193,7 +192,7 @@ public class DoctorPatientServiceImpl implements DoctorPatientService {
                 .phone(p.getPhone())
                 .email(p.getEmail())
                 .chronicCondition(p.getChronicCondition())
-                .riskLevel(p.getRiskLevel() != null ? p.getRiskLevel() : "STABLE")
+                .riskLevel(p.getRiskLevel() != null ? p.getRiskLevel() : "Ổn định")
                 .treatmentStatus(p.getTreatmentStatus())
                 .lastUpdate(lastUpdate)
                 .latestGlucose(latestGlucose)

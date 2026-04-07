@@ -270,7 +270,7 @@ export default function ClinicPatients() {
                         ) : (
                             <>
                                 {/* Visit Performance */}
-                                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
+                                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
                                     <div className="flex items-center justify-between mb-4">
                                         <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
                                             <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>trending_up</span>
@@ -286,7 +286,7 @@ export default function ClinicPatients() {
                                 </div>
 
                                 {/* High Risk */}
-                                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
+                                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
                                     <div className="flex items-center justify-between mb-4">
                                         <div className="w-10 h-10 bg-rose-50 dark:bg-rose-900/10 rounded-xl flex items-center justify-center text-rose-600">
                                             <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>warning</span>
@@ -300,7 +300,7 @@ export default function ClinicPatients() {
                                 </div>
 
                                 {/* Pending follow-up */}
-                                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
+                                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
                                     <div className="flex items-center justify-between mb-4">
                                         <div className="w-10 h-10 bg-indigo-50 dark:bg-indigo-900/10 rounded-xl flex items-center justify-center text-indigo-600">
                                             <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>schedule</span>
@@ -317,7 +317,7 @@ export default function ClinicPatients() {
                     </div>
 
                     {/* Combined Filters Container */}
-                    <div className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-wrap items-center gap-4">
+                    <div className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-wrap items-center gap-4">
                         {isLoading ? (
                             <>
                                 <div className="w-full md:w-[450px] h-11 bg-white/50 dark:bg-slate-800/50 rounded-full animate-pulse"></div>
@@ -357,7 +357,7 @@ export default function ClinicPatients() {
                         )}
                     </div>
 
-                    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden font-display">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800/50 overflow-hidden font-display transition-all duration-300 hover:shadow-md">
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead>

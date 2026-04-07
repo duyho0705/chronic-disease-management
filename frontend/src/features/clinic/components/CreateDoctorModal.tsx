@@ -19,10 +19,12 @@ export default function CreateDoctorModal({
         email: '',
         phone: '',
         password: '',
-        specialty: 'Tim mạch',
+        specialty: 'Nội khoa',
         maxPatients: '150',
-        status: 'Đang hoạt động (ACTIVE)'
+        status: 'ACTIVE'
     });
+
+    const [showPassword, setShowPassword] = useState(false);
 
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
@@ -35,9 +37,9 @@ export default function CreateDoctorModal({
                 email: '',
                 phone: '',
                 password: '',
-                specialty: 'Tim mạch',
+                specialty: 'Nội khoa',
                 maxPatients: '150',
-                status: 'Đang hoạt động (ACTIVE)'
+                status: 'ACTIVE'
             });
         } else {
             document.body.style.overflow = 'unset';
@@ -64,9 +66,25 @@ export default function CreateDoctorModal({
     const validateForm = () => {
         const errors: Record<string, string> = {};
         if (!formData.name.trim()) errors.name = 'Vui lòng nhập họ tên bác sĩ';
-        if (!formData.email.trim() || !/^\S+@\S+\.\S+$/.test(formData.email)) errors.email = 'Vui lòng nhập email hợp lệ';
-        if (!formData.phone.trim()) errors.phone = 'Vui lòng nhập số điện thoại';
-        if (!formData.password.trim() || formData.password.length < 6) errors.password = 'Mật khẩu phải từ 6 ký tự';
+
+        if (!formData.email.trim()) {
+            errors.email = 'Vui lòng nhập email đăng nhập';
+        } else if (!/^\S+@\S+\.\S+/.test(formData.email)) {
+            errors.email = 'Email không hợp lệ';
+        }
+
+        const phoneRegex = /^(0|\+84)(\d{9})$/;
+        if (!formData.phone.trim()) {
+            errors.phone = 'Vui lòng nhập số điện thoại';
+        } else if (!phoneRegex.test(formData.phone.trim().replace(/\s/g, ''))) {
+            errors.phone = 'Số điện thoại không hợp lệ (10 số)';
+        }
+
+        if (!formData.password.trim()) {
+            errors.password = 'Vui lòng thiết lập mật khẩu';
+        } else if (formData.password.length < 6) {
+            errors.password = 'Mật khẩu phải từ 6 ký tự';
+        }
 
         setFormErrors(errors);
         return Object.keys(errors).length === 0;
@@ -79,114 +97,113 @@ export default function CreateDoctorModal({
     };
 
     return (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 font-display">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
             {/* Backdrop */}
-            <div
-                className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] transition-all duration-300"
-                onClick={onClose}
-            ></div>
+            <div className="absolute inset-0 bg-slate-900/10 backdrop-blur-[2px] transition-all duration-300" onClick={onClose}></div>
 
-            <div className="relative bg-white dark:bg-slate-900 w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-300 border border-primary/10 transition-all max-h-[92vh]">
+            <div className="relative bg-white dark:bg-slate-900 w-full max-w-3xl rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-300 border border-slate-200 dark:border-slate-800 max-h-[95vh]">
                 {/* Modal Header */}
-                <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 sticky top-0 z-20">
-                    <div className="flex items-center gap-4 text-left">
-                        <div className="bg-primary/10 p-3 rounded-2xl text-primary flex items-center justify-center">
-                            <span className="material-symbols-outlined font-black text-2xl">person_add</span>
-                        </div>
-                        <div>
-                            <h2 className="text-[20px] font-black text-slate-900 dark:text-white tracking-tight leading-tight">Thêm hồ sơ bác sĩ mới</h2>
-                            <p className="text-[13px] font-medium text-slate-500 mt-0.5">Khởi tạo và cấp tài khoản truy cập hệ thống</p>
-                        </div>
-                    </div>
+                <div className="px-6 md:px-8 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md z-20">
+                    <h2 className="text-[20px] font-bold text-slate-900 dark:text-white tracking-tight leading-tight">Thêm hồ sơ bác sĩ mới</h2>
+                    <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-400">
+                        <span className="material-symbols-outlined">close</span>
+                    </button>
                 </div>
 
                 {/* Form Content */}
-                <div className="p-5 md:p-6 space-y-5 overflow-y-auto custom-scrollbar flex-1 bg-slate-50/50 dark:bg-slate-900/50 text-left">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {/* Left Column: Personal Information & Account */}
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-2 pb-2 pl-2 border-l-4 border-l-primary">
-                                <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-[15px] uppercase tracking-wider">Tài khoản & Cá nhân</h3>
+                <div className="px-6 md:px-8 pt-3 pb-6 overflow-y-auto custom-scrollbar flex-1 bg-white dark:bg-slate-900/50 text-left">
+                    <div className="space-y-6">
+                        {/* Section 1: Account & Personal Info */}
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-2 pb-1.5 pl-2 border-l-4 border-l-primary">
+                                <h3 className="font-bold text-slate-700 dark:text-slate-100 text-[16px]">Tài khoản & Cá nhân</h3>
                             </div>
 
-                            <div className="space-y-4 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
-                                <div className="space-y-1.5">
-                                    <label className="text-[13px] font-bold text-slate-500 ml-1">Họ và tên bác sĩ <span className="text-red-500">*</span></label>
-                                    <input
-                                        name="name"
-                                        value={formData.name}
-                                        onChange={handleChange}
-                                        placeholder="VD: TS. BS. Nguyễn Văn An"
-                                        className={`w-full px-4 py-[9px] rounded-xl border-2 ${formErrors.name ? 'border-red-500/50' : 'border-slate-100 dark:border-slate-800'} bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10`}
-                                    />
-                                    {formErrors.name && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.name}</p>}
-                                </div>
+                            <div className="bg-white dark:bg-slate-900 p-4 lg:p-5 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-3">
+                                    {/* Name */}
+                                    <div className="space-y-1.5 flex-1 lg:col-span-2">
+                                        <label className="text-[14px] font-medium text-slate-500 ml-1">Họ và tên bác sĩ <span className="text-red-500">*</span></label>
+                                        <input
+                                            name="name"
+                                            value={formData.name}
+                                            onChange={handleChange}
+                                            placeholder="VD: TS. BS. Nguyễn Văn An"
+                                            className={`w-full px-4 h-[40px] rounded-xl border ${formErrors.name ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary transition-all`}
+                                        />
+                                        {formErrors.name && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.name}</p>}
+                                    </div>
 
-                                <div className="space-y-1.5">
-                                    <label className="text-[13px] font-bold text-slate-500 ml-1">Email (Tên đăng nhập) <span className="text-red-500">*</span></label>
-                                    <div className="relative">
-                                        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">mail</span>
-                                        <input
-                                            name="email"
-                                            type="email"
-                                            value={formData.email}
-                                            onChange={handleChange}
-                                            placeholder="an.nguyen@clinic.vn"
-                                            className={`w-full pl-11 pr-4 py-[9px] rounded-xl border-2 ${formErrors.email ? 'border-red-500/50' : 'border-slate-100 dark:border-slate-800'} bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10`}
-                                        />
+                                    {/* Phone */}
+                                    <div className="space-y-1.5">
+                                        <label className="text-[14px] font-medium text-slate-500 ml-1">Số điện thoại <span className="text-red-500">*</span></label>
+                                        <div className="relative">
+                                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">call</span>
+                                            <input
+                                                name="phone"
+                                                value={formData.phone}
+                                                onChange={handleChange}
+                                                placeholder="0912xxxxxx"
+                                                className={`w-full pl-11 pr-4 h-[40px] rounded-xl border ${formErrors.phone ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary`}
+                                            />
+                                        </div>
+                                        {formErrors.phone && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.phone}</p>}
                                     </div>
-                                    {formErrors.email && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.email}</p>}
-                                </div>
-                                
-                                <div className="space-y-1.5">
-                                    <label className="text-[13px] font-bold text-slate-500 ml-1">Mật khẩu cấp mới <span className="text-red-500">*</span></label>
-                                    <div className="relative">
-                                        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">key</span>
-                                        <input
-                                            name="password"
-                                            type="text"
-                                            value={formData.password}
-                                            onChange={handleChange}
-                                            placeholder="Nhập mật khẩu cho bác sĩ (Tối thiểu 6 ký tự)"
-                                            className={`w-full pl-11 pr-4 py-[9px] rounded-xl border-2 ${formErrors.password ? 'border-red-500/50' : 'border-slate-100 dark:border-slate-800'} bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10`}
-                                        />
-                                    </div>
-                                    {formErrors.password ? (
-                                        <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.password}</p>
-                                    ) : (
-                                        <p className="text-[11px] font-bold text-slate-400 ml-1 mt-1">Lưu ý: Mật khẩu này sẽ được gửi cho bác sĩ để đăng nhập.</p>
-                                    )}
-                                </div>
 
-                                <div className="space-y-1.5">
-                                    <label className="text-[13px] font-bold text-slate-500 ml-1">Số điện thoại <span className="text-red-500">*</span></label>
-                                    <div className="relative">
-                                        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">call</span>
-                                        <input
-                                            name="phone"
-                                            value={formData.phone}
-                                            onChange={handleChange}
-                                            placeholder="+84 902 345 678"
-                                            className={`w-full pl-11 pr-4 py-[9px] rounded-xl border-2 ${formErrors.phone ? 'border-red-500/50' : 'border-slate-100 dark:border-slate-800'} bg-slate-50/50 dark:bg-slate-800/40 text-[14px] font-bold text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10`}
-                                        />
+                                    {/* Email */}
+                                    <div className="space-y-1.5 lg:col-span-2">
+                                        <label className="text-[14px] font-medium text-slate-500 ml-1">Email đăng nhập <span className="text-red-500">*</span></label>
+                                        <div className="relative">
+                                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">mail</span>
+                                            <input
+                                                name="email"
+                                                type="email"
+                                                value={formData.email}
+                                                onChange={handleChange}
+                                                placeholder="an.nguyen@clinic.vn"
+                                                className={`w-full pl-11 pr-4 h-[40px] rounded-xl border ${formErrors.email ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary`}
+                                            />
+                                        </div>
+                                        {formErrors.email && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.email}</p>}
                                     </div>
-                                    {formErrors.phone && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.phone}</p>}
+
+                                    <div className="space-y-1.5 font-sans">
+                                        <label className="text-[14px] font-medium text-slate-500 ml-1">Mật khẩu cấp mới <span className="text-red-500">*</span></label>
+                                        <div className="relative">
+                                            <input
+                                                type={showPassword ? "text" : "password"}
+                                                name="password"
+                                                value={formData.password}
+                                                onChange={handleChange}
+                                                placeholder="••••••••"
+                                                className={`w-full px-4 pr-12 h-[40px] rounded-xl border ${formErrors.password ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium outline-none focus:border-primary`}
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary transition-colors flex items-center justify-center p-1 active:scale-100"
+                                            >
+                                                <span className="material-symbols-outlined text-[20px]">
+                                                    {showPassword ? 'visibility' : 'visibility_off'}
+                                                </span>
+                                            </button>
+                                        </div>
+                                        {formErrors.password && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.password}</p>}
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Right Column: Professional Profile */}
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-2 pb-2 pl-2 border-l-4 border-l-emerald-500">
-                                <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-[15px] uppercase tracking-wider">Hồ sơ chuyên môn</h3>
+                        {/* Section 2: Professional Profile */}
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-2 pb-1.5 pl-2 border-l-4 border-l-emerald-500">
+                                <h3 className="font-bold text-slate-700 dark:text-slate-100 text-[16px]">Hồ sơ chuyên môn</h3>
                             </div>
 
-                            <div className="space-y-4 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm relative">
-                                {/* Decorative background element */}
-                                <div className="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none"></div>
-
-                                <div className="space-y-1.5 relative z-30">
-                                    <label className="text-[13px] font-bold text-slate-500 ml-1">Chuyên khoa</label>
+                            <div className="bg-white dark:bg-slate-900 p-4 lg:p-5 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                                {/* Specialty */}
+                                <div className="space-y-1.5">
+                                    <label className="text-[14px] font-medium text-slate-500 ml-1">Chuyên khoa</label>
                                     <Dropdown
                                         options={['Nội khoa', 'Sản phụ khoa', 'Nhi khoa', 'Tim mạch', 'Thần kinh', 'Da liễu', 'Khác']}
                                         value={formData.specialty}
@@ -194,54 +211,27 @@ export default function CreateDoctorModal({
                                     />
                                 </div>
 
-                                <div className="space-y-1.5 relative z-20">
-                                    <label className="text-[13px] font-bold text-slate-500 ml-1">Tải trọng tối đa (bệnh nhân/tuần)</label>
+                                {/* Max Patients */}
+                                <div className="space-y-1.5">
+                                    <label className="text-[14px] font-medium text-slate-500 ml-1">Tải lượng (bn/tuần)</label>
                                     <Dropdown
-                                        options={['50', '100', '150', '200', 'Không giới hạn']}
+                                        options={['50', '100', '150', '200', '500']}
                                         value={formData.maxPatients}
                                         onChange={(maxPatients: string) => setFormData(prev => ({ ...prev, maxPatients }))}
                                     />
                                 </div>
 
-                                <div className="space-y-1.5 pt-2 relative z-10">
-                                    <label className="text-[13px] font-bold text-slate-500 ml-1">Trạng thái hoạt động</label>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        {['Đang hoạt động (ACTIVE)', 'Tạm nghỉ (INACTIVE)'].map(level => {
-                                            const isSelected = formData.status === level;
-                                            const isActive = level.includes('ACTIVE') && !level.includes('INACTIVE');
-                                            
-                                            let selectedClasses = 'border-slate-200 text-slate-500 bg-white hover:bg-slate-50';
-                                            let iconProps = { name: 'person_off', color: 'text-slate-400' };
-
-                                            if (isSelected) {
-                                                if (isActive) {
-                                                    selectedClasses = 'border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400 ring-2 ring-emerald-500/20';
-                                                    iconProps = { name: 'check_circle', color: 'text-emerald-500' };
-                                                } else {
-                                                    selectedClasses = 'border-slate-400 bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 ring-2 ring-slate-400/20';
-                                                    iconProps = { name: 'pause_circle', color: 'text-slate-500 dark:text-slate-400' };
-                                                }
-                                            } else if (isActive) {
-                                                iconProps = { name: 'check_circle', color: 'text-slate-300 dark:text-slate-600' };
-                                            }
-
-                                            return (
-                                                <button
-                                                    key={level}
-                                                    type="button"
-                                                    onClick={() => setFormData(prev => ({ ...prev, status: level }))}
-                                                    className={`flex flex-col items-center justify-center p-3 sm:p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${selectedClasses}`}
-                                                >
-                                                    <span className={`material-symbols-outlined mb-1.5 ${iconProps.color}`} style={{ fontVariationSettings: "'FILL' 1" }}>
-                                                        {iconProps.name}
-                                                    </span>
-                                                    <span className="text-[11px] sm:text-[12px] font-bold text-center leading-tight">
-                                                        {level.split(' (')[0]}
-                                                    </span>
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
+                                {/* Status */}
+                                <div className="space-y-1.5">
+                                    <label className="text-[14px] font-medium text-slate-500 ml-1">Trạng thái</label>
+                                    <Dropdown
+                                        options={[
+                                            { label: 'Đang hoạt động', value: 'ACTIVE' },
+                                            { label: 'Tạm nghỉ', value: 'INACTIVE' }
+                                        ]}
+                                        value={formData.status}
+                                        onChange={(status: string) => setFormData(prev => ({ ...prev, status }))}
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -249,11 +239,11 @@ export default function CreateDoctorModal({
                 </div>
 
                 {/* Modal Footer */}
-                <div className="px-6 md:px-8 py-5 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end sticky bottom-0 z-20 transition-all">
+                <div className="px-6 md:px-8 py-5 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end sticky bottom-0 z-20">
                     <div className="flex items-center gap-3 w-full md:w-auto justify-end">
                         <button
                             onClick={onClose}
-                            className="px-6 py-2.5 text-[14px] font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all"
+                            className="px-6 py-2.5 text-[14px] font-bold text-slate-500 hover:bg-slate-100 rounded-xl transition-all active:scale-100"
                             type="button"
                         >
                             Hủy bỏ
@@ -261,18 +251,17 @@ export default function CreateDoctorModal({
                         <button
                             onClick={handleSubmit}
                             disabled={isSaving}
-                            className="px-8 py-2.5 text-[14px] font-black text-white bg-primary hover:bg-primary/90 rounded-xl transition-all shadow-xl shadow-primary/20 flex items-center gap-2 disabled:opacity-50 disabled:cursor-wait"
-                            type="button"
+                            className="px-8 py-2.5 bg-primary text-white text-[14px] font-bold rounded-xl shadow-lg shadow-primary/25 hover:bg-primary/90 transition-all flex items-center gap-2 disabled:opacity-50 active:scale-100"
                         >
                             {isSaving ? (
                                 <>
-                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                    Đang xử lý...
+                                    <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                                    <span>Đang lưu...</span>
                                 </>
                             ) : (
                                 <>
                                     <span className="material-symbols-outlined font-bold text-[20px]">how_to_reg</span>
-                                    Xác nhận lưu
+                                    <span>Xác nhận thêm</span>
                                 </>
                             )}
                         </button>

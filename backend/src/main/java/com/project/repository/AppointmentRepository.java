@@ -57,4 +57,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
         List<Object[]> calculateComplianceRateByClinicNative();
 
         long countByDoctorIdInAndCreatedAtBetweenAndIsDeletedFalse(List<Long> doctorIds, LocalDateTime start, LocalDateTime end);
+        long countByDoctorIdAndIsDeletedFalse(Long doctorId);
+        
+        @Query("SELECT a FROM Appointment a JOIN User u ON a.doctorId = u.id WHERE u.clinicId = :clinicId AND a.isDeleted = false ORDER BY a.appointmentTime DESC")
+        Page<Appointment> findByClinicId(@org.springframework.data.repository.query.Param("clinicId") Long clinicId, Pageable pageable);
 }
