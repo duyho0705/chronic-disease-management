@@ -171,4 +171,28 @@ public class ClinicDashboardController {
         clinicDashboardService.sendNotificationToPatient(clinicId, patientId, body.get("message"));
         return ApiResponse.success("Notification sent", null);
     }
+
+    @GetMapping("/profile")
+    public ApiResponse<com.project.dto.response.ClinicResponse> getProfile(@PathVariable Long clinicId) {
+        validateClinicAccess(clinicId);
+        return ApiResponse.success("Clinic profile fetched", clinicDashboardService.getClinicDetails(clinicId));
+    }
+
+    @PutMapping("/profile")
+    public ApiResponse<Void> updateProfile(@PathVariable Long clinicId,
+            @Valid @RequestBody com.project.dto.request.UpdateClinicRequest request) {
+        validateClinicAccess(clinicId);
+        clinicDashboardService.updateClinicDetails(clinicId, request);
+        return ApiResponse.success("Clinic profile updated", null);
+    }
+
+    @PatchMapping("/appointments/{appointmentId}/status")
+    public ApiResponse<Void> updateAppointmentStatus(
+            @PathVariable Long clinicId,
+            @PathVariable Long appointmentId,
+            @RequestBody Map<String, String> body) {
+        validateClinicAccess(clinicId);
+        clinicDashboardService.updateAppointmentStatus(clinicId, appointmentId, body.get("status"));
+        return ApiResponse.success("Appointment status updated", null);
+    }
 }

@@ -21,73 +21,84 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("null")
 @Service
 @RequiredArgsConstructor
 public class DoctorDashboardServiceImpl implements DoctorDashboardService {
 
-    private final AppointmentRepository appointmentRepository;
-    private final MessageRepository messageRepository;
-    private final DoctorPatientService doctorPatientService;
-    private final ClinicalAnalyticsService clinicalAnalyticsService;
+        private final AppointmentRepository appointmentRepository;
+        private final MessageRepository messageRepository;
+        private final DoctorPatientService doctorPatientService;
+        private final ClinicalAnalyticsService clinicalAnalyticsService;
 
-    @Override
-    @Transactional(readOnly = true)
-    public DoctorDashboardResponse getDashboardData(Long doctorId) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime startOfToday = LocalDate.now().atStartOfDay();
-        
-        // 1. Fetch Stats - real data
-        long totalPatients = doctorPatientService.getTotalPatientCount(doctorId);
-        long highRiskCount = doctorPatientService.getHighRiskCount(doctorId);
-        long pendingAppointments = appointmentRepository.countByDoctorIdAndStatusInAndAppointmentTimeAfter(
-                doctorId, java.util.List.of(AppConstants.APPT_STATUS_PENDING, AppConstants.APPT_STATUS_SCHEDULED), now);
-        
-        long unreadMessages = messageRepository.countByConversationDoctorIdAndIsReadFalseAndSenderIdNot(doctorId, doctorId);
-        
-        DashboardStatsDto stats = DashboardStatsDto.builder()
-                .totalPatients(totalPatients)
-                .highRiskCount(highRiskCount)
-                .pendingAppointmentsCount(pendingAppointments)
-                .unreadMessagesCount(unreadMessages)
-                .build();
+        @Override
+        @Transactional(readOnly = true)
+        public DoctorDashboardResponse getDashboardData(Long doctorId) {
+                LocalDateTime now = LocalDateTime.now();
+                LocalDateTime startOfToday = LocalDate.now().atStartOfDay();
 
-        // 2. Fetch Upcoming Appointments
-        List<AppointmentSnippetDto> upcomingAppointments = appointmentRepository.findUpcomingAppointments(
-                doctorId, startOfToday, PageRequest.of(0, 5))
-                .stream()
-                .map(apt -> AppointmentSnippetDto.builder()
-                        .id(apt.getId())
-                        .patientName(apt.getPatient() != null ? apt.getPatient().getFullName() : "N/A")
-                        .displayTime(apt.getAppointmentTime() != null ? DateTimeUtils.formatForDashboard(apt.getAppointmentTime()) : "N/A")
-                        .type(apt.getType())
-                        .isPast(apt.getAppointmentTime() != null && apt.getAppointmentTime().isBefore(now))
-                        .build())
-                .collect(Collectors.toList());
+                // 1. Fetch Stats - real data
+                long totalPatients = doctorPatientService.getTotalPatientCount(doctorId);
+                long highRiskCount = doctorPatientService.getHighRiskCount(doctorId);
+                long pendingAppointments = appointmentRepository.countByDoctorIdAndStatusInAndAppointmentTimeAfter(
+                                doctorId,
+                                java.util.List.of(AppConstants.APPT_STATUS_PENDING, AppConstants.APPT_STATUS_SCHEDULED),
+                                now);
 
-        // 3. Recent patients (paginated, top 5)
-        List<DoctorPatientResponse> recentPatients = doctorPatientService
-                .getMyPatients(doctorId, null, null, null, PageRequest.of(0, 5))
-                .getContent();
+                long unreadMessages = messageRepository
+                                .countByConversationDoctorIdAndIsReadFalseAndSenderIdNot(doctorId, doctorId);
 
-        // 4. High risk patients
-        List<DoctorPatientResponse> highRiskPatients = doctorPatientService
-                .getMyPatients(doctorId, null, null, AppConstants.RISK_HIGH, PageRequest.of(0, 5))
-                .getContent();
+                DashboardStatsDto stats = DashboardStatsDto.builder()
+                                .totalPatients(totalPatients)
+                                .highRiskCount(highRiskCount)
+                                .pendingAppointmentsCount(pendingAppointments)
+                                .unreadMessagesCount(unreadMessages)
+                                .build();
 
-        return DoctorDashboardResponse.builder()
-                .stats(stats)
-                .upcomingAppointments(upcomingAppointments)
-                .recentPatients(recentPatients)
-                .highRiskPatients(highRiskPatients.stream().map(p -> DoctorDashboardResponse.DoctorPatientResponseSnippet.builder()
-                        .id(p.getId())
-                        .name(p.getFullName())
-                        .condition(p.getChronicCondition())
-                        .riskLevel(p.getRiskLevel())
-                        .lastUpdate(p.getLastUpdate() != null ? p.getLastUpdate() : "Vừa xong")
-                        .img(p.getAvatarUrl())
-                        .build()).collect(Collectors.toList()))
-                .insights(clinicalAnalyticsService.getDoctorInsights(doctorId))
-                .build();
-    }
+                // 2. Fetch Upcoming Appointments
+                List<AppointmentSnippetDto> upcomingAppointments = appointmentRepository.findUpcomingAppointments(
+                                doctorId, startOfToday, PageRequest.of(0, 5))
+                                .stream()
+                                .map(apt -> AppointmentSnippetDto.builder()
+                                                .id(apt.getId())
+                                                .patientName(apt.getPatient() != null ? apt.getPatient().getFullName()
+                                                                : "N/A")
+                                                .displayTime(apt.getAppointmentTime() != null
+                                                                ? DateTimeUtils.formatForDashboard(
+                                                                                apt.getAppointmentTime())
+                                                                : "N/A")
+                                                .type(apt.getType())
+                                                .isPast(apt.getAppointmentTime() != null
+                                                                && apt.getAppointmentTime().isBefore(now))
+                                                .build())
+                                .collect(Collectors.toList());
+
+                // 3. Recent patients (paginated, top 5)
+                List<DoctorPatientResponse> recentPatients = doctorPatientService
+                                .getMyPatients(doctorId, null, null, null, PageRequest.of(0, 5))
+                                .getContent();
+
+                // 4. High risk patients
+                List<DoctorPatientResponse> highRiskPatients = doctorPatientService
+                                .getMyPatients(doctorId, null, null, AppConstants.RISK_HIGH, PageRequest.of(0, 5))
+                                .getContent();
+
+                return DoctorDashboardResponse.builder()
+                                .stats(stats)
+                                .upcomingAppointments(upcomingAppointments)
+                                .recentPatients(recentPatients)
+                                .highRiskPatients(highRiskPatients.stream()
+                                                .map(p -> DoctorDashboardResponse.DoctorPatientResponseSnippet.builder()
+                                                                .id(p.getId())
+                                                                .name(p.getFullName())
+                                                                .condition(p.getChronicCondition())
+                                                                .riskLevel(p.getRiskLevel())
+                                                                .lastUpdate(p.getLastUpdate() != null
+                                                                                ? p.getLastUpdate()
+                                                                                : "Vừa xong")
+                                                                .img(p.getAvatarUrl())
+                                                                .build())
+                                                .collect(Collectors.toList()))
+                                .insights(clinicalAnalyticsService.getDoctorInsights(doctorId))
+                                .build();
+        }
 }

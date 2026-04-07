@@ -23,6 +23,7 @@ export const ROUTES = {
     PATIENTS: '/clinic/patients',
     DOCTORS: '/clinic/doctors',
     ASSIGNMENT: '/clinic/assignment',
+    SETTINGS: '/clinic/settings',
   },
   ADMIN: {
     DASHBOARD: '/admin',

@@ -51,13 +51,16 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
     private final PatientMapper patientMapper;
     private final ClinicalAnalyticsService clinicalAnalyticsService;
     private final NotificationRepository notificationRepository;
+    private final com.project.repository.ClinicRepository clinicRepository;
 
     @Override
     @Transactional(readOnly = true)
     public ClinicDashboardResponse getDashboardData(Long clinicId, String period) {
         long totalPatients = patientRepository.countByClinicIdAndIsDeletedFalse(clinicId);
-        long highRiskCount = patientRepository.countByClinicIdAndRiskLevelAndIsDeletedFalse(clinicId, AppConstants.RISK_HIGH);
-        long monitoringCount = patientRepository.countByClinicIdAndRiskLevelAndIsDeletedFalse(clinicId, AppConstants.RISK_MONITORING);
+        long highRiskCount = patientRepository.countByClinicIdAndRiskLevelAndIsDeletedFalse(clinicId,
+                AppConstants.RISK_HIGH);
+        long monitoringCount = patientRepository.countByClinicIdAndRiskLevelAndIsDeletedFalse(clinicId,
+                AppConstants.RISK_MONITORING);
 
         // Optimized pathology composition using GROUP BY
         List<Object[]> pathologyResults = patientRepository.countPatientsByChronicCondition(clinicId);
@@ -80,15 +83,15 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
         int displayLimit = 3;
 
         // Colors for top conditions
-        String[] colors = {"bg-emerald-500", "bg-sky-400", "bg-amber-400", "bg-rose-400"};
+        String[] colors = { "bg-emerald-500", "bg-sky-400", "bg-amber-400", "bg-rose-400" };
 
         for (int i = 0; i < Math.min(displayLimit, sortedConditions.size()); i++) {
             Map.Entry<String, Long> entry = sortedConditions.get(i);
             long count = entry.getValue();
             topConditionsSum += count;
-            
+
             String percentage = totalPatients > 0 ? (count * 100 / totalPatients) + "%" : "0%";
-            
+
             diseaseRatios.add(ClinicDashboardResponse.DiseaseRatioDto.builder()
                     .label(entry.getKey())
                     .percentage(percentage)
@@ -109,7 +112,7 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
 
         // Fallback for empty state
         if (diseaseRatios.isEmpty() && totalPatients > 0) {
-             diseaseRatios.add(ClinicDashboardResponse.DiseaseRatioDto.builder()
+            diseaseRatios.add(ClinicDashboardResponse.DiseaseRatioDto.builder()
                     .label("Chưa phân loại")
                     .percentage("100%")
                     .color("bg-slate-400")
@@ -121,7 +124,8 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
         List<ClinicDashboardResponse.PatientGrowthChartDto> riskIndexChart = new ArrayList<>();
         List<ClinicDashboardResponse.PatientGrowthChartDto> doctorLoadChart = new ArrayList<>();
 
-        List<User> doctorUsers = userRepository.findByFilters("DOCTOR", "ACTIVE", clinicId, null, PageRequest.of(0, 100))
+        List<User> doctorUsers = userRepository
+                .findByFilters("DOCTOR", "ACTIVE", clinicId, null, PageRequest.of(0, 100))
                 .getContent();
         List<Long> doctorIds = doctorUsers.stream().map(User::getId).collect(Collectors.toList());
 
@@ -152,7 +156,8 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
             } else {
                 LocalDateTime monthDate = now.minusMonths(i);
                 start = monthDate.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
-                end = monthDate.withDayOfMonth(monthDate.toLocalDate().lengthOfMonth()).withHour(23).withMinute(59).withSecond(59);
+                end = monthDate.withDayOfMonth(monthDate.toLocalDate().lengthOfMonth()).withHour(23).withMinute(59)
+                        .withSecond(59);
                 label = "Tháng " + monthDate.getMonthValue();
             }
 
@@ -161,17 +166,24 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
                     .month(label).value((int) pCount).active(i == 0).build());
 
             // Search for HIGH RISK patients using a more flexible match
-            long rCount = patientRepository.countByClinicIdAndRiskLevelAndCreatedAtBetweenAndIsDeletedFalse(clinicId, "Nguy cơ cao (HIGH RISK)", start, end);
+            long rCount = patientRepository.countByClinicIdAndRiskLevelAndCreatedAtBetweenAndIsDeletedFalse(clinicId,
+                    "Nguy cơ cao (HIGH RISK)", start, end);
             if (rCount == 0) {
-                rCount = patientRepository.countByClinicIdAndRiskLevelAndCreatedAtBetweenAndIsDeletedFalse(clinicId, "Nguy cơ cao", start, end);
+                rCount = patientRepository.countByClinicIdAndRiskLevelAndCreatedAtBetweenAndIsDeletedFalse(clinicId,
+                        "Nguy cơ cao", start, end);
             }
             riskIndexChart.add(ClinicDashboardResponse.PatientGrowthChartDto.builder()
                     .month(label).value((int) rCount).active(i == 0).build());
 
-            // Load logic: Count all appointments and prescriptions in that period for all clinic doctors
-            long aCount = doctorIds.isEmpty() ? 0 : appointmentRepository.countByDoctorIdInAndCreatedAtBetweenAndIsDeletedFalse(doctorIds, start, end);
-            long pCountTotal = doctorIds.isEmpty() ? 0 : prescriptionRepository.countByDoctorIdInAndCreatedAtBetweenAndIsDeletedFalse(doctorIds, start, end);
-            
+            // Load logic: Count all appointments and prescriptions in that period for all
+            // clinic doctors
+            long aCount = doctorIds.isEmpty() ? 0
+                    : appointmentRepository.countByDoctorIdInAndCreatedAtBetweenAndIsDeletedFalse(doctorIds, start,
+                            end);
+            long pCountTotal = doctorIds.isEmpty() ? 0
+                    : prescriptionRepository.countByDoctorIdInAndCreatedAtBetweenAndIsDeletedFalse(doctorIds, start,
+                            end);
+
             // Workload is the sum of medical activities
             int workload = (int) (aCount + pCountTotal);
             doctorLoadChart.add(ClinicDashboardResponse.PatientGrowthChartDto.builder()
@@ -187,18 +199,24 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
             fullName = fullName.replaceAll("(?i)(BS\\.|Bác sĩ|Thạc sĩ|Tiến sĩ|TS\\.|ThS\\.)", "").trim();
 
             return ClinicDashboardResponse.DoctorPerformanceDto.builder()
-                    .name("BS. " + fullName)
-                    .id("DR-" + (1000 + u.getId()))
-                    .dept(u.getSpecialization() != null ? u.getSpecialization() : "Đa khoa")
+                    .dbId(u.getId())
+                    .id("D-" + (1000 + u.getId()))
+                    .name(fullName)
+                    .img(u.getAvatarUrl() != null ? u.getAvatarUrl()
+                            : "https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=150&h=150")
+                    .specialty(u.getSpecialization() != null ? u.getSpecialization() : "Đa khoa")
+                    .email(u.getEmail())
+                    .phone(u.getPhone())
+                    .licenseNumber(u.getLicenseNumber())
+                    .degree(u.getDegree() != null ? u.getDegree() : "Bác sĩ")
+                    .bio(u.getBio())
                     .load(totalLoad)
-                    .progress("w-" + Math.min(5, Math.max(1, (int)(totalLoad/10) + 1)) + "/5")
+                    .progress("w-" + Math.min(5, Math.max(1, (int) (totalLoad / 10) + 1)) + "/5")
                     .color(totalLoad > 50 ? "amber" : "emerald")
                     .rating("N/A")
                     .reviews(0)
                     .status("Đang hoạt động")
                     .active(true)
-                    .img(u.getAvatarUrl() != null ? u.getAvatarUrl()
-                            : "https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=150&h=150")
                     .build();
         }).collect(Collectors.toList());
 
@@ -217,19 +235,24 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
 
         // Calculate real growth trends (compare current period with previous one)
         long currentMonthPatients = patientGrowthChart.get(patientGrowthChart.size() - 1).getValue();
-        long previousMonthPatients = patientGrowthChart.size() > 1 
-                ? patientGrowthChart.get(patientGrowthChart.size() - 2).getValue() : 0;
-        
-        long growthPct = previousMonthPatients > 0 ? ((currentMonthPatients - previousMonthPatients) * 100 / previousMonthPatients) : 0;
-        String growthSign = growthPct >= 0 ? "+" : "";
-        String growthString = growthSign + growthPct + "%";
+        long previousMonthPatients = patientGrowthChart.size() > 1
+                ? patientGrowthChart.get(patientGrowthChart.size() - 2).getValue()
+                : 0;
+
+        long growthPct = previousMonthPatients > 0
+                ? ((currentMonthPatients - previousMonthPatients) * 100 / previousMonthPatients)
+                : 0;
+        String growthSign = (currentMonthPatients > previousMonthPatients) ? "+" : (currentMonthPatients < previousMonthPatients) ? "-" : "";
+        String growthString = growthSign + Math.abs(growthPct) + "%";
 
         // Calculate real growth trends for High Risk
         long currentRiskPatients = riskIndexChart.get(riskIndexChart.size() - 1).getValue();
-        long previousRiskPatients = riskIndexChart.size() > 1 
-                ? riskIndexChart.get(riskIndexChart.size() - 2).getValue() : 0;
+        long previousRiskPatients = riskIndexChart.size() > 1
+                ? riskIndexChart.get(riskIndexChart.size() - 2).getValue()
+                : 0;
         long riskDiff = currentRiskPatients - previousRiskPatients;
-        String riskGrowthString = (riskDiff >= 0 ? "+" : "") + riskDiff + " ca";
+        String riskDiffSign = riskDiff > 0 ? "+" : riskDiff < 0 ? "-" : "";
+        String riskGrowthString = riskDiffSign + Math.abs(riskDiff) + " ca";
 
         return ClinicDashboardResponse.builder()
                 .totalPatients(totalPatients)
@@ -311,8 +334,10 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
         } catch (Exception ignored) {
         }
 
-        String condition = request.getPrimaryCondition() != null ? request.getPrimaryCondition() : request.getCondition();
-        String ins = request.getInsuranceNumber() != null ? request.getInsuranceNumber() : request.getHealthInsuranceNumber();
+        String condition = request.getPrimaryCondition() != null ? request.getPrimaryCondition()
+                : request.getCondition();
+        String ins = request.getInsuranceNumber() != null ? request.getInsuranceNumber()
+                : request.getHealthInsuranceNumber();
 
         Patient patient = Patient.builder()
                 .userId(user.getId())
@@ -343,67 +368,101 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
     @Override
     @Transactional
     public void updatePatient(Long clinicId, Long patientId, CreatePatientRequest request) {
+        log.info("Updating patient {} for clinic {}", patientId, clinicId);
         Patient patient = patientRepository.findById(patientId)
-                .orElseThrow(() -> new RuntimeException("Patient not found"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bệnh nhân với ID: " + patientId));
 
         if (!patient.getClinicId().equals(clinicId)) {
-            throw new AccessDeniedException("Access denied to this patient record");
+            throw new AccessDeniedException("Bạn không có quyền chỉnh sửa hồ sơ bệnh nhân này");
         }
 
-        patient.setFullName(request.getName());
-        patient.setPhone(request.getPhone());
-        patient.setGender(request.getGender());
-        patient.setAddress(request.getAddress());
-        
-        String condition = request.getPrimaryCondition() != null ? request.getPrimaryCondition() : request.getCondition();
-        patient.setChronicCondition(condition);
-        
-        patient.setRiskLevel(request.getRiskLevel());
-        patient.setClinicalNotes(request.getNotes());
-        patient.setIdentityCard(request.getIdentityCard());
-        patient.setOccupation(request.getOccupation());
-        patient.setEthnicity(request.getEthnicity());
-        
-        String ins = request.getInsuranceNumber() != null ? request.getInsuranceNumber() : request.getHealthInsuranceNumber();
-        patient.setHealthInsuranceNumber(ins);
+        // Only update fields if they are provided in the request to prevent accidental NULL overwrites
+        if (request.getName() != null && !request.getName().isBlank()) {
+            patient.setFullName(request.getName());
+        }
+        if (request.getPhone() != null && !request.getPhone().isBlank()) {
+            patient.setPhone(request.getPhone());
+        }
+        if (request.getGender() != null) {
+            patient.setGender(request.getGender());
+        }
+        if (request.getAddress() != null) {
+            patient.setAddress(request.getAddress());
+        }
+
+        String condition = request.getPrimaryCondition() != null ? request.getPrimaryCondition()
+                : request.getCondition();
+        if (condition != null) {
+            patient.setChronicCondition(condition);
+        }
+
+        if (request.getRiskLevel() != null) {
+            patient.setRiskLevel(request.getRiskLevel());
+        }
+        if (request.getNotes() != null) {
+            patient.setClinicalNotes(request.getNotes());
+        }
+        if (request.getIdentityCard() != null) {
+            patient.setIdentityCard(request.getIdentityCard());
+        }
+        if (request.getOccupation() != null) {
+            patient.setOccupation(request.getOccupation());
+        }
+        if (request.getEthnicity() != null) {
+            patient.setEthnicity(request.getEthnicity());
+        }
+
+        String ins = request.getInsuranceNumber() != null ? request.getInsuranceNumber()
+                : request.getHealthInsuranceNumber();
+        if (ins != null) {
+            patient.setHealthInsuranceNumber(ins);
+        }
 
         // Update Date of Birth from Age if provided
-        if (request.getAge() != null && !request.getAge().isBlank()) {
+        if (request.getAge() != null && !String.valueOf(request.getAge()).isBlank()) {
             try {
-                int ageNum = Integer.parseInt(request.getAge());
+                int ageNum = Integer.parseInt(String.valueOf(request.getAge()));
                 if (ageNum > 0) {
                     patient.setDateOfBirth(LocalDate.now().minusYears(ageNum));
                 }
-            } catch (NumberFormatException ignored) {}
+            } catch (Exception ignored) {
+            }
         } else if (request.getDateOfBirth() != null) {
             patient.setDateOfBirth(request.getDateOfBirth());
         }
 
         // Update user email and password
-        User user = userRepository.findById(patient.getUserId())
-                .orElse(null);
+        User user = userRepository.findById(patient.getUserId()).orElse(null);
         if (user != null) {
             if (request.getEmail() != null && !request.getEmail().isBlank()) {
                 user.setEmail(request.getEmail());
                 patient.setEmail(request.getEmail());
             }
-            
-            // Only update password if provided
+
             if (request.getPassword() != null && !request.getPassword().isBlank()) {
                 user.setPassword(passwordEncoder.encode(request.getPassword()));
             }
             
+            // Sync user full name with patient full name
+            user.setFullName(patient.getFullName());
+            user.setPhone(patient.getPhone());
             userRepository.save(user);
         }
 
+        // Doctor assignment logic
         if (request.getDoctorId() != null) {
-            patient.setDoctorId(request.getDoctorId());
+            // Verify doctor exists and belongs to the same clinic
+            userRepository.findById(request.getDoctorId()).ifPresent(dr -> {
+                if (dr.getClinicId().equals(clinicId)) {
+                    patient.setDoctorId(dr.getId());
+                }
+            });
         } else if (request.getAssignedDoctor() != null && !request.getAssignedDoctor().isEmpty()) {
             String drStr = request.getAssignedDoctor();
             try {
                 patient.setDoctorId(Long.parseLong(drStr));
             } catch (NumberFormatException e) {
-                String drName = drStr.replaceAll("^(BS\\.|Bác sĩ\\s*)", "").trim();
+                String drName = drStr.replaceAll("(?i)^(BS\\.|Bác sĩ\\s*)", "").trim();
                 List<User> foundDrs = userRepository
                         .findByFilters("DOCTOR", "ACTIVE", clinicId, drName, PageRequest.of(0, 1)).getContent();
                 if (!foundDrs.isEmpty()) {
@@ -412,7 +471,13 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
             }
         }
 
-        patientRepository.save(patient);
+        try {
+            patientRepository.save(patient);
+            log.info("Successfully updated patient {}", patientId);
+        } catch (Exception e) {
+            log.error("Error saving patient {}: {}", patientId, e.getMessage());
+            throw new RuntimeException("LỗI hệ thống khi lưu hồ sơ bệnh nhân: " + e.getMessage());
+        }
     }
 
     @Override
@@ -437,20 +502,23 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
         return doctors.map(u -> {
             long patientCount = patientRepository.countByDoctorIdAndIsDeletedFalse(u.getId());
             return ClinicDoctorResponse.builder()
-                .dbId(u.getId())
-                .id("D-" + (1000 + u.getId()))
-                .name(u.getFullName())
-                .specialty(u.getSpecialization() != null ? u.getSpecialization() : "Đa khoa")
-                .email(u.getEmail())
-                .phone(u.getPhone())
-                .load((int) patientCount)
-                .rating("N/A")
-                .reviews(0)
-                .status("Đang hoạt động")
-                .statusColor("primary")
-                .img(u.getAvatarUrl() != null ? u.getAvatarUrl()
-                        : "https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=150&h=150")
-                .build();
+                    .dbId(u.getId())
+                    .id("D-" + (1000 + u.getId()))
+                    .name(u.getFullName())
+                    .specialty(u.getSpecialization() != null ? u.getSpecialization() : "Đa khoa")
+                    .email(u.getEmail())
+                    .phone(u.getPhone())
+                    .load((int) patientCount)
+                    .rating("N/A")
+                    .reviews(0)
+                    .status("Đang hoạt động")
+                    .statusColor("primary")
+                    .img(u.getAvatarUrl() != null ? u.getAvatarUrl()
+                            : "https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=150&h=150")
+                    .licenseNumber(u.getLicenseNumber())
+                    .degree(u.getDegree())
+                    .bio(u.getBio())
+                    .build();
         });
     }
 
@@ -465,7 +533,12 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
                 .role("DOCTOR")
                 .clinicId(clinicId)
                 .specialization(request.getSpecialty())
-                .status("ACTIVE")
+                .licenseNumber(request.getLicenseNumber())
+                .degree(request.getDegree())
+                .bio(request.getBio())
+                .avatarUrl(request.getAvatarUrl())
+                .maxPatients(request.getMaxPatients() != null ? Integer.parseInt(request.getMaxPatients()) : 150)
+                .status(request.getStatus() != null ? request.getStatus() : "ACTIVE")
                 .build();
         userRepository.save(user);
     }
@@ -484,6 +557,12 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
         user.setEmail(request.getEmail());
         user.setPhone(request.getPhone());
         user.setSpecialization(request.getSpecialty());
+        user.setLicenseNumber(request.getLicenseNumber());
+        user.setDegree(request.getDegree());
+        user.setBio(request.getBio());
+        user.setAvatarUrl(request.getAvatarUrl());
+        if (request.getStatus() != null) user.setStatus(request.getStatus());
+        if (request.getMaxPatients() != null) user.setMaxPatients(Integer.parseInt(request.getMaxPatients()));
 
         // Only update password if provided
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
@@ -532,6 +611,7 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
                 AppConstants.CONDITION_ASTHMA,
                 "Khác");
     }
+
     @Override
     public List<DoctorSnippetDto> getAvailableDoctors(Long clinicId) {
         List<User> doctors = userRepository.findByFilters("DOCTOR", "ACTIVE", clinicId, null, PageRequest.of(0, 500))
@@ -546,9 +626,10 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<com.project.dto.response.ClinicAppointmentResponse> getAppointmentRecords(Long clinicId, Pageable pageable) {
+    public Page<com.project.dto.response.ClinicAppointmentResponse> getAppointmentRecords(Long clinicId,
+            Pageable pageable) {
         Page<com.project.entity.Appointment> appointments = appointmentRepository.findByClinicId(clinicId, pageable);
-        
+
         return appointments.map(a -> com.project.dto.response.ClinicAppointmentResponse.builder()
                 .id(a.getId())
                 .patientName(a.getPatient().getFullName())
@@ -565,11 +646,11 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
     public void sendNotificationToPatient(Long clinicId, Long patientId, String message) {
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new RuntimeException("Patient not found"));
-        
+
         if (!patient.getClinicId().equals(clinicId)) {
             throw new AccessDeniedException("You can only message patients within your clinic");
         }
-        
+
         com.project.entity.Notification notification = com.project.entity.Notification.builder()
                 .userId(patient.getUserId())
                 .message(message)
@@ -578,5 +659,81 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
                 .read(false)
                 .build();
         notificationRepository.save(notification);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public com.project.dto.response.ClinicResponse getClinicDetails(Long clinicId) {
+        com.project.entity.Clinic clinic = clinicRepository.findById(clinicId)
+                .orElseThrow(() -> new RuntimeException("Clinic not found"));
+        return com.project.dto.response.ClinicResponse.builder()
+                .id(clinic.getId())
+                .clinicCode(clinic.getClinicCode())
+                .name(clinic.getName())
+                .address(clinic.getAddress())
+                .phone(clinic.getPhone())
+                .imageUrl(clinic.getImageUrl())
+                .status(clinic.getStatus())
+                .doctorCount(clinic.getDoctorCount())
+                .patientCount(clinic.getPatientCount())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public void updateClinicDetails(Long clinicId, com.project.dto.request.UpdateClinicRequest request) {
+        com.project.entity.Clinic clinic = clinicRepository.findById(clinicId)
+                .orElseThrow(() -> new RuntimeException("Clinic not found"));
+
+        if (request.getName() != null)
+            clinic.setName(request.getName());
+        if (request.getAddress() != null)
+            clinic.setAddress(request.getAddress());
+        if (request.getPhone() != null)
+            clinic.setPhone(request.getPhone());
+        if (request.getImageUrl() != null)
+            clinic.setImageUrl(request.getImageUrl());
+
+        clinicRepository.save(clinic);
+    }
+
+    @Override
+    @Transactional
+    public void updateAppointmentStatus(Long clinicId, Long appointmentId, String status) {
+        com.project.entity.Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+
+        // Verification: ensure the doctor belongs to the clinic
+        com.project.entity.User doctor = userRepository.findById(appointment.getDoctorId())
+                .orElseThrow(() -> new RuntimeException("Doctor not found"));
+
+        if (!doctor.getClinicId().equals(clinicId)) {
+            throw new AccessDeniedException("You do not have permission to modify this appointment");
+        }
+
+        appointment.setStatus(status);
+        appointmentRepository.save(appointment);
+
+        // Notify patient
+        com.project.entity.Notification notification = com.project.entity.Notification.builder()
+                .userId(appointment.getPatient().getUserId())
+                .title("Cập nhật trạng thái lịch hẹn")
+                .message("Lịch hẹn của bạn với BS. " + appointment.getDoctorName() + " đã được chuyển sang trạng thái: "
+                        + status)
+                .type("APPOINTMENT")
+                .read(false)
+                .build();
+        notificationRepository.save(notification);
+
+        // Notify doctor
+        com.project.entity.Notification docNotification = com.project.entity.Notification.builder()
+                .userId(appointment.getDoctorId())
+                .title("Thay đổi trạng thái lịch hẹn")
+                .message("Quản lý phòng khám đã cập nhật trạng thái lịch hẹn của BN. "
+                        + appointment.getPatient().getFullName() + " sang: " + status)
+                .type("APPOINTMENT")
+                .read(false)
+                .build();
+        notificationRepository.save(docNotification);
     }
 }

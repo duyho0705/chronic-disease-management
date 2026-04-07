@@ -19,6 +19,14 @@ public class CreateDoctorRequest {
     @NotBlank
     private String specialty;
     
+    @NotBlank
+    private String licenseNumber;
+    
+    private String degree;
+    private String bio;
+    
     private String password;
     private String avatarUrl;
+    private String status;
+    private String maxPatients;
 }

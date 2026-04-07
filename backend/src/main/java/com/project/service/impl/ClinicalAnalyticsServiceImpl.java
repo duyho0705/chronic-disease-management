@@ -28,17 +28,20 @@ public class ClinicalAnalyticsServiceImpl implements ClinicalAnalyticsService {
         // 1. Check for High-Risk trends
         long highRiskCount = patientRepository.countByClinicIdAndRiskLevelAndIsDeletedFalse(clinicId, "Nguy cơ cao");
         if (highRiskCount > 0) {
-            insights.add("Phát hiện " + highRiskCount + " bệnh nhân có chỉ số nguy cơ cao. Khuyến nghị Bác sĩ kiểm tra lại phác đồ điều trị.");
+            insights.add("Phát hiện " + highRiskCount
+                    + " bệnh nhân có chỉ số nguy cơ cao. Khuyến nghị Bác sĩ kiểm tra lại phác đồ điều trị.");
         }
 
         // 2. Check for increasing BP trends in the clinic across ALL patients
         List<Patient> patients = patientRepository.findByClinicId(clinicId);
         int increasingBP = 0;
         for (Patient p : patients) {
-            List<HealthMetric> metrics = healthMetricRepository.findByPatientIdAndMetricTypeAndMeasuredAtBetweenAndIsDeletedFalse(
-                    p.getId(), MetricType.BLOOD_PRESSURE, since, LocalDateTime.now());
+            List<HealthMetric> metrics = healthMetricRepository
+                    .findByPatientIdAndMetricTypeAndMeasuredAtBetweenAndIsDeletedFalse(
+                            p.getId(), MetricType.BLOOD_PRESSURE, since, LocalDateTime.now());
             if (metrics.size() >= 2) {
-                if (metrics.get(metrics.size()-1).getValue().doubleValue() > metrics.get(0).getValue().doubleValue()) {
+                if (metrics.get(metrics.size() - 1).getValue().doubleValue() > metrics.get(0).getValue()
+                        .doubleValue()) {
                     increasingBP++;
                 }
             }
@@ -57,7 +60,7 @@ public class ClinicalAnalyticsServiceImpl implements ClinicalAnalyticsService {
     @Override
     public List<String> getDoctorInsights(Long doctorId) {
         List<String> insights = new ArrayList<>();
-        
+
         long highRiskCount = patientRepository.countByDoctorIdAndRiskLevelAndIsDeletedFalse(doctorId, "Nguy cơ cao");
         if (highRiskCount > 0) {
             insights.add("Cảnh báo: Bạn đang quản lý " + highRiskCount + " bệnh nhân thuộc nhóm nguy cơ cao.");
@@ -68,13 +71,15 @@ public class ClinicalAnalyticsServiceImpl implements ClinicalAnalyticsService {
         int missingMetrics = 0;
         LocalDateTime since = LocalDateTime.now().minusDays(3);
         for (Patient p : patients) {
-            long count = healthMetricRepository.findByPatientIdAndMeasuredAtBetweenAndIsDeletedFalse(p.getId(), since, LocalDateTime.now()).size();
+            long count = healthMetricRepository
+                    .findByPatientIdAndMeasuredAtBetweenAndIsDeletedFalse(p.getId(), since, LocalDateTime.now()).size();
             if (count == 0) {
                 missingMetrics++;
             }
         }
         if (missingMetrics > 0) {
-            insights.add("Nhắc nhở: Có " + missingMetrics + " bệnh nhân chưa cập nhật chỉ số sức khỏe trong 3 ngày qua.");
+            insights.add(
+                    "Nhắc nhở: Có " + missingMetrics + " bệnh nhân chưa cập nhật chỉ số sức khỏe trong 3 ngày qua.");
         }
 
         if (insights.isEmpty()) {

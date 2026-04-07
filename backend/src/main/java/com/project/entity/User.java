@@ -43,6 +43,18 @@ public class User extends BaseEntity {
     @Column(length = 100)
     private String department; // For Doctors
 
+    @Column(name = "license_number", length = 50)
+    private String licenseNumber; // For Doctors (CCHN)
+
+    @Column(length = 50)
+    private String degree; // For Doctors (Học hàm/Trình độ)
+
+    @Column(columnDefinition = "TEXT")
+    private String bio; // For Doctors (Tóm tắt tiểu sử)
+
+    @Column(name = "max_patients")
+    private Integer maxPatients;
+
     @Column(nullable = false, length = 30)
     @Builder.Default
     private String status = "ACTIVE"; // ACTIVE, INACTIVE

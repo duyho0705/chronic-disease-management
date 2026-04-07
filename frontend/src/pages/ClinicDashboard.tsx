@@ -4,6 +4,7 @@ import ClinicSidebar from '../components/common/ClinicSidebar';
 import TopBar from '../components/common/TopBar';
 import Dropdown from '../components/ui/Dropdown';
 import CreateDoctorModal from '../features/clinic/components/CreateDoctorModal';
+import EditDoctorModal from '../features/clinic/components/EditDoctorModal';
 import DoctorAssignmentModal from '../features/clinic/components/DoctorAssignmentModal';
 import Toast from '../components/ui/Toast';
 import DevelopmentModal from '../features/admin/components/DevelopmentModal';
@@ -30,7 +31,8 @@ export default function ClinicDashboard() {
         highRiskAlerts: stats?.highRiskAlerts || '0',
         pendingFollowUps: stats?.pendingFollowUps || '0',
         patientGrowth: stats?.patientGrowth || '+0%',
-        highRiskGrowth: stats?.highRiskGrowth || '+0 ca',
+        highRiskGrowth: stats?.highRiskGrowth || '0 ca',
+        growthStats: stats?.growthStats || null,
         diseaseRatios: stats?.diseaseRatios?.map((dr: any) => ({
             ...dr,
             value: dr.percentage // Map percentage from backend to value used in frontend
@@ -90,18 +92,18 @@ export default function ClinicDashboard() {
         const statsMap: Record<string, any[]> = {
             'Lượng bệnh nhân': [
                 { label: 'Tăng trưởng', value: mainStats.patientGrowth, trend: mainStats.patientGrowth.startsWith('+'), icon: 'show_chart' },
-                { label: 'Trung bình', value: `${Math.round(parseInt(String(mainStats.totalPatients).replace(/,/g, '')) / 6)} ca/tháng`, icon: 'analytics' },
-                { label: 'Chỉ số rủi ro', value: `${mainStats.highRiskAlerts} ca`, icon: 'warning' }
+                { label: 'Trung bình', value: mainStats.growthStats?.average || '0 ca/tháng', icon: 'analytics' },
+                { label: 'Chỉ số rủi ro', value: mainStats.highRiskGrowth || '0 ca', trend: mainStats.highRiskGrowth?.startsWith('+') === false, icon: 'warning' }
             ],
             'Tải lượng bác sĩ': [
                 { label: 'Tổng lượt khám', value: `${totalDoctorLoad} ca`, trend: true, icon: 'medical_services' },
-                { label: 'TB/Bác sĩ', value: `${avgLoad} ca/tháng`, icon: 'person_apron' },
-                { label: 'Số bác sĩ', value: `${doctors.length} Bác sĩ`, icon: 'group' }
+                { label: 'TB/Bác sĩ', value: mainStats.growthStats?.peakMonth ? `Đỉnh: ${mainStats.growthStats.peakMonth}` : `${avgLoad} ca/tháng`, icon: 'person_apron' },
+                { label: 'Đang quản lý', value: `${mainStats.totalPatients} Bệnh nhân`, icon: 'group' }
             ],
             'Chỉ số rủi ro': [
                 { label: 'Tổng số rủi ro', value: `${mainStats.highRiskAlerts} ca`, trend: false, icon: 'emergency_home' },
-                { label: 'Tỉ lệ rủi ro', value: `${((parseInt(mainStats.highRiskAlerts) || 1) / (parseInt(mainStats.totalPatients) || 1) * 100).toFixed(1)}%`, icon: 'analytics' },
-                { label: 'Đang chờ', value: `${mainStats.pendingFollowUps} ca`, icon: 'pending' }
+                { label: 'Biến động', value: mainStats.highRiskGrowth || '0 ca', trend: mainStats.highRiskGrowth?.startsWith('+') === false, icon: 'analytics' },
+                { label: 'Theo dõi sát', value: `${mainStats.pendingFollowUps} ca`, icon: 'pending' }
             ]
         };
         return { color, items: statsMap[selectedChartMetric] || [] };
@@ -110,6 +112,8 @@ export default function ClinicDashboard() {
 
     // Modal & Toast States
     const [showCreateDoctorModal, setShowCreateDoctorModal] = useState(false);
+    const [showEditDoctorModal, setShowEditDoctorModal] = useState(false);
+    const [selectedDoctor, setSelectedDoctor] = useState<any>(null);
     const [isSavingDoctor, setIsSavingDoctor] = useState(false);
     const [showAssignmentModal, setShowAssignmentModal] = useState(false);
     const [showExportModal, setShowExportModal] = useState(false);
@@ -147,7 +151,7 @@ export default function ClinicDashboard() {
     const fetchDashboardData = async (isSilent = false) => {
         if (!isSilent) setIsLoading(true);
         else setIsUpdating(true);
-        
+
         try {
             const periodMap: Record<string, string> = {
                 '7 ngày qua': '7d',
@@ -186,6 +190,25 @@ export default function ClinicDashboard() {
         } catch (error) {
             console.error('Failed to create doctor:', error);
             setToastMessage('Lỗi khi thêm bác sĩ');
+            setShowToast(true);
+        } finally {
+            setIsSavingDoctor(false);
+        }
+    };
+
+    const handleUpdateDoctor = async (doctorData: any) => {
+        setIsSavingDoctor(true);
+        try {
+            const res = await clinicApi.updateDoctor(currentClinicId, doctorData.dbId, doctorData);
+            if (res.success) {
+                fetchDashboardData();
+                setShowEditDoctorModal(false);
+                setToastMessage(`Đã cập nhật bác sĩ ${doctorData.name} thành công!`);
+                setShowToast(true);
+            }
+        } catch (error) {
+            console.error('Failed to update doctor:', error);
+            setToastMessage('Lỗi khi cập nhật bác sĩ');
             setShowToast(true);
         } finally {
             setIsSavingDoctor(false);
@@ -312,9 +335,9 @@ export default function ClinicDashboard() {
                                         <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
                                             <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>groups</span>
                                         </div>
-                                        <span className={`text-[13px] font-bold flex items-center gap-1 ${mainStats.patientGrowth.startsWith('+') ? 'text-emerald-500' : 'text-red-500'}`}>
+                                        <span className={`text-[13px] font-bold flex items-center gap-1 ${mainStats.patientGrowth.includes('0%') ? 'text-slate-500' : (mainStats.patientGrowth.startsWith('+') ? 'text-emerald-500' : 'text-red-500')}`}>
                                             {mainStats.patientGrowth}
-                                            <span className="material-symbols-outlined text-xs">{mainStats.patientGrowth.startsWith('+') ? 'trending_up' : 'trending_down'}</span>
+                                            <span className="material-symbols-outlined text-xs">{mainStats.patientGrowth.includes('0%') ? 'trending_flat' : (mainStats.patientGrowth.startsWith('+') ? 'trending_up' : 'trending_down')}</span>
                                         </span>
                                     </div>
                                     <h3 className="text-slate-500 text-sm font-medium">Tổng số bệnh nhân</h3>
@@ -496,12 +519,12 @@ export default function ClinicDashboard() {
                                                     {item.label}
                                                 </p>
                                                 <div className="flex items-center gap-1">
-                                                    <span className={`text-lg font-bold ${idx === 0 && item.trend !== undefined ? (item.trend ? 'text-emerald-500' : 'text-red-500') : getMetricSummary().color}`}>
+                                                    <span className={`text-[15px] font-bold ${idx === 0 && item.trend !== undefined && !item.value.includes('0%') ? (item.trend ? 'text-emerald-500' : 'text-red-500') : getMetricSummary().color}`}>
                                                         {item.value}
                                                     </span>
                                                     {idx === 0 && item.trend !== undefined && (
-                                                        <span className={`material-symbols-outlined text-sm ${item.trend ? 'text-emerald-500' : 'text-red-500'}`}>
-                                                            {item.trend ? 'trending_up' : 'trending_down'}
+                                                        <span className={`material-symbols-outlined text-sm ${item.value.includes('0%') ? getMetricSummary().color : (item.trend ? 'text-emerald-500' : 'text-red-500')}`}>
+                                                            {item.value.includes('0%') ? 'trending_flat' : (item.trend ? 'trending_up' : 'trending_down')}
                                                         </span>
                                                     )}
                                                 </div>
@@ -552,17 +575,16 @@ export default function ClinicDashboard() {
                                                 let currentOffset = 0;
                                                 const totalValue = mainStats.diseaseRatios.reduce((acc: number, item: any) => acc + (parseInt(String(item.value).replace('%', '')) || 0), 0);
 
-                                                return mainStats.diseaseRatios.map((item: any, idx: number) => {
+                                                // Pre-calculate all segment properties to keep offsets consistent
+                                                const segments = mainStats.diseaseRatios.map((item: any, idx: number) => {
                                                     const percentage = parseInt(String(item.value).replace('%', '')) || 0;
                                                     if (percentage <= 0) return null;
 
-                                                    // Normalize to 100 for pathLength="100" coordinate system
                                                     const normalizedPercentage = (percentage / (totalValue || 100)) * 100;
                                                     const dashArray = `${normalizedPercentage} 100`;
                                                     const dashOffset = -currentOffset;
                                                     currentOffset += normalizedPercentage;
 
-                                                    // Map color class to stroke color
                                                     let strokeClass = "stroke-emerald-500";
                                                     if (item.color.includes("amber") || item.color.includes("yellow")) strokeClass = "stroke-amber-400";
                                                     if (item.color.includes("blue") || item.color.includes("sky")) strokeClass = "stroke-sky-400";
@@ -573,21 +595,43 @@ export default function ClinicDashboard() {
                                                     if (item.color.includes("slate") || item.color.includes("gray")) strokeClass = "stroke-slate-400";
                                                     if (item.color.includes("rose") || item.color.includes("pink")) strokeClass = "stroke-rose-400";
 
-                                                    return (
-                                                        <circle
-                                                            key={idx}
-                                                            className={`${strokeClass} cursor-pointer transition-all duration-300 ease-in-out`}
-                                                            cx="18" cy="18" fill="none" r="15"
-                                                            pathLength="100"
-                                                            strokeDasharray={dashArray}
-                                                            strokeDashoffset={dashOffset}
-                                                            strokeWidth={hoveredSegment === idx ? 6 : 4}
-                                                            strokeLinecap="round"
-                                                            onMouseEnter={() => setHoveredSegment(idx)}
-                                                            onMouseLeave={() => setHoveredSegment(null)}
-                                                        ></circle>
-                                                    );
-                                                });
+                                                    return { idx, strokeClass, dashArray, dashOffset };
+                                                }).filter(Boolean);
+
+                                                // Draw in two passes: non-hovered first, then hovered last to be on top
+                                                return (
+                                                    <>
+                                                        {segments.filter(s => s.idx !== hoveredSegment).map(s => (
+                                                            <circle
+                                                                key={s.idx}
+                                                                className={`${s.strokeClass} cursor-pointer transition-all duration-300 ease-in-out`}
+                                                                cx="18" cy="18" fill="none" r="15"
+                                                                pathLength="100"
+                                                                strokeDasharray={s.dashArray}
+                                                                strokeDashoffset={s.dashOffset}
+                                                                strokeWidth="4"
+                                                                strokeLinecap="round"
+                                                                onMouseEnter={() => setHoveredSegment(s.idx)}
+                                                                onMouseLeave={() => setHoveredSegment(null)}
+                                                            ></circle>
+                                                        ))}
+                                                        {segments.filter(s => s.idx === hoveredSegment).map(s => (
+                                                            <circle
+                                                                key={s.idx}
+                                                                className={`${s.strokeClass} cursor-pointer transition-all duration-300 ease-in-out`}
+                                                                cx="18" cy="18" fill="none" r="15"
+                                                                pathLength="100"
+                                                                strokeDasharray={s.dashArray}
+                                                                strokeDashoffset={s.dashOffset}
+                                                                strokeWidth="6"
+                                                                strokeLinecap="round"
+                                                                onMouseEnter={() => setHoveredSegment(s.idx)}
+                                                                onMouseLeave={() => setHoveredSegment(null)}
+                                                                style={{ filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.1))' }}
+                                                            ></circle>
+                                                        ))}
+                                                    </>
+                                                );
                                             })()}
                                         </svg>
                                         <div className="absolute inset-0 flex flex-col items-center justify-center font-display pointer-events-none">
@@ -667,6 +711,9 @@ export default function ClinicDashboard() {
                                         <th className="px-8 py-5">
                                             {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-24"></div> : <span className="text-[15px] font-medium text-slate-500">Trạng thái</span>}
                                         </th>
+                                        <th className="px-8 py-5 text-right">
+                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16 ml-auto"></div> : <span className="text-[15px] font-medium text-slate-500">Thao tác</span>}
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
@@ -707,7 +754,10 @@ export default function ClinicDashboard() {
                                                         <img className="size-11 rounded-full object-cover border-2 border-primary/10" src={dr.img} alt={dr.name} />
                                                     </div>
                                                     <div>
-                                                        <p className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">{dr.name}</p>
+                                                        <p className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">
+                                                            {dr.degree === 'Tiến sĩ' ? 'TS. ' : dr.degree === 'Thạc sĩ' ? 'ThS. ' : 'BS. '}
+                                                            {dr.name}
+                                                        </p>
                                                         <p className="text-[13px] text-slate-500 font-medium">{dr.id}</p>
                                                     </div>
                                                 </div>
@@ -733,6 +783,19 @@ export default function ClinicDashboard() {
                                                     {dr.status}
                                                 </span>
                                             </td>
+                                            <td className="px-8 py-5 text-right">
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setSelectedDoctor(dr);
+                                                        setShowEditDoctorModal(true);
+                                                    }}
+                                                    className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
+                                                    title="Chỉnh sửa"
+                                                >
+                                                    <span className="material-symbols-outlined text-[20px]">edit_square</span>
+                                                </button>
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -747,6 +810,14 @@ export default function ClinicDashboard() {
                     onClose={() => setShowCreateDoctorModal(false)}
                     isSaving={isSavingDoctor}
                     onSave={handleSaveDoctor}
+                />
+
+                <EditDoctorModal
+                    isOpen={showEditDoctorModal}
+                    onClose={() => setShowEditDoctorModal(false)}
+                    isSaving={isSavingDoctor}
+                    onSave={handleUpdateDoctor}
+                    initialData={selectedDoctor}
                 />
 
                 <DoctorAssignmentModal

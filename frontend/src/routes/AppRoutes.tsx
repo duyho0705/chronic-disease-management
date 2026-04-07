@@ -20,6 +20,7 @@ import ClinicRiskAlerts from '../pages/ClinicRiskAlerts';
 import ClinicPatients from '../pages/ClinicPatients';
 import ClinicDoctors from '../pages/ClinicDoctors';
 import ClinicAssignment from '../pages/ClinicAssignment';
+import ClinicSettings from '../pages/ClinicSettings';
 
 import LandingPage from '../pages/LandingPage';
 import PatientLayout from '../layouts/PatientLayout';
@@ -58,6 +59,7 @@ const AppRoutes = () => {
       <Route path={ROUTES.CLINIC.PATIENTS} element={<ClinicPatients />} />
       <Route path={ROUTES.CLINIC.DOCTORS} element={<ClinicDoctors />} />
       <Route path={ROUTES.CLINIC.ASSIGNMENT} element={<ClinicAssignment />} />
+      <Route path={ROUTES.CLINIC.SETTINGS} element={<ClinicSettings />} />
       <Route path={ROUTES.ADMIN.DASHBOARD} element={<AdminDashboard />} />
       <Route path={ROUTES.ADMIN.CLINICS} element={<AdminClinics />} />
       <Route path={ROUTES.ADMIN.USERS} element={<AdminUsers />} />

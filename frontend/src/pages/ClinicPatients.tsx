@@ -280,8 +280,8 @@ export default function ClinicPatients() {
                                         </span>
                                     </div>
                                     <div>
-                                        <p className="text-[13px] font-medium text-slate-500 mb-0.5">Hiệu suất khám bệnh</p>
-                                        <h4 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">{stats?.totalPatients || '0'} <span className="text-sm font-medium text-slate-400">ca</span></h4>
+                                        <p className="text-[14px] font-medium text-slate-500 mb-0.5">Hiệu suất khám bệnh</p>
+                                        <h4 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">{stats?.totalPatients || '0'} <span className="text-sm font-medium text-slate-600">ca</span></h4>
                                     </div>
                                 </div>
 
@@ -294,7 +294,7 @@ export default function ClinicPatients() {
                                         <span className="px-3 py-1 bg-slate-50 text-slate-500 text-[10px] font-bold rounded-full uppercase tracking-wider border border-slate-200/50">Thời gian thực</span>
                                     </div>
                                     <div>
-                                        <p className="text-[13px] font-medium text-slate-500 mb-0.5">Ca nguy cơ cao</p>
+                                        <p className="text-[14px] font-medium text-slate-600 mb-0.5">Ca nguy cơ cao</p>
                                         <h4 className="text-2xl font-bold text-red-500 leading-tight">{stats?.highRiskAlerts || '0'} <span className="text-sm font-medium text-red-300">cảnh báo</span></h4>
                                     </div>
                                 </div>
@@ -308,8 +308,8 @@ export default function ClinicPatients() {
                                         <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full uppercase tracking-wider border border-emerald-100/50">{stats?.highRiskGrowth || '+0 ca'} mới</span>
                                     </div>
                                     <div>
-                                        <p className="text-[13px] font-medium text-slate-500 mb-0.5">Chờ tái khám</p>
-                                        <h4 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">{stats?.pendingFollowUps || '0'} <span className="text-sm font-medium text-slate-400">lịch hẹn</span></h4>
+                                        <p className="text-[14px] font-medium text-slate-600 mb-0.5">Chờ tái khám</p>
+                                        <h4 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">{stats?.pendingFollowUps || '0'} <span className="text-sm font-medium text-slate-600">lịch hẹn</span></h4>
                                     </div>
                                 </div>
                             </>
@@ -550,12 +550,12 @@ export default function ClinicPatients() {
                 />
 
 
-                    <Toast
-                        show={showToast}
-                        title={toastMessage}
-                        type={toastType}
-                        onClose={() => setShowToast(false)}
-                    />
+                <Toast
+                    show={showToast}
+                    title={toastMessage}
+                    type={toastType}
+                    onClose={() => setShowToast(false)}
+                />
 
 
             </main>

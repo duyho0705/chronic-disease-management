@@ -18,4 +18,7 @@ public class ClinicDoctorResponse {
     private String status;
     private String statusColor;
     private String img;
+    private String licenseNumber;
+    private String degree;
+    private String bio;
 }

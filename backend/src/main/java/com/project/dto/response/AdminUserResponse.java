@@ -18,5 +18,8 @@ public class AdminUserResponse {
     private String clinicPhone;
     private String avatarUrl;
     private String status;
+    private String licenseNumber;
+    private String degree;
+    private String bio;
     private LocalDateTime createdAt;
 }

@@ -51,10 +51,16 @@ public class ClinicDashboardResponse {
     @Data
     @Builder
     public static class DoctorPerformanceDto {
+        private Long dbId;
         private String id;
         private String name;
         private String img;
-        private String dept;
+        private String specialty;
+        private String email;
+        private String phone;
+        private String licenseNumber;
+        private String degree;
+        private String bio;
         private int load;
         private String color;
         private String progress;

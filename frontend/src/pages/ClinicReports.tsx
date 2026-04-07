@@ -3,7 +3,7 @@ import ClinicSidebar from '../components/common/ClinicSidebar';
 import TopBar from '../components/common/TopBar';
 import { clinicApi } from '../api/clinic';
 import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+    AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 
 export default function ClinicReports() {
@@ -68,26 +68,27 @@ export default function ClinicReports() {
     const mainStats = {
         totalPatients: stats?.totalPatients || '0',
         patientGrowth: stats?.patientGrowth || '+0%',
+        growthStats: stats?.growthStats || null,
         diseaseRatios: stats?.diseaseRatios?.map((dr: any) => ({
             ...dr,
             value: dr.percentage
         })) || [],
-        chartData: selectedChartMetric === 'Lượng bệnh nhân' 
+        chartData: selectedChartMetric === 'Lượng bệnh nhân'
             ? (stats?.patientGrowthChart && stats.patientGrowthChart.length > 0
                 ? stats.patientGrowthChart.map((d: any) => ({
                     month: d.month,
                     value: d.value
-                  }))
+                }))
                 : [])
             : selectedChartMetric === 'Tải lượng bác sĩ'
-            ? (stats?.doctorLoadChart?.map((d: any) => ({
-                month: d.month,
-                value: d.value
-              })) || [])
-            : (stats?.riskIndexChart?.map((d: any) => ({
-                month: d.month,
-                value: d.value
-              })) || [])
+                ? (stats?.doctorLoadChart?.map((d: any) => ({
+                    month: d.month,
+                    value: d.value
+                })) || [])
+                : (stats?.riskIndexChart?.map((d: any) => ({
+                    month: d.month,
+                    value: d.value
+                })) || [])
     };
 
     const CustomXAxisTick = ({ x, y, payload, index, length }: any) => {
@@ -117,13 +118,13 @@ export default function ClinicReports() {
         const statsMap: Record<string, any[]> = {
             'Lượng bệnh nhân': [
                 { label: 'Tăng trưởng', value: mainStats.patientGrowth, trend: mainStats.patientGrowth.startsWith('+'), icon: 'show_chart' },
-                { label: 'Trung bình', value: `${Math.round(parseInt(String(mainStats.totalPatients).replace(/,/g, '')) / 6)} ca/tháng`, icon: 'analytics' },
-                { label: 'Đỉnh điểm', value: 'Tháng 3 (224 ca)', icon: 'leaderboard' }
+                { label: 'Trung bình', value: mainStats.growthStats?.average || '0 ca/tháng', icon: 'analytics' },
+                { label: 'Đỉnh điểm', value: mainStats.growthStats?.peakMonth || 'N/A', icon: 'leaderboard' }
             ],
             'Tải lượng bác sĩ': [
                 { label: 'Tổng lượt khám', value: '250 ca', trend: true, icon: 'medical_services' },
-                { label: 'TB/Bác sĩ', value: '15 ca/ngày', icon: 'person_apron' },
-                { label: 'Ngày cao điểm', value: 'Thứ 2 (45 ca)', icon: 'calendar_month' }
+                { label: 'TB/Bác sĩ', value: mainStats.growthStats?.average || '15 ca/ngày', icon: 'person_apron' },
+                { label: 'Tháng cao điểm', value: mainStats.growthStats?.peakMonth || 'Tháng 3', icon: 'calendar_month' }
             ],
             'Chỉ số rủi ro': [
                 { label: 'Tỷ lệ rủi ro', value: '5.2%', trend: false, icon: 'emergency_home' },
@@ -137,8 +138,8 @@ export default function ClinicReports() {
     return (
         <div className="flex min-h-screen font-display bg-[#f6f8f7] dark:bg-slate-950 text-slate-900 dark:text-slate-100 italic-none">
             {/* Sidebar Navigation - Shared Component */}
-            <ClinicSidebar 
-                isSidebarOpen={isSidebarOpen} 
+            <ClinicSidebar
+                isSidebarOpen={isSidebarOpen}
                 userName="Admin Sarah"
                 userRole="Senior Manager"
                 userAvatar="https://lh3.googleusercontent.com/aida-public/AB6AXuDs9fuTZde7EUIINhAwZDAYbGdWhfZuvszHFDZODEHBxXo3hRWmKfCmGfg6Xgckf0DONyYs8LQEOXng1sISGQVj9ec2pSs--Gz-xPlj6elGIG3KtZTO9U-57mPPcUxuNMtJbLamHmXAsWrVwobD4Ai-pKgNGU0yfv596RmDCRUawQMx8gmW7E2J_we-R_YITLa95pCcbtDZf6tkb7C6bWKKzwepNG2pc4L5uji1KMHQetqk8390TVAlxrRao3qco3laKWLu0uA-BmQ"
@@ -240,7 +241,9 @@ export default function ClinicReports() {
                                         <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
                                             <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>groups</span>
                                         </div>
-                                        <span className="text-emerald-500 font-bold text-sm">{mainStats.patientGrowth}</span>
+                                        <span className={`font-bold text-sm ${mainStats.patientGrowth.startsWith('+') ? 'text-emerald-500' : mainStats.patientGrowth.startsWith('-') ? 'text-rose-500' : 'text-slate-500'}`}>
+                                            {mainStats.patientGrowth}
+                                        </span>
                                     </div>
                                     <h3 className="text-slate-500 text-sm font-medium">Tổng số bệnh nhân</h3>
                                     <p className="text-3xl font-black mt-1 text-slate-900 dark:text-white">{mainStats.totalPatients}</p>
@@ -393,12 +396,12 @@ export default function ClinicReports() {
                                                     {item.label}
                                                 </p>
                                                 <div className="flex items-center gap-1">
-                                                    <span className={`text-lg font-bold ${idx === 0 && item.trend !== undefined ? (item.trend ? 'text-emerald-500' : 'text-red-500') : getMetricSummary().color}`}>
+                                                    <span className={`text-lg font-bold ${idx === 0 && item.trend !== undefined && !item.value.includes('0%') ? (item.trend ? 'text-emerald-500' : 'text-rose-500') : getMetricSummary().color}`}>
                                                         {item.value}
                                                     </span>
-                                                    {idx === 0 && item.trend !== undefined && (
-                                                        <span className={`material-symbols-outlined text-sm ${item.trend ? 'text-emerald-500' : 'text-red-500'}`}>
-                                                            {item.trend ? 'trending_up' : 'trending_down'}
+                                                    {item.trend !== undefined && (
+                                                        <span className={`material-symbols-outlined text-sm ${item.value.includes('0%') ? getMetricSummary().color : (item.trend ? 'text-emerald-500' : 'text-rose-500')}`}>
+                                                            {item.value.includes('0%') ? 'trending_flat' : (item.trend ? 'trending_up' : 'trending_down')}
                                                         </span>
                                                     )}
                                                 </div>
@@ -447,7 +450,7 @@ export default function ClinicReports() {
                                             {(() => {
                                                 let currentOffset = 0;
                                                 const totalValue = mainStats.diseaseRatios.reduce((acc: number, item: any) => acc + (parseInt(String(item.value || item.percentage).replace('%', '')) || 0), 0);
-                                                
+
                                                 return mainStats.diseaseRatios.map((item: any, idx: number) => {
                                                     const percentage = parseInt(String(item.value || item.percentage).replace('%', '')) || 0;
                                                     if (percentage <= 0) return null;
