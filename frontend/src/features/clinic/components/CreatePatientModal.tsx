@@ -169,28 +169,8 @@ export default function CreatePatientModal({
                                 <h3 className="font-bold text-slate-700 dark:text-slate-100 text-[16px]">Thông tin hành chính</h3>
                             </div>
 
-                            <div className="flex flex-col md:flex-row gap-6 items-start">
-                                {/* Avatar Upload Mock */}
-                                <div className="w-full md:w-auto flex flex-col items-center gap-3">
-                                    <div className="w-24 h-24 rounded-2xl bg-slate-100 dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-700 flex items-center justify-center overflow-hidden group hover:border-primary transition-colors cursor-pointer">
-                                        {formData.avatarUrl ? (
-                                            <img src={formData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                                        ) : (
-                                            <span className="material-symbols-outlined text-[32px] text-slate-400 group-hover:text-primary transition-colors">add_a_photo</span>
-                                        )}
-                                    </div>
-                                    <input
-                                        name="avatarUrl"
-                                        value={formData.avatarUrl}
-                                        onChange={handleChange}
-                                        placeholder="Link ảnh đại diện"
-                                        className="w-full md:w-32 text-[11px] text-slate-500 bg-transparent border-none focus:outline-none text-center"
-                                    />
-                                </div>
-
-                                <div className="flex-1 w-full space-y-3">
-                                    <div className="bg-white dark:bg-slate-900 p-4 lg:p-5 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-3">
+                            <div className="bg-white dark:bg-slate-900 p-4 lg:p-5 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-3">
                                             {/* Name */}
                                             <div className="space-y-1.5 flex-1">
                                                 <label className="text-[14px] font-medium text-slate-500 ml-1">Họ và tên bệnh nhân <span className="text-red-500">*</span></label>
@@ -370,12 +350,12 @@ export default function CreatePatientModal({
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                        </div>
 
-                                {/* Section 2: Medical Information */}
-                                <div className="space-y-3">
-                                    <div className="flex items-center gap-2 pb-1.5 pl-2 border-l-4 border-l-amber-400">
-                                        <h3 className="font-bold text-slate-700 dark:text-slate-100 text-[16px]">Hồ sơ bệnh lý & Phân công</h3>
+                        {/* Section 2: Medical Information */}
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-2 pb-1.5 pl-2 border-l-4 border-l-amber-400">
+                                <h3 className="font-bold text-slate-700 dark:text-slate-100 text-[16px]">Hồ sơ bệnh lý & Phân công</h3>
                                     </div>
 
                                     <div className="bg-white dark:bg-slate-900 p-4 lg:p-5 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -432,36 +412,36 @@ export default function CreatePatientModal({
                             </div>
                         </div>
 
-                        {/* Modal Footer */}
-                        <div className="px-6 md:px-8 py-5 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end sticky bottom-0 z-20">
-                            <div className="flex items-center gap-3 w-full md:w-auto justify-end">
-                                <button
-                                    onClick={onClose}
-                                    className="px-6 py-2.5 text-[14px] font-bold text-slate-500 hover:bg-slate-100 rounded-xl transition-all active:scale-100"
-                                    type="button"
-                                >
-                                    Hủy bỏ
-                                </button>
-                                <button
-                                    onClick={handleSubmit}
-                                    disabled={isSaving}
-                                    className="px-8 py-2.5 bg-primary text-white text-[14px] font-bold rounded-xl shadow-lg shadow-primary/25 hover:bg-primary/90 transition-all flex items-center gap-2 disabled:opacity-50 active:scale-100"
-                                >
-                                    {isSaving ? (
-                                        <>
-                                            <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                                            <span>Đang lưu...</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <span className="material-symbols-outlined font-bold text-[20px]">how_to_reg</span>
-                                            <span>Xác nhận thêm</span>
-                                        </>
-                                    )}
-                                </button>
-                            </div>
-                        </div>
+                {/* Modal Footer */}
+                <div className="px-6 md:px-8 py-5 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end rounded-b-3xl">
+                    <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+                        <button
+                            onClick={onClose}
+                            className="px-6 py-2.5 text-[14px] font-bold text-slate-500 hover:bg-slate-100 rounded-xl transition-all active:scale-100"
+                            type="button"
+                        >
+                            Hủy bỏ
+                        </button>
+                        <button
+                            onClick={handleSubmit}
+                            disabled={isSaving}
+                            className="px-8 py-2.5 bg-primary text-white text-[14px] font-bold rounded-xl shadow-lg shadow-primary/25 hover:bg-primary/90 transition-all flex items-center gap-2 disabled:opacity-50 active:scale-100"
+                        >
+                            {isSaving ? (
+                                <>
+                                    <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                                    <span>Đang lưu...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <span className="material-symbols-outlined font-bold text-[20px]">how_to_reg</span>
+                                    <span>Xác nhận thêm</span>
+                                </>
+                            )}
+                        </button>
                     </div>
                 </div>
-                );
+            </div>
+        </div>
+    );
 }
