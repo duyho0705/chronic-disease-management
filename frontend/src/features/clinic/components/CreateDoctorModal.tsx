@@ -176,7 +176,7 @@ export default function CreateDoctorModal({
 
                                     {/* Name */}
                                     <div className="space-y-1 min-w-0">
-                                        <label className="text-[13px] font-bold text-slate-500 ml-1 italic-none">Họ và tên bác sĩ <span className="text-red-500">*</span></label>
+                                        <label className="text-[14px] font-medium text-slate-500 ml-1">Họ và tên bác sĩ <span className="text-red-500">*</span></label>
                                         <input
                                             name="name"
                                             value={formData.name}
@@ -190,7 +190,7 @@ export default function CreateDoctorModal({
 
                                     {/* Phone */}
                                     <div className="space-y-1 min-w-0">
-                                        <label className="text-[13px] font-bold text-slate-500 ml-1 italic-none">Số điện thoại <span className="text-red-500">*</span></label>
+                                        <label className="text-[14px] font-medium text-slate-500 ml-1">Số điện thoại <span className="text-red-500">*</span></label>
                                         <div className="relative">
                                             <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[18px] text-slate-400">call</span>
                                             <input
@@ -207,7 +207,7 @@ export default function CreateDoctorModal({
 
                                     {/* Email */}
                                     <div className="space-y-1 min-w-0">
-                                        <label className="text-[13px] font-bold text-slate-500 ml-1 italic-none">Email đăng nhập <span className="text-red-500">*</span></label>
+                                        <label className="text-[14px] font-medium text-slate-500 ml-1">Email đăng nhập <span className="text-red-500">*</span></label>
                                         <div className="relative">
                                             <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[18px] text-slate-400">mail</span>
                                             <input
@@ -225,7 +225,7 @@ export default function CreateDoctorModal({
 
                                     {/* Password */}
                                     <div className="space-y-1 min-w-0">
-                                        <label className="text-[13px] font-bold text-slate-500 ml-1 italic-none">Mật khẩu <span className="text-red-500">*</span></label>
+                                        <label className="text-[14px] font-medium text-slate-500 ml-1">Mật khẩu <span className="text-red-500">*</span></label>
                                         <div className="relative">
                                             <input
                                                 type={showPassword ? "text" : "password"}
@@ -251,7 +251,7 @@ export default function CreateDoctorModal({
 
                                     {/* Confirm Password */}
                                     <div className="space-y-1 min-w-0">
-                                        <label className="text-[13px] font-bold text-slate-500 ml-1 italic-none">Xác nhận mật khẩu <span className="text-red-500">*</span></label>
+                                        <label className="text-[14px] font-medium text-slate-500 ml-1">Xác nhận mật khẩu <span className="text-red-500">*</span></label>
                                         <div className="relative">
                                             <input
                                                 type={showConfirmPassword ? "text" : "password"}
@@ -290,7 +290,7 @@ export default function CreateDoctorModal({
                             <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-400 dark:border-slate-800 shadow-sm grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                 {/* Degree */}
                                 <div className="space-y-1">
-                                    <label className="text-[13px] font-bold text-slate-500 ml-1 italic-none">Học hàm</label>
+                                    <label className="text-[14px] font-medium text-slate-500 ml-1">Học hàm</label>
                                     <Dropdown
                                         options={['Bác sĩ', 'Bác sĩ CKI', 'Bác sĩ CKII', 'Thạc sĩ', 'Tiến sĩ', 'Phó Giáo sư', 'Giáo sư']}
                                         value={formData.degree}
@@ -300,7 +300,7 @@ export default function CreateDoctorModal({
 
                                 {/* License Number */}
                                 <div className="space-y-1">
-                                    <label className="text-[13px] font-bold text-slate-500 ml-1 italic-none">Số chứng chỉ hành nghề<span className="text-red-500">*</span></label>
+                                    <label className="text-[14px] font-medium text-slate-500 ml-1">Số chứng chỉ hành nghề <span className="text-red-500">*</span></label>
                                     <input
                                         name="licenseNumber"
                                         value={formData.licenseNumber}
@@ -313,7 +313,7 @@ export default function CreateDoctorModal({
 
                                 {/* Specialty */}
                                 <div className="space-y-1">
-                                    <label className="text-[13px] font-bold text-slate-500 ml-1 italic-none">Chuyên khoa</label>
+                                    <label className="text-[14px] font-medium text-slate-500 ml-1">Chuyên khoa</label>
                                     <Dropdown
                                         options={['Nội khoa', 'Sản phụ khoa', 'Nhi khoa', 'Tim mạch', 'Thần kinh', 'Da liễu', 'Khác']}
                                         value={formData.specialty}
@@ -323,7 +323,7 @@ export default function CreateDoctorModal({
 
                                 {/* Status */}
                                 <div className="space-y-1">
-                                    <label className="text-[13px] font-bold text-slate-500 ml-1 italic-none">Trạng thái</label>
+                                    <label className="text-[14px] font-medium text-slate-500 ml-1">Trạng thái</label>
                                     <Dropdown
                                         options={[
                                             { label: 'Đang hoạt động', value: 'ACTIVE' },
@@ -336,7 +336,7 @@ export default function CreateDoctorModal({
 
                                 {/* Bio */}
                                 <div className="space-y-1 lg:col-span-4">
-                                    <label className="text-[13px] font-bold text-slate-500 ml-1 italic-none">Giới thiệu tóm tắt (Bio)</label>
+                                    <label className="text-[14px] font-medium text-slate-500 ml-1">Giới thiệu tóm tắt (Bio)</label>
                                     <textarea
                                         name="bio"
                                         value={formData.bio}

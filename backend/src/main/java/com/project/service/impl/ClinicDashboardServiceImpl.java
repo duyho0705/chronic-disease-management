@@ -124,100 +124,88 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
         List<ClinicDashboardResponse.PatientGrowthChartDto> riskIndexChart = new ArrayList<>();
         List<ClinicDashboardResponse.PatientGrowthChartDto> doctorLoadChart = new ArrayList<>();
 
-        List<User> doctorUsers = userRepository
-                .findByFilters("DOCTOR", "ACTIVE", clinicId, null, PageRequest.of(0, 100))
-                .getContent();
-        List<Long> doctorIds = doctorUsers.stream().map(User::getId).collect(Collectors.toList());
-
         LocalDateTime now = LocalDateTime.now();
         int iterations = 6;
         String timeUnit = "MONTH";
+        LocalDateTime startDate;
 
         if ("7d".equals(period)) {
             iterations = 7;
             timeUnit = "DAY";
+            startDate = now.minusDays(6).withHour(0).withMinute(0).withSecond(0);
         } else if ("30d".equals(period)) {
             iterations = 30;
             timeUnit = "DAY";
+            startDate = now.minusDays(29).withHour(0).withMinute(0).withSecond(0);
         } else if ("1y".equals(period)) {
             iterations = 12;
             timeUnit = "MONTH";
+            startDate = now.minusMonths(11).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
+        } else {
+            startDate = now.minusMonths(5).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
         }
 
+        // 1. Fetch ALL chart data in bulk
+        List<Object[]> patientStats = "DAY".equals(timeUnit) ? patientRepository.countDailyPatients(clinicId, startDate) : patientRepository.countMonthlyPatients(clinicId, startDate);
+        List<Object[]> riskStats = "DAY".equals(timeUnit) ? patientRepository.countDailyHighRiskPatients(clinicId, AppConstants.RISK_HIGH, startDate) : patientRepository.countMonthlyHighRiskPatients(clinicId, AppConstants.RISK_HIGH, startDate);
+        
+        List<User> doctorUsers = userRepository.findByFilters("DOCTOR", "ACTIVE", clinicId, null, PageRequest.of(0, 100)).getContent();
+        List<Long> doctorIds = doctorUsers.stream().map(User::getId).collect(Collectors.toList());
+        
+        List<Object[]> apptStats = !doctorIds.isEmpty() ? ("DAY".equals(timeUnit) ? appointmentRepository.countDailyAppointmentsByDoctorIds(doctorIds, startDate) : appointmentRepository.countMonthlyAppointmentsByDoctorIds(doctorIds, startDate)) : new ArrayList<>();
+        List<Object[]> prescStats = !doctorIds.isEmpty() ? ("DAY".equals(timeUnit) ? prescriptionRepository.countDailyPrescriptionsByDoctorIds(doctorIds, startDate) : prescriptionRepository.countMonthlyPrescriptionsByDoctorIds(doctorIds, startDate)) : new ArrayList<>();
+
+        // Helper Map to store results by key (date or month/year)
+        Map<String, Long> pMap = new HashMap<>();
+        Map<String, Long> rMap = new HashMap<>();
+        Map<String, Long> loadMap = new HashMap<>();
+
+        for (Object[] r : patientStats) pMap.put(generateKey(r, timeUnit), (Long) r["DAY".equals(timeUnit) ? 1 : 2]);
+        for (Object[] r : riskStats) rMap.put(generateKey(r, timeUnit), (Long) r["DAY".equals(timeUnit) ? 1 : 2]);
+        for (Object[] r : apptStats) {
+            String k = generateKey(r, timeUnit);
+            loadMap.put(k, loadMap.getOrDefault(k, 0L) + (Long) r["DAY".equals(timeUnit) ? 1 : 2]);
+        }
+        for (Object[] r : prescStats) {
+            String k = generateKey(r, timeUnit);
+            loadMap.put(k, loadMap.getOrDefault(k, 0L) + (Long) r["DAY".equals(timeUnit) ? 1 : 2]);
+        }
+
+        // Build the charts from pre-fetched data
         for (int i = iterations - 1; i >= 0; i--) {
-            LocalDateTime start, end;
-            String label;
+            LocalDateTime d = "DAY".equals(timeUnit) ? now.minusDays(i) : now.minusMonths(i);
+            String k = "DAY".equals(timeUnit) ? d.toLocalDate().toString() : d.getYear() + "-" + d.getMonthValue();
+            String label = "DAY".equals(timeUnit) ? ((i == 0) ? "Hôm nay" : d.getDayOfMonth() + "/" + d.getMonthValue()) : "Tháng " + d.getMonthValue();
 
-            if ("DAY".equals(timeUnit)) {
-                LocalDateTime day = now.minusDays(i);
-                start = day.withHour(0).withMinute(0).withSecond(0);
-                end = day.withHour(23).withMinute(59).withSecond(59);
-                label = (i == 0) ? "Hôm nay" : day.getDayOfMonth() + "/" + day.getMonthValue();
-            } else {
-                LocalDateTime monthDate = now.minusMonths(i);
-                start = monthDate.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
-                end = monthDate.withDayOfMonth(monthDate.toLocalDate().lengthOfMonth()).withHour(23).withMinute(59)
-                        .withSecond(59);
-                label = "Tháng " + monthDate.getMonthValue();
-            }
+            patientGrowthChart.add(ClinicDashboardResponse.PatientGrowthChartDto.builder().month(label).value(pMap.getOrDefault(k, 0L).intValue()).active(i == 0).build());
+            riskIndexChart.add(ClinicDashboardResponse.PatientGrowthChartDto.builder().month(label).value(rMap.getOrDefault(k, 0L).intValue()).active(i == 0).build());
+            doctorLoadChart.add(ClinicDashboardResponse.PatientGrowthChartDto.builder().month(label).value(loadMap.getOrDefault(k, 0L).intValue()).active(i == 0).build());
+        }
 
-            long pCount = patientRepository.countByClinicIdAndCreatedAtBetweenAndIsDeletedFalse(clinicId, start, end);
-            patientGrowthChart.add(ClinicDashboardResponse.PatientGrowthChartDto.builder()
-                    .month(label).value((int) pCount).active(i == 0).build());
-
-            // Search for HIGH RISK patients using a more flexible match
-            long rCount = patientRepository.countByClinicIdAndRiskLevelAndCreatedAtBetweenAndIsDeletedFalse(clinicId,
-                    "Nguy cơ cao (HIGH RISK)", start, end);
-            if (rCount == 0) {
-                rCount = patientRepository.countByClinicIdAndRiskLevelAndCreatedAtBetweenAndIsDeletedFalse(clinicId,
-                        "Nguy cơ cao", start, end);
-            }
-            riskIndexChart.add(ClinicDashboardResponse.PatientGrowthChartDto.builder()
-                    .month(label).value((int) rCount).active(i == 0).build());
-
-            // Load logic: Count all appointments and prescriptions in that period for all
-            // clinic doctors
-            long aCount = doctorIds.isEmpty() ? 0
-                    : appointmentRepository.countByDoctorIdInAndCreatedAtBetweenAndIsDeletedFalse(doctorIds, start,
-                            end);
-            long pCountTotal = doctorIds.isEmpty() ? 0
-                    : prescriptionRepository.countByDoctorIdInAndCreatedAtBetweenAndIsDeletedFalse(doctorIds, start,
-                            end);
-
-            // Workload is the sum of medical activities
-            int workload = (int) (aCount + pCountTotal);
-            doctorLoadChart.add(ClinicDashboardResponse.PatientGrowthChartDto.builder()
-                    .month(label).value(workload).active(i == 0).build());
+        // 2. Fetch doctor performace stats in bulk
+        Map<Long, Long> drPatientMap = new HashMap<>();
+        Map<Long, Long> drApptMap = new HashMap<>();
+        if (!doctorIds.isEmpty()) {
+            for (Object[] r : patientRepository.countPatientsByDoctorIds(clinicId)) drPatientMap.put((Long) r[0], (Long) r[1]);
+            for (Object[] r : appointmentRepository.countAppointmentsByDoctorIds(doctorIds)) drApptMap.put((Long) r[0], (Long) r[1]);
         }
 
         List<ClinicDashboardResponse.DoctorPerformanceDto> performances = doctorUsers.stream().limit(5).map(u -> {
-            long patientCount = patientRepository.countByDoctorIdAndIsDeletedFalse(u.getId());
-            long apptCount = appointmentRepository.countByDoctorIdAndIsDeletedFalse(u.getId());
-            int totalLoad = (int) (patientCount + apptCount);
+            long pCount = drPatientMap.getOrDefault(u.getId(), 0L);
+            long aCount = drApptMap.getOrDefault(u.getId(), 0L);
+            int totalLoad = (int) (pCount + aCount);
 
             String fullName = u.getFullName() != null ? u.getFullName() : "Bác sĩ";
             fullName = fullName.replaceAll("(?i)(BS\\.|Bác sĩ|Thạc sĩ|Tiến sĩ|TS\\.|ThS\\.)", "").trim();
 
             return ClinicDashboardResponse.DoctorPerformanceDto.builder()
-                    .dbId(u.getId())
-                    .id("D-" + (1000 + u.getId()))
-                    .name(fullName)
-                    .img(u.getAvatarUrl() != null ? u.getAvatarUrl()
-                            : "https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=150&h=150")
+                    .dbId(u.getId()).id("D-" + (1000 + u.getId())).name(fullName)
+                    .img(u.getAvatarUrl() != null ? u.getAvatarUrl() : "https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=150&h=150")
                     .specialty(u.getSpecialization() != null ? u.getSpecialization() : "Đa khoa")
-                    .email(u.getEmail())
-                    .phone(u.getPhone())
-                    .licenseNumber(u.getLicenseNumber())
-                    .degree(u.getDegree() != null ? u.getDegree() : "Bác sĩ")
-                    .bio(u.getBio())
-                    .load(totalLoad)
-                    .progress("w-" + Math.min(5, Math.max(1, (int) (totalLoad / 10) + 1)) + "/5")
-                    .color(totalLoad > 50 ? "amber" : "emerald")
-                    .rating("N/A")
-                    .reviews(0)
-                    .status("Đang hoạt động")
-                    .active(true)
-                    .build();
+                    .email(u.getEmail()).phone(u.getPhone()).licenseNumber(u.getLicenseNumber())
+                    .degree(u.getDegree() != null ? u.getDegree() : "Bác sĩ").bio(u.getBio())
+                    .load(totalLoad).progress("w-" + Math.min(5, Math.max(1, (int) (totalLoad / 10) + 1)) + "/5")
+                    .color(totalLoad > 50 ? "amber" : "emerald").rating("N/A").reviews(0).status("Đang hoạt động").active(true).build();
         }).collect(Collectors.toList());
 
         // Calculate actual growth stats using patient counts
@@ -498,9 +486,15 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
     @Transactional(readOnly = true)
     public Page<ClinicDoctorResponse> getDoctorRecords(Long clinicId, String keyword, Pageable pageable) {
         Page<User> doctors = userRepository.findByFilters("DOCTOR", "ACTIVE", clinicId, keyword, pageable);
+        List<Long> doctorIds = doctors.getContent().stream().map(User::getId).collect(Collectors.toList());
+
+        Map<Long, Long> drPatientMap = new HashMap<>();
+        if (!doctorIds.isEmpty()) {
+            for (Object[] r : patientRepository.countPatientsByDoctorIds(clinicId)) drPatientMap.put((Long) r[0], (Long) r[1]);
+        }
 
         return doctors.map(u -> {
-            long patientCount = patientRepository.countByDoctorIdAndIsDeletedFalse(u.getId());
+            long patientCount = drPatientMap.getOrDefault(u.getId(), 0L);
             return ClinicDoctorResponse.builder()
                     .dbId(u.getId())
                     .id("D-" + (1000 + u.getId()))
@@ -735,5 +729,15 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
                 .read(false)
                 .build();
         notificationRepository.save(docNotification);
+    }
+
+    private String generateKey(Object[] row, String timeUnit) {
+        if ("DAY".equals(timeUnit)) {
+            Object date = row[0];
+            return date.toString(); // Expected yyyy-MM-dd
+        } else {
+            // Month unit: row[0]=Year, row[1]=Month
+            return row[0] + "-" + row[1];
+        }
     }
 }

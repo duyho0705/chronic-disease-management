@@ -47,6 +47,24 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
     @Query("SELECT p.riskLevel, COUNT(p) FROM Patient p WHERE p.clinicId = :clinicId AND p.isDeleted = false GROUP BY p.riskLevel")
     List<Object[]> countPatientsByRiskLevel(Long clinicId);
 
+    @Query("SELECT p.doctorId, COUNT(p) FROM Patient p WHERE p.clinicId = :clinicId AND p.isDeleted = false GROUP BY p.doctorId")
+    List<Object[]> countPatientsByDoctorIds(Long clinicId);
+
+    @Query("SELECT p.doctorId, COUNT(p) FROM Patient p WHERE p.clinicId = :clinicId AND p.riskLevel = :riskLevel AND p.isDeleted = false GROUP BY p.doctorId")
+    List<Object[]> countHighRiskPatientsByDoctorIds(Long clinicId, String riskLevel);
+
+    @Query("SELECT FUNCTION('DATE', p.createdAt), COUNT(p) FROM Patient p WHERE p.clinicId = :clinicId AND p.isDeleted = false AND p.createdAt >= :startDate GROUP BY FUNCTION('DATE', p.createdAt)")
+    List<Object[]> countDailyPatients(Long clinicId, java.time.LocalDateTime startDate);
+
+    @Query("SELECT FUNCTION('DATE', p.createdAt), COUNT(p) FROM Patient p WHERE p.clinicId = :clinicId AND p.riskLevel = :riskLevel AND p.isDeleted = false AND p.createdAt >= :startDate GROUP BY FUNCTION('DATE', p.createdAt)")
+    List<Object[]> countDailyHighRiskPatients(Long clinicId, String riskLevel, java.time.LocalDateTime startDate);
+
+    @Query("SELECT FUNCTION('YEAR', p.createdAt), FUNCTION('MONTH', p.createdAt), COUNT(p) FROM Patient p WHERE p.clinicId = :clinicId AND p.isDeleted = false AND p.createdAt >= :startDate GROUP BY FUNCTION('YEAR', p.createdAt), FUNCTION('MONTH', p.createdAt)")
+    List<Object[]> countMonthlyPatients(Long clinicId, java.time.LocalDateTime startDate);
+
+    @Query("SELECT FUNCTION('YEAR', p.createdAt), FUNCTION('MONTH', p.createdAt), COUNT(p) FROM Patient p WHERE p.clinicId = :clinicId AND p.riskLevel = :riskLevel AND p.isDeleted = false AND p.createdAt >= :startDate GROUP BY FUNCTION('YEAR', p.createdAt), FUNCTION('MONTH', p.createdAt)")
+    List<Object[]> countMonthlyHighRiskPatients(Long clinicId, String riskLevel, java.time.LocalDateTime startDate);
+
     long countByDoctorIdAndRiskLevelAndIsDeletedFalse(Long doctorId, String riskLevel);
 
     @Query("SELECT p FROM Patient p WHERE p.isDeleted = false AND p.doctorId = :doctorId AND " +

@@ -32,4 +32,13 @@ public interface PrescriptionRepository extends JpaRepository<Prescription, Long
     java.util.List<Prescription> findByPatientIdOrderByCreatedAtDesc(Long patientId);
     
     long countByDoctorIdInAndCreatedAtBetweenAndIsDeletedFalse(java.util.List<Long> doctorIds, java.time.LocalDateTime start, java.time.LocalDateTime end);
+
+    @Query("SELECT FUNCTION('DATE', p.createdAt), COUNT(p) FROM Prescription p WHERE p.doctorId IN :doctorIds AND p.isDeleted = false AND p.createdAt >= :startDate GROUP BY FUNCTION('DATE', p.createdAt)")
+    java.util.List<Object[]> countDailyPrescriptionsByDoctorIds(java.util.List<Long> doctorIds, java.time.LocalDateTime startDate);
+
+    @Query("SELECT FUNCTION('YEAR', p.createdAt), FUNCTION('MONTH', p.createdAt), COUNT(p) FROM Prescription p WHERE p.doctorId IN :doctorIds AND p.isDeleted = false AND p.createdAt >= :startDate GROUP BY FUNCTION('YEAR', p.createdAt), FUNCTION('MONTH', p.createdAt)")
+    java.util.List<Object[]> countMonthlyPrescriptionsByDoctorIds(java.util.List<Long> doctorIds, java.time.LocalDateTime startDate);
+
+    @Query("SELECT p.doctorId, COUNT(p) FROM Prescription p WHERE p.doctorId IN :doctorIds AND p.isDeleted = false GROUP BY p.doctorId")
+    java.util.List<Object[]> countPrescriptionsByDoctorIds(java.util.List<Long> doctorIds);
 }

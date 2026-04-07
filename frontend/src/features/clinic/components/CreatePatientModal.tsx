@@ -171,246 +171,270 @@ export default function CreatePatientModal({
 
                             <div className="bg-white dark:bg-slate-900 p-4 lg:p-5 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm">
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-3">
-                                            {/* Name */}
-                                            <div className="space-y-1.5 flex-1">
-                                                <label className="text-[14px] font-medium text-slate-500 ml-1">Họ và tên bệnh nhân <span className="text-red-500">*</span></label>
-                                                <input
-                                                    name="name"
-                                                    value={formData.name}
-                                                    onChange={handleChange}
-                                                    placeholder="Tên bệnh nhân"
-                                                    className={`w-full px-4 h-[40px] rounded-xl border ${formErrors.name ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary transition-all`}
-                                                />
-                                                {formErrors.name && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.name}</p>}
-                                            </div>
+                                    {/* Name */}
+                                    <div className="space-y-1.5 flex-1">
+                                        <label className="text-[14px] font-medium text-slate-500 ml-1">Họ và tên bệnh nhân <span className="text-red-500">*</span></label>
+                                        <div className="relative">
+                                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">person</span>
+                                            <input
+                                                name="name"
+                                                value={formData.name}
+                                                onChange={handleChange}
+                                                placeholder="Tên bệnh nhân"
+                                                className={`w-full pl-11 pr-4 h-[42px] rounded-xl border ${formErrors.name ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all`}
+                                            />
+                                        </div>
+                                        {formErrors.name && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.name}</p>}
+                                    </div>
 
-                                            {/* Age */}
-                                            <div className="space-y-1.5 flex-1">
-                                                <label className="text-[14px] font-medium text-slate-500 ml-1">Tuổi <span className="text-red-500">*</span></label>
-                                                <input
-                                                    name="age"
-                                                    value={formData.age}
-                                                    onChange={handleChange}
-                                                    placeholder="Tuổi"
-                                                    className={`w-full px-4 h-[40px] rounded-xl border ${formErrors.age ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary transition-all`}
-                                                />
-                                                {formErrors.age && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.age}</p>}
-                                            </div>
+                                    {/* Age */}
+                                    <div className="space-y-1.5 flex-1">
+                                        <label className="text-[14px] font-medium text-slate-500 ml-1">Tuổi <span className="text-red-500">*</span></label>
+                                        <div className="relative">
+                                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">calendar_today</span>
+                                            <input
+                                                name="age"
+                                                value={formData.age}
+                                                onChange={handleChange}
+                                                placeholder="Nhập tuổi"
+                                                className={`w-full pl-11 pr-4 h-[42px] rounded-xl border ${formErrors.age ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all`}
+                                            />
+                                        </div>
+                                        {formErrors.age && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.age}</p>}
+                                    </div>
 
-                                            {/* Gender */}
-                                            <div className="space-y-1.5 flex-1">
-                                                <label className="text-[14px] font-medium text-slate-500 ml-1">Giới tính</label>
-                                                <Dropdown
-                                                    options={['Nam', 'Nữ', 'Khác']}
-                                                    value={formData.gender}
-                                                    onChange={(gender: string) => setFormData(prev => ({ ...prev, gender }))}
-                                                />
-                                            </div>
+                                    {/* Gender */}
+                                    <div className="space-y-1.5 flex-1">
+                                        <label className="text-[14px] font-medium text-slate-500 ml-1">Giới tính</label>
+                                        <Dropdown
+                                            options={['Nam', 'Nữ', 'Khác']}
+                                            value={formData.gender}
+                                            onChange={(gender: string) => setFormData(prev => ({ ...prev, gender }))}
+                                        />
+                                    </div>
 
-                                            {/* Phone */}
-                                            <div className="space-y-1.5">
-                                                <label className="text-[14px] font-medium text-slate-500 ml-1">Số điện thoại bệnh nhân<span className="text-red-500">*</span></label>
-                                                <div className="relative">
-                                                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">call</span>
-                                                    <input
-                                                        name="phone"
-                                                        value={formData.phone}
-                                                        onChange={handleChange}
-                                                        placeholder="hoặc người thân"
-                                                        className={`w-full pl-11 pr-4 h-[40px] rounded-xl border ${formErrors.phone ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary`}
-                                                    />
-                                                </div>
-                                                {formErrors.phone && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.phone}</p>}
-                                            </div>
+                                    {/* Phone */}
+                                    <div className="space-y-1.5">
+                                        <label className="text-[14px] font-medium text-slate-500 ml-1">Số điện thoại bệnh nhân<span className="text-red-500">*</span></label>
+                                        <div className="relative">
+                                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">call</span>
+                                            <input
+                                                name="phone"
+                                                value={formData.phone}
+                                                onChange={handleChange}
+                                                placeholder="hoặc người thân"
+                                                className={`w-full pl-11 pr-4 h-[42px] rounded-xl border ${formErrors.phone ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all`}
+                                            />
+                                        </div>
+                                        {formErrors.phone && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.phone}</p>}
+                                    </div>
 
-                                            {/* Email */}
-                                            <div className="space-y-1.5">
-                                                <label className="text-[14px] font-medium text-slate-500 ml-1">Email hồ sơ <span className="text-red-500">*</span></label>
-                                                <div className="relative">
-                                                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">mail</span>
-                                                    <input
-                                                        name="email"
-                                                        value={formData.email}
-                                                        onChange={handleChange}
-                                                        className={`w-full pl-11 pr-4 h-[40px] rounded-xl border ${formErrors.email ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary`}
-                                                    />
-                                                </div>
-                                                {formErrors.email && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.email}</p>}
-                                            </div>
+                                    {/* Email */}
+                                    <div className="space-y-1.5">
+                                        <label className="text-[14px] font-medium text-slate-500 ml-1">Email hồ sơ <span className="text-red-500">*</span></label>
+                                        <div className="relative">
+                                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">mail</span>
+                                            <input
+                                                name="email"
+                                                value={formData.email}
+                                                onChange={handleChange}
+                                                placeholder="Nhập email"
+                                                className={`w-full pl-11 pr-4 h-[42px] rounded-xl border ${formErrors.email ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all`}
+                                            />
+                                        </div>
+                                        {formErrors.email && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.email}</p>}
+                                    </div>
 
-                                            {/* CCCD */}
-                                            <div className="space-y-1.5">
-                                                <label className="text-[14px] font-medium text-slate-500 ml-1">Số CCCD</label>
-                                                <input
-                                                    name="identityCard"
-                                                    value={formData.identityCard}
-                                                    onChange={handleChange}
-                                                    placeholder="12 chữ số"
-                                                    className={`w-full px-4 h-[40px] rounded-xl border ${formErrors.identityCard ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary`}
-                                                />
-                                                {formErrors.identityCard && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.identityCard}</p>}
-                                            </div>
+                                    {/* CCCD */}
+                                    <div className="space-y-1.5">
+                                        <label className="text-[14px] font-medium text-slate-500 ml-1">Số CCCD</label>
+                                        <div className="relative">
+                                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">badge</span>
+                                            <input
+                                                name="identityCard"
+                                                value={formData.identityCard}
+                                                onChange={handleChange}
+                                                placeholder="12 chữ số"
+                                                className={`w-full pl-11 pr-4 h-[42px] rounded-xl border ${formErrors.identityCard ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all`}
+                                            />
+                                        </div>
+                                        {formErrors.identityCard && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.identityCard}</p>}
+                                    </div>
 
-                                            {/* Address */}
-                                            <div className="lg:col-span-2 space-y-1.5">
-                                                <label className="text-[14px] font-medium text-slate-500 ml-1">Địa chỉ thường trú</label>
-                                                <div className="relative">
-                                                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">location_on</span>
-                                                    <input
-                                                        name="address"
-                                                        value={formData.address}
-                                                        onChange={handleChange}
-                                                        className="w-full pl-11 pr-4 h-[40px] rounded-xl border border-slate-400 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary"
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            {/* Ethnicity */}
-                                            <div className="space-y-1.5">
-                                                <label className="text-[14px] font-medium text-slate-500 ml-1">Dân tộc</label>
-                                                <input
-                                                    name="ethnicity"
-                                                    value={formData.ethnicity}
-                                                    onChange={handleChange}
-                                                    className="w-full px-4 h-[40px] rounded-xl border border-slate-400 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary"
-                                                />
-                                            </div>
-
-                                            {/* Occupation */}
-                                            <div className="space-y-1.5">
-                                                <label className="text-[14px] font-medium text-slate-500 ml-1">Nghề nghiệp</label>
-                                                <input
-                                                    name="occupation"
-                                                    value={formData.occupation}
-                                                    onChange={handleChange}
-                                                    className="w-full px-4 h-[40px] rounded-xl border border-slate-400 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary"
-                                                />
-                                            </div>
-
-                                            {/* Insurance Number */}
-                                            <div className="space-y-1.5">
-                                                <label className="text-[14px] font-medium text-slate-500 ml-1">Số thẻ BHYT</label>
-                                                <input
-                                                    name="insuranceNumber"
-                                                    value={formData.insuranceNumber}
-                                                    onChange={handleChange}
-                                                    placeholder="Số thẻ bảo hiểm"
-                                                    className="w-full px-4 h-[40px] rounded-xl border border-slate-400 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary"
-                                                />
-                                            </div>
-
-                                            {/* Security - Password Fields */}
-                                            <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-3 mt-1">
-                                                <div className="space-y-1.5">
-                                                    <label className="text-[14px] font-medium text-slate-500 ml-1">Mật khẩu <span className="text-red-500">*</span></label>
-                                                    <div className="relative">
-                                                        <input
-                                                            type={showPassword ? "text" : "password"}
-                                                            name="password"
-                                                            value={formData.password}
-                                                            onChange={handleChange}
-                                                            placeholder="••••••••"
-                                                            className={`w-full px-4 pr-12 h-[40px] rounded-xl border ${formErrors.password ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium outline-none focus:border-primary`}
-                                                        />
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setShowPassword(!showPassword)}
-                                                            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary transition-colors flex items-center justify-center p-1 active:scale-100"
-                                                        >
-                                                            <span className="material-symbols-outlined text-[20px]">
-                                                                {showPassword ? 'visibility' : 'visibility_off'}
-                                                            </span>
-                                                        </button>
-                                                    </div>
-                                                    {formErrors.password && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.password}</p>}
-                                                </div>
-                                                <div className="space-y-1.5">
-                                                    <label className="text-[14px] font-medium text-slate-500 ml-1">Xác nhận mật khẩu <span className="text-red-500">*</span></label>
-                                                    <div className="relative">
-                                                        <input
-                                                            type={showConfirmPassword ? "text" : "password"}
-                                                            name="confirmPassword"
-                                                            value={formData.confirmPassword}
-                                                            onChange={handleChange}
-                                                            placeholder="••••••••"
-                                                            className={`w-full px-4 pr-12 h-[40px] rounded-xl border ${formErrors.confirmPassword ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium outline-none focus:border-primary`}
-                                                        />
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                                            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary transition-colors flex items-center justify-center p-1 active:scale-100"
-                                                        >
-                                                            <span className="material-symbols-outlined text-[20px]">
-                                                                {showConfirmPassword ? 'visibility' : 'visibility_off'}
-                                                            </span>
-                                                        </button>
-                                                    </div>
-                                                    {formErrors.confirmPassword && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.confirmPassword}</p>}
-                                                </div>
-                                            </div>
+                                    {/* Address */}
+                                    <div className="lg:col-span-2 space-y-1.5">
+                                        <label className="text-[14px] font-medium text-slate-500 ml-1">Địa chỉ thường trú</label>
+                                        <div className="relative">
+                                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">location_on</span>
+                                            <input
+                                                name="address"
+                                                value={formData.address}
+                                                onChange={handleChange}
+                                                placeholder="Nhập địa chỉ thường trú"
+                                                className="w-full pl-11 pr-4 h-[42px] rounded-xl border border-slate-400 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all"
+                                            />
                                         </div>
                                     </div>
+
+                                    {/* Ethnicity */}
+                                    <div className="space-y-1.5">
+                                        <label className="text-[14px] font-medium text-slate-500 ml-1">Dân tộc</label>
+                                        <div className="relative">
+                                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">public</span>
+                                            <input
+                                                name="ethnicity"
+                                                value={formData.ethnicity}
+                                                onChange={handleChange}
+                                                placeholder="Nhập dân tộc"
+                                                className="w-full pl-11 pr-4 h-[42px] rounded-xl border border-slate-400 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Occupation */}
+                                    <div className="space-y-1.5">
+                                        <label className="text-[14px] font-medium text-slate-500 ml-1">Nghề nghiệp</label>
+                                        <div className="relative">
+                                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">work</span>
+                                            <input
+                                                name="occupation"
+                                                value={formData.occupation}
+                                                onChange={handleChange}
+                                                placeholder="Nhập nghề nghiệp"
+                                                className="w-full pl-11 pr-4 h-[42px] rounded-xl border border-slate-400 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Insurance Number */}
+                                    <div className="space-y-1.5">
+                                        <label className="text-[14px] font-medium text-slate-500 ml-1">Số thẻ BHYT</label>
+                                        <div className="relative">
+                                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">health_and_safety</span>
+                                            <input
+                                                name="insuranceNumber"
+                                                value={formData.insuranceNumber}
+                                                onChange={handleChange}
+                                                placeholder="Mã thẻ BHYT"
+                                                className="w-full pl-11 pr-4 h-[42px] rounded-xl border border-slate-400 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Security - Password Fields */}
+                                    <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-3 mt-1">
+                                        <div className="space-y-1.5">
+                                            <label className="text-[14px] font-medium text-slate-500 ml-1">Mật khẩu <span className="text-red-500">*</span></label>
+                                            <div className="relative">
+                                                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[19px] text-slate-400">lock</span>
+                                                <input
+                                                    type={showPassword ? "text" : "password"}
+                                                    name="password"
+                                                    value={formData.password}
+                                                    onChange={handleChange}
+                                                    placeholder="Nhập mật khẩu"
+                                                    className={`w-full pl-11 pr-12 h-[42px] rounded-xl border ${formErrors.password ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all`}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary transition-colors flex items-center justify-center p-1 active:scale-100"
+                                                >
+                                                    <span className="material-symbols-outlined text-[20px]">
+                                                        {showPassword ? 'visibility' : 'visibility_off'}
+                                                    </span>
+                                                </button>
+                                            </div>
+                                            {formErrors.password && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.password}</p>}
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <label className="text-[14px] font-medium text-slate-500 ml-1">Xác nhận mật khẩu <span className="text-red-500">*</span></label>
+                                            <div className="relative">
+                                                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[19px] text-slate-400">lock</span>
+                                                <input
+                                                    type={showConfirmPassword ? "text" : "password"}
+                                                    name="confirmPassword"
+                                                    value={formData.confirmPassword}
+                                                    onChange={handleChange}
+                                                    placeholder="Nhập lại mật khẩu"
+                                                    className={`w-full pl-11 pr-12 h-[42px] rounded-xl border ${formErrors.confirmPassword ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all`}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary transition-colors flex items-center justify-center p-1 active:scale-100"
+                                                >
+                                                    <span className="material-symbols-outlined text-[20px]">
+                                                        {showConfirmPassword ? 'visibility' : 'visibility_off'}
+                                                    </span>
+                                                </button>
+                                            </div>
+                                            {formErrors.confirmPassword && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.confirmPassword}</p>}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Section 2: Medical Information */}
                         <div className="space-y-3">
                             <div className="flex items-center gap-2 pb-1.5 pl-2 border-l-4 border-l-amber-400">
                                 <h3 className="font-bold text-slate-700 dark:text-slate-100 text-[16px]">Hồ sơ bệnh lý & Phân công</h3>
+                            </div>
+
+                            <div className="bg-white dark:bg-slate-900 p-4 lg:p-5 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                                {/* Condition */}
+                                <div className="space-y-1.5">
+                                    <label className="text-[14px] font-medium text-slate-500 ml-1">Nhóm bệnh chính <span className="text-red-500">*</span></label>
+                                    <div className={formErrors.condition ? 'ring-1 ring-red-500 rounded-xl' : ''}>
+                                        <Dropdown
+                                            options={availableConditions}
+                                            value={formData.condition}
+                                            onChange={(condition: string) => setFormData(prev => ({ ...prev, condition }))}
+                                        />
                                     </div>
+                                    {formErrors.condition && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.condition}</p>}
+                                </div>
 
-                                    <div className="bg-white dark:bg-slate-900 p-4 lg:p-5 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                                        {/* Condition */}
-                                        <div className="space-y-1.5">
-                                            <label className="text-[14px] font-medium text-slate-500 ml-1">Nhóm bệnh chính <span className="text-red-500">*</span></label>
-                                            <div className={formErrors.condition ? 'ring-1 ring-red-500 rounded-xl' : ''}>
-                                                <Dropdown
-                                                    options={availableConditions}
-                                                    value={formData.condition}
-                                                    onChange={(condition: string) => setFormData(prev => ({ ...prev, condition }))}
-                                                />
-                                            </div>
-                                            {formErrors.condition && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.condition}</p>}
-                                        </div>
-
-                                        {/* Doctor */}
-                                        <div className="space-y-1.5">
-                                            <label className="text-[14px] font-medium text-slate-500 ml-1">Bác sĩ điều trị <span className="text-red-500">*</span></label>
-                                            <div className={formErrors.assignedDoctor ? 'ring-1 ring-red-500 rounded-xl' : ''}>
-                                                <Dropdown
-                                                    options={doctorOptions}
-                                                    value={formData.assignedDoctor}
-                                                    onChange={(assignedDoctor: string) => setFormData(prev => ({ ...prev, assignedDoctor }))}
-                                                />
-                                            </div>
-                                            {formErrors.assignedDoctor && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.assignedDoctor}</p>}
-                                        </div>
-
-                                        {/* Risk Level */}
-                                        <div className="space-y-1.5">
-                                            <label className="text-[14px] font-medium text-slate-500 ml-1">Mức độ rủi ro</label>
-                                            <Dropdown
-                                                options={['Ổn định', 'Theo dõi', 'Nguy cơ cao']}
-                                                value={formData.riskLevel}
-                                                onChange={(riskLevel: string) => setFormData(prev => ({ ...prev, riskLevel }))}
-                                            />
-                                        </div>
-
-                                        {/* Clinical Notes */}
-                                        <div className="lg:col-span-3 space-y-1.5">
-                                            <label className="text-[14px] font-medium text-slate-500 ml-1">Ghi chú lâm sàng ban đầu</label>
-                                            <textarea
-                                                name="notes"
-                                                value={formData.notes}
-                                                onChange={handleChange}
-                                                placeholder="Tiền sử bệnh, dị ứng..."
-                                                rows={3}
-                                                className="w-full px-4 py-3 rounded-xl border border-slate-400 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium outline-none focus:border-primary resize-none custom-scrollbar"
-                                            ></textarea>
-                                        </div>
+                                {/* Doctor */}
+                                <div className="space-y-1.5">
+                                    <label className="text-[14px] font-medium text-slate-500 ml-1">Bác sĩ điều trị <span className="text-red-500">*</span></label>
+                                    <div className={formErrors.assignedDoctor ? 'ring-1 ring-red-500 rounded-xl' : ''}>
+                                        <Dropdown
+                                            options={doctorOptions}
+                                            value={formData.assignedDoctor}
+                                            onChange={(assignedDoctor: string) => setFormData(prev => ({ ...prev, assignedDoctor }))}
+                                        />
                                     </div>
+                                    {formErrors.assignedDoctor && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.assignedDoctor}</p>}
+                                </div>
+
+                                {/* Risk Level */}
+                                <div className="space-y-1.5">
+                                    <label className="text-[14px] font-medium text-slate-500 ml-1">Mức độ rủi ro</label>
+                                    <Dropdown
+                                        options={['Ổn định', 'Theo dõi', 'Nguy cơ cao']}
+                                        value={formData.riskLevel}
+                                        onChange={(riskLevel: string) => setFormData(prev => ({ ...prev, riskLevel }))}
+                                    />
+                                </div>
+
+                                {/* Clinical Notes */}
+                                <div className="lg:col-span-3 space-y-1.5">
+                                    <label className="text-[14px] font-medium text-slate-500 ml-1">Ghi chú lâm sàng ban đầu</label>
+                                    <textarea
+                                        name="notes"
+                                        value={formData.notes}
+                                        onChange={handleChange}
+                                        placeholder="Tiền sử bệnh, dị ứng..."
+                                        rows={3}
+                                        className="w-full px-4 py-3 rounded-xl border border-slate-400 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium outline-none focus:border-primary resize-none custom-scrollbar"
+                                    ></textarea>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
 
                 {/* Modal Footer */}
                 <div className="px-6 md:px-8 py-5 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end rounded-b-3xl">

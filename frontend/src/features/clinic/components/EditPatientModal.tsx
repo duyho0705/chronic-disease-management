@@ -180,24 +180,30 @@ export default function EditPatientModal({
                                     {/* Line 1 */}
                                     <div className="space-y-1.5 flex-1">
                                         <label className="text-[14px] font-medium text-slate-500 ml-1">Họ và tên bệnh nhân <span className="text-red-500">*</span></label>
-                                        <input
-                                            name="name"
-                                            value={formData.name}
-                                            onChange={handleChange}
-                                            autoComplete="new-password"
-                                            className={`w-full px-4 h-[40px] rounded-xl border ${formErrors.name ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-600'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10`}
-                                        />
+                                        <div className="relative">
+                                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">person</span>
+                                            <input
+                                                name="name"
+                                                value={formData.name}
+                                                onChange={handleChange}
+                                                autoComplete="new-password"
+                                                className={`w-full pl-11 pr-4 h-[42px] rounded-xl border ${formErrors.name ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5`}
+                                            />
+                                        </div>
                                         {formErrors.name && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.name}</p>}
                                     </div>
                                     <div className="space-y-1.5 flex-1">
                                         <label className="text-[14px] font-medium text-slate-500 ml-1">Tuổi <span className="text-red-500">*</span></label>
-                                        <input
-                                            name="age"
-                                            value={formData.age}
-                                            onChange={handleChange}
-                                            autoComplete="new-password"
-                                            className={`w-full px-4 h-[40px] rounded-xl border ${formErrors.age ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10`}
-                                        />
+                                        <div className="relative">
+                                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">calendar_today</span>
+                                            <input
+                                                name="age"
+                                                value={formData.age}
+                                                onChange={handleChange}
+                                                autoComplete="new-password"
+                                                className={`w-full pl-11 pr-4 h-[42px] rounded-xl border ${formErrors.age ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5`}
+                                            />
+                                        </div>
                                         {formErrors.age && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.age}</p>}
                                     </div>
                                     <div className="space-y-1.5">
@@ -219,7 +225,7 @@ export default function EditPatientModal({
                                                 value={formData.phone}
                                                 onChange={handleChange}
                                                 autoComplete="new-password"
-                                                className={`w-full pl-11 pr-4 h-[40px] rounded-xl border ${formErrors.phone ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10`}
+                                                className={`w-full pl-11 pr-4 h-[42px] rounded-xl border ${formErrors.phone ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5`}
                                             />
                                         </div>
                                     </div>
@@ -232,20 +238,23 @@ export default function EditPatientModal({
                                                 value={formData.email}
                                                 onChange={handleChange}
                                                 autoComplete="new-password"
-                                                className={`w-full pl-11 pr-4 h-[40px] rounded-xl border ${formErrors.email ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10`}
+                                                className={`w-full pl-11 pr-4 h-[42px] rounded-xl border ${formErrors.email ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5`}
                                             />
                                         </div>
                                         {formErrors.email && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.email}</p>}
                                     </div>
                                     <div className="space-y-1.5">
                                         <label className="text-[14px] font-medium text-slate-500 ml-1">Số CCCD</label>
-                                        <input
-                                            name="identityCard"
-                                            value={formData.identityCard}
-                                            onChange={handleChange}
-                                            placeholder="12 chữ số"
-                                            className={`w-full px-4 h-[40px] rounded-xl border ${formErrors.identityCard ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-600'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary`}
-                                        />
+                                        <div className="relative">
+                                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">badge</span>
+                                            <input
+                                                name="identityCard"
+                                                value={formData.identityCard}
+                                                onChange={handleChange}
+                                                placeholder="12 chữ số"
+                                                className={`w-full pl-11 pr-4 h-[42px] rounded-xl border ${formErrors.identityCard ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5`}
+                                            />
+                                        </div>
                                         {formErrors.identityCard && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.identityCard}</p>}
                                     </div>
 
@@ -258,38 +267,47 @@ export default function EditPatientModal({
                                                 name="address"
                                                 value={formData.address}
                                                 onChange={handleChange}
-                                                className="w-full pl-11 pr-4 h-[40px] rounded-xl border border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary"
+                                                className="w-full pl-11 pr-4 h-[42px] rounded-xl border border-slate-400 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5"
                                             />
                                         </div>
                                     </div>
                                     <div className="space-y-1.5">
                                         <label className="text-[14px] font-medium text-slate-500 ml-1">Dân tộc</label>
-                                        <input
-                                            name="ethnicity"
-                                            value={formData.ethnicity}
-                                            onChange={handleChange}
-                                            className="w-full px-4 h-[40px] rounded-xl border border-slate-400 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary"
-                                        />
+                                        <div className="relative">
+                                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">public</span>
+                                            <input
+                                                name="ethnicity"
+                                                value={formData.ethnicity}
+                                                onChange={handleChange}
+                                                className="w-full pl-11 pr-4 h-[42px] rounded-xl border border-slate-400 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5"
+                                            />
+                                        </div>
                                     </div>
 
                                     {/* Line 4 */}
                                     <div className="space-y-1.5">
                                         <label className="text-[14px] font-medium text-slate-500 ml-1">Nghề nghiệp</label>
-                                        <input
-                                            name="occupation"
-                                            value={formData.occupation}
-                                            onChange={handleChange}
-                                            className="w-full px-4 h-[40px] rounded-xl border border-slate-400 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary"
-                                        />
+                                        <div className="relative">
+                                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">work</span>
+                                            <input
+                                                name="occupation"
+                                                value={formData.occupation}
+                                                onChange={handleChange}
+                                                className="w-full pl-11 pr-4 h-[42px] rounded-xl border border-slate-400 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5"
+                                            />
+                                        </div>
                                     </div>
                                     <div className="space-y-1.5">
                                         <label className="text-[14px] font-medium text-slate-500 ml-1">Số thẻ BHYT</label>
-                                        <input
-                                            name="insuranceNumber"
-                                            value={formData.insuranceNumber}
-                                            onChange={handleChange}
-                                            className="w-full px-4 h-[40px] rounded-xl border border-slate-400 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary"
-                                        />
+                                        <div className="relative">
+                                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">health_and_safety</span>
+                                            <input
+                                                name="insuranceNumber"
+                                                value={formData.insuranceNumber}
+                                                onChange={handleChange}
+                                                className="w-full pl-11 pr-4 h-[42px] rounded-xl border border-slate-400 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 transition-all outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
 
@@ -299,13 +317,14 @@ export default function EditPatientModal({
                                         <div className="space-y-1.5">
                                             <label className="text-[14px] font-medium text-slate-500 ml-1">Mật khẩu mới</label>
                                             <div className="relative">
+                                                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[19px] text-slate-400">lock</span>
                                                 <input
                                                     type={showPassword ? "text" : "password"}
                                                     name="password"
                                                     value={formData.password}
                                                     onChange={handleChange}
                                                     placeholder="Để trống nếu không muốn thay đổi"
-                                                    className="w-full px-4 pr-12 h-[40px] rounded-xl border border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 outline-none focus:border-primary"
+                                                    className="w-full pl-11 pr-12 h-[42px] rounded-xl border border-slate-400 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all"
                                                 />
                                                 <button
                                                     type="button"
@@ -321,13 +340,14 @@ export default function EditPatientModal({
                                         <div className="space-y-1.5">
                                             <label className="text-[14px] font-medium text-slate-500 ml-1">Xác nhận mật khẩu</label>
                                             <div className="relative">
+                                                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[19px] text-slate-400">lock</span>
                                                 <input
                                                     type={showConfirmPassword ? "text" : "password"}
                                                     name="confirmPassword"
                                                     value={formData.confirmPassword}
                                                     onChange={handleChange}
                                                     placeholder="Để trống nếu không muốn thay đổi"
-                                                    className={`w-full px-4 pr-12 h-[40px] rounded-xl border ${formErrors.confirmPassword ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-600'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 outline-none focus:border-primary`}
+                                                    className={`w-full pl-11 pr-12 h-[42px] rounded-xl border ${formErrors.confirmPassword ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all`}
                                                 />
                                                 <button
                                                     type="button"

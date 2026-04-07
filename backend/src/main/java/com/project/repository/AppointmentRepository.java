@@ -59,6 +59,15 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
         long countByDoctorIdInAndCreatedAtBetweenAndIsDeletedFalse(List<Long> doctorIds, LocalDateTime start, LocalDateTime end);
         long countByDoctorIdAndIsDeletedFalse(Long doctorId);
         
+        @Query("SELECT FUNCTION('DATE', a.createdAt), COUNT(a) FROM Appointment a WHERE a.doctorId IN :doctorIds AND a.isDeleted = false AND a.createdAt >= :startDate GROUP BY FUNCTION('DATE', a.createdAt)")
+        List<Object[]> countDailyAppointmentsByDoctorIds(List<Long> doctorIds, LocalDateTime startDate);
+
+        @Query("SELECT FUNCTION('YEAR', a.createdAt), FUNCTION('MONTH', a.createdAt), COUNT(a) FROM Appointment a WHERE a.doctorId IN :doctorIds AND a.isDeleted = false AND a.createdAt >= :startDate GROUP BY FUNCTION('YEAR', a.createdAt), FUNCTION('MONTH', a.createdAt)")
+        List<Object[]> countMonthlyAppointmentsByDoctorIds(List<Long> doctorIds, LocalDateTime startDate);
+
+        @Query("SELECT a.doctorId, COUNT(a) FROM Appointment a WHERE a.doctorId IN :doctorIds AND a.isDeleted = false GROUP BY a.doctorId")
+        List<Object[]> countAppointmentsByDoctorIds(List<Long> doctorIds);
+
         @Query("SELECT a FROM Appointment a JOIN User u ON a.doctorId = u.id WHERE u.clinicId = :clinicId AND a.isDeleted = false ORDER BY a.appointmentTime DESC")
         Page<Appointment> findByClinicId(@org.springframework.data.repository.query.Param("clinicId") Long clinicId, Pageable pageable);
 }

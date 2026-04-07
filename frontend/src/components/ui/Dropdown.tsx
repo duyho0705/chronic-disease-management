@@ -49,11 +49,11 @@ export default function Dropdown({
           flex items-center justify-between gap-3 transition-all duration-300 active:scale-100
           ${variant === 'badge' 
             ? 'px-4 py-1.5 bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800' 
-            : 'px-4 h-[40px] bg-white dark:bg-slate-900 border rounded-xl shadow-sm'
+            : 'px-4 h-[42px] bg-white dark:bg-slate-900 border rounded-xl shadow-sm'
           }
           ${isOpen
             ? 'border-primary shadow-lg shadow-primary/10 ring-4 ring-primary/5'
-            : variant !== 'badge' ? 'border-slate-400 dark:border-slate-600 hover:border-slate-500 dark:hover:border-slate-500' : ''
+            : variant !== 'badge' ? 'border-slate-400 dark:border-slate-700 hover:border-slate-500 dark:hover:border-slate-500' : ''
           }
           ${className}
           w-full
@@ -76,8 +76,8 @@ export default function Dropdown({
           absolute left-0 right-0 top-full mt-2
           bg-white dark:bg-slate-900
           border border-slate-100 dark:border-slate-800
-          rounded-2xl shadow-2xl shadow-slate-200/50 dark:shadow-black/50
-          z-[110] max-h-60 overflow-y-auto custom-scrollbar
+          rounded-2xl shadow-2xl shadow-slate-200/50 dark:shadow-black/100
+          z-[999] max-h-60 overflow-y-auto custom-scrollbar
           transition-all duration-200
           ${isOpen
             ? 'opacity-100 translate-y-0 pointer-events-auto'

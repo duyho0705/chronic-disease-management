@@ -601,7 +601,7 @@ export default function ClinicDashboard() {
                                                 // Draw in two passes: non-hovered first, then hovered last to be on top
                                                 return (
                                                     <>
-                                                        {segments.filter(s => s.idx !== hoveredSegment).map(s => (
+                                                        {(segments as any[]).filter(s => s.idx !== hoveredSegment).map(s => (
                                                             <circle
                                                                 key={s.idx}
                                                                 className={`${s.strokeClass} cursor-pointer transition-all duration-300 ease-in-out`}
@@ -615,7 +615,7 @@ export default function ClinicDashboard() {
                                                                 onMouseLeave={() => setHoveredSegment(null)}
                                                             ></circle>
                                                         ))}
-                                                        {segments.filter(s => s.idx === hoveredSegment).map(s => (
+                                                        {(segments as any[]).filter(s => s.idx === hoveredSegment).map(s => (
                                                             <circle
                                                                 key={s.idx}
                                                                 className={`${s.strokeClass} cursor-pointer transition-all duration-300 ease-in-out`}
