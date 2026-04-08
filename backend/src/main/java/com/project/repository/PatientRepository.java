@@ -30,7 +30,7 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
            "(:condition IS NULL OR :condition = 'Tất cả bệnh lý' OR :condition = '' OR p.chronicCondition = :condition) AND " +
            "(:riskLevel IS NULL OR :riskLevel = 'Mức độ rủi ro' OR :riskLevel = '' OR p.riskLevel = :riskLevel) AND " +
            "(:status IS NULL OR :status = 'Tất cả trạng thái' OR :status = '' OR p.profileStatus = :status) AND " +
-           "(:doctor IS NULL OR :doctor = 'Tất cả bác sĩ' OR :doctor = '' OR p.doctorId IN (SELECT u.id FROM User u WHERE u.fullName LIKE CONCAT('%', :doctor, '%'))) " +
+           "(:doctor IS NULL OR :doctor = 'Tất cả bác sĩ' OR :doctor = '' OR p.doctorId IN (SELECT u.id FROM User u WHERE LOWER(u.fullName) LIKE LOWER(CONCAT('%', :doctor, '%')))) " +
            "ORDER BY p.id DESC")
     Page<Patient> findByClinicIdAndFilters(Long clinicId, String keyword, String condition, String riskLevel, String status, String doctor, Pageable pageable);
     

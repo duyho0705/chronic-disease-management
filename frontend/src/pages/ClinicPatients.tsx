@@ -132,7 +132,7 @@ export default function ClinicPatients() {
 
     useEffect(() => {
         fetchPatients(0, false);
-    }, [debouncedSearch, conditionFilter, riskFilter, statusFilter]);
+    }, [debouncedSearch, conditionFilter, riskFilter, statusFilter, doctorFilter]);
 
     const handleSavePatient = async (patientData: any) => {
         setIsSaving(true);

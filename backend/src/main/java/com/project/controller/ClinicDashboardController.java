@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
+import com.project.util.RoleUtils;
 import java.util.List;
 import jakarta.validation.Valid;
 
@@ -31,7 +31,7 @@ import java.util.Map;
 @RequestMapping("/api/v1/clinics/{clinicId}")
 @RequiredArgsConstructor
 @Tag(name = "Clinic Management", description = "APIs for clinic managers")
-@PreAuthorize("hasAnyRole('CLINIC_MANAGER', 'ADMIN')")
+@PreAuthorize("hasAnyRole('" + RoleUtils.CLINIC_MANAGER + "', '" + RoleUtils.ADMIN + "')")
 public class ClinicDashboardController {
 
     private final ClinicDashboardService clinicDashboardService;
@@ -40,7 +40,7 @@ public class ClinicDashboardController {
         CustomUserDetails user = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         // System Admins (ADMIN) can access any clinic
-        if ("ADMIN".equals(user.getRole())) {
+        if (RoleUtils.ADMIN.equals(user.getRole())) {
             return;
         }
         if (!user.getClinicId().equals(pathClinicId)) {

@@ -34,6 +34,9 @@ export default function ClinicDoctors() {
     const [statusFilter, setStatusFilter] = useState('Tất cả bác sĩ');
     const [specialtyFilter, setSpecialtyFilter] = useState('Chuyên khoa');
 
+    const [availableDoctors, setAvailableDoctors] = useState<any[]>([]);
+    const [stats, setStats] = useState<any>(null);
+
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearch(searchTerm);
@@ -69,8 +72,20 @@ export default function ClinicDoctors() {
         }
     };
 
+    const fetchStats = async () => {
+        try {
+            const res = await clinicApi.getDashboard(currentClinicId);
+            if (res.success) {
+                setStats(res.data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch stats:', error);
+        }
+    };
+
     useEffect(() => {
         fetchDoctors(0, false);
+        fetchStats();
     }, [currentClinicId, debouncedSearch]);
 
     const [notifications, setNotifications] = useState<any[]>([]);
@@ -193,6 +208,68 @@ export default function ClinicDoctors() {
                         )}
                     </div>
 
+                    {/* Statistic Overview Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 italic-none mb-8">
+                        {isLoading || !stats ? (
+                            [...Array(3)].map((_, i) => (
+                                <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm space-y-4 animate-pulse">
+                                    <div className="flex items-center justify-between">
+                                        <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl"></div>
+                                        <div className="w-24 h-6 bg-slate-50 dark:bg-slate-800 rounded-full"></div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-20"></div>
+                                        <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded w-16"></div>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <>
+                                {/* Total Doctors */}
+                                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                                            <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
+                                        </div>
+                                        <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full uppercase tracking-wider border border-emerald-100/50">Đang hoạt động</span>
+                                    </div>
+                                    <div>
+                                        <p className="text-[14px] font-medium text-slate-500 mb-0.5">Tổng số bác sĩ</p>
+                                        <h4 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">{totalElements} <span className="text-sm font-medium text-slate-600">nhân sự</span></h4>
+                                    </div>
+                                </div>
+
+                                {/* Active Doctors */}
+                                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="w-10 h-10 bg-emerald-50 dark:bg-emerald-900/10 rounded-xl flex items-center justify-center text-emerald-600">
+                                            <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified_user</span>
+                                        </div>
+                                        <span className="px-3 py-1 bg-slate-50 text-slate-500 text-[10px] font-bold rounded-full uppercase tracking-wider border border-slate-200/50">Sẵn sàng</span>
+                                    </div>
+                                    <div>
+                                        <p className="text-[14px] font-medium text-slate-600 mb-0.5">Đã cấp chứng chỉ</p>
+                                        <h4 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">{totalElements} <span className="text-sm font-medium text-slate-600">bác sĩ</span></h4>
+                                    </div>
+                                </div>
+
+                                {/* Work Load/Performance */}
+                                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="w-10 h-10 bg-indigo-50 dark:bg-indigo-900/10 rounded-xl flex items-center justify-center text-indigo-600">
+                                            <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>monitoring</span>
+                                        </div>
+                                        <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full uppercase tracking-wider border border-emerald-100/50">+12% Hiệu năng</span>
+                                    </div>
+                                    <div>
+                                        <p className="text-[14px] font-medium text-slate-600 mb-0.5">Tỷ lệ hài lòng</p>
+                                        <h4 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">98.5 <span className="text-sm font-medium text-slate-600">%</span></h4>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                    </div>
+
                     {/* Filters Bar (Standardized) */}
                     <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-sm flex flex-wrap items-center gap-6 transition-all duration-300 hover:shadow-md">
                         {isLoading ? (
@@ -256,6 +333,12 @@ export default function ClinicDoctors() {
                                             {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-20"></div> : <span className="text-[15px] font-medium text-slate-500">Đánh giá</span>}
                                         </th>
                                         <th className="px-6 py-5">
+                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-24"></div> : <span className="text-[15px] font-medium text-slate-500">CC hành nghề</span>}
+                                        </th>
+                                        <th className="px-6 py-5">
+                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-24"></div> : <span className="text-[15px] font-medium text-slate-500">Kinh nghiệm</span>}
+                                        </th>
+                                        <th className="px-6 py-5">
                                             {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-20"></div> : <span className="text-[15px] font-medium text-slate-500">Trạng thái</span>}
                                         </th>
                                         <th className="px-8 py-5 text-right">
@@ -305,12 +388,12 @@ export default function ClinicDoctors() {
                                         ))
                                     ) : doctors.length > 0 ? (
                                         doctors.map((dr, idx) => (
-                                            <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group">
+                                            <tr key={idx} className="transition-colors border-b border-slate-50 dark:border-slate-800">
                                                 <td className="px-8 py-5">
                                                     <div className="flex items-center gap-4">
                                                         <img alt={dr.name} className="w-11 h-11 rounded-xl object-cover ring-2 ring-primary/10" src={dr.img} />
                                                         <div>
-                                                            <p className="text-[16px] font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors tracking-tight">{dr.name}</p>
+                                                            <p className="text-[16px] font-bold text-slate-900 dark:text-white tracking-tight">{dr.name}</p>
                                                             <p className="text-[14px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">Mã số: {dr.id}</p>
                                                         </div>
                                                     </div>
@@ -335,6 +418,14 @@ export default function ClinicDoctors() {
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-5">
+                                                    <span className="text-[14px] font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap">{dr.licenseNumber || 'Chưa cập nhật'}</span>
+                                                </td>
+                                                <td className="px-6 py-5">
+                                                    <span className="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 text-[13px] font-bold rounded-lg whitespace-nowrap">
+                                                        {dr.degree || 'Bác sĩ'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-5">
                                                     <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-[14px] font-bold text-white shadow-sm whitespace-nowrap ${dr.statusColor === 'primary' ? 'bg-emerald-500' :
                                                         dr.statusColor === 'amber' ? 'bg-amber-500' :
                                                             'bg-slate-400'
@@ -343,15 +434,15 @@ export default function ClinicDoctors() {
                                                     </span>
                                                 </td>
                                                 <td className="px-8 py-5 text-right whitespace-nowrap">
-                                                    <div className="flex items-center justify-end gap-2 opacity-100 transition-all">
-                                                        <button onClick={() => { setSelectedDoctor(dr); setIsEditModalOpen(true); }} className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary transition-all">
-                                                            <span className="material-symbols-outlined text-[22px]">edit</span>
+                                                    <div className="flex items-center justify-end gap-2 opacity-100">
+                                                        <button onClick={() => { setSelectedDoctor(dr); setIsEditModalOpen(true); }} className="w-10 h-10 flex items-center justify-center rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-all">
+                                                            <span className="material-symbols-outlined text-[20px]">edit</span>
                                                         </button>
-                                                        <button onClick={() => { setSelectedDoctor(dr); setIsAssignmentModalOpen(true); }} className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-emerald-500 transition-all">
-                                                            <span className="material-symbols-outlined text-[22px]">assignment_ind</span>
+                                                        <button onClick={() => { setSelectedDoctor(dr); setIsAssignmentModalOpen(true); }} className="w-10 h-10 flex items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 transition-all">
+                                                            <span className="material-symbols-outlined text-[20px]">assignment_ind</span>
                                                         </button>
-                                                        <button onClick={() => { setSelectedDoctor(dr); setIsDeleteModalOpen(true); }} className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-red-500 transition-all">
-                                                            <span className="material-symbols-outlined text-[22px]">delete</span>
+                                                        <button onClick={() => { setSelectedDoctor(dr); setIsDeleteModalOpen(true); }} className="w-10 h-10 flex items-center justify-center rounded-xl bg-rose-500/10 text-rose-600 hover:bg-rose-500/20 transition-all">
+                                                            <span className="material-symbols-outlined text-[20px]">delete</span>
                                                         </button>
                                                     </div>
                                                 </td>

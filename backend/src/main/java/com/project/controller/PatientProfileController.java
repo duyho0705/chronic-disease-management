@@ -13,13 +13,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import com.project.util.RoleUtils;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/patient/profile")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('PATIENT')")
+@PreAuthorize("hasRole('" + RoleUtils.PATIENT + "')")
 @Tag(name = "Patient Profile", description = "Patient profile management APIs")
 public class PatientProfileController {
 

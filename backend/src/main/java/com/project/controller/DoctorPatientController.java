@@ -13,13 +13,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import com.project.util.RoleUtils;
 
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/doctor/patients")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('DOCTOR')")
+@PreAuthorize("hasRole('" + RoleUtils.DOCTOR + "')")
 @Tag(name = "Doctor Patients", description = "Doctor's patient management APIs")
 public class DoctorPatientController {
 

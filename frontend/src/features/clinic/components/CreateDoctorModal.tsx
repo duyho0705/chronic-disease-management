@@ -23,6 +23,7 @@ export default function CreateDoctorModal({
         confirmPassword: '',
         licenseNumber: '',
         degree: 'Bác sĩ',
+        experience: '',
         specialty: 'Nội khoa',
         bio: '',
         maxPatients: '150',
@@ -48,6 +49,7 @@ export default function CreateDoctorModal({
                 confirmPassword: '',
                 licenseNumber: '',
                 degree: 'Bác sĩ',
+                experience: '',
                 specialty: 'Nội khoa',
                 bio: '',
                 maxPatients: '150',
@@ -339,6 +341,19 @@ export default function CreateDoctorModal({
                                         placeholder="Nhập chứng chỉ"
                                         autoComplete="off"
                                         className={`w-full px-4 h-[42px] rounded-xl border ${formErrors.licenseNumber ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[13px] font-medium outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all`}
+                                    />
+                                </div>
+
+                                {/* Experience */}
+                                <div className="space-y-1">
+                                    <label className="text-[14px] font-medium text-slate-500 ml-1">Kinh nghiệm (năm)</label>
+                                    <input
+                                        name="experience"
+                                        value={formData.experience}
+                                        onChange={handleChange}
+                                        placeholder="VD: 10 năm"
+                                        autoComplete="off"
+                                        className="w-full px-4 h-[42px] rounded-xl border border-slate-400 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm text-[13px] font-medium outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all"
                                     />
                                 </div>
 

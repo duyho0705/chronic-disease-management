@@ -27,6 +27,7 @@ export default function EditDoctorModal({
         confirmPassword: '',
         licenseNumber: '',
         degree: 'Bác sĩ',
+        experience: '',
         specialty: 'Nội khoa',
         bio: '',
         maxPatients: '150',
@@ -55,6 +56,7 @@ export default function EditDoctorModal({
                 confirmPassword: '',
                 licenseNumber: initialData.licenseNumber || '',
                 degree: initialData.degree || 'Bác sĩ',
+                experience: initialData.experience || '',
                 specialty: initialData.specialty || 'Nội khoa',
                 bio: initialData.bio || '',
                 maxPatients: initialData.maxPatients ? String(initialData.maxPatients) : '150',
@@ -339,16 +341,29 @@ export default function EditDoctorModal({
 
                                 {/* License Number */}
                                 <div className="space-y-1">
-                                    <label className="text-[14px] font-medium text-slate-500 ml-1">Số chứng chỉ hành nghề <span className="text-red-500">*</span></label>
+                                    <label className="text-[14px] font-medium text-slate-500 ml-1">Số CCHN <span className="text-red-500">*</span></label>
                                     <input
                                         name="licenseNumber"
                                         value={formData.licenseNumber}
                                         onChange={handleChange}
-                                        placeholder="Nhập chứng chỉ"
+                                        placeholder="Nhập số CCHN"
                                         autoComplete="off"
-                                        className={`w-full px-4 h-[42px] rounded-xl border ${formErrors.licenseNumber ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[13px] font-medium outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all`}
+                                        className={`w-full px-4 h-[42px] rounded-xl border ${formErrors.licenseNumber ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[13px] font-medium outline-none focus:border-primary transition-all`}
                                     />
                                     {formErrors.licenseNumber && <p className="text-[10px] text-red-500 ml-1">{formErrors.licenseNumber}</p>}
+                                </div>
+
+                                {/* Experience */}
+                                <div className="space-y-1">
+                                    <label className="text-[14px] font-medium text-slate-500 ml-1">Kinh nghiệm (năm)</label>
+                                    <input
+                                        name="experience"
+                                        value={formData.experience}
+                                        onChange={handleChange}
+                                        placeholder="VD: 10 năm"
+                                        autoComplete="off"
+                                        className="w-full px-4 h-[42px] rounded-xl border border-slate-400 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm text-[13px] font-medium outline-none focus:border-primary transition-all"
+                                    />
                                 </div>
 
                                 {/* Specialty */}

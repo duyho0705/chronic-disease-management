@@ -573,6 +573,7 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
                             : "https://ui-avatars.com/api/?name=" + encodedName + "&background=random")
                     .licenseNumber(u.getLicenseNumber())
                     .degree(u.getDegree())
+                    .experience(u.getExperience())
                     .bio(u.getBio())
                     .build();
         });
@@ -591,6 +592,7 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
                 .specialization(request.getSpecialty())
                 .licenseNumber(request.getLicenseNumber())
                 .degree(request.getDegree())
+                .experience(request.getExperience())
                 .bio(request.getBio())
                 .avatarUrl(request.getAvatarUrl())
                 .maxPatients(request.getMaxPatients() != null ? Integer.parseInt(request.getMaxPatients()) : 150)
@@ -615,6 +617,7 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
         user.setSpecialization(request.getSpecialty());
         user.setLicenseNumber(request.getLicenseNumber());
         user.setDegree(request.getDegree());
+        user.setExperience(request.getExperience());
         user.setBio(request.getBio());
         user.setAvatarUrl(request.getAvatarUrl());
         if (request.getStatus() != null) user.setStatus(request.getStatus());

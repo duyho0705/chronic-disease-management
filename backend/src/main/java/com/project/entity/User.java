@@ -57,6 +57,9 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String bio; // For Doctors (Tóm tắt tiểu sử)
 
+    @Column(length = 100)
+    private String experience; // Years of experience or text
+
     @Column(name = "max_patients")
     private Integer maxPatients;
 

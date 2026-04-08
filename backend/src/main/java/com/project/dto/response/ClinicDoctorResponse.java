@@ -20,5 +20,6 @@ public class ClinicDoctorResponse {
     private String img;
     private String licenseNumber;
     private String degree;
+    private String experience;
     private String bio;
 }
