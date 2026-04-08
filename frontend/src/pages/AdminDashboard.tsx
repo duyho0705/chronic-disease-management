@@ -180,14 +180,14 @@ export default function AdminDashboard() {
               <>
                 <button
                   onClick={() => setIsCreateModalOpen(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl font-bold transition-all text-[13px] shadow-lg shadow-primary/20 active:scale-95 hover:shadow-primary/30"
+                  className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl font-bold transition-all text-[13px] shadow-lg shadow-primary/20 hover:shadow-primary/30"
                 >
                   <span className="material-symbols-outlined text-[18px]">add</span>
                   Thêm phòng khám
                 </button>
                 <button
                   onClick={handleExportExcel}
-                  className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-lg font-bold transition-all text-[13px] border border-primary/10 active:scale-95 shadow-sm"
+                  className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-lg font-bold transition-all text-[13px] border border-primary/10 shadow-sm"
                 >
                   <span className="material-symbols-outlined text-[18px]">ios_share</span>
                   Xuất báo cáo

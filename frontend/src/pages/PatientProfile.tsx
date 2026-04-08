@@ -150,14 +150,14 @@ const PatientProfile: React.FC = () => {
                     <div className="flex flex-col gap-2 w-full md:w-auto">
                         <button 
                             onClick={handleDownloadReport}
-                            className="px-5 py-2 bg-primary text-white font-bold rounded-full hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 active:scale-95 flex items-center justify-center gap-2 text-sm"
+                            className="px-5 py-2 bg-primary text-white font-bold rounded-full hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2 text-sm"
                         >
                             <span className="material-symbols-outlined text-base">download</span>
                             Tải báo cáo
                         </button>
                         <button 
                             onClick={() => setIsEditProfileOpen(true)}
-                            className="px-5 py-2 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95 flex items-center justify-center gap-2 text-sm"
+                            className="px-5 py-2 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2 text-sm"
                         >
                             <span className="material-symbols-outlined text-base">edit_note</span>
                             Chỉnh sửa hồ sơ

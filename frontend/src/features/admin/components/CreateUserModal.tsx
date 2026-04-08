@@ -270,7 +270,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
           <button
             onClick={handleSubmit}
             disabled={isSaving}
-            className="px-10 py-2.5 text-sm font-extrabold text-white bg-[#3bb9f3] hover:bg-[#2fa8e2] rounded-xl transition-all shadow-xl shadow-[#3bb9f3]/20 flex items-center gap-2 transform disabled:opacity-50 disabled:cursor-wait"
+            className="px-10 py-2.5 text-sm font-extrabold text-white bg-[#3bb9f3] hover:bg-[#2fa8e2] rounded-xl transition-all shadow-xl shadow-[#3bb9f3]/20 flex items-center gap-2 disabled:opacity-50 disabled:cursor-wait"
             type="button"
           >
             {isSaving ? (

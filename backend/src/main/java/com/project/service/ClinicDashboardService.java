@@ -14,7 +14,7 @@ public interface ClinicDashboardService {
         ClinicDashboardResponse getDashboardData(Long clinicId, String period);
 
         Page<ClinicPatientResponse> getPatientRecords(Long clinicId, String keyword, String condition, String riskLevel,
-                        String status, Pageable pageable);
+                        String status, String doctor, Pageable pageable);
 
         void createPatient(Long clinicId, CreatePatientRequest request);
 

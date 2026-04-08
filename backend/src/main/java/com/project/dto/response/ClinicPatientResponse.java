@@ -23,6 +23,7 @@ public class ClinicPatientResponse {
     private String riskLevel;
     private String doctor;
     private String location;
+    private String treatmentStatus;
     private String status;
     private String img;
     private String insuranceNumber;

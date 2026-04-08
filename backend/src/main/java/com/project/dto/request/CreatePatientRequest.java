@@ -31,4 +31,6 @@ public class CreatePatientRequest {
     private String healthInsuranceNumber;
     private java.time.LocalDate dateOfBirth;
     private String avatarUrl;
+    private String treatmentStatus;
+    private String status;
 }

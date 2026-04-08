@@ -9,6 +9,7 @@ import com.project.entity.Patient;
 import com.project.exception.ResourceNotFoundException;
 import com.project.repository.EmergencyContactRepository;
 import com.project.repository.PatientRepository;
+import com.project.repository.UserRepository;
 import com.project.service.PatientProfileService;
 import com.project.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class PatientProfileServiceImpl implements PatientProfileService {
 
     private final PatientRepository patientRepository;
     private final EmergencyContactRepository emergencyContactRepository;
+    private final UserRepository userRepository;
 
     @Override
     public PatientProfileResponse getCurrentPatientProfile() {
@@ -65,6 +67,11 @@ public class PatientProfileServiceImpl implements PatientProfileService {
         }
         if (request.getAvatarUrl() != null && !request.getAvatarUrl().isEmpty()) {
             patient.setAvatarUrl(request.getAvatarUrl());
+            // Sync with User table for consistency across app components (header, sidebar, etc)
+            userRepository.findById(patient.getUserId()).ifPresent(user -> {
+                user.setAvatarUrl(request.getAvatarUrl());
+                userRepository.save(user);
+            });
         }
 
         Patient saved = patientRepository.save(patient);

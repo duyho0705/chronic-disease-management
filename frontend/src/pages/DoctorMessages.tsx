@@ -357,12 +357,12 @@ export default function DoctorMessages() {
                                     />
                                     <button
                                         onClick={() => imageInputRef.current?.click()}
-                                        className="p-2 text-slate-400 hover:text-primary transition-all active:scale-90 active:bg-slate-50 dark:active:bg-slate-800 rounded-lg">
+                                        className="p-2 text-slate-400 hover:text-primary transition-all active:bg-slate-50 dark:active:bg-slate-800 rounded-lg">
                                         <span className="material-symbols-outlined">image</span>
                                     </button>
                                     <button
                                         onClick={() => fileInputRef.current?.click()}
-                                        className="p-2 text-slate-400 hover:text-primary transition-all active:scale-90 active:bg-slate-50 dark:active:bg-slate-800 rounded-lg">
+                                        className="p-2 text-slate-400 hover:text-primary transition-all active:bg-slate-50 dark:active:bg-slate-800 rounded-lg">
                                         <span className="material-symbols-outlined">attach_file</span>
                                     </button>
                                 </div>
@@ -379,7 +379,7 @@ export default function DoctorMessages() {
                                         }}
                                         className="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl py-3 px-4 text-[15px] font-medium focus:ring-2 focus:ring-primary/50 resize-none outline-none text-slate-700 dark:text-slate-200" placeholder="Nhập tin nhắn..." />
                                 </div>
-                                <button onClick={handleSendMessage} disabled={sending || !msgInput.trim()} className="bg-primary hover:bg-primary/90 text-slate-900 p-3 rounded-xl shadow-lg transition-transform active:scale-95 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
+                                <button onClick={handleSendMessage} disabled={sending || !msgInput.trim()} className="bg-primary hover:bg-primary/90 text-slate-900 p-3 rounded-xl shadow-lg transition-transform flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
                                     <span className="material-symbols-outlined font-bold">send</span>
                                 </button>
                             </div>

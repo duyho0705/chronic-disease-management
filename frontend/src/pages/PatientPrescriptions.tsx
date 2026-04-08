@@ -61,7 +61,7 @@ const PatientPrescriptions: React.FC = () => {
                     </button>
                     <button 
                         onClick={() => activePrescriptions.length > 0 && handleRequestRefill(activePrescriptions[0].id)}
-                        className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl font-bold text-sm shadow-lg shadow-primary/20 active:scale-95 transition-transform">
+                        className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl font-bold text-sm shadow-lg shadow-primary/20 transition-transform">
                         <span className="material-symbols-outlined text-lg">add_shopping_cart</span>
                         Yêu cầu cấp lại
                     </button>
@@ -171,7 +171,7 @@ const PatientPrescriptions: React.FC = () => {
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-4 text-right">
-                                                    <button className="text-primary material-symbols-outlined font-bold hover:scale-110 transition-transform">visibility</button>
+                                                    <button className="text-primary material-symbols-outlined font-bold transition-transform">visibility</button>
                                                 </td>
                                             </tr>
                                         ))}
@@ -204,7 +204,7 @@ const PatientPrescriptions: React.FC = () => {
                                 <div className="text-center py-6 text-sm text-slate-400">Chưa có lịch uống thuốc</div>
                             ) : todaySchedule.map((schedule: any) => (
                                 <div key={schedule.id} className="relative pl-8 flex items-start gap-4 group">
-                                    <div className={`absolute left-0 top-1.5 size-6 rounded-full border-4 border-white dark:border-slate-800 z-10 flex items-center justify-center shadow-sm ${schedule.todayStatus === 'TAKEN' ? 'bg-primary' : 'bg-slate-200 dark:bg-slate-600 group-hover:scale-110 transition-transform'}`}>
+                                    <div className={`absolute left-0 top-1.5 size-6 rounded-full border-4 border-white dark:border-slate-800 z-10 flex items-center justify-center shadow-sm ${schedule.todayStatus === 'TAKEN' ? 'bg-primary' : 'bg-slate-200 dark:bg-slate-600 transition-transform'}`}>
                                         {schedule.todayStatus === 'TAKEN' && <span className="material-symbols-outlined text-white text-[10px] font-black">check</span>}
                                     </div>
                                     <div className="flex-1">
@@ -239,7 +239,7 @@ const PatientPrescriptions: React.FC = () => {
                             </p>
                             <button 
                                 onClick={() => activePrescriptions.length > 0 && handleRequestRefill(activePrescriptions[0].id)}
-                                className="w-full bg-primary text-white font-black py-3.5 rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 hover:bg-primary/90 hover:-translate-y-1 transition-all active:scale-95 uppercase tracking-widest text-xs">
+                                className="w-full bg-primary text-white font-black py-3.5 rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 hover:bg-primary/90 hover:-translate-y-1 transition-all uppercase tracking-widest text-xs">
                                 <span className="material-symbols-outlined text-lg">autorenew</span>
                                 Tái cấp ngay
                             </button>

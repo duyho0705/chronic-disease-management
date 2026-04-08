@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Dropdown from '../../../components/ui/Dropdown';
+import { uploadToCloudinary } from '../../../utils/cloudinary';
 
 interface CreateDoctorModalProps {
     isOpen: boolean;
@@ -33,6 +34,7 @@ export default function CreateDoctorModal({
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+    const [isUploadingImage, setIsUploadingImage] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
@@ -143,13 +145,28 @@ export default function CreateDoctorModal({
                                     {/* Avatar Selection Inside Form - No divider */}
                                     <div className="md:col-span-2 flex items-center gap-5 pb-1 mb-1">
                                         <div
-                                            onClick={() => document.getElementById('avatar-input')?.click()}
+                                            onClick={() => !isUploadingImage && document.getElementById('avatar-input')?.click()}
                                             className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 flex flex-col items-center justify-center cursor-pointer overflow-hidden group relative transition-all hover:border-primary shrink-0"
                                         >
-                                            {formData.avatarUrl ? (
-                                                <img src={formData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                                            {isUploadingImage ? (
+                                                <div className="flex flex-col items-center gap-1">
+                                                    <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                                                    <span className="text-[10px] font-bold text-primary">Đang tải...</span>
+                                                </div>
+                                            ) : formData.avatarUrl ? (
+                                                <img 
+                                                    src={formData.avatarUrl} 
+                                                    alt="Avatar" 
+                                                    className="w-full h-full object-cover" 
+                                                    onError={(e) => {
+                                                        e.currentTarget.style.display = 'none';
+                                                        // Show the "add_a_photo" span if the image fails
+                                                        const target = e.currentTarget.parentElement?.querySelector('.fallback-icon');
+                                                        if (target) (target as HTMLElement).style.display = 'block';
+                                                    }}
+                                                />
                                             ) : (
-                                                <span className="material-symbols-outlined text-[24px] text-slate-400 group-hover:text-primary transition-colors">add_a_photo</span>
+                                                <span className="material-symbols-outlined text-[24px] text-slate-400 group-hover:text-primary transition-colors fallback-icon">add_a_photo</span>
                                             )}
                                         </div>
                                         <div className="flex flex-col gap-1">
@@ -165,9 +182,19 @@ export default function CreateDoctorModal({
                                         <input
                                             id="avatar-input"
                                             type="file"
-                                            onChange={(e) => {
+                                            onChange={async (e) => {
                                                 const file = e.target.files?.[0];
-                                                if (file) setFormData(prev => ({ ...prev, avatarUrl: URL.createObjectURL(file) }));
+                                                if (file) {
+                                                    try {
+                                                        setIsUploadingImage(true);
+                                                        const imageUrl = await uploadToCloudinary(file);
+                                                        setFormData(prev => ({ ...prev, avatarUrl: imageUrl }));
+                                                    } catch (error) {
+                                                        console.error("Lỗi upload Cloudinary:", error);
+                                                    } finally {
+                                                        setIsUploadingImage(false);
+                                                    }
+                                                }
                                             }}
                                             className="hidden"
                                             accept="image/*"
@@ -177,14 +204,17 @@ export default function CreateDoctorModal({
                                     {/* Name */}
                                     <div className="space-y-1 min-w-0">
                                         <label className="text-[14px] font-medium text-slate-500 ml-1">Họ và tên bác sĩ <span className="text-red-500">*</span></label>
-                                        <input
-                                            name="name"
-                                            value={formData.name}
-                                            onChange={handleChange}
-                                            placeholder="Nhập họ tên bác sĩ"
-                                            autoComplete="off"
-                                            className={`w-full px-4 h-[42px] rounded-xl border ${formErrors.name ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[13.5px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all`}
-                                        />
+                                        <div className="relative">
+                                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[18px] text-slate-400">person</span>
+                                            <input
+                                                name="name"
+                                                value={formData.name}
+                                                onChange={handleChange}
+                                                placeholder="Nhập họ tên bác sĩ"
+                                                autoComplete="off"
+                                                className={`w-full pl-10 pr-4 h-[42px] rounded-xl border ${formErrors.name ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[13.5px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all`}
+                                            />
+                                        </div>
                                         {formErrors.name && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.name}</p>}
                                     </div>
 
@@ -227,6 +257,7 @@ export default function CreateDoctorModal({
                                     <div className="space-y-1 min-w-0">
                                         <label className="text-[14px] font-medium text-slate-500 ml-1">Mật khẩu <span className="text-red-500">*</span></label>
                                         <div className="relative">
+                                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[18px] text-slate-400">lock</span>
                                             <input
                                                 type={showPassword ? "text" : "password"}
                                                 name="password"
@@ -234,7 +265,7 @@ export default function CreateDoctorModal({
                                                 onChange={handleChange}
                                                 placeholder="Nhập mật khẩu"
                                                 autoComplete="new-password"
-                                                className={`w-full px-4 pr-11 h-[42px] rounded-xl border ${formErrors.password ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[13.5px] font-medium outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all`}
+                                                className={`w-full pl-10 pr-11 h-[42px] rounded-xl border ${formErrors.password ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[13.5px] font-medium outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all`}
                                             />
                                             <button
                                                 type="button"
@@ -356,7 +387,7 @@ export default function CreateDoctorModal({
                     <div className="flex items-center gap-3 w-full md:w-auto justify-end">
                         <button
                             onClick={onClose}
-                            className="px-6 py-2.5 text-[14px] font-bold text-slate-500 hover:bg-slate-100 rounded-xl transition-all active:scale-95"
+                            className="px-6 py-2.5 text-[14px] font-bold text-slate-500 hover:bg-slate-100 rounded-xl transition-all"
                             type="button"
                         >
                             Hủy bỏ
@@ -364,7 +395,7 @@ export default function CreateDoctorModal({
                         <button
                             onClick={handleSubmit}
                             disabled={isSaving}
-                            className="px-8 py-2.5 bg-primary text-white text-[14px] font-bold rounded-xl shadow-lg shadow-primary/25 hover:bg-primary/90 transition-all flex items-center gap-2 active:scale-95"
+                            className="px-8 py-2.5 bg-primary text-white text-[14px] font-bold rounded-xl shadow-lg shadow-primary/25 hover:bg-primary/90 transition-all flex items-center gap-2"
                         >
                             {isSaving ? (
                                 <>

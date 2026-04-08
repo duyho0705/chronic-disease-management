@@ -448,7 +448,7 @@ export default function DoctorAppointments() {
                                                     <div className="flex gap-2">
                                                         {isPending ? (
                                                             <>
-                                                                <button onClick={() => updateStatus(appt.id, 'SCHEDULED')} className="px-4 py-1.5 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[13px] font-medium rounded-full active:scale-95 transition-all outline-none">
+                                                                <button onClick={() => updateStatus(appt.id, 'SCHEDULED')} className="px-4 py-1.5 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[13px] font-medium rounded-full transition-all outline-none">
                                                                     Xác nhận
                                                                 </button>
                                                                 <button onClick={() => updateStatus(appt.id, 'CANCELLED')} className="p-1.5 text-slate-400 hover:text-red-500 transition-colors">
@@ -456,7 +456,7 @@ export default function DoctorAppointments() {
                                                                 </button>
                                                             </>
                                                         ) : isOnline ? (
-                                                            <button className="px-5 py-2 bg-primary text-slate-900 text-[15px] font-medium rounded-full shadow-lg shadow-primary/20 active:scale-95 transition-all">
+                                                            <button className="px-5 py-2 bg-primary text-slate-900 text-[15px] font-medium rounded-full shadow-lg shadow-primary/20 transition-all">
                                                                 Bắt đầu cuộc gọi
                                                             </button>
                                                         ) : (

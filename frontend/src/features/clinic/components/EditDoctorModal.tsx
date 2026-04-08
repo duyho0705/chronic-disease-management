@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Dropdown from '../../../components/ui/Dropdown';
+import { uploadToCloudinary } from '../../../utils/cloudinary';
 
 interface EditDoctorModalProps {
     isOpen: boolean;
@@ -37,6 +38,7 @@ export default function EditDoctorModal({
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
     const [avatarError, setAvatarError] = useState(false);
+    const [isUploadingImage, setIsUploadingImage] = useState(false);
 
     useEffect(() => {
         if (isOpen && initialData) {
@@ -81,12 +83,23 @@ export default function EditDoctorModal({
         }
     };
 
-    const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            setAvatarError(false);
-            const previewUrl = URL.createObjectURL(file);
-            setFormData(prev => ({ ...prev, avatarUrl: previewUrl }));
+            try {
+                setAvatarError(false);
+                setIsUploadingImage(true);
+                
+                // Upload to Cloudinary
+                const imageUrl = await uploadToCloudinary(file);
+                
+                setFormData(prev => ({ ...prev, avatarUrl: imageUrl }));
+            } catch (error) {
+                console.error("Lỗi upload ảnh:", error);
+                setAvatarError(true);
+            } finally {
+                setIsUploadingImage(false);
+            }
         }
     };
 
@@ -160,7 +173,12 @@ export default function EditDoctorModal({
                                             onClick={() => document.getElementById('avatar-input-edit')?.click()}
                                             className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 flex flex-col items-center justify-center cursor-pointer overflow-hidden group relative transition-all hover:border-primary shrink-0"
                                         >
-                                            {formData.avatarUrl && !avatarError ? (
+                                            {isUploadingImage ? (
+                                                <div className="flex flex-col items-center gap-1">
+                                                    <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                                                    <span className="text-[10px] font-bold text-primary">Đang tải...</span>
+                                                </div>
+                                            ) : formData.avatarUrl && !avatarError ? (
                                                 <img
                                                     src={formData.avatarUrl}
                                                     alt="Preview"
@@ -193,14 +211,17 @@ export default function EditDoctorModal({
                                     {/* Name */}
                                     <div className="space-y-1 min-w-0">
                                         <label className="text-[14px] font-medium text-slate-500 ml-1">Họ và tên bác sĩ <span className="text-red-500">*</span></label>
-                                        <input
-                                            name="name"
-                                            value={formData.name}
-                                            onChange={handleChange}
-                                            placeholder="Nhập họ tên bác sĩ"
-                                            autoComplete="off"
-                                            className={`w-full px-4 h-[42px] rounded-xl border ${formErrors.name ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[13.5px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all`}
-                                        />
+                                        <div className="relative">
+                                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[18px] text-slate-400">person</span>
+                                            <input
+                                                name="name"
+                                                value={formData.name}
+                                                onChange={handleChange}
+                                                placeholder="Nhập họ tên bác sĩ"
+                                                autoComplete="off"
+                                                className={`w-full pl-10 pr-4 h-[42px] rounded-xl border ${formErrors.name ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[13.5px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all`}
+                                            />
+                                        </div>
                                         {formErrors.name && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.name}</p>}
                                     </div>
 
@@ -243,6 +264,7 @@ export default function EditDoctorModal({
                                     <div className="space-y-1 min-w-0">
                                         <label className="text-[14px] font-medium text-slate-500 ml-1">Đổi mật khẩu</label>
                                         <div className="relative">
+                                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[18px] text-slate-400">lock</span>
                                             <input
                                                 type={showPassword ? "text" : "password"}
                                                 name="password"
@@ -250,7 +272,7 @@ export default function EditDoctorModal({
                                                 onChange={handleChange}
                                                 placeholder="Bỏ trống nếu không đổi"
                                                 autoComplete="new-password"
-                                                className={`w-full px-4 pr-11 h-[42px] rounded-xl border ${formErrors.password ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[13.5px] font-medium outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all`}
+                                                className={`w-full pl-10 pr-11 h-[42px] rounded-xl border ${formErrors.password ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[13.5px] font-medium outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all`}
                                             />
                                             <button
                                                 type="button"
@@ -269,6 +291,7 @@ export default function EditDoctorModal({
                                     <div className="space-y-1 min-w-0">
                                         <label className="text-[14px] font-medium text-slate-500 ml-1">Xác nhận mật khẩu mới</label>
                                         <div className="relative">
+                                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[18px] text-slate-400">lock</span>
                                             <input
                                                 type={showConfirmPassword ? "text" : "password"}
                                                 name="confirmPassword"
@@ -276,7 +299,7 @@ export default function EditDoctorModal({
                                                 onChange={handleChange}
                                                 placeholder="Bỏ trống nếu không đổi"
                                                 autoComplete="new-password"
-                                                className={`w-full px-4 pr-11 h-[42px] rounded-xl border ${formErrors.confirmPassword ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[13.5px] font-medium outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all`}
+                                                className={`w-full pl-10 pr-11 h-[42px] rounded-xl border ${formErrors.confirmPassword ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[13.5px] font-medium outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all`}
                                             />
                                             <button
                                                 type="button"
@@ -373,7 +396,7 @@ export default function EditDoctorModal({
                     <div className="flex items-center gap-3 w-full md:w-auto justify-end">
                         <button
                             onClick={onClose}
-                            className="px-6 py-2.5 text-[14px] font-bold text-slate-500 hover:bg-slate-100 rounded-xl transition-all active:scale-95"
+                            className="px-6 py-2.5 text-[14px] font-bold text-slate-500 hover:bg-slate-100 rounded-xl transition-all"
                             type="button"
                         >
                             Hủy bỏ
@@ -381,7 +404,7 @@ export default function EditDoctorModal({
                         <button
                             onClick={handleSubmit}
                             disabled={isSaving}
-                            className="px-8 py-2.5 bg-primary text-white text-[14px] font-bold rounded-xl shadow-lg shadow-primary/25 hover:bg-primary/90 transition-all flex items-center gap-2 active:scale-95"
+                            className="px-8 py-2.5 bg-primary text-white text-[14px] font-bold rounded-xl shadow-lg shadow-primary/25 hover:bg-primary/90 transition-all flex items-center gap-2"
                         >
                             {isSaving ? (
                                 <>

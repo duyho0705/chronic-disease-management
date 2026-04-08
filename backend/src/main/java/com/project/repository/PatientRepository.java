@@ -29,9 +29,10 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
            "LOWER(p.patientCode) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND " +
            "(:condition IS NULL OR :condition = 'Tất cả bệnh lý' OR :condition = '' OR p.chronicCondition = :condition) AND " +
            "(:riskLevel IS NULL OR :riskLevel = 'Mức độ rủi ro' OR :riskLevel = '' OR p.riskLevel = :riskLevel) AND " +
-           "(:status IS NULL OR :status = 'Tất cả trạng thái' OR :status = '' OR p.treatmentStatus = :status) " +
+           "(:status IS NULL OR :status = 'Tất cả trạng thái' OR :status = '' OR p.profileStatus = :status) AND " +
+           "(:doctor IS NULL OR :doctor = 'Tất cả bác sĩ' OR :doctor = '' OR p.doctorId IN (SELECT u.id FROM User u WHERE u.fullName LIKE CONCAT('%', :doctor, '%'))) " +
            "ORDER BY p.id DESC")
-    Page<Patient> findByClinicIdAndFilters(Long clinicId, String keyword, String condition, String riskLevel, String status, Pageable pageable);
+    Page<Patient> findByClinicIdAndFilters(Long clinicId, String keyword, String condition, String riskLevel, String status, String doctor, Pageable pageable);
     
     long countByClinicIdAndIsDeletedFalse(Long clinicId);
     long countByClinicIdAndRiskLevelAndIsDeletedFalse(Long clinicId, String riskLevel);
@@ -53,17 +54,17 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
     @Query("SELECT p.doctorId, COUNT(p) FROM Patient p WHERE p.clinicId = :clinicId AND p.riskLevel = :riskLevel AND p.isDeleted = false GROUP BY p.doctorId")
     List<Object[]> countHighRiskPatientsByDoctorIds(Long clinicId, String riskLevel);
 
-    @Query("SELECT FUNCTION('DATE', p.createdAt), COUNT(p) FROM Patient p WHERE p.clinicId = :clinicId AND p.isDeleted = false AND p.createdAt >= :startDate GROUP BY FUNCTION('DATE', p.createdAt)")
-    List<Object[]> countDailyPatients(Long clinicId, java.time.LocalDateTime startDate);
+    @org.springframework.data.jpa.repository.Query(value = "SELECT CAST(p.created_at AS date), COUNT(p.id) FROM patients p WHERE p.clinic_id = :clinicId AND p.is_deleted = false AND p.created_at >= :startDate GROUP BY CAST(p.created_at AS date)", nativeQuery = true)
+    List<Object[]> countDailyPatients(@org.springframework.data.repository.query.Param("clinicId") Long clinicId, @org.springframework.data.repository.query.Param("startDate") java.time.LocalDateTime startDate);
 
-    @Query("SELECT FUNCTION('DATE', p.createdAt), COUNT(p) FROM Patient p WHERE p.clinicId = :clinicId AND p.riskLevel = :riskLevel AND p.isDeleted = false AND p.createdAt >= :startDate GROUP BY FUNCTION('DATE', p.createdAt)")
-    List<Object[]> countDailyHighRiskPatients(Long clinicId, String riskLevel, java.time.LocalDateTime startDate);
+    @org.springframework.data.jpa.repository.Query(value = "SELECT CAST(p.created_at AS date), COUNT(p.id) FROM patients p WHERE p.clinic_id = :clinicId AND p.risk_level = :riskLevel AND p.is_deleted = false AND p.created_at >= :startDate GROUP BY CAST(p.created_at AS date)", nativeQuery = true)
+    List<Object[]> countDailyHighRiskPatients(@org.springframework.data.repository.query.Param("clinicId") Long clinicId, @org.springframework.data.repository.query.Param("riskLevel") String riskLevel, @org.springframework.data.repository.query.Param("startDate") java.time.LocalDateTime startDate);
 
-    @Query("SELECT FUNCTION('YEAR', p.createdAt), FUNCTION('MONTH', p.createdAt), COUNT(p) FROM Patient p WHERE p.clinicId = :clinicId AND p.isDeleted = false AND p.createdAt >= :startDate GROUP BY FUNCTION('YEAR', p.createdAt), FUNCTION('MONTH', p.createdAt)")
-    List<Object[]> countMonthlyPatients(Long clinicId, java.time.LocalDateTime startDate);
+    @org.springframework.data.jpa.repository.Query(value = "SELECT EXTRACT(YEAR FROM p.created_at), EXTRACT(MONTH FROM p.created_at), COUNT(p.id) FROM patients p WHERE p.clinic_id = :clinicId AND p.is_deleted = false AND p.created_at >= :startDate GROUP BY EXTRACT(YEAR FROM p.created_at), EXTRACT(MONTH FROM p.created_at)", nativeQuery = true)
+    List<Object[]> countMonthlyPatients(@org.springframework.data.repository.query.Param("clinicId") Long clinicId, @org.springframework.data.repository.query.Param("startDate") java.time.LocalDateTime startDate);
 
-    @Query("SELECT FUNCTION('YEAR', p.createdAt), FUNCTION('MONTH', p.createdAt), COUNT(p) FROM Patient p WHERE p.clinicId = :clinicId AND p.riskLevel = :riskLevel AND p.isDeleted = false AND p.createdAt >= :startDate GROUP BY FUNCTION('YEAR', p.createdAt), FUNCTION('MONTH', p.createdAt)")
-    List<Object[]> countMonthlyHighRiskPatients(Long clinicId, String riskLevel, java.time.LocalDateTime startDate);
+    @org.springframework.data.jpa.repository.Query(value = "SELECT EXTRACT(YEAR FROM p.created_at), EXTRACT(MONTH FROM p.created_at), COUNT(p.id) FROM patients p WHERE p.clinic_id = :clinicId AND p.risk_level = :riskLevel AND p.is_deleted = false AND p.created_at >= :startDate GROUP BY EXTRACT(YEAR FROM p.created_at), EXTRACT(MONTH FROM p.created_at)", nativeQuery = true)
+    List<Object[]> countMonthlyHighRiskPatients(@org.springframework.data.repository.query.Param("clinicId") Long clinicId, @org.springframework.data.repository.query.Param("riskLevel") String riskLevel, @org.springframework.data.repository.query.Param("startDate") java.time.LocalDateTime startDate);
 
     long countByDoctorIdAndRiskLevelAndIsDeletedFalse(Long doctorId, String riskLevel);
 

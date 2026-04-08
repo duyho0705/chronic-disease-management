@@ -78,6 +78,11 @@ export const clinicApi = {
     return response.data;
   },
 
+  createClinic: async (clinicData: any) => {
+    const response = await axiosInstance.post('/v1/admin/clinics', clinicData);
+    return response.data;
+  },
+
   getClinicById: async (id: number) => {
     const response = await axiosInstance.get(`/v1/admin/clinics/${id}`);
     return response.data;

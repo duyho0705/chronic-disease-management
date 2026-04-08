@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { clinicApi } from '../api/clinic';
 import ClinicSidebar from '../components/common/ClinicSidebar';
 import TopBar from '../components/common/TopBar';
@@ -13,6 +14,7 @@ import {
 } from 'recharts';
 
 export default function ClinicDashboard() {
+    const navigate = useNavigate();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [stats, setStats] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -74,9 +76,9 @@ export default function ClinicDashboard() {
                     y={0}
                     dy={16}
                     textAnchor={textAnchor}
-                    fill="#64748b"
-                    fontSize={13}
-                    fontWeight={500}
+                    fill="#475569"
+                    fontSize={14}
+                    fontWeight={600}
                 >
                     {payload.value}
                 </text>
@@ -133,11 +135,11 @@ export default function ClinicDashboard() {
                 return 'ca nguy kịch';
             };
             return (
-                <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-3 border border-slate-100 dark:border-slate-800 rounded-xl shadow-xl">
-                    <p className="text-[13px] font-bold text-slate-700 dark:text-slate-200 mb-1">{label}</p>
+                <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-4 border border-slate-100 dark:border-slate-800 rounded-xl shadow-xl">
+                    <p className="text-[14.5px] font-bold text-slate-800 dark:text-slate-100 mb-1">{label}</p>
                     <div className="flex items-center gap-2">
-                        <p className={`text-[14px] font-black ${getColor()}`}>
-                            {payload[0].value} <span className="text-slate-500 font-medium text-[12px]">{getSuffix()}</span>
+                        <p className={`text-[15.5px] font-black ${getColor()}`}>
+                            {payload[0].value} <span className="text-slate-500 font-medium text-[13px]">{getSuffix()}</span>
                         </p>
                     </div>
                 </div>
@@ -257,8 +259,8 @@ export default function ClinicDashboard() {
                                 </div>
                             ) : (
                                 <>
-                                    <h3 className="text-[21px] font-semibold tracking-tight text-slate-900 dark:text-white">Tổng quan vận hành hôm nay</h3>
-                                    <p className="text-slate-500 font-medium text-[14px]">
+                                    <h3 className="text-[23px] font-bold tracking-tight text-slate-900 dark:text-white">Tổng quan vận hành hôm nay</h3>
+                                    <p className="text-slate-600 dark:text-slate-400 font-semibold text-[15px]">
                                         {stats?.insights?.[0] || 'Thông tin vận hành phòng khám đang được cập nhật...'}
                                     </p>
                                 </>
@@ -276,23 +278,23 @@ export default function ClinicDashboard() {
                                     {stats?.insights?.length > 1 && (
                                         <div className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 rounded-xl border border-amber-100 dark:border-amber-800 animate-in fade-in slide-in-from-right duration-500">
                                             <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-[20px] animate-pulse">new_releases</span>
-                                            <p className="text-[13px] font-bold text-amber-700 dark:text-amber-300">
+                                            <p className="text-[14px] font-bold text-amber-700 dark:text-amber-300">
                                                 Cảnh báo mới: {stats.insights[1]}
                                             </p>
                                         </div>
                                     )}
                                     <button
                                         onClick={handleExportExcel}
-                                        className="bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 px-5 py-2.5 rounded-xl font-bold text-[13.5px] flex items-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95 border border-slate-200 dark:border-slate-800"
+                                        className="bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all border border-slate-200 dark:border-slate-800 shadow-sm"
                                     >
                                         <span className="material-symbols-outlined text-emerald-500 text-[20px]">upload_file</span>
-                                        Xuất báo cáo Excel
+                                        Xuất Excel
                                     </button>
                                     <button
                                         onClick={() => setShowCreateDoctorModal(true)}
-                                        className="bg-sky-500 hover:bg-sky-600 text-white px-5 py-2.5 rounded-xl font-bold text-[13.5px] flex items-center gap-2 shadow-sm shadow-sky-500/10 hover:shadow-lg hover:shadow-sky-500/20 transition-all active:scale-95"
+                                        className="bg-primary text-white px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all font-display whitespace-nowrap shadow-sm"
                                     >
-                                        <span className="material-symbols-outlined text-[20px]">person_add</span>
+                                        <span className="material-symbols-outlined text-[20px]">add</span>
                                         Thêm bác sĩ mới
                                     </button>
                                     <button
@@ -304,7 +306,7 @@ export default function ClinicDashboard() {
                                                 setShowToast(true);
                                             }
                                         }}
-                                        className="bg-indigo-500 hover:bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold text-[13.5px] flex items-center gap-2 shadow-sm shadow-indigo-500/10 hover:shadow-lg hover:shadow-indigo-500/20 transition-all active:scale-95"
+                                        className="bg-indigo-500 text-white px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 hover:shadow-lg hover:shadow-indigo-500/20 transition-all font-display whitespace-nowrap shadow-sm"
                                     >
                                         <span className="material-symbols-outlined text-[20px]">assignment_ind</span>
                                         Phân công bệnh nhân
@@ -439,8 +441,8 @@ export default function ClinicDashboard() {
                                     <div>
                                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                                             <div>
-                                                <h2 className="text-[19px] font-semibold text-slate-900 dark:text-white tracking-tight">Thống kê vận hành phòng khám</h2>
-                                                <p className="text-[14px] text-slate-500 mt-1">Báo cáo chi tiết theo {selectedChartMetric.toLowerCase()}</p>
+                                                <h2 className="text-[18px] font-bold text-slate-700 dark:text-white tracking-tight">Thống kê vận hành phòng khám</h2>
+                                                <p className="text-[14px] text-slate-500 font-medium mt-1">Báo cáo chi tiết theo {selectedChartMetric.toLowerCase()}</p>
                                             </div>
                                             <div className="flex items-center gap-4">
                                                 <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700/50">
@@ -514,16 +516,16 @@ export default function ClinicDashboard() {
                                     <div className="grid grid-cols-3 gap-4 pt-4 border-t border-slate-50 dark:border-slate-800/50 mt-6 pb-2">
                                         {getMetricSummary().items.map((item, idx) => (
                                             <div key={idx} className={`flex flex-col items-center ${idx === 1 ? 'border-x border-slate-100 dark:border-slate-800/50' : ''}`}>
-                                                <p className="text-[14px] font-medium text-slate-500 mb-1 flex items-center gap-1">
-                                                    <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
+                                                <p className="text-[15px] font-semibold text-slate-500 mb-1.5 flex items-center gap-1.5">
+                                                    <span className="material-symbols-outlined text-[22px]">{item.icon}</span>
                                                     {item.label}
                                                 </p>
-                                                <div className="flex items-center gap-1">
-                                                    <span className={`text-[15px] font-bold ${idx === 0 && item.trend !== undefined && !item.value.includes('0%') ? (item.trend ? 'text-emerald-500' : 'text-red-500') : getMetricSummary().color}`}>
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className={`text-[17px] font-black ${idx === 0 && item.trend !== undefined && !item.value.includes('0%') ? (item.trend ? 'text-emerald-500' : 'text-red-500') : getMetricSummary().color}`}>
                                                         {item.value}
                                                     </span>
                                                     {idx === 0 && item.trend !== undefined && (
-                                                        <span className={`material-symbols-outlined text-sm ${item.value.includes('0%') ? getMetricSummary().color : (item.trend ? 'text-emerald-500' : 'text-red-500')}`}>
+                                                        <span className={`material-symbols-outlined text-[13px] ${item.value.includes('0%') ? getMetricSummary().color : (item.trend ? 'text-emerald-500' : 'text-red-500')}`}>
                                                             {item.value.includes('0%') ? 'trending_flat' : (item.trend ? 'trending_up' : 'trending_down')}
                                                         </span>
                                                     )}
@@ -563,8 +565,8 @@ export default function ClinicDashboard() {
                             ) : (
                                 <>
                                     <div>
-                                        <h3 className="text-[19px] font-semibold text-slate-900 dark:text-white tracking-tight">Cơ cấu bệnh lý</h3>
-                                        <p className="text-[14px] text-slate-500 font-medium">Phân tích theo danh mục</p>
+                                        <h3 className="text-[18px] font-bold text-slate-700">Cơ cấu bệnh lý</h3>
+                                        <p className="text-[14px] text-slate-500 font-medium mt-1">Phân tích theo danh mục</p>
                                     </div>
                                     <div className="relative w-48 h-48 mx-auto my-10">
                                         <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
@@ -651,15 +653,15 @@ export default function ClinicDashboard() {
                                         {mainStats.diseaseRatios.map((item: any, idx: number) => (
                                             <div
                                                 key={idx}
-                                                className={`flex justify-between items-center p-2.5 rounded-xl border transition-all duration-300 cursor-pointer ${hoveredSegment === idx ? 'bg-white dark:bg-slate-700 shadow-md border-slate-200 dark:border-slate-600 scale-[1.02]' : 'bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-700/50'}`}
+                                                className={`flex justify-between items-center p-3 rounded-xl border transition-all duration-300 cursor-pointer ${hoveredSegment === idx ? 'bg-white dark:bg-slate-700 shadow-md border-slate-200 dark:border-slate-600 scale-[1.02]' : 'bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-700/50'}`}
                                                 onMouseEnter={() => setHoveredSegment(idx)}
                                                 onMouseLeave={() => setHoveredSegment(null)}
                                             >
-                                                <div className="flex items-center gap-2 min-w-0">
-                                                    <div className={`w-2 h-2 rounded-full flex-shrink-0 ${item.color}`}></div>
-                                                    <span className={`font-bold text-[12px] truncate transition-colors ${hoveredSegment === idx ? 'text-primary' : 'text-slate-600 dark:text-slate-300'}`}>{item.label}</span>
+                                                <div className="flex items-center gap-3 min-w-0">
+                                                    <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${item.color}`}></div>
+                                                    <span className={`font-bold text-[13px] truncate transition-colors ${hoveredSegment === idx ? 'text-primary' : 'text-slate-700 dark:text-slate-200'}`}>{item.label}</span>
                                                 </div>
-                                                <span className="text-[12px] font-black text-slate-700 dark:text-slate-200 ml-1 flex-shrink-0">{item.value}</span>
+                                                <span className="text-[13px] font-black text-slate-900 dark:text-white ml-2 flex-shrink-0">{item.value}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -687,7 +689,10 @@ export default function ClinicDashboard() {
                             {isLoading ? (
                                 <div className="h-5 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-28"></div>
                             ) : (
-                                <button className="text-emerald-600 dark:text-emerald-400 font-bold text-sm flex items-center gap-1 hover:underline active:scale-95 transition-all">
+                                <button
+                                    onClick={() => navigate('/clinic/doctors')}
+                                    className="text-emerald-600 dark:text-emerald-400 font-bold text-sm flex items-center gap-1 transition-all hover:gap-2"
+                                >
                                     Xem tất cả <span className="material-symbols-outlined text-sm">arrow_forward</span>
                                 </button>
                             )}
@@ -697,22 +702,22 @@ export default function ClinicDashboard() {
                                 <thead>
                                     <tr className="bg-slate-50 dark:bg-slate-800/50 font-display">
                                         <th className="px-8 py-5">
-                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-24"></div> : <span className="text-[15px] font-medium text-slate-500">Tên Bác sĩ</span>}
+                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-24"></div> : <span className="text-[15px] font-medium text-slate-700">Tên bác sĩ</span>}
                                         </th>
                                         <th className="px-8 py-5">
-                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-32"></div> : <span className="text-[15px] font-medium text-slate-500">Chuyên khoa</span>}
+                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-32"></div> : <span className="text-[15px] font-medium text-slate-700">Chuyên khoa</span>}
                                         </th>
                                         <th className="px-8 py-5">
-                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16 mx-auto"></div> : <span className="text-[15px] font-medium text-slate-500 text-center block">Tải lượng</span>}
+                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16 mx-auto"></div> : <span className="text-[15px] font-medium text-slate-700 text-center block">Tải lượng</span>}
                                         </th>
                                         <th className="px-8 py-5">
-                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-20"></div> : <span className="text-[15px] font-medium text-slate-500">Đánh giá</span>}
+                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-20"></div> : <span className="text-[15px] font-medium text-slate-700">Đánh giá</span>}
                                         </th>
                                         <th className="px-8 py-5">
-                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-24"></div> : <span className="text-[15px] font-medium text-slate-500">Trạng thái</span>}
+                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-24"></div> : <span className="text-[15px] font-medium text-slate-700">Trạng thái</span>}
                                         </th>
                                         <th className="px-8 py-5 text-right">
-                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16 ml-auto"></div> : <span className="text-[15px] font-medium text-slate-500">Thao tác</span>}
+                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16 ml-auto"></div> : <span className="text-[15px] font-medium text-slate-700">Thao tác</span>}
                                         </th>
                                     </tr>
                                 </thead>
@@ -747,35 +752,52 @@ export default function ClinicDashboard() {
                                             </tr>
                                         ))
                                     ) : doctors.map((dr: any, idx: number) => (
-                                        <tr key={idx} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors group cursor-pointer">
+                                        <tr
+                                            key={dr.dbId || idx}
+                                            className="group hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-all cursor-pointer active:bg-slate-100"
+                                            onClick={() => {
+                                                setSelectedDoctor(dr);
+                                                setShowEditDoctorModal(true);
+                                            }}
+                                        >
                                             <td className="px-8 py-5">
                                                 <div className="flex items-center gap-4">
                                                     <div className="relative shrink-0">
-                                                        <img className="size-11 rounded-full object-cover border-2 border-primary/10" src={dr.img} alt={dr.name} />
+                                                        <img
+                                                            className="size-11 rounded-full object-cover border-2 border-primary/10"
+                                                            src={dr.img || `https://ui-avatars.com/api/?name=${encodeURIComponent(dr.name)}&background=random`}
+                                                            alt={dr.name}
+                                                            onError={(e) => {
+                                                                e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(dr.name)}&background=random`;
+                                                            }}
+                                                        />
                                                     </div>
                                                     <div>
-                                                        <p className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">
-                                                            {dr.degree === 'Tiến sĩ' ? 'TS. ' : dr.degree === 'Thạc sĩ' ? 'ThS. ' : 'BS. '}
+                                                        <p className="text-sm font-bold text-slate-700 dark:text-white transition-colors">
+                                                            {dr.degree === 'Tiến sĩ' ? 'TS. ' : dr.degree === 'Thạc sĩ' ? 'ThS. ' : 'Bác sĩ '}
                                                             {dr.name}
                                                         </p>
                                                         <p className="text-[13px] text-slate-500 font-medium">{dr.id}</p>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-5 text-sm font-bold text-slate-600 dark:text-slate-400">{dr.dept}</td>
+                                            <td className="px-8 py-5 text-[14px] font-medium text-slate-700">{dr.specialty || 'Đa khoa'}</td>
                                             <td className="px-8 py-5">
                                                 <div className="flex flex-col items-center gap-1.5 min-w-[100px]">
-                                                    <span className="text-sm font-black text-slate-900 dark:text-white">{dr.load}</span>
-                                                    <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                                        <div className={`h-full ${dr.color === 'emerald' ? 'bg-emerald-500' : dr.color === 'amber' ? 'bg-amber-400' : 'bg-red-500'} ${dr.progress} rounded-full`}></div>
-                                                    </div>
+                                                    <span className="text-[15px] font-medium text-slate-700 dark:text-slate-200">{dr.load} ca</span>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-5">
                                                 <div className="flex items-center gap-1.5 text-amber-400">
-                                                    <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                                    <span className="text-sm font-black text-slate-900 dark:text-white">{dr.rating}</span>
-                                                    <span className="text-[13px] text-slate-400 font-medium">({dr.reviews})</span>
+                                                    <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                                                    {dr.rating && dr.rating !== 'N/A' ? (
+                                                        <>
+                                                            <span className="text-[15px] font-bold text-slate-700 dark:text-slate-200">{dr.rating}</span>
+                                                            <span className="text-[13.5px] text-slate-400 font-medium">({dr.reviews})</span>
+                                                        </>
+                                                    ) : (
+                                                        <span className="text-[13.5px] text-slate-400 font-medium italic">Chưa có đánh giá</span>
+                                                    )}
                                                 </div>
                                             </td>
                                             <td className="px-8 py-5">

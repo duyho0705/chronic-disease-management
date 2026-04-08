@@ -185,9 +185,9 @@ export default function ClinicDoctors() {
                         ) : (
                             <button
                                 onClick={() => setIsCreateModalOpen(true)}
-                                className="bg-primary text-white px-6 py-3 rounded-2xl font-black text-[15px] flex items-center gap-3 hover:shadow-xl hover:shadow-primary/30 transition-all font-display whitespace-nowrap active:scale-95 group"
+                                className="bg-primary text-white px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all font-display whitespace-nowrap group shadow-sm"
                             >
-                                <span className="material-symbols-outlined font-black">add</span>
+                                <span className="material-symbols-outlined text-[20px]">add</span>
                                 Thêm bác sĩ mới
                             </button>
                         )}
@@ -227,7 +227,7 @@ export default function ClinicDoctors() {
                                         onChange={setSpecialtyFilter}
                                     />
 
-                                    <button className="bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary p-4 rounded-2xl transition-all hover:shadow-sm active:scale-95">
+                                    <button className="bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary p-4 rounded-2xl transition-all hover:shadow-sm">
                                         <span className="material-symbols-outlined">tune</span>
                                     </button>
                                 </div>
@@ -343,7 +343,7 @@ export default function ClinicDoctors() {
                                                     </span>
                                                 </td>
                                                 <td className="px-8 py-5 text-right whitespace-nowrap">
-                                                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-1 group-hover:translate-x-0">
+                                                    <div className="flex items-center justify-end gap-2 opacity-100 transition-all">
                                                         <button onClick={() => { setSelectedDoctor(dr); setIsEditModalOpen(true); }} className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary transition-all">
                                                             <span className="material-symbols-outlined text-[22px]">edit</span>
                                                         </button>

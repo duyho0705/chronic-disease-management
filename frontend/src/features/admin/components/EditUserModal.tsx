@@ -237,7 +237,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
           <button
             onClick={handleSubmit}
             disabled={isSaving}
-            className="px-10 py-2.5 text-sm font-extrabold text-white bg-primary hover:bg-primary/90 rounded-xl transition-all shadow-xl shadow-primary/20 flex items-center gap-2 transform active:scale-95 disabled:opacity-50"
+            className="px-10 py-2.5 text-sm font-extrabold text-white bg-primary hover:bg-primary/90 rounded-xl transition-all shadow-xl shadow-primary/20 flex items-center gap-2 disabled:opacity-50"
             type="button"
           >
             {isSaving ? (

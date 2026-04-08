@@ -33,11 +33,11 @@ public interface PrescriptionRepository extends JpaRepository<Prescription, Long
     
     long countByDoctorIdInAndCreatedAtBetweenAndIsDeletedFalse(java.util.List<Long> doctorIds, java.time.LocalDateTime start, java.time.LocalDateTime end);
 
-    @Query("SELECT FUNCTION('DATE', p.createdAt), COUNT(p) FROM Prescription p WHERE p.doctorId IN :doctorIds AND p.isDeleted = false AND p.createdAt >= :startDate GROUP BY FUNCTION('DATE', p.createdAt)")
-    java.util.List<Object[]> countDailyPrescriptionsByDoctorIds(java.util.List<Long> doctorIds, java.time.LocalDateTime startDate);
+    @org.springframework.data.jpa.repository.Query(value = "SELECT CAST(p.created_at AS date), COUNT(p.id) FROM prescriptions p WHERE p.doctor_id IN :doctorIds AND p.is_deleted = false AND p.created_at >= :startDate GROUP BY CAST(p.created_at AS date)", nativeQuery = true)
+    java.util.List<Object[]> countDailyPrescriptionsByDoctorIds(@org.springframework.data.repository.query.Param("doctorIds") java.util.List<Long> doctorIds, @org.springframework.data.repository.query.Param("startDate") java.time.LocalDateTime startDate);
 
-    @Query("SELECT FUNCTION('YEAR', p.createdAt), FUNCTION('MONTH', p.createdAt), COUNT(p) FROM Prescription p WHERE p.doctorId IN :doctorIds AND p.isDeleted = false AND p.createdAt >= :startDate GROUP BY FUNCTION('YEAR', p.createdAt), FUNCTION('MONTH', p.createdAt)")
-    java.util.List<Object[]> countMonthlyPrescriptionsByDoctorIds(java.util.List<Long> doctorIds, java.time.LocalDateTime startDate);
+    @org.springframework.data.jpa.repository.Query(value = "SELECT EXTRACT(YEAR FROM p.created_at), EXTRACT(MONTH FROM p.created_at), COUNT(p.id) FROM prescriptions p WHERE p.doctor_id IN :doctorIds AND p.is_deleted = false AND p.created_at >= :startDate GROUP BY EXTRACT(YEAR FROM p.created_at), EXTRACT(MONTH FROM p.created_at)", nativeQuery = true)
+    java.util.List<Object[]> countMonthlyPrescriptionsByDoctorIds(@org.springframework.data.repository.query.Param("doctorIds") java.util.List<Long> doctorIds, @org.springframework.data.repository.query.Param("startDate") java.time.LocalDateTime startDate);
 
     @Query("SELECT p.doctorId, COUNT(p) FROM Prescription p WHERE p.doctorId IN :doctorIds AND p.isDeleted = false GROUP BY p.doctorId")
     java.util.List<Object[]> countPrescriptionsByDoctorIds(java.util.List<Long> doctorIds);

@@ -8,7 +8,14 @@ import java.util.List;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "patients")
+@Table(name = "patients", indexes = {
+    @Index(name = "idx_patient_clinic_id", columnList = "clinic_id"),
+    @Index(name = "idx_patient_doctor_id", columnList = "doctor_id"),
+    @Index(name = "idx_patient_risk_level", columnList = "risk_level"),
+    @Index(name = "idx_patient_created_at", columnList = "created_at"),
+    @Index(name = "idx_patient_is_deleted", columnList = "is_deleted"),
+    @Index(name = "idx_patient_clinic_created_deleted", columnList = "clinic_id, created_at, is_deleted")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -83,6 +90,9 @@ public class Patient extends BaseEntity {
 
     @Column(name = "treatment_status", length = 50)
     private String treatmentStatus;
+
+    @Column(name = "profile_status", length = 50)
+    private String profileStatus;
 
     @Column(name = "room_location", length = 100)
     private String roomLocation;

@@ -70,6 +70,9 @@ const ClinicSidebar: React.FC<ClinicSidebarProps> = ({
                         <img
                             src={userAvatar}
                             alt={userName}
+                            onError={(e) => {
+                                e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=random`;
+                            }}
                             className="w-full h-full object-cover rounded-[14px] border-2 border-white dark:border-slate-900"
                         />
                     </div>

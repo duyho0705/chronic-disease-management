@@ -284,14 +284,14 @@ export default function AdminUsers() {
                 <>
                   <button
                     onClick={handleExport}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-full font-bold transition-all text-[14px] border border-primary/10 active:scale-95 shadow-sm group"
+                    className="flex items-center gap-2 px-6 py-2.5 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-full font-bold transition-all text-[14px] border border-primary/10 shadow-sm group"
                   >
                     <span className="material-symbols-outlined text-[20px] group-hover:rotate-[20deg] transition-transform">download</span>
                     Xuất danh sách
                   </button>
                   <button
                     onClick={() => setIsCreateModalOpen(true)}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-primary text-white rounded-full font-bold transition-all text-[14px] shadow-lg shadow-primary/20 hover:shadow-primary/30 active:scale-95 group"
+                    className="flex items-center gap-2 px-6 py-2.5 bg-primary text-white rounded-full font-bold transition-all text-[14px] shadow-lg shadow-primary/20 hover:shadow-primary/30 group"
                   >
                     <span className="material-symbols-outlined text-[20px]">person_add</span>
                     Thêm người dùng mới
@@ -348,12 +348,12 @@ export default function AdminUsers() {
                   {isLoading ? <div className="h-3 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-16 mb-2"></div> : "Tìm kiếm"}
                 </label>
                 {isLoading ? (
-                  <div className="h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-full w-full"></div>
+                  <div className="h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-lg w-full"></div>
                 ) : (
                   <div className="relative">
                     <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
                     <input
-                      className="w-full bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/50 rounded-full pl-10 pr-4 py-2.5 text-[14px] font-medium focus:ring-2 focus:ring-primary/20 shadow-sm outline-none text-slate-900 dark:text-white transition-all"
+                      className="w-full bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/50 rounded-lg pl-10 pr-4 py-2.5 text-[14px] font-medium text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-primary/20 shadow-sm outline-none text-slate-900 dark:text-white transition-all"
                       placeholder="Tên hoặc Email..."
                       type="text"
                       value={searchTerm}

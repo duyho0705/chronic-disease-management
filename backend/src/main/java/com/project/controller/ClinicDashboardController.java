@@ -65,12 +65,13 @@ public class ClinicDashboardController {
             @RequestParam(required = false) String condition,
             @RequestParam(required = false) String riskLevel,
             @RequestParam(required = false) String status,
+            @RequestParam(required = false) String doctor,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         validateClinicAccess(clinicId);
         Pageable pageable = PageRequest.of(page, size);
         return ApiResponse.success("Patients fetched",
-                clinicDashboardService.getPatientRecords(clinicId, keyword, condition, riskLevel, status, pageable));
+                clinicDashboardService.getPatientRecords(clinicId, keyword, condition, riskLevel, status, doctor, pageable));
     }
 
     @PostMapping("/patients")

@@ -47,8 +47,8 @@ export default function Dropdown({
         onClick={() => setIsOpen(!isOpen)}
         className={`
           flex items-center justify-between gap-3 transition-all duration-300 active:scale-100
-          ${variant === 'badge' 
-            ? 'px-4 py-1.5 bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800' 
+          ${variant === 'badge'
+            ? 'px-4 py-1.5 bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800'
             : 'px-4 h-[42px] bg-white dark:bg-slate-900 border rounded-xl shadow-sm'
           }
           ${isOpen

@@ -145,30 +145,67 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
             startDate = now.minusMonths(5).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
         }
 
-        // 1. Fetch ALL chart data in bulk
-        List<Object[]> patientStats = "DAY".equals(timeUnit) ? patientRepository.countDailyPatients(clinicId, startDate) : patientRepository.countMonthlyPatients(clinicId, startDate);
-        List<Object[]> riskStats = "DAY".equals(timeUnit) ? patientRepository.countDailyHighRiskPatients(clinicId, AppConstants.RISK_HIGH, startDate) : patientRepository.countMonthlyHighRiskPatients(clinicId, AppConstants.RISK_HIGH, startDate);
-        
-        List<User> doctorUsers = userRepository.findByFilters("DOCTOR", "ACTIVE", clinicId, null, PageRequest.of(0, 100)).getContent();
+        // 1. Fetch ALL chart data in parallel for maximum speed
+        final String finalTimeUnit = timeUnit;
+        final LocalDateTime finalStartDate = startDate;
+
+        java.util.concurrent.CompletableFuture<List<Object[]>> patientStatsFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
+            "DAY".equals(finalTimeUnit) ? patientRepository.countDailyPatients(clinicId, finalStartDate) : patientRepository.countMonthlyPatients(clinicId, finalStartDate)
+        );
+
+        java.util.concurrent.CompletableFuture<List<Object[]>> riskStatsFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
+            "DAY".equals(finalTimeUnit) ? patientRepository.countDailyHighRiskPatients(clinicId, AppConstants.RISK_HIGH, finalStartDate) : patientRepository.countMonthlyHighRiskPatients(clinicId, AppConstants.RISK_HIGH, finalStartDate)
+        );
+
+        java.util.concurrent.CompletableFuture<List<User>> doctorUsersFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
+            userRepository.findByFilters("DOCTOR", "ACTIVE", clinicId, null, PageRequest.of(0, 100)).getContent()
+        );
+
+        // Wait for primary data
+        java.util.concurrent.CompletableFuture.allOf(patientStatsFuture, riskStatsFuture, doctorUsersFuture).join();
+
+        List<Object[]> patientStats = patientStatsFuture.join();
+        List<Object[]> riskStats = riskStatsFuture.join();
+        List<User> doctorUsers = doctorUsersFuture.join();
         List<Long> doctorIds = doctorUsers.stream().map(User::getId).collect(Collectors.toList());
-        
-        List<Object[]> apptStats = !doctorIds.isEmpty() ? ("DAY".equals(timeUnit) ? appointmentRepository.countDailyAppointmentsByDoctorIds(doctorIds, startDate) : appointmentRepository.countMonthlyAppointmentsByDoctorIds(doctorIds, startDate)) : new ArrayList<>();
-        List<Object[]> prescStats = !doctorIds.isEmpty() ? ("DAY".equals(timeUnit) ? prescriptionRepository.countDailyPrescriptionsByDoctorIds(doctorIds, startDate) : prescriptionRepository.countMonthlyPrescriptionsByDoctorIds(doctorIds, startDate)) : new ArrayList<>();
+
+        // Secondary parallel fetches that depend on doctorIds
+        java.util.concurrent.CompletableFuture<List<Object[]>> apptStatsFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
+            !doctorIds.isEmpty() ? ("DAY".equals(finalTimeUnit) ? appointmentRepository.countDailyAppointmentsByDoctorIds(doctorIds, finalStartDate) : appointmentRepository.countMonthlyAppointmentsByDoctorIds(doctorIds, finalStartDate)) : new ArrayList<>()
+        );
+
+        java.util.concurrent.CompletableFuture<List<Object[]>> prescStatsFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
+            !doctorIds.isEmpty() ? ("DAY".equals(finalTimeUnit) ? prescriptionRepository.countDailyPrescriptionsByDoctorIds(doctorIds, finalStartDate) : prescriptionRepository.countMonthlyPrescriptionsByDoctorIds(doctorIds, finalStartDate)) : new ArrayList<>()
+        );
+
+        java.util.concurrent.CompletableFuture<List<Object[]>> drPatientMapFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
+            patientRepository.countPatientsByDoctorIds(clinicId)
+        );
+
+        java.util.concurrent.CompletableFuture<List<Object[]>> drApptMapFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
+            !doctorIds.isEmpty() ? appointmentRepository.countAppointmentsByDoctorIds(doctorIds) : new ArrayList<>()
+        );
+
+        // Wait for all secondary data
+        java.util.concurrent.CompletableFuture.allOf(apptStatsFuture, prescStatsFuture, drPatientMapFuture, drApptMapFuture).join();
+
+        List<Object[]> apptStats = apptStatsFuture.join();
+        List<Object[]> prescStats = prescStatsFuture.join();
 
         // Helper Map to store results by key (date or month/year)
         Map<String, Long> pMap = new HashMap<>();
         Map<String, Long> rMap = new HashMap<>();
         Map<String, Long> loadMap = new HashMap<>();
 
-        for (Object[] r : patientStats) pMap.put(generateKey(r, timeUnit), (Long) r["DAY".equals(timeUnit) ? 1 : 2]);
-        for (Object[] r : riskStats) rMap.put(generateKey(r, timeUnit), (Long) r["DAY".equals(timeUnit) ? 1 : 2]);
+        for (Object[] r : patientStats) pMap.put(generateKey(r, finalTimeUnit), ((Number) r["DAY".equals(finalTimeUnit) ? 1 : 2]).longValue());
+        for (Object[] r : riskStats) rMap.put(generateKey(r, finalTimeUnit), ((Number) r["DAY".equals(finalTimeUnit) ? 1 : 2]).longValue());
         for (Object[] r : apptStats) {
-            String k = generateKey(r, timeUnit);
-            loadMap.put(k, loadMap.getOrDefault(k, 0L) + (Long) r["DAY".equals(timeUnit) ? 1 : 2]);
+            String k = generateKey(r, finalTimeUnit);
+            loadMap.put(k, loadMap.getOrDefault(k, 0L) + ((Number) r["DAY".equals(finalTimeUnit) ? 1 : 2]).longValue());
         }
         for (Object[] r : prescStats) {
-            String k = generateKey(r, timeUnit);
-            loadMap.put(k, loadMap.getOrDefault(k, 0L) + (Long) r["DAY".equals(timeUnit) ? 1 : 2]);
+            String k = generateKey(r, finalTimeUnit);
+            loadMap.put(k, loadMap.getOrDefault(k, 0L) + ((Number) r["DAY".equals(finalTimeUnit) ? 1 : 2]).longValue());
         }
 
         // Build the charts from pre-fetched data
@@ -182,13 +219,11 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
             doctorLoadChart.add(ClinicDashboardResponse.PatientGrowthChartDto.builder().month(label).value(loadMap.getOrDefault(k, 0L).intValue()).active(i == 0).build());
         }
 
-        // 2. Fetch doctor performace stats in bulk
+        // 2. Map doctor performance stats in bulk from pre-fetched data
         Map<Long, Long> drPatientMap = new HashMap<>();
         Map<Long, Long> drApptMap = new HashMap<>();
-        if (!doctorIds.isEmpty()) {
-            for (Object[] r : patientRepository.countPatientsByDoctorIds(clinicId)) drPatientMap.put((Long) r[0], (Long) r[1]);
-            for (Object[] r : appointmentRepository.countAppointmentsByDoctorIds(doctorIds)) drApptMap.put((Long) r[0], (Long) r[1]);
-        }
+        for (Object[] r : drPatientMapFuture.join()) drPatientMap.put(((Number) r[0]).longValue(), ((Number) r[1]).longValue());
+        for (Object[] r : drApptMapFuture.join()) drApptMap.put(((Number) r[0]).longValue(), ((Number) r[1]).longValue());
 
         List<ClinicDashboardResponse.DoctorPerformanceDto> performances = doctorUsers.stream().limit(5).map(u -> {
             long pCount = drPatientMap.getOrDefault(u.getId(), 0L);
@@ -198,9 +233,16 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
             String fullName = u.getFullName() != null ? u.getFullName() : "Bác sĩ";
             fullName = fullName.replaceAll("(?i)(BS\\.|Bác sĩ|Thạc sĩ|Tiến sĩ|TS\\.|ThS\\.)", "").trim();
 
+            String encodedName = fullName;
+            try {
+                encodedName = java.net.URLEncoder.encode(fullName, "UTF-8");
+            } catch (Exception e) {
+                log.warn("Error encoding doctor name for avatar: {}", fullName);
+            }
+
             return ClinicDashboardResponse.DoctorPerformanceDto.builder()
                     .dbId(u.getId()).id("D-" + (1000 + u.getId())).name(fullName)
-                    .img(u.getAvatarUrl() != null ? u.getAvatarUrl() : "https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=150&h=150")
+                    .img(u.getAvatarUrl() != null ? u.getAvatarUrl() : "https://ui-avatars.com/api/?name=" + encodedName + "&background=random")
                     .specialty(u.getSpecialization() != null ? u.getSpecialization() : "Đa khoa")
                     .email(u.getEmail()).phone(u.getPhone()).licenseNumber(u.getLicenseNumber())
                     .degree(u.getDegree() != null ? u.getDegree() : "Bác sĩ").bio(u.getBio())
@@ -265,9 +307,9 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
     @Override
     @Transactional(readOnly = true)
     public Page<ClinicPatientResponse> getPatientRecords(Long clinicId, String keyword, String condition,
-            String riskLevel, String status, Pageable pageable) {
+            String riskLevel, String status, String doctor, Pageable pageable) {
         Page<Patient> patientPage = patientRepository.findByClinicIdAndFilters(clinicId, keyword, condition, riskLevel,
-                status, pageable);
+                status, doctor, pageable);
 
         List<User> doctors = userRepository.findByFilters("DOCTOR", "ACTIVE", clinicId, null, PageRequest.of(0, 100))
                 .getContent();
@@ -296,6 +338,7 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
                 .role("PATIENT")
                 .fullName(request.getName())
                 .phone(request.getPhone())
+                .avatarUrl(request.getAvatarUrl())
                 .clinicId(clinicId)
                 .status("ACTIVE")
                 .build();
@@ -342,13 +385,15 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
                 .joinedDate(LocalDate.now())
                 .chronicCondition(condition)
                 .riskLevel(request.getRiskLevel())
-                .treatmentStatus("Đang điều trị")
+                .treatmentStatus(request.getTreatmentStatus() != null ? request.getTreatmentStatus() : "Đang điều trị")
+                .profileStatus(request.getStatus() != null ? request.getStatus() : "Hoạt động")
                 .roomLocation("Ngoại trú")
                 .clinicalNotes(request.getNotes())
                 .identityCard(request.getIdentityCard())
                 .occupation(request.getOccupation())
                 .ethnicity(request.getEthnicity())
                 .healthInsuranceNumber(ins)
+                .avatarUrl(request.getAvatarUrl())
                 .build();
         patientRepository.save(patient);
     }
@@ -378,8 +423,8 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
             patient.setAddress(request.getAddress());
         }
 
-        String condition = request.getPrimaryCondition() != null ? request.getPrimaryCondition()
-                : request.getCondition();
+        String condition = request.getCondition() != null ? request.getCondition()
+                : request.getPrimaryCondition();
         if (condition != null) {
             patient.setChronicCondition(condition);
         }
@@ -389,6 +434,12 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
         }
         if (request.getNotes() != null) {
             patient.setClinicalNotes(request.getNotes());
+        }
+        if (request.getTreatmentStatus() != null) {
+            patient.setTreatmentStatus(request.getTreatmentStatus());
+        }
+        if (request.getStatus() != null) {
+            patient.setProfileStatus(request.getStatus());
         }
         if (request.getIdentityCard() != null) {
             patient.setIdentityCard(request.getIdentityCard());
@@ -402,7 +453,7 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
 
         String ins = request.getInsuranceNumber() != null ? request.getInsuranceNumber()
                 : request.getHealthInsuranceNumber();
-        if (ins != null) {
+        if (ins != null && !ins.isBlank()) {
             patient.setHealthInsuranceNumber(ins);
         }
 
@@ -429,6 +480,11 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
 
             if (request.getPassword() != null && !request.getPassword().isBlank()) {
                 user.setPassword(passwordEncoder.encode(request.getPassword()));
+            }
+            
+            if (request.getAvatarUrl() != null) {
+                user.setAvatarUrl(request.getAvatarUrl());
+                patient.setAvatarUrl(request.getAvatarUrl());
             }
             
             // Sync user full name with patient full name
@@ -495,6 +551,12 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
 
         return doctors.map(u -> {
             long patientCount = drPatientMap.getOrDefault(u.getId(), 0L);
+            String encodedName = u.getFullName() != null ? u.getFullName() : "Doctor";
+            try {
+                encodedName = java.net.URLEncoder.encode(encodedName, "UTF-8");
+            } catch (Exception e) {
+            }
+
             return ClinicDoctorResponse.builder()
                     .dbId(u.getId())
                     .id("D-" + (1000 + u.getId()))
@@ -508,7 +570,7 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
                     .status("Đang hoạt động")
                     .statusColor("primary")
                     .img(u.getAvatarUrl() != null ? u.getAvatarUrl()
-                            : "https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=150&h=150")
+                            : "https://ui-avatars.com/api/?name=" + encodedName + "&background=random")
                     .licenseNumber(u.getLicenseNumber())
                     .degree(u.getDegree())
                     .bio(u.getBio())
@@ -736,8 +798,10 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
             Object date = row[0];
             return date.toString(); // Expected yyyy-MM-dd
         } else {
-            // Month unit: row[0]=Year, row[1]=Month
-            return row[0] + "-" + row[1];
+            // Month unit: row[0]=Year, row[1]=Month (might be Double from EXTRACT)
+            int year = ((Number) row[0]).intValue();
+            int month = ((Number) row[1]).intValue();
+            return year + "-" + month;
         }
     }
 }

@@ -216,7 +216,7 @@ const PatientMessages: React.FC = () => {
                         <button 
                             type="submit"
                             disabled={sending || !msgInput.trim()}
-                            className="bg-primary text-white p-2.5 rounded-xl shadow-lg shadow-primary/30 flex items-center justify-center hover:bg-primary/90 transition-all active:scale-95 font-display disabled:opacity-50"
+                            className="bg-primary text-white p-2.5 rounded-xl shadow-lg shadow-primary/30 flex items-center justify-center hover:bg-primary/90 transition-all font-display disabled:opacity-50"
                         >
                             <span className="material-symbols-outlined font-bold">send</span>
                         </button>

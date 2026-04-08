@@ -237,14 +237,14 @@ export default function AdminClinics() {
                 <>
                   <button
                     onClick={() => setIsCreateModalOpen(true)}
-                    className="bg-primary text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all text-[13px] active:scale-95 shadow-lg shadow-primary/20 hover:shadow-primary/30"
+                    className="bg-primary text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all text-[13px] shadow-lg shadow-primary/20 hover:shadow-primary/30"
                   >
                     <span className="material-symbols-outlined text-[18px]">add_location</span>
                     Thêm cơ sở mới
                   </button>
                   <button
                     onClick={handleExport}
-                    className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all text-[13px] border border-primary/10 active:scale-95 shadow-sm"
+                    className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all text-[13px] border border-primary/10 shadow-sm"
                   >
                     <span className="material-symbols-outlined text-[18px]">download</span>
                     Xuất dữ liệu

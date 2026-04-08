@@ -28,6 +28,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose, on
                 bloodType: initialData.bloodType || '',
                 heightCm: initialData.heightCm || '',
                 weightKg: initialData.weightKg || '',
+                avatarUrl: initialData.avatarUrl || '',
             });
         }
     }, [isOpen, initialData]);

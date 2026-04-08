@@ -203,11 +203,11 @@ export default function ClinicReports() {
                                         </button>
                                     </div>
                                     <div className="flex gap-2">
-                                        <button className="flex items-center gap-2 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 px-5 py-2.5 rounded-xl text-sm font-bold border border-slate-200 dark:border-slate-800 hover:bg-slate-50 transition-colors shadow-sm whitespace-nowrap active:scale-95">
+                                        <button className="flex items-center gap-2 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-xl text-sm font-bold border border-slate-200 dark:border-slate-800 hover:bg-slate-50 transition-all shadow-sm whitespace-nowrap">
                                             <span className="material-symbols-outlined text-[20px] text-emerald-500">upload_file</span>
                                             Excel
                                         </button>
-                                        <button className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-primary/20 transition-all shadow-sm whitespace-nowrap active:scale-95">
+                                        <button className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-primary/20 transition-all shadow-sm whitespace-nowrap">
                                             <span className="material-symbols-outlined text-[20px]">picture_as_pdf</span>
                                             PDF
                                         </button>

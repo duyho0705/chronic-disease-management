@@ -117,7 +117,7 @@ const PatientDashboard: React.FC = () => {
                         </div>
                         <button
                             onClick={() => navigate('/patient/profile')}
-                            className="px-6 py-2 border border-slate-200 dark:border-slate-700 rounded-xl font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors whitespace-nowrap active:scale-95 text-slate-700 dark:text-slate-300"
+                            className="px-6 py-2 border border-slate-200 dark:border-slate-700 rounded-xl font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors whitespace-nowrap text-slate-700 dark:text-slate-300"
                         >
                             Chỉnh sửa hồ sơ
                         </button>
@@ -135,7 +135,7 @@ const PatientDashboard: React.FC = () => {
                         </h2>
                         <button
                             onClick={() => navigate('/patient/metrics')}
-                            className="text-primary font-bold text-sm flex items-center gap-1 hover:underline active:scale-95"
+                            className="text-primary font-bold text-sm flex items-center gap-1 hover:underline"
                         >
                             <span className="material-symbols-outlined text-sm">add_circle</span> Nhập chỉ số mới
                         </button>
@@ -396,7 +396,7 @@ const PatientDashboard: React.FC = () => {
                                                         fetchData();
                                                     } catch (e) {}
                                                 }}
-                                                className="bg-primary text-slate-900 px-3 py-1 rounded-lg text-xs font-bold active:scale-95 transition-transform"
+                                                className="bg-primary text-slate-900 px-3 py-1 rounded-lg text-xs font-bold transition-transform"
                                             >
                                                 Uống
                                             </button>
@@ -505,7 +505,7 @@ const PatientDashboard: React.FC = () => {
                                     <p className="text-sm font-bold truncate">{conversation.doctorName}</p>
                                     <p className="text-xs text-slate-500 truncate">{conversation.lastMessage || 'Bắt đầu trò chuyện'}</p>
                                 </div>
-                                <button className="bg-primary p-2 rounded-full text-slate-900 shadow-md hover:scale-110 transition-transform active:scale-95">
+                                <button className="bg-primary p-2 rounded-full text-slate-900 shadow-md transition-transform">
                                     <span className="material-symbols-outlined">send</span>
                                 </button>
                             </>

@@ -180,6 +180,9 @@ export default function ClinicRiskAlerts() {
                                                 <th className="px-8 py-5">
                                                     {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-20"></div> : <span className="text-[15px] font-medium text-slate-500">Bệnh nhân</span>}
                                                 </th>
+                                                <th className="px-4 py-5 font-mono text-center">
+                                                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-12 mx-auto"></div> : <span className="text-[15px] font-medium text-slate-500">Tuổi</span>}
+                                                </th>
                                                 <th className="px-4 py-5">
                                                     {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-16"></div> : <span className="text-[15px] font-medium text-slate-500"> Mã hồ sơ</span>}
                                                 </th>
@@ -233,7 +236,7 @@ export default function ClinicRiskAlerts() {
                                                 ))
                                             ) : highRiskPatients.length === 0 ? (
                                                 <tr>
-                                                    <td colSpan={6} className="px-8 py-10 text-center text-slate-500">
+                                                    <td colSpan={7} className="px-8 py-10 text-center text-slate-500">
                                                         Không có bệnh nhân nào trong tệp nguy cơ cao.
                                                     </td>
                                                 </tr>
@@ -254,6 +257,11 @@ export default function ClinicRiskAlerts() {
                                                             </div>
                                                         </div>
                                                     </td>
+                                                    <td className="px-4 py-5 text-center">
+                                                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                                                            {patient.age || '—'}
+                                                        </span>
+                                                    </td>
                                                     <td className="px-4 py-5 font-mono text-xs text-slate-500 font-medium">{patient.id}</td>
                                                     <td className="px-4 py-5">
                                                         <div className="flex flex-col">
@@ -272,13 +280,13 @@ export default function ClinicRiskAlerts() {
                                                         </div>
                                                     </td>
                                                     <td className="px-8 py-5 text-right space-x-1">
-                                                        <button className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all active:scale-95" title="Can thiệp gấp">
+                                                        <button className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all" title="Can thiệp gấp">
                                                             <span className="material-symbols-outlined text-[22px]">call</span>
                                                         </button>
-                                                        <button className="p-2 text-primary hover:bg-primary/5 rounded-lg transition-all active:scale-95" title="Xem hồ sơ">
+                                                        <button className="p-2 text-primary hover:bg-primary/5 rounded-lg transition-all" title="Xem hồ sơ">
                                                             <span className="material-symbols-outlined text-[22px]">visibility</span>
                                                         </button>
-                                                        <button className="p-2 text-slate-400 hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95" title="Kê đơn nhanh">
+                                                        <button className="p-2 text-slate-400 hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-all" title="Kê đơn nhanh">
                                                             <span className="material-symbols-outlined text-[22px]">prescriptions</span>
                                                         </button>
                                                     </td>
