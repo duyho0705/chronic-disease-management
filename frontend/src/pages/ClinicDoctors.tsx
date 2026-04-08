@@ -28,13 +28,14 @@ export default function ClinicDoctors() {
     // Assignment Modal State
     const [isAssignmentModalOpen, setIsAssignmentModalOpen] = useState(false);
 
+    const specialties = ['Nội khoa', 'Sản phụ khoa', 'Nhi khoa', 'Tim mạch', 'Thần kinh', 'Da liễu'];
+
     // Filter States
     const [searchTerm, setSearchTerm] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('Tất cả bác sĩ');
     const [specialtyFilter, setSpecialtyFilter] = useState('Chuyên khoa');
 
-    const [availableDoctors, setAvailableDoctors] = useState<any[]>([]);
     const [stats, setStats] = useState<any>(null);
 
     useEffect(() => {
@@ -155,7 +156,6 @@ export default function ClinicDoctors() {
         }
     };
 
-    const specialties = ['Nội khoa', 'Sản phụ khoa', 'Nhi khoa', 'Tim mạch'];
 
     return (
         <div className="flex min-h-screen font-display bg-[#f6f8f7] dark:bg-slate-950 text-slate-900 dark:text-slate-100 italic-none">
@@ -194,7 +194,7 @@ export default function ClinicDoctors() {
                                 <p className="text-slate-500 font-medium">Quản lý và điều phối nhân sự y tế trong phòng khám</p>
                             </div>
                         )}
-                        
+
                         {isLoading ? (
                             <div className="w-52 h-12 bg-primary/20 animate-pulse rounded-2xl shadow-sm"></div>
                         ) : (
@@ -270,28 +270,28 @@ export default function ClinicDoctors() {
                         )}
                     </div>
 
-                    {/* Filters Bar (Standardized) */}
-                    <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-sm flex flex-wrap items-center gap-6 transition-all duration-300 hover:shadow-md">
+                    {/* Filters Bar (Standardized to match Patients) */}
+                    <div className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-wrap items-center gap-4 italic-none">
                         {isLoading ? (
                             <>
-                                <div className="flex-1 min-w-[300px] h-12 bg-slate-50 dark:bg-slate-800 rounded-2xl animate-pulse"></div>
-                                <div className="w-48 h-12 bg-slate-50 dark:bg-slate-800 rounded-2xl animate-pulse"></div>
-                                <div className="w-48 h-12 bg-slate-50 dark:bg-slate-800 rounded-2xl animate-pulse"></div>
-                                <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-2xl animate-pulse"></div>
+                                <div className="w-full md:w-[450px] h-11 bg-white/50 dark:bg-slate-800/50 rounded-lg animate-pulse"></div>
+                                <div className="w-48 h-11 bg-white/50 dark:bg-slate-800/50 rounded-lg animate-pulse"></div>
+                                <div className="w-48 h-11 bg-white/50 dark:bg-slate-800/50 rounded-lg animate-pulse"></div>
+                                <div className="w-11 h-11 bg-white/50 dark:bg-slate-800/50 rounded-lg animate-pulse"></div>
                             </>
                         ) : (
                             <>
-                                <div className="flex-1 min-w-[300px] relative group">
-                                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
+                                <div className="w-full md:w-[450px] relative group">
+                                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors text-[20px]">search</span>
                                     <input
-                                        className="w-full pl-12 pr-6 py-3.5 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-primary/30 text-sm font-bold placeholder:text-slate-400 transition-all outline-none"
+                                        className="w-full pl-12 pr-6 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary/20 text-sm font-medium text-slate-700 dark:text-slate-200 transition-all outline-none shadow-sm"
                                         placeholder="Tìm kiếm bác sĩ theo tên hoặc mã số..."
                                         type="text"
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                     />
                                 </div>
-                                <div className="flex items-center gap-4 flex-wrap">
+                                <div className="flex flex-wrap items-center gap-3">
                                     <ClinicFilterDropdown
                                         value={statusFilter}
                                         options={['Tất cả bác sĩ', 'Đang hoạt động', 'Nghỉ phép', 'Đã đủ lịch']}
@@ -304,45 +304,42 @@ export default function ClinicDoctors() {
                                         onChange={setSpecialtyFilter}
                                     />
 
-                                    <button className="bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary p-4 rounded-2xl transition-all hover:shadow-sm">
-                                        <span className="material-symbols-outlined">tune</span>
+                                    <button className="p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary transition-all shadow-sm group">
+                                        <span className="material-symbols-outlined text-[22px] group-hover:rotate-180 transition-transform duration-500">tune</span>
                                     </button>
                                 </div>
                             </>
                         )}
                     </div>
 
-                    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/60 dark:border-slate-800/50 overflow-hidden transition-all duration-300 hover:shadow-md">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800/50 overflow-hidden font-display transition-all duration-300 hover:shadow-md">
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead>
-                                    <tr className="bg-slate-50 dark:bg-slate-800/50 font-display">
-                                        <th className="px-8 py-5">
-                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-32"></div> : <span className="text-[15px] font-medium text-slate-500">Thông tin bác sĩ</span>}
+                                    <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
+                                        <th className="px-8 py-4">
+                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-32"></div> : <span className="text-[15px] font-medium text-slate-700">Thông tin bác sĩ</span>}
                                         </th>
-                                        <th className="px-6 py-5">
-                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-24"></div> : <span className="text-[15px] font-medium text-slate-500">Chuyên khoa</span>}
+                                        <th className="px-6 py-4">
+                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-24"></div> : <span className="text-[15px] font-medium text-slate-700">Chuyên khoa</span>}
                                         </th>
-                                        <th className="px-6 py-5">
-                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-20"></div> : <span className="text-[15px] font-medium text-slate-500">Liên hệ</span>}
+                                        <th className="px-6 py-4">
+                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-20"></div> : <span className="text-[15px] font-medium text-slate-700">Liên hệ</span>}
                                         </th>
-                                        <th className="px-6 py-5">
-                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-16 mx-auto"></div> : <span className="text-[15px] font-medium text-slate-500 text-center block">Bệnh nhân</span>}
+                                        <th className="px-6 py-4 text-center">
+                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16 mx-auto"></div> : <span className="text-[15px] font-medium text-slate-700">Bệnh nhân</span>}
                                         </th>
-                                        <th className="px-6 py-5">
-                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-20"></div> : <span className="text-[15px] font-medium text-slate-500">Đánh giá</span>}
+                                        <th className="px-6 py-4">
+                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-24"></div> : <span className="text-[15px] font-medium text-slate-700">CC hành nghề</span>}
                                         </th>
-                                        <th className="px-6 py-5">
-                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-24"></div> : <span className="text-[15px] font-medium text-slate-500">CC hành nghề</span>}
+                                        <th className="px-6 py-4">
+                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-24"></div> : <span className="text-[15px] font-medium text-slate-700">Kinh nghiệm</span>}
                                         </th>
-                                        <th className="px-6 py-5">
-                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-24"></div> : <span className="text-[15px] font-medium text-slate-500">Kinh nghiệm</span>}
+                                        <th className="px-6 py-4">
+                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-20"></div> : <span className="text-[15px] font-medium text-slate-700">Trạng thái</span>}
                                         </th>
-                                        <th className="px-6 py-5">
-                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-20"></div> : <span className="text-[15px] font-medium text-slate-500">Trạng thái</span>}
-                                        </th>
-                                        <th className="px-8 py-5 text-right">
-                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-16 ml-auto"></div> : <span className="text-[15px] font-medium text-slate-500">Thao tác</span>}
+                                        <th className="px-8 py-4 text-right">
+                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16 ml-auto"></div> : <span className="text-[15px] font-medium text-slate-700">Thao tác</span>}
                                         </th>
                                     </tr>
                                 </thead>
@@ -350,7 +347,7 @@ export default function ClinicDoctors() {
                                     {isLoading ? (
                                         [...Array(6)].map((_, i) => (
                                             <tr key={`dr-skeleton-${i}`} className="animate-pulse">
-                                                <td className="px-8 py-5">
+                                                <td className="px-8 py-4">
                                                     <div className="flex items-center gap-4">
                                                         <div className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-800 shrink-0"></div>
                                                         <div className="space-y-2">
@@ -359,25 +356,19 @@ export default function ClinicDoctors() {
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-5">
-                                                    <div className="h-7 bg-slate-100 dark:bg-slate-800 rounded-lg w-20"></div>
+                                                <td className="px-6 py-4">
+                                                    <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-20"></div>
                                                 </td>
-                                                <td className="px-6 py-5">
-                                                    <div className="space-y-2">
-                                                        <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-40"></div>
-                                                        <div className="h-3 bg-slate-50 dark:bg-slate-800/50 rounded w-28"></div>
-                                                    </div>
+                                                <td className="px-6 py-4">
+                                                    <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-28"></div>
                                                 </td>
-                                                <td className="px-6 py-5 text-center">
+                                                <td className="px-6 py-4 text-center">
                                                     <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-8 mx-auto"></div>
                                                 </td>
-                                                <td className="px-6 py-5">
-                                                    <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-16"></div>
+                                                <td className="px-6 py-4">
+                                                    <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-24"></div>
                                                 </td>
-                                                <td className="px-6 py-5">
-                                                    <div className="h-7 bg-slate-100 dark:bg-slate-800 rounded-full w-24"></div>
-                                                </td>
-                                                <td className="px-8 py-5 text-right">
+                                                <td className="px-8 py-4 text-right">
                                                     <div className="flex justify-end gap-2">
                                                         <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl"></div>
                                                         <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl"></div>
@@ -388,60 +379,65 @@ export default function ClinicDoctors() {
                                         ))
                                     ) : doctors.length > 0 ? (
                                         doctors.map((dr, idx) => (
-                                            <tr key={idx} className="transition-colors border-b border-slate-50 dark:border-slate-800">
-                                                <td className="px-8 py-5">
+                                            <tr key={idx} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors group cursor-pointer border-b border-slate-50 dark:border-slate-800 last:border-0">
+                                                <td className="px-8 py-4">
                                                     <div className="flex items-center gap-4">
                                                         <img alt={dr.name} className="w-11 h-11 rounded-xl object-cover ring-2 ring-primary/10" src={dr.img} />
                                                         <div>
-                                                            <p className="text-[16px] font-bold text-slate-900 dark:text-white tracking-tight">{dr.name}</p>
-                                                            <p className="text-[14px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">Mã số: {dr.id}</p>
+                                                            <p className="text-[14px] font-medium text-slate-700 dark:text-slate-200 transition-colors tracking-tight italic-none">{dr.name}</p>
+                                                            <p className="text-[12px] text-slate-500 font-medium">{dr.id}</p>
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-5">
-                                                    <span className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[14px] font-bold rounded-lg whitespace-nowrap">
+                                                <td className="px-6 py-4">
+                                                    <span className="text-slate-700 dark:text-slate-300 text-[14px] font-medium whitespace-nowrap">
                                                         {dr.specialty}
                                                     </span>
                                                 </td>
-                                                <td className="px-6 py-5">
-                                                    <p className="text-[14px] font-bold text-slate-700 dark:text-slate-300">{dr.email}</p>
-                                                    <p className="text-[13px] text-slate-400 font-medium tracking-tight whitespace-nowrap">{dr.phone}</p>
+                                                <td className="px-6 py-4">
+                                                    <p className="text-[14px] font-medium text-slate-700 dark:text-slate-300 tracking-tight whitespace-nowrap">{dr.phone}</p>
                                                 </td>
-                                                <td className="px-6 py-5 text-center">
-                                                    <span className="text-sm font-bold text-slate-900 dark:text-white">{dr.load}</span>
+                                                <td className="px-6 py-4 text-center">
+                                                    <span className="text-[14px] font-medium text-slate-700 dark:text-white">{dr.load}</span>
                                                 </td>
-                                                <td className="px-6 py-5">
-                                                    <div className="flex items-center gap-1.5 text-amber-400">
-                                                        <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                                        <span className="text-[15px] font-bold text-slate-900 dark:text-white">{dr.rating}</span>
-                                                        <span className="text-[14px] text-slate-500 font-medium">({dr.reviews})</span>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-[14px] font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">{dr.licenseNumber || 'Chưa cập nhật'}</span>
+                                                        {dr.licenseImageUrl && (
+                                                            <a 
+                                                                href={dr.licenseImageUrl} 
+                                                                target="_blank" 
+                                                                rel="noopener noreferrer" 
+                                                                className="w-7 h-7 flex items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all shadow-sm"
+                                                                title="Xem ảnh bằng chứng CCHN"
+                                                            >
+                                                                <span className="material-symbols-outlined text-[16px]">visibility</span>
+                                                            </a>
+                                                        )}
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-5">
-                                                    <span className="text-[14px] font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap">{dr.licenseNumber || 'Chưa cập nhật'}</span>
-                                                </td>
-                                                <td className="px-6 py-5">
-                                                    <span className="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 text-[13px] font-bold rounded-lg whitespace-nowrap">
-                                                        {dr.degree || 'Bác sĩ'}
+                                                <td className="px-6 py-4">
+                                                    <span className="text-slate-700 dark:text-slate-300 text-[14px] font-medium whitespace-nowrap">
+                                                        {dr.experience || 'Chưa cập nhật'}
                                                     </span>
                                                 </td>
-                                                <td className="px-6 py-5">
-                                                    <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-[14px] font-bold text-white shadow-sm whitespace-nowrap ${dr.statusColor === 'primary' ? 'bg-emerald-500' :
+                                                <td className="px-6 py-4">
+                                                    <span className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[12px] font-bold italic-none shadow-md transition-all text-white ${dr.statusColor === 'primary' ? 'bg-emerald-500' :
                                                         dr.statusColor === 'amber' ? 'bg-amber-500' :
                                                             'bg-slate-400'
                                                         }`}>
                                                         {dr.status}
                                                     </span>
                                                 </td>
-                                                <td className="px-8 py-5 text-right whitespace-nowrap">
-                                                    <div className="flex items-center justify-end gap-2 opacity-100">
-                                                        <button onClick={() => { setSelectedDoctor(dr); setIsEditModalOpen(true); }} className="w-10 h-10 flex items-center justify-center rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-all">
+                                                <td className="px-8 py-4 text-right whitespace-nowrap">
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <button onClick={() => { setSelectedDoctor(dr); setIsEditModalOpen(true); }} className="p-2 text-primary bg-primary/5 hover:bg-primary/10 rounded-lg transition-colors" title="Chỉnh sửa">
                                                             <span className="material-symbols-outlined text-[20px]">edit</span>
                                                         </button>
-                                                        <button onClick={() => { setSelectedDoctor(dr); setIsAssignmentModalOpen(true); }} className="w-10 h-10 flex items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 transition-all">
+                                                        <button onClick={() => { setSelectedDoctor(dr); setIsAssignmentModalOpen(true); }} className="p-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors" title="Điều phối">
                                                             <span className="material-symbols-outlined text-[20px]">assignment_ind</span>
                                                         </button>
-                                                        <button onClick={() => { setSelectedDoctor(dr); setIsDeleteModalOpen(true); }} className="w-10 h-10 flex items-center justify-center rounded-xl bg-rose-500/10 text-rose-600 hover:bg-rose-500/20 transition-all">
+                                                        <button onClick={() => { setSelectedDoctor(dr); setIsDeleteModalOpen(true); }} className="p-2 text-rose-500 bg-rose-50 hover:bg-rose-100 rounded-lg transition-colors" title="Xóa">
                                                             <span className="material-symbols-outlined text-[20px]">delete</span>
                                                         </button>
                                                     </div>
@@ -450,10 +446,10 @@ export default function ClinicDoctors() {
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan={7} className="px-8 py-20 text-center">
+                                            <td colSpan={8} className="px-8 py-20 text-center">
                                                 <div className="flex flex-col items-center gap-3 text-slate-400">
-                                                    <span className="material-symbols-outlined text-5xl opacity-20">person_off</span>
-                                                    <p className="text-sm font-bold italic-none tracking-tight">Không tìm thấy bác sĩ phù hợp</p>
+                                                    <span className="material-symbols-outlined text-4xl opacity-20">person_off</span>
+                                                    <p className="text-sm font-medium text-slate-500">Không tìm thấy bác sĩ phù hợp</p>
                                                 </div>
                                             </td>
                                         </tr>
@@ -503,8 +499,6 @@ export default function ClinicDoctors() {
                             )}
                         </div>
                     </div>
-
-
                 </div>
 
                 <CreateDoctorModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} isSaving={isSaving} onSave={handleCreateDoctor} />

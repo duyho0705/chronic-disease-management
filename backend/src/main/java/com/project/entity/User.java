@@ -51,6 +51,9 @@ public class User extends BaseEntity {
     @Column(name = "license_number", length = 50)
     private String licenseNumber; // For Doctors (CCHN)
 
+    @Column(name = "license_image_url", length = 500)
+    private String licenseImageUrl; // For Doctors (Ảnh bằng chứng CCHN)
+
     @Column(length = 50)
     private String degree; // For Doctors (Học hàm/Trình độ)
 

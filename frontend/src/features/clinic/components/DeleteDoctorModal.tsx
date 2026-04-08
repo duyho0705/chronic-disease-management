@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 interface DeleteDoctorModalProps {
@@ -16,9 +16,17 @@ export default function DeleteDoctorModal({
   isDeleting,
   doctorData
 }: DeleteDoctorModalProps) {
+  const [confirmName, setConfirmName] = useState('');
+  const [confirmPhrase, setConfirmPhrase] = useState('');
+
+  const targetPhrase = 'Xóa hồ sơ bác sĩ';
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      // Reset inputs when modal opens
+      setConfirmName('');
+      setConfirmPhrase('');
     } else {
       document.body.style.overflow = 'unset';
     }
@@ -29,90 +37,93 @@ export default function DeleteDoctorModal({
 
   if (!isOpen || !doctorData) return null;
 
+  const isConfirmed = confirmName === doctorData.name && confirmPhrase.toLowerCase() === targetPhrase;
+
   return createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 text-left font-display">
+      {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] transition-all duration-300"
+        className="absolute inset-0 bg-slate-900/10 backdrop-blur-[2px] transition-all duration-300"
         onClick={onClose}
       ></div>
 
-      <div className="relative bg-white dark:bg-slate-900 w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-300 border border-red-500/10 transition-all max-h-[90vh]">
-        {/* Header section */}
-        <div className="px-8 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-20 rounded-t-3xl">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl flex items-center justify-center bg-red-500/10 text-red-500">
-              <span className="material-symbols-outlined font-bold">
-                person_remove
-              </span>
-            </div>
-            <div>
-              <h2 className="text-[19px] font-extrabold text-slate-900 dark:text-white leading-tight">
-                Xóa hồ sơ bác sĩ
-              </h2>
-            </div>
-          </div>
+      <div className="relative bg-white dark:bg-slate-900 w-full max-w-[500px] rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-300 border border-slate-200 dark:border-slate-800 transition-all max-h-[95vh]">
+        {/* Modal Header */}
+        <div className="px-6 md:px-8 py-5 flex items-center justify-between sticky top-0 bg-white dark:bg-slate-900 z-20 rounded-t-2xl">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white leading-tight italic-none">
+            Xóa hồ sơ bác sĩ
+          </h2>
         </div>
 
         {/* Content Area */}
-        <div className="p-6 md:p-8 space-y-8 overflow-y-auto custom-scrollbar flex-1 text-left bg-white dark:bg-slate-900">
-          <div className="flex flex-col items-center text-center space-y-4 py-4">
-            <div className="w-20 h-20 rounded-full flex items-center justify-center relative bg-red-500/10 text-red-500 shadow-xl shadow-red-500/10">
-              <div className="absolute inset-0 bg-red-500/10 rounded-full animate-ping"></div>
-              <span className="material-symbols-outlined text-[42px] font-bold relative z-10">
-                warning
-              </span>
-            </div>
-            <div className="space-y-4 w-full">
-              <p className="text-[17px] font-black text-slate-800 dark:text-white leading-tight">
-                Bạn có chắc chắn muốn xóa bác sĩ này?
-              </p>
-              
-              <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 text-left mx-auto max-w-sm">
-                  <p className="text-[14px] font-bold text-slate-700 dark:text-slate-300 mb-1">{doctorData.name}</p>
-                  <p className="text-[13px] text-slate-500 font-medium">Mã số: {doctorData.id}</p>
-                  <p className="text-[13px] text-slate-500 font-medium">Chuyên khoa: {doctorData.specialty}</p>
-              </div>
+        <div className="px-6 md:px-8 pb-6 space-y-6 overflow-y-auto custom-scrollbar flex-1 text-left bg-white dark:bg-slate-900">
+          <div className="pt-6 space-y-4">
+            <p className="text-[15px] font-medium text-slate-600 dark:text-slate-400 leading-relaxed italic-none">
+              Hành động này sẽ xóa vĩnh viễn hồ sơ và tài khoản truy cập của bác sĩ khỏi hệ thống. Bệnh nhân phụ trách sẽ cần được phân công lại.
+            </p>
+          </div>
 
-              <p className="text-[14px] font-medium text-slate-500 leading-relaxed px-4">
-                Hành động này sẽ xóa vĩnh viễn hồ sơ và tài khoản truy cập của bác sĩ khỏi hệ thống. Bệnh nhân phụ trách sẽ cần được phân công lại.
-              </p>
+          <div className="space-y-4 border-t border-slate-100 dark:border-slate-800 pt-6">
+            <div className="space-y-2">
+              <label className="text-[13px] font-medium text-slate-600 dark:text-slate-400 italic-none">
+                Để xác nhận, vui lòng nhập <span className="font-bold text-slate-900 dark:text-slate-200">"{doctorData.name}"</span>
+              </label>
+              <input
+                type="text"
+                value={confirmName}
+                onChange={(e) => setConfirmName(e.target.value)}
+                autoComplete="off"
+                className="w-full h-11 px-4 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[14px] font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all font-display"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[13px] font-medium text-slate-600 dark:text-slate-400 italic-none">
+                Để xác nhận, vui lòng nhập <span className="font-bold text-slate-900 dark:text-slate-200">"{targetPhrase}"</span>
+              </label>
+              <input
+                type="text"
+                value={confirmPhrase}
+                onChange={(e) => setConfirmPhrase(e.target.value)}
+                autoComplete="off"
+                className="w-full h-11 px-4 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[14px] font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all font-display"
+              />
             </div>
           </div>
 
-          <div className="p-4 rounded-xl border-l-4 bg-red-50 border-red-400 text-red-700">
-            <p className="text-[14px] font-medium">
-              Cảnh báo: Không thể hoàn tác sau khi đã xóa!
+          <div className="p-4 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20 rounded-xl flex items-center gap-3 font-display">
+            <span className="material-symbols-outlined text-red-500 text-[20px]">error</span>
+            <p className="text-[13px] font-bold text-red-600 dark:text-red-400 italic-none mb-0">
+              Việc xóa hồ sơ của bác sĩ {doctorData.name} không thể hoàn tác.
             </p>
           </div>
         </div>
 
         {/* Modal Footer */}
-        <div className="px-8 py-5 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-md border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3 sticky bottom-0 z-20 transition-all rounded-b-3xl">
+        <div className="px-6 md:px-8 py-5 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between sticky bottom-0 z-20 rounded-b-2xl">
           <button
             onClick={onClose}
-            className="px-6 py-2.5 text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all"
+            className="px-6 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 rounded-lg transition-all border border-slate-200 dark:border-slate-700 shadow-sm"
             type="button"
           >
             Hủy bỏ
           </button>
           <button
-            onClick={() => onDelete(doctorData.id)}
-            disabled={isDeleting}
-            className="px-8 py-2.5 text-sm font-extrabold text-white rounded-xl transition-all shadow-xl flex items-center gap-2 transform bg-red-500 hover:bg-red-600 shadow-red-500/20 disabled:opacity-50"
+            onClick={() => onDelete(doctorData.dbId)}
+            disabled={isDeleting || !isConfirmed}
+            className={`px-8 py-2.5 text-sm font-bold text-white rounded-lg transition-all shadow-md flex items-center gap-2 ${isConfirmed
+                ? 'bg-red-600 hover:bg-red-700 shadow-red-500/20'
+                : 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed border border-slate-200 dark:border-slate-700 shadow-none'
+              }`}
             type="button"
           >
             {isDeleting ? (
-                <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    Đang xóa...
-                </>
+              <>
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                Đang xóa...
+              </>
             ) : (
-                <>
-                    <span className="material-symbols-outlined font-bold text-[18px]">
-                    delete_forever
-                    </span>
-                    Xác nhận xóa
-                </>
+              'Xóa hồ sơ bác sĩ'
             )}
           </button>
         </div>

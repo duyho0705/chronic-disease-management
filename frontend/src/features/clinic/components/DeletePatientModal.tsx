@@ -18,8 +18,8 @@ export default function DeletePatientModal({
 }: DeletePatientModalProps) {
   const [confirmName, setConfirmName] = useState('');
   const [confirmPhrase, setConfirmPhrase] = useState('');
-  
-  const targetPhrase = 'xóa hồ sơ bệnh nhân';
+
+  const targetPhrase = 'Xóa hồ sơ bệnh nhân';
 
   useEffect(() => {
     if (isOpen) {
@@ -111,11 +111,10 @@ export default function DeletePatientModal({
           <button
             onClick={() => onDelete(patientData.dbId)}
             disabled={isDeleting || !isConfirmed}
-            className={`px-8 py-2.5 text-sm font-bold text-white rounded-lg transition-all shadow-md flex items-center gap-2 ${
-              isConfirmed 
-                ? 'bg-red-600 hover:bg-red-700 shadow-red-500/20' 
+            className={`px-8 py-2.5 text-sm font-bold text-white rounded-lg transition-all shadow-md flex items-center gap-2 ${isConfirmed
+                ? 'bg-red-600 hover:bg-red-700 shadow-red-500/20'
                 : 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed border border-slate-200 dark:border-slate-700 shadow-none'
-            }`}
+              }`}
             type="button"
           >
             {isDeleting ? (

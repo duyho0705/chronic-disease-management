@@ -27,6 +27,7 @@ public class CreateDoctorRequest {
     
     private String password;
     private String avatarUrl;
+    private String licenseImageUrl;
     private String status;
     private String maxPatients;
 }
