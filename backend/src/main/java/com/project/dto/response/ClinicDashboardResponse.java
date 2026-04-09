@@ -23,6 +23,7 @@ public class ClinicDashboardResponse {
     private GrowthStatsDto growthStats;
     private List<DoctorPerformanceDto> doctorPerformances;
     private List<String> insights;
+    private double averageDoctorLoad;
 
     @Data
     @Builder
@@ -61,6 +62,7 @@ public class ClinicDashboardResponse {
         private String licenseNumber;
         private String degree;
         private String bio;
+        private String licenseImageUrl;
         private int load;
         private String color;
         private String progress;

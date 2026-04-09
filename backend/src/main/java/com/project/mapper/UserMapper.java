@@ -48,6 +48,10 @@ public class UserMapper {
                 .clinicPhone(clinicPhone)
                 .avatarUrl(user.getAvatarUrl())
                 .status(displayStatus)
+                .licenseNumber(user.getLicenseNumber())
+                .degree(user.getDegree())
+                .bio(user.getBio())
+                .licenseImageUrl(user.getLicenseImageUrl())
                 .createdAt(user.getCreatedAt())
                 .build();
     }

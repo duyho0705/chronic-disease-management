@@ -158,7 +158,7 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
         );
 
         java.util.concurrent.CompletableFuture<List<User>> doctorUsersFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
-            userRepository.findByFilters("DOCTOR", "ACTIVE", clinicId, null, PageRequest.of(0, 100)).getContent()
+            userRepository.findByFilters("DOCTOR", "ACTIVE", clinicId, null, null, null, null, PageRequest.of(0, 100)).getContent()
         );
 
         // Wait for primary data
@@ -246,6 +246,7 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
                     .specialty(u.getSpecialization() != null ? u.getSpecialization() : "Đa khoa")
                     .email(u.getEmail()).phone(u.getPhone()).licenseNumber(u.getLicenseNumber())
                     .degree(u.getDegree() != null ? u.getDegree() : "Bác sĩ").bio(u.getBio())
+                    .licenseImageUrl(u.getLicenseImageUrl())
                     .load(totalLoad).progress("w-" + Math.min(5, Math.max(1, (int) (totalLoad / 10) + 1)) + "/5")
                     .color(totalLoad > 50 ? "amber" : "emerald").rating("N/A").reviews(0).status("Đang hoạt động").active(true).build();
         }).collect(Collectors.toList());
@@ -301,6 +302,7 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
                         .build())
                 .doctorPerformances(performances)
                 .insights(clinicalAnalyticsService.getClinicInsights(clinicId))
+                .averageDoctorLoad(doctorUsers.isEmpty() ? 0 : (double) totalPatients / doctorUsers.size())
                 .build();
     }
 
@@ -311,7 +313,7 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
         Page<Patient> patientPage = patientRepository.findByClinicIdAndFilters(clinicId, keyword, condition, riskLevel,
                 status, doctor, pageable);
 
-        List<User> doctors = userRepository.findByFilters("DOCTOR", "ACTIVE", clinicId, null, PageRequest.of(0, 100))
+        List<User> doctors = userRepository.findByFilters("DOCTOR", "ACTIVE", clinicId, null, null, null, null, PageRequest.of(0, 100))
                 .getContent();
         Map<Long, String> doctorMap = doctors.stream()
                 .collect(Collectors.toMap(User::getId, User::getFullName, (existing, replacement) -> existing));
@@ -352,7 +354,7 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
             } catch (NumberFormatException e) {
                 String drName = drStr.replaceAll("^(BS\\.|Bác sĩ\\s*)", "").trim();
                 List<User> foundDrs = userRepository
-                        .findByFilters("DOCTOR", "ACTIVE", clinicId, drName, PageRequest.of(0, 1)).getContent();
+                        .findByFilters("DOCTOR", "ACTIVE", clinicId, null, null, null, drName, PageRequest.of(0, 1)).getContent();
                 if (!foundDrs.isEmpty()) {
                     drId = foundDrs.get(0).getId();
                 }
@@ -508,7 +510,7 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
             } catch (NumberFormatException e) {
                 String drName = drStr.replaceAll("(?i)^(BS\\.|Bác sĩ\\s*)", "").trim();
                 List<User> foundDrs = userRepository
-                        .findByFilters("DOCTOR", "ACTIVE", clinicId, drName, PageRequest.of(0, 1)).getContent();
+                        .findByFilters("DOCTOR", "ACTIVE", clinicId, null, null, null, drName, PageRequest.of(0, 1)).getContent();
                 if (!foundDrs.isEmpty()) {
                     patient.setDoctorId(foundDrs.get(0).getId());
                 }
@@ -540,8 +542,15 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<ClinicDoctorResponse> getDoctorRecords(Long clinicId, String keyword, Pageable pageable) {
-        Page<User> doctors = userRepository.findByFilters("DOCTOR", "ACTIVE", clinicId, keyword, pageable);
+    public Page<ClinicDoctorResponse> getDoctorRecords(Long clinicId, String keyword, String status, String specialty, String degree, String experience, Pageable pageable) {
+        String statusVal = null;
+        if (status != null && !status.isBlank() && !status.equals("Tất cả bác sĩ")) {
+            if (status.equals("Đang hoạt động")) statusVal = "ACTIVE";
+            else if (status.equals("Ngưng hoạt động") || status.equals("Tạm dừng") || status.equals("Nghỉ phép")) statusVal = "INACTIVE";
+            else statusVal = status;
+        }
+        
+        Page<User> doctors = userRepository.findByFilters("DOCTOR", statusVal, clinicId, specialty, degree, experience, keyword, pageable);
         List<Long> doctorIds = doctors.getContent().stream().map(User::getId).collect(Collectors.toList());
 
         Map<Long, Long> drPatientMap = new HashMap<>();
@@ -557,6 +566,16 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
             } catch (Exception e) {
             }
 
+            String statusLabel = "Đang hoạt động";
+            String statusColor = "primary";
+            if ("INACTIVE".equals(u.getStatus())) {
+                statusLabel = "Ngưng hoạt động";
+                statusColor = "rose";
+            } else if ("BUSY".equals(u.getStatus())) {
+                statusLabel = "Đã đủ lịch";
+                statusColor = "amber";
+            }
+
             return ClinicDoctorResponse.builder()
                     .dbId(u.getId())
                     .id("D-" + (1000 + u.getId()))
@@ -567,14 +586,15 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
                     .load((int) patientCount)
                     .rating("N/A")
                     .reviews(0)
-                    .status("Đang hoạt động")
-                    .statusColor("primary")
+                    .status(statusLabel)
+                    .statusColor(statusColor)
                     .img(u.getAvatarUrl() != null ? u.getAvatarUrl()
                             : "https://ui-avatars.com/api/?name=" + encodedName + "&background=random")
                     .licenseNumber(u.getLicenseNumber())
                     .degree(u.getDegree())
                     .experience(u.getExperience())
                     .bio(u.getBio())
+                    .licenseImageUrl(u.getLicenseImageUrl())
                     .build();
         });
     }
@@ -595,6 +615,7 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
                 .experience(request.getExperience())
                 .bio(request.getBio())
                 .avatarUrl(request.getAvatarUrl())
+                .licenseImageUrl(request.getLicenseImageUrl())
                 .maxPatients(request.getMaxPatients() != null ? Integer.parseInt(request.getMaxPatients()) : 150)
                 .status(request.getStatus() != null ? request.getStatus() : "ACTIVE")
                 .build();
@@ -620,6 +641,7 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
         user.setExperience(request.getExperience());
         user.setBio(request.getBio());
         user.setAvatarUrl(request.getAvatarUrl());
+        user.setLicenseImageUrl(request.getLicenseImageUrl());
         if (request.getStatus() != null) user.setStatus(request.getStatus());
         if (request.getMaxPatients() != null) user.setMaxPatients(Integer.parseInt(request.getMaxPatients()));
 
@@ -648,7 +670,7 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
     @Override
     @Transactional(readOnly = true)
     public List<String> getDoctorNames(Long clinicId) {
-        List<User> doctors = userRepository.findByFilters("DOCTOR", "ACTIVE", clinicId, null, PageRequest.of(0, 100))
+        List<User> doctors = userRepository.findByFilters("DOCTOR", "ACTIVE", clinicId, null, null, null, null, PageRequest.of(0, 100))
                 .getContent();
 
         if (doctors.isEmpty()) {
@@ -673,7 +695,7 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
 
     @Override
     public List<DoctorSnippetDto> getAvailableDoctors(Long clinicId) {
-        List<User> doctors = userRepository.findByFilters("DOCTOR", "ACTIVE", clinicId, null, PageRequest.of(0, 500))
+        List<User> doctors = userRepository.findByFilters("DOCTOR", "ACTIVE", clinicId, null, null, null, null, PageRequest.of(0, 500))
                 .getContent();
         return doctors.stream().map(d -> DoctorSnippetDto.builder()
                 .id(d.getId())

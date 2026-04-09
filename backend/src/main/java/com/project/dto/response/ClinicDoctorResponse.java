@@ -22,4 +22,5 @@ public class ClinicDoctorResponse {
     private String degree;
     private String experience;
     private String bio;
+    private String licenseImageUrl;
 }

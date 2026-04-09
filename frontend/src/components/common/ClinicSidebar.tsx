@@ -18,11 +18,11 @@ const ClinicSidebar: React.FC<ClinicSidebarProps> = ({
     isLoading = false
 }) => {
     const navItems = [
-        { path: ROUTES.CLINIC.DASHBOARD, label: 'Tổng quan', icon: 'dashboard' },
-        { path: ROUTES.CLINIC.PATIENTS, label: 'Bệnh nhân', icon: 'group' },
-        { path: ROUTES.CLINIC.DOCTORS, label: 'Bác sĩ', icon: 'medical_services' },
+        { path: ROUTES.CLINIC.DASHBOARD, label: 'Tổng quan phòng khám', icon: 'dashboard' },
+        { path: ROUTES.CLINIC.PATIENTS, label: 'Quản lý Bệnh nhân', icon: 'group' },
+        { path: ROUTES.CLINIC.DOCTORS, label: 'Quản lý Bác sĩ', icon: 'medical_services' },
         { path: ROUTES.CLINIC.REPORTS, label: 'Báo cáo', icon: 'analytics' },
-        { path: ROUTES.CLINIC.ALERTS, label: 'Cảnh báo nguy cơ', icon: 'emergency' },
+        { path: ROUTES.CLINIC.ALERTS, label: 'Cảnh báo nguy cơ', icon: 'warning' },
         { path: ROUTES.CLINIC.ASSIGNMENT, label: 'Điều phối bệnh nhân', icon: 'assignment_ind' },
         { path: ROUTES.CLINIC.SETTINGS, label: 'Cấu hình phòng khám', icon: 'settings' },
     ];

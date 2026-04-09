@@ -184,7 +184,7 @@ export default function AdminClinics() {
 
     try {
       // 2. Background update
-      await clinicApi.toggleStatus(clinic.realId);
+      await clinicApi.toggleClinicStatus(clinic.realId);
       setToastType('success');
       setToastTitle(`Đã ${action} cơ sở ${clinic.name}`);
       setShowToast(true);

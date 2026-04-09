@@ -346,7 +346,7 @@ export default function CreateDoctorModal({
                                         <Dropdown
                                             options={[
                                                 { label: 'Đang hoạt động', value: 'ACTIVE' },
-                                                { label: 'Tạm nghỉ', value: 'INACTIVE' }
+                                                { label: 'Ngưng hoạt động', value: 'INACTIVE' }
                                             ]}
                                             value={formData.status}
                                             onChange={(status: string) => setFormData(prev => ({ ...prev, status }))}

@@ -63,7 +63,8 @@ export default function EditDoctorModal({
                 specialty: initialData.specialty || 'Nội khoa',
                 bio: initialData.bio || '',
                 maxPatients: initialData.maxPatients ? String(initialData.maxPatients) : '150',
-                status: initialData.status === 'Đang hoạt động' || initialData.status === 'ACTIVE' ? 'ACTIVE' : 'INACTIVE',
+                status: (initialData.status === 'Đang hoạt động' || initialData.status === 'ACTIVE') ? 'ACTIVE' :
+                    (initialData.status === 'Ngưng hoạt động' || initialData.status === 'Tạm dừng' || initialData.status === 'INACTIVE') ? 'INACTIVE' : 'ACTIVE',
                 avatarUrl: initialData.img || initialData.avatarUrl || '',
                 licenseImageUrl: initialData.licenseImageUrl || ''
             });
@@ -206,12 +207,14 @@ export default function EditDoctorModal({
                                                     <span className="text-[10px] font-bold text-primary">Đang tải...</span>
                                                 </div>
                                             ) : formData.avatarUrl && !avatarError ? (
-                                                <img
-                                                    src={formData.avatarUrl}
-                                                    alt="Preview"
-                                                    className="w-full h-full object-cover"
-                                                    onError={() => setAvatarError(true)}
-                                                />
+                                                <a href={formData.avatarUrl} target="_blank" rel="noopener noreferrer" className="w-full h-full block" onClick={(e) => e.stopPropagation()}>
+                                                    <img
+                                                        src={formData.avatarUrl}
+                                                        alt="Preview"
+                                                        className="w-full h-full object-cover"
+                                                        onError={() => setAvatarError(true)}
+                                                    />
+                                                </a>
                                             ) : (
                                                 <div className="flex flex-col items-center text-slate-400 group-hover:text-primary transition-colors">
                                                     <span className="material-symbols-outlined text-[32px]">add_a_photo</span>
@@ -299,7 +302,8 @@ export default function EditDoctorModal({
                                                 name="password"
                                                 value={formData.password}
                                                 onChange={handleChange}
-                                                placeholder="Bỏ trống nếu không đổi"
+                                                placeholder="Để trống nếu không đổi"
+                                                title="Bỏ trống nếu không muốn thay đổi mật khẩu"
                                                 autoComplete="new-password"
                                                 className={`w-full pl-11 pr-12 h-[42px] rounded-xl border ${formErrors.password ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all`}
                                             />
@@ -326,7 +330,8 @@ export default function EditDoctorModal({
                                                 name="confirmPassword"
                                                 value={formData.confirmPassword}
                                                 onChange={handleChange}
-                                                placeholder="Nhập lại mật khẩu"
+                                                placeholder="Để trống nếu không đổi"
+                                                title="Bỏ trống nếu không muốn thay đổi mật khẩu"
                                                 autoComplete="new-password"
                                                 className={`w-full pl-11 pr-12 h-[42px] rounded-xl border ${formErrors.confirmPassword ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all`}
                                             />
@@ -349,7 +354,7 @@ export default function EditDoctorModal({
                                         <Dropdown
                                             options={[
                                                 { label: 'Đang hoạt động', value: 'ACTIVE' },
-                                                { label: 'Tạm nghỉ', value: 'INACTIVE' }
+                                                { label: 'Ngưng hoạt động', value: 'INACTIVE' }
                                             ]}
                                             value={formData.status}
                                             onChange={(status: string) => setFormData(prev => ({ ...prev, status }))}
@@ -424,20 +429,22 @@ export default function EditDoctorModal({
                                 <div className="md:col-span-2 lg:col-span-1 space-y-1.5 min-w-0">
                                     <label className="text-[14px] font-medium text-slate-500 ml-1">Bằng chứng CCHN <span className="text-red-500">*</span></label>
                                     <div className="flex items-center gap-3">
-                                        <div 
+                                        <div
                                             onClick={() => !isUploadingLicense && document.getElementById('license-image-input-edit')?.click()}
                                             className="w-[42px] h-[42px] bg-slate-50 dark:bg-slate-800 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700 flex items-center justify-center cursor-pointer overflow-hidden group transition-all hover:border-primary relative"
                                         >
                                             {isUploadingLicense ? (
                                                 <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
                                             ) : formData.licenseImageUrl && !licenseError ? (
-                                                <img src={formData.licenseImageUrl} alt="License" className="w-full h-full object-cover" onError={() => setLicenseError(true)} />
+                                                <a href={formData.licenseImageUrl} target="_blank" rel="noopener noreferrer" className="w-full h-full block" onClick={(e) => e.stopPropagation()}>
+                                                    <img src={formData.licenseImageUrl} alt="License" className="w-full h-full object-cover" onError={() => setLicenseError(true)} />
+                                                </a>
                                             ) : (
                                                 <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">add_photo_alternate</span>
                                             )}
                                         </div>
                                         <div className="flex-1">
-                                            <button 
+                                            <button
                                                 type="button"
                                                 onClick={() => document.getElementById('license-image-input-edit')?.click()}
                                                 className="text-[13px] font-bold text-primary hover:underline flex items-center gap-1"

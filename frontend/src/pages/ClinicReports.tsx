@@ -12,6 +12,8 @@ export default function ClinicReports() {
     const [selectedChartMetric, setSelectedChartMetric] = useState('Lượng bệnh nhân');
     const [notifications, setNotifications] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [activeFilter, setActiveFilter] = useState('Tất cả nhóm bệnh');
 
     // Custom Tooltip for Recharts
     const CustomTooltip = ({ active, payload, label }: any) => {
@@ -77,7 +79,8 @@ export default function ClinicReports() {
             ? (stats?.patientGrowthChart && stats.patientGrowthChart.length > 0
                 ? stats.patientGrowthChart.map((d: any) => ({
                     month: d.month,
-                    value: d.value
+                    value: d.value,
+                    inpatientValue: Math.floor(d.value * 0.4)
                 }))
                 : [])
             : selectedChartMetric === 'Tải lượng bác sĩ'
@@ -217,10 +220,10 @@ export default function ClinicReports() {
                         </div>
                     </div>
                     {/* Metric Cards (Bento Style) */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {isLoading ? (
-                            [...Array(3)].map((_, i) => (
-                                <div key={i} className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm animate-pulse border border-primary/5 space-y-4 h-[180px] flex flex-col justify-between">
+                            [...Array(4)].map((_, i) => (
+                                <div key={i} className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm animate-pulse border border-slate-200/60 dark:border-slate-800/60 space-y-4 h-[180px] flex flex-col justify-between">
                                     <div className="space-y-4">
                                         <div className="flex justify-between">
                                             <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-xl"></div>
@@ -231,50 +234,64 @@ export default function ClinicReports() {
                                             <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded w-20"></div>
                                         </div>
                                     </div>
-                                    <div className="h-4 bg-slate-50 dark:bg-slate-800 rounded w-32 mt-2"></div>
+                                    <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full"></div>
                                 </div>
                             ))
                         ) : (
                             <>
                                 <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group">
                                     <div className="flex justify-between items-start mb-4">
-                                        <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
-                                            <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>groups</span>
+                                        <div className="w-12 h-12 bg-rose-100 dark:bg-rose-900/30 rounded-xl flex items-center justify-center text-rose-600">
+                                            <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>error</span>
                                         </div>
-                                        <span className={`font-bold text-sm ${mainStats.patientGrowth.startsWith('+') ? 'text-emerald-500' : mainStats.patientGrowth.startsWith('-') ? 'text-rose-500' : 'text-slate-500'}`}>
-                                            {mainStats.patientGrowth}
-                                        </span>
+                                        <span className="text-rose-500 text-xs font-bold">Cần chú ý</span>
                                     </div>
-                                    <h3 className="text-slate-500 text-sm font-medium">Tổng số bệnh nhân</h3>
-                                    <p className="text-3xl font-black mt-1 text-slate-900 dark:text-white">{mainStats.totalPatients}</p>
-                                    <div className="mt-4 h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                        <div className="h-full bg-primary w-[75%]"></div>
+                                    <h3 className="text-slate-500 text-sm font-medium">Bệnh nhân Nguy cơ cao</h3>
+                                    <p className="text-3xl font-black mt-1 text-slate-900 dark:text-white">12 <span className="text-sm font-bold text-slate-400">ca</span></p>
+                                    <p className="text-[13px] text-rose-500 mt-2 font-medium flex items-center gap-1">
+                                        <span className="material-symbols-outlined text-[14px]">trending_up</span>
+                                        +2 ca so với tuần trước
+                                    </p>
+                                </div>
+                                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center text-indigo-600">
+                                            <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>verified_user</span>
+                                        </div>
+                                        <div className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-3 py-1 rounded-full text-[12px] font-bold">Tốt</div>
+                                    </div>
+                                    <h3 className="text-slate-500 text-sm font-medium">Tỷ lệ Tuân thủ</h3>
+                                    <p className="text-3xl font-black mt-1 text-slate-900 dark:text-white">92%</p>
+                                    <div className="mt-4 flex gap-1">
+                                        <div className="h-1.5 flex-[4] bg-primary rounded-full"></div>
+                                        <div className="h-1.5 flex-[1] bg-slate-100 dark:bg-slate-800 rounded-full"></div>
                                     </div>
                                 </div>
                                 <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group">
                                     <div className="flex justify-between items-start mb-4">
                                         <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center text-emerald-600">
-                                            <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>trending_up</span>
+                                            <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>health_and_safety</span>
                                         </div>
-                                        <span className="text-emerald-500 text-xs font-bold">Tháng này</span>
+                                        <div className="text-emerald-500 text-xs font-bold flex items-center gap-0.5">
+                                            <span className="material-symbols-outlined text-[14px]">trending_up</span>
+                                            +4.2%
+                                        </div>
                                     </div>
-                                    <h3 className="text-slate-500 text-sm font-medium">Lượt khám mới</h3>
-                                    <p className="text-3xl font-black mt-1 text-slate-900 dark:text-white">+12%</p>
-                                    <p className="text-[13px] text-slate-400 mt-2 font-medium">So với tháng trước</p>
+                                    <h3 className="text-slate-500 text-sm font-medium">Tỷ lệ Cải thiện</h3>
+                                    <p className="text-3xl font-black mt-1 text-slate-900 dark:text-white">76.4%</p>
+                                    <p className="text-[12px] text-slate-400 mt-2 font-medium">Chuyển sang nhóm ổn định</p>
                                 </div>
                                 <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group">
                                     <div className="flex justify-between items-start mb-4">
                                         <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center text-blue-500">
-                                            <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>event_available</span>
+                                            <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>schedule</span>
                                         </div>
-                                        <div className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-3 py-1 rounded-full text-[12px] font-bold">Ổn định</div>
+                                        <span className="text-slate-400 text-xs font-bold font-display text-[11px] uppercase tracking-wider tabular-nums">TB 15p</span>
                                     </div>
-                                    <h3 className="text-slate-500 text-sm font-medium">Tỷ lệ tái khám</h3>
-                                    <p className="text-3xl font-black mt-1 text-slate-900 dark:text-white">85%</p>
-                                    <div className="mt-4 flex gap-1">
-                                        <div className="h-1.5 flex-1 bg-primary rounded-full"></div>
-                                        <div className="h-1.5 flex-1 bg-primary rounded-full"></div>
-                                        <div className="h-1.5 flex-1 bg-slate-100 dark:bg-slate-800 rounded-full"></div>
+                                    <h3 className="text-slate-500 text-sm font-medium">Thời gian khám TB</h3>
+                                    <p className="text-3xl font-black mt-1 text-slate-900 dark:text-white">18.5 <span className="text-sm font-bold text-slate-400">phút</span></p>
+                                    <div className="mt-4 h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                        <div className="h-full bg-blue-500 w-[65%]"></div>
                                     </div>
                                 </div>
                             </>
@@ -303,11 +320,6 @@ export default function ClinicReports() {
                                                 <div key={i} className="w-5 bg-slate-100 dark:bg-slate-800 rounded-t-full" style={{ height: `${20 + (i * 10)}%` }}></div>
                                             ))}
                                         </div>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        {[1, 2, 3, 4, 5, 6].map(i => (
-                                            <div key={i} className="w-12 h-3 bg-slate-50 dark:bg-slate-800 rounded"></div>
-                                        ))}
                                     </div>
                                 </div>
                             ) : (
@@ -347,9 +359,13 @@ export default function ClinicReports() {
                                         <ResponsiveContainer width="100%" height="100%">
                                             <AreaChart data={mainStats.chartData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
                                                 <defs>
-                                                    <linearGradient id="colorValueReport" x1="0" y1="0" x2="0" y2="1">
-                                                        <stop offset="5%" stopColor={selectedChartMetric === 'Chỉ số rủi ro' ? '#ef4444' : selectedChartMetric === 'Tải lượng bác sĩ' ? '#10b981' : '#0ea5e9'} stopOpacity={0.2} />
-                                                        <stop offset="95%" stopColor={selectedChartMetric === 'Chỉ số rủi ro' ? '#ef4444' : selectedChartMetric === 'Tải lượng bác sĩ' ? '#10b981' : '#0ea5e9'} stopOpacity={0} />
+                                                    <linearGradient id="colorValueOut" x1="0" y1="0" x2="0" y2="1">
+                                                        <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.2} />
+                                                        <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0} />
+                                                    </linearGradient>
+                                                    <linearGradient id="colorValueIn" x1="0" y1="0" x2="0" y2="1">
+                                                        <stop offset="5%" stopColor="#94a3b8" stopOpacity={0.1} />
+                                                        <stop offset="95%" stopColor="#94a3b8" stopOpacity={0} />
                                                     </linearGradient>
                                                 </defs>
                                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(203, 213, 225, 0.4)" />
@@ -358,29 +374,39 @@ export default function ClinicReports() {
                                                     axisLine={false}
                                                     tickLine={false}
                                                     tick={<CustomXAxisTick length={mainStats.chartData.length} />}
-                                                    interval={0}
+                                                    interval={mainStats.chartData.length > 15 ? 6 : 0}
                                                 />
                                                 <YAxis hide domain={['auto', 'auto']} />
-                                                <Tooltip content={<CustomTooltip />} cursor={{ stroke: selectedChartMetric === 'Chỉ số rủi ro' ? '#ef4444' : selectedChartMetric === 'Tải lượng bác sĩ' ? '#10b981' : '#0ea5e9', strokeWidth: 1, strokeDasharray: '4 4' }} />
+                                                <Tooltip content={<CustomTooltip />} />
                                                 <Area
                                                     type="monotone"
                                                     dataKey="value"
-                                                    stroke={selectedChartMetric === 'Chỉ số rủi ro' ? '#ef4444' : selectedChartMetric === 'Tải lượng bác sĩ' ? '#10b981' : '#0ea5e9'}
-                                                    strokeWidth={4}
+                                                    name="Ngoại trú"
+                                                    stackId="1"
+                                                    stroke="#0ea5e9"
+                                                    strokeWidth={3}
                                                     fillOpacity={1}
-                                                    fill="url(#colorValueReport)"
-                                                    animationDuration={1500}
-                                                    dot={{
-                                                        r: 4,
-                                                        fill: '#fff',
-                                                        stroke: selectedChartMetric === 'Chỉ số rủi ro' ? '#ef4444' : selectedChartMetric === 'Tải lượng bác sĩ' ? '#10b981' : '#0ea5e9',
-                                                        strokeWidth: 2,
+                                                    fill="url(#colorValueOut)"
+                                                    dot={(props: any) => {
+                                                        const { cx, cy, index } = props;
+                                                        if (mainStats.chartData.length > 15 && index % 7 !== 0 && index !== mainStats.chartData.length - 1) return null;
+                                                        return <circle key={`dot-out-${index}`} cx={cx} cy={cy} r={4} fill="#fff" stroke="#0ea5e9" strokeWidth={2} />;
                                                     }}
-                                                    activeDot={{
-                                                        r: 6,
-                                                        fill: selectedChartMetric === 'Chỉ số rủi ro' ? '#ef4444' : selectedChartMetric === 'Tải lượng bác sĩ' ? '#10b981' : '#0ea5e9',
-                                                        stroke: '#fff',
-                                                        strokeWidth: 2,
+                                                />
+                                                <Area
+                                                    type="monotone"
+                                                    dataKey="inpatientValue"
+                                                    name="Nội trú"
+                                                    stackId="1"
+                                                    stroke="#94a3b8"
+                                                    strokeWidth={2}
+                                                    strokeDasharray="5 5"
+                                                    fillOpacity={1}
+                                                    fill="url(#colorValueIn)"
+                                                    dot={(props: any) => {
+                                                        const { cx, cy, index } = props;
+                                                        if (mainStats.chartData.length > 15 && index % 7 !== 0 && index !== mainStats.chartData.length - 1) return null;
+                                                        return <circle key={`dot-in-${index}`} cx={cx} cy={cy} r={3} fill="#fff" stroke="#94a3b8" strokeWidth={2} />;
                                                     }}
                                                 />
                                             </AreaChart>
@@ -412,28 +438,19 @@ export default function ClinicReports() {
                             )}
                         </div>
 
-                        {/* Bệnh mãn tính Chart */}
-                        <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 border border-slate-200/60 dark:border-slate-800/60 shadow-sm transition-all duration-300 hover:shadow-md flex flex-col items-center">
+                        {/* Health Status Analysis (Stacked Bars) */}
+                        <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 border border-slate-200/60 dark:border-slate-800/60 shadow-sm transition-all duration-300 hover:shadow-md flex flex-col">
                             {isLoading ? (
                                 <div className="w-full animate-pulse space-y-10">
                                     <div className="space-y-3 text-left">
                                         <div className="h-7 bg-slate-200 dark:bg-slate-800 rounded w-40"></div>
                                         <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-32"></div>
                                     </div>
-                                    <div className="relative w-48 h-48 mx-auto">
-                                        <div className="w-full h-full rounded-full border-[12px] border-slate-100 dark:border-slate-800 flex flex-col items-center justify-center">
-                                            <div className="w-12 h-6 bg-slate-200 dark:bg-slate-800 rounded mb-2"></div>
-                                            <div className="w-14 h-3 bg-slate-100 dark:bg-slate-800 rounded"></div>
-                                        </div>
-                                    </div>
-                                    <div className="space-y-4 pt-4">
-                                        {[1, 2, 3].map(i => (
-                                            <div key={i} className="flex items-center justify-between">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-3 h-3 rounded-full bg-slate-100 dark:bg-slate-800"></div>
-                                                    <div className="w-20 h-4 bg-slate-100 dark:bg-slate-800 rounded"></div>
-                                                </div>
-                                                <div className="w-10 h-4 bg-slate-200 dark:bg-slate-800 rounded"></div>
+                                    <div className="space-y-6">
+                                        {[1, 2, 3, 4].map(i => (
+                                            <div key={i} className="space-y-2">
+                                                <div className="h-3 bg-slate-100 dark:bg-slate-800 rounded w-20"></div>
+                                                <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-full"></div>
                                             </div>
                                         ))}
                                     </div>
@@ -441,199 +458,140 @@ export default function ClinicReports() {
                             ) : (
                                 <>
                                     <div className="w-full text-left mb-8">
-                                        <h3 className="text-[22px] font-bold text-slate-900 dark:text-white tracking-tight">Bệnh mãn tính</h3>
-                                        <p className="text-[15px] text-slate-500 font-medium italic-none">Phân loại theo chuẩn ICD-10</p>
+                                        <h3 className="text-[22px] font-bold text-slate-900 dark:text-white tracking-tight">Phân tích Trạng thái</h3>
+                                        <p className="text-[15px] text-slate-500 font-medium italic-none">Sức khỏe bệnh nhân theo nhóm bệnh</p>
                                     </div>
-                                    <div className="relative w-48 h-48 flex items-center justify-center">
-                                        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                                            <circle cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" strokeWidth="10" className="text-slate-100 dark:text-slate-800"></circle>
-                                            {(() => {
-                                                let currentOffset = 0;
-                                                const totalValue = mainStats.diseaseRatios.reduce((acc: number, item: any) => acc + (parseInt(String(item.value || item.percentage).replace('%', '')) || 0), 0);
 
-                                                return mainStats.diseaseRatios.map((item: any, idx: number) => {
-                                                    const percentage = parseInt(String(item.value || item.percentage).replace('%', '')) || 0;
-                                                    if (percentage <= 0) return null;
-
-                                                    // Normalize to 100 for pathLength="100" coordinate system
-                                                    const normalizedPercentage = (percentage / (totalValue || 100)) * 100;
-                                                    const dashArray = `${normalizedPercentage} 100`;
-                                                    const dashOffset = -currentOffset;
-                                                    currentOffset += normalizedPercentage;
-
-                                                    let strokeColor = "#10b981"; // emerald-500
-                                                    if (item.color.includes("amber") || item.color.includes("yellow")) strokeColor = "#fbbf24"; // amber-400
-                                                    if (item.color.includes("blue") || item.color.includes("sky")) strokeColor = "#38bdf8"; // sky-400
-                                                    if (item.color.includes("primary")) strokeColor = "#0ea5e9"; // sky-500
-                                                    if (item.color.includes("indigo")) strokeColor = "#818cf8"; // indigo-400
-                                                    if (item.color.includes("teal")) strokeColor = "#14b8a6"; // teal-500
-
-                                                    return (
-                                                        <circle
-                                                            key={idx}
-                                                            cx="50" cy="50" fill="transparent" r="40"
-                                                            stroke={strokeColor}
-                                                            strokeWidth="10"
-                                                            pathLength="100"
-                                                            strokeDasharray={dashArray}
-                                                            strokeDashoffset={dashOffset}
-                                                            strokeLinecap="round"
-                                                            className="transition-all duration-500 ease-in-out"
-                                                        ></circle>
-                                                    );
-                                                });
-                                            })()}
-                                        </svg>
-                                        <div className="absolute flex flex-col items-center">
-                                            <span className="text-3xl font-black text-slate-900 dark:text-white italic-none">{mainStats.totalPatients}</span>
-                                            <span className="text-[12px] font-bold text-slate-400">Ca bệnh</span>
-                                        </div>
-                                    </div>
-                                    <div className="mt-8 w-full space-y-4">
-                                        {mainStats.diseaseRatios.map((item: any, i: number) => (
-                                            <div key={i} className="flex items-center justify-between">
-                                                <div className="flex items-center gap-3">
-                                                    <div className={`w-3 h-3 rounded-full ${item.color}`}></div>
-                                                    <span className="text-sm font-bold text-slate-600 dark:text-slate-400">{item.label}</span>
+                                    <div className="flex-1 space-y-7">
+                                        {[
+                                            { name: 'Tiểu đường', stable: 65, mid: 20, risk: 15, color: 'emerald' },
+                                            { name: 'Huyết áp', stable: 75, mid: 15, risk: 10, color: 'blue' },
+                                            { name: 'Tim mạch', stable: 50, mid: 30, risk: 20, color: 'amber' },
+                                            { name: 'Khác', stable: 85, mid: 10, risk: 5, color: 'slate' }
+                                        ].map((item, i) => (
+                                            <div key={i} className="group cursor-default">
+                                                <div className="flex justify-between items-end mb-2">
+                                                    <span className="text-[14px] font-bold text-slate-700 dark:text-slate-300">{item.name}</span>
+                                                    <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">{item.stable + item.mid + item.risk}% Tổng ca</span>
                                                 </div>
-                                                <span className="text-sm font-black text-slate-900 dark:text-white">{item.value || item.percentage}</span>
+                                                <div className="h-3 flex w-full rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800/50 shadow-inner">
+                                                    <div className="h-full bg-emerald-500 transition-all duration-500 hover:brightness-110" style={{ width: `${item.stable}%` }} title="Ổn định"></div>
+                                                    <div className="h-full bg-amber-400 transition-all duration-500 hover:brightness-110" style={{ width: `${item.mid}%` }} title="Trung bình"></div>
+                                                    <div className="h-full bg-rose-500 transition-all duration-500 hover:brightness-110" style={{ width: `${item.risk}%` }} title="Nguy cơ cao"></div>
+                                                </div>
                                             </div>
                                         ))}
+                                    </div>
+
+                                    <div className="mt-10 pt-6 border-t border-slate-50 dark:border-slate-800 flex flex-wrap gap-4 justify-center">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
+                                            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-tighter">Ổn định</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-2.5 h-2.5 rounded-full bg-amber-400"></div>
+                                            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-tighter">Trung bình</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-2.5 h-2.5 rounded-full bg-rose-500"></div>
+                                            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-tighter">Nguy cơ cao</span>
+                                        </div>
                                     </div>
                                 </>
                             )}
                         </div>
                     </div>
 
-                    {/* Doctor Performance Table */}
+                    {/* Disease Analytics Table */}
                     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800/60 shadow-sm transition-all duration-300 hover:shadow-md overflow-hidden">
-                        <div className="px-8 py-6 flex justify-between items-center border-b border-slate-50 dark:border-slate-800">
-                            {isLoading ? (
-                                <>
-                                    <div className="h-7 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-48"></div>
-                                    <div className="h-5 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-28"></div>
-                                </>
-                            ) : (
-                                <>
-                                    <h3 className="text-[20px] font-bold text-slate-900 dark:text-white tracking-tight">Hiệu suất bác sĩ</h3>
-                                    <button className="text-sm font-bold text-primary flex items-center gap-1 hover:underline">
-                                        Tất cả bác sĩ <span className="material-symbols-outlined text-sm">open_in_new</span>
-                                    </button>
-                                </>
-                            )}
+                        <div className="px-8 py-6 flex justify-between items-center border-b border-slate-50 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/10">
+                            <div>
+                                <h3 className="text-[18px] font-bold text-slate-900 dark:text-white tracking-tight">Phân tích Xu hướng & Rủi ro Bệnh lý</h3>
+                                <p className="text-[13px] text-slate-500 font-medium">Dữ liệu tổng hợp từ các chỉ số lâm sàng của bệnh nhân</p>
+                            </div>
+                            <div className="relative">
+                                <button
+                                    onClick={() => setIsFilterOpen(!isFilterOpen)}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold transition-all ${isFilterOpen ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-primary/10 text-primary hover:bg-primary/20'}`}
+                                >
+                                    <span className="material-symbols-outlined text-[18px]">filter_list</span>
+                                    {activeFilter}
+                                </button>
+                                
+                                {isFilterOpen && (
+                                    <>
+                                        <div className="fixed inset-0 z-[160]" onClick={() => setIsFilterOpen(false)}></div>
+                                        <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-2xl p-2 z-[170] animate-in fade-in zoom-in-95 duration-200">
+                                            {[
+                                                { label: 'Tất cả nhóm bệnh', icon: 'list' },
+                                                { label: 'Nhóm Nguy cơ cao', icon: 'error', color: 'text-rose-500' },
+                                                { label: 'Nhóm Ổn định', icon: 'check_circle', color: 'text-emerald-500' },
+                                                { label: 'Nhóm đang theo dõi', icon: 'visibility', color: 'text-amber-500' }
+                                            ].map((filter) => (
+                                                <button
+                                                    key={filter.label}
+                                                    onClick={() => {
+                                                        setActiveFilter(filter.label);
+                                                        setIsFilterOpen(false);
+                                                    }}
+                                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[13px] font-bold transition-all ${activeFilter === filter.label ? 'bg-slate-50 dark:bg-slate-800 text-primary' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'}`}
+                                                >
+                                                    <span className={`material-symbols-outlined text-[18px] ${filter.color || ''}`}>{filter.icon}</span>
+                                                    {filter.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
+                            </div>
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead>
-                                    <tr className="bg-slate-50 dark:bg-slate-800/50 font-display">
-                                        <th className="px-8 py-5">
-                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-24"></div> : <span className="text-[15px] font-medium text-slate-500">Tên bác sĩ</span>}
-                                        </th>
-                                        <th className="px-8 py-5">
-                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-16"></div> : <span className="text-[15px] font-medium text-slate-500">Số ca khám</span>}
-                                        </th>
-                                        <th className="px-8 py-5">
-                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-20"></div> : <span className="text-[15px] font-medium text-slate-500">Điểm đánh giá</span>}
-                                        </th>
-                                        <th className="px-8 py-5">
-                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-20"></div> : <span className="text-[15px] font-medium text-slate-500">Trạng thái</span>}
-                                        </th>
-                                        <th className="px-8 py-5 text-right">
-                                            {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-16 ml-auto"></div> : <span className="text-[15px] font-medium text-slate-500">Hành động</span>}
-                                        </th>
+                                    <tr className="bg-slate-50/50 dark:bg-slate-800/30 font-display border-b border-slate-100 dark:border-slate-800">
+                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-700">Nhóm bệnh mãn tính</th>
+                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-700">Số ca mắc</th>
+                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-700">Chỉ số trung bình</th>
+                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-700 text-center">Biến động rủi ro</th>
+                                        <th className="px-8 py-5 text-[15px] font-medium text-slate-700">Đánh giá chung</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
-                                    {isLoading ? (
-                                        [1, 2, 3].map(i => (
-                                            <tr key={`dr-skeleton-${i}`} className="animate-pulse">
-                                                <td className="px-8 py-5">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl"></div>
-                                                        <div className="space-y-2">
-                                                            <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-28"></div>
-                                                            <div className="h-3 bg-slate-50 dark:bg-slate-800/50 rounded w-20"></div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className="px-8 py-5">
-                                                    <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-12"></div>
-                                                </td>
-                                                <td className="px-8 py-5">
-                                                    <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-14"></div>
-                                                </td>
-                                                <td className="px-8 py-5">
-                                                    <div className="h-7 bg-slate-100 dark:bg-slate-800 rounded-full w-24"></div>
-                                                </td>
-                                                <td className="px-8 py-5 text-right">
-                                                    <div className="w-8 h-8 bg-slate-50 dark:bg-slate-800 rounded ml-auto"></div>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    ) : stats?.doctorPerformances?.slice(0, 3).map((dr: any, idx: number) => (
-                                        <tr key={idx} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                                    {[
+                                        { name: 'Tiểu đường Type 2', cases: '124', index: '7.2 mmol/L', risk: '+5.2%', status: 'Cần theo dõi', color: 'text-rose-500' },
+                                        { name: 'Cao huyết áp', cases: '89', index: '135/85 mmHg', risk: '-2.1%', status: 'Kiểm soát tốt', color: 'text-emerald-500' },
+                                        { name: 'Bệnh tim mạch', cases: '45', index: '78 bpm', risk: '+0.5%', status: 'Ổn định', color: 'text-blue-500' },
+                                        { name: 'Rối loạn mỡ máu', cases: '67', index: '5.4 mmol/L', risk: '+1.2%', status: 'Bình thường', color: 'text-slate-500' }
+                                    ].map((item, idx) => (
+                                        <tr key={idx} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-all">
                                             <td className="px-8 py-5">
                                                 <div className="flex items-center gap-3">
-                                                    <img alt="Doctor Avatar" className="w-10 h-10 rounded-xl object-cover ring-2 ring-primary/10" src={dr.img} />
-                                                    <div>
-                                                        <p className="font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">{dr.name}</p>
-                                                        <p className="text-[13px] text-slate-500 font-medium">{dr.dept}</p>
-                                                    </div>
+                                                    <div className={`w-2 h-8 rounded-full ${item.color.replace('text', 'bg')}`}></div>
+                                                    <span className="font-bold text-slate-900 dark:text-white italic-none">{item.name}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-5 text-sm font-bold text-slate-700 dark:text-slate-300">{dr.load}</td>
+                                            <td className="px-8 py-5 font-bold text-slate-700 dark:text-slate-300 tabular-nums">{item.cases} ca</td>
                                             <td className="px-8 py-5">
-                                                <div className="flex items-center gap-1 text-amber-500">
-                                                    <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                                    <span className="font-bold text-slate-900 dark:text-white">{dr.rating}</span>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[14px] font-black text-slate-900 dark:text-white italic-none">{item.index.split(' ')[0]}</span>
+                                                    <span className="text-[11px] font-bold text-slate-400 uppercase leading-none">{item.index.split(' ').slice(1).join(' ')}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-5">
-                                                <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-[14px] font-bold text-white shadow-sm whitespace-nowrap ${dr.active ? 'bg-emerald-500' : 'bg-slate-400'}`}>
-                                                    {dr.status}
+                                            <td className="px-8 py-5 text-center">
+                                                <span className={`text-[13px] font-bold px-3 py-1 rounded-lg ${item.risk.startsWith('+') ? 'text-rose-500 bg-rose-50 dark:bg-rose-500/10' : 'text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10'}`}>
+                                                    {item.risk} {item.risk.startsWith('+') ? '↑' : '↓'}
                                                 </span>
                                             </td>
-                                            <td className="px-8 py-5 text-right">
-                                                <button className="p-2 text-slate-400 hover:text-primary transition-colors">
-                                                    <span className="material-symbols-outlined">more_vert</span>
-                                                </button>
+                                            <td className="px-8 py-5">
+                                                <div className="flex items-center gap-2">
+                                                    <div className={`w-2 h-2 rounded-full ${item.color.replace('text', 'bg')} animate-pulse`}></div>
+                                                    <span className={`text-[13px] font-bold ${item.color}`}>{item.status}</span>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
-                        </div>
-                        {/* Pagination Footer - Redesigned */}
-                        <div className="px-8 py-6 bg-slate-50/50 dark:bg-slate-800/20 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">
-                            {isLoading ? (
-                                <>
-                                    <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-40"></div>
-                                    <div className="flex gap-2">
-                                        <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse"></div>
-                                        <div className="w-24 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse"></div>
-                                        <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse"></div>
-                                    </div>
-                                </>
-                            ) : (
-                                <>
-                                    <p className="text-[14px] font-medium text-slate-500">
-                                        Trang <span className="font-bold text-slate-900 dark:text-white">1</span> trên <span className="font-bold text-slate-900 dark:text-white">12</span>
-                                    </p>
-                                    <div className="flex items-center gap-3">
-                                        <button className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary transition-all hover:shadow-sm disabled:opacity-30 disabled:hover:text-slate-400" disabled>
-                                            <span className="material-symbols-outlined text-[20px]">chevron_left</span>
-                                        </button>
-                                        <div className="flex items-center gap-1.5">
-                                            <button className="w-10 h-10 rounded-xl bg-primary text-white text-sm font-black shadow-lg shadow-primary/20 transition-all">1</button>
-                                            <button className="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 text-slate-500 hover:text-primary border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-sm font-bold transition-all">2</button>
-                                            <button className="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 text-slate-500 hover:text-primary border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-sm font-bold transition-all">3</button>
-                                        </div>
-                                        <button className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary transition-all hover:shadow-sm">
-                                            <span className="material-symbols-outlined text-[20px]">chevron_right</span>
-                                        </button>
-                                    </div>
-                                </>
-                            )}
                         </div>
                     </div>
                 </div>

@@ -8,6 +8,7 @@ import DeleteDoctorModal from '../features/clinic/components/DeleteDoctorModal';
 import DoctorAssignmentModal from '../features/clinic/components/DoctorAssignmentModal';
 import ClinicFilterDropdown from '../components/common/ClinicFilterDropdown';
 import Toast from '../components/ui/Toast';
+import ImageModal from '../components/ui/ImageModal';
 
 export default function ClinicDoctors() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -35,6 +36,11 @@ export default function ClinicDoctors() {
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('Tất cả bác sĩ');
     const [specialtyFilter, setSpecialtyFilter] = useState('Chuyên khoa');
+    const [degreeFilter, setDegreeFilter] = useState('Học vị');
+    const [experienceFilter, setExperienceFilter] = useState('Kinh nghiệm');
+
+    const degrees = ['Tiến sĩ', 'Thạc sĩ', 'BSCKII', 'BSCKI', 'Bác sĩ'];
+    const experiences = ['Trên 5 năm', 'Trên 10 năm', 'Trên 20 năm'];
 
     const [stats, setStats] = useState<any>(null);
 
@@ -56,6 +62,10 @@ export default function ClinicDoctors() {
         try {
             const res = await clinicApi.getDoctors(currentClinicId, {
                 keyword: debouncedSearch || undefined,
+                status: statusFilter === 'Tất cả bác sĩ' ? undefined : statusFilter,
+                specialty: specialtyFilter === 'Chuyên khoa' ? undefined : specialtyFilter,
+                degree: degreeFilter === 'Học vị' ? undefined : degreeFilter,
+                experience: experienceFilter === 'Kinh nghiệm' ? undefined : experienceFilter,
                 page: page,
                 size: pageSize
             });
@@ -87,7 +97,7 @@ export default function ClinicDoctors() {
     useEffect(() => {
         fetchDoctors(0, false);
         fetchStats();
-    }, [currentClinicId, debouncedSearch]);
+    }, [currentClinicId, debouncedSearch, statusFilter, specialtyFilter, degreeFilter, experienceFilter]);
 
     const [notifications, setNotifications] = useState<any[]>([]);
 
@@ -157,6 +167,17 @@ export default function ClinicDoctors() {
     };
 
 
+    // Image Preview Modal State
+    const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+    const [previewImageUrl, setPreviewImageUrl] = useState('');
+    const [previewTitle, setPreviewTitle] = useState('');
+
+    const openImagePreview = (url: string, title: string) => {
+        setPreviewImageUrl(url);
+        setPreviewTitle(title);
+        setIsPreviewModalOpen(true);
+    };
+
     return (
         <div className="flex min-h-screen font-display bg-[#f6f8f7] dark:bg-slate-950 text-slate-900 dark:text-slate-100 italic-none">
             <ClinicSidebar
@@ -209,9 +230,9 @@ export default function ClinicDoctors() {
                     </div>
 
                     {/* Statistic Overview Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 italic-none mb-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 italic-none mb-8">
                         {isLoading || !stats ? (
-                            [...Array(3)].map((_, i) => (
+                            [...Array(4)].map((_, i) => (
                                 <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm space-y-4 animate-pulse">
                                     <div className="flex items-center justify-between">
                                         <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl"></div>
@@ -228,42 +249,65 @@ export default function ClinicDoctors() {
                                 {/* Total Doctors */}
                                 <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
                                     <div className="flex items-center justify-between mb-4">
-                                        <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
-                                            <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
+                                        <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                                            <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>stethoscope</span>
                                         </div>
-                                        <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full uppercase tracking-wider border border-emerald-100/50">Đang hoạt động</span>
+                                        <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[12px] font-bold rounded-full border border-emerald-100/50">Đang hoạt động</span>
                                     </div>
                                     <div>
                                         <p className="text-[14px] font-medium text-slate-500 mb-0.5">Tổng số bác sĩ</p>
-                                        <h4 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">{totalElements} <span className="text-sm font-medium text-slate-600">nhân sự</span></h4>
+                                        <h4 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">
+                                            {stats?.doctorPerformances?.length || totalElements} <span className="text-sm font-medium text-slate-600">nhân sự</span>
+                                        </h4>
                                     </div>
                                 </div>
 
                                 {/* Active Doctors */}
                                 <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
                                     <div className="flex items-center justify-between mb-4">
-                                        <div className="w-10 h-10 bg-emerald-50 dark:bg-emerald-900/10 rounded-xl flex items-center justify-center text-emerald-600">
-                                            <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified_user</span>
+                                        <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/10 rounded-xl flex items-center justify-center text-emerald-600">
+                                            <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified_user</span>
                                         </div>
-                                        <span className="px-3 py-1 bg-slate-50 text-slate-500 text-[10px] font-bold rounded-full uppercase tracking-wider border border-slate-200/50">Sẵn sàng</span>
+                                        <span className="px-3 py-1 bg-slate-50 text-slate-500 text-[12px] font-bold rounded-full border border-slate-200/50">Sẵn sàng</span>
                                     </div>
                                     <div>
                                         <p className="text-[14px] font-medium text-slate-600 mb-0.5">Đã cấp chứng chỉ</p>
-                                        <h4 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">{totalElements} <span className="text-sm font-medium text-slate-600">bác sĩ</span></h4>
+                                        <h4 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">
+                                            {stats?.doctorPerformances?.filter((d: any) => d.status === 'ACTIVE').length || 0} <span className="text-sm font-medium text-slate-600">bác sĩ</span>
+                                        </h4>
                                     </div>
                                 </div>
 
                                 {/* Work Load/Performance */}
                                 <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
                                     <div className="flex items-center justify-between mb-4">
-                                        <div className="w-10 h-10 bg-indigo-50 dark:bg-indigo-900/10 rounded-xl flex items-center justify-center text-indigo-600">
-                                            <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>monitoring</span>
+                                        <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/10 rounded-xl flex items-center justify-center text-indigo-600">
+                                            <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>monitoring</span>
                                         </div>
-                                        <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full uppercase tracking-wider border border-emerald-100/50">+12% Hiệu năng</span>
+                                        <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[12px] font-bold rounded-full border border-emerald-100/50">+12% Hiệu năng</span>
                                     </div>
                                     <div>
                                         <p className="text-[14px] font-medium text-slate-600 mb-0.5">Tỷ lệ hài lòng</p>
                                         <h4 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">98.5 <span className="text-sm font-medium text-slate-600">%</span></h4>
+                                    </div>
+                                </div>
+
+                                {/* Average Load */}
+                                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="w-12 h-12 bg-sky-50 dark:bg-sky-900/10 rounded-xl flex items-center justify-center text-sky-600">
+                                            <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>speed</span>
+                                        </div>
+                                        <span className={`px-3 py-1 text-[12px] font-bold rounded-full border ${stats?.averageDoctorLoad > 50 ? 'bg-rose-50 text-rose-600 border-rose-100/50' : 'bg-sky-50 text-sky-600 border-sky-100/50'}`}>
+                                            {stats?.averageDoctorLoad > 50 ? 'Cảnh báo' : 'Ổn định'}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <p className="text-[14px] font-medium text-slate-600 mb-0.5">Tải lượng trung bình</p>
+                                        <h4 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">
+                                            {stats?.averageDoctorLoad ? stats.averageDoctorLoad.toFixed(1) : 0}
+                                            <span className="text-sm font-medium text-slate-600 ml-1">bệnh nhân / bác sĩ</span>
+                                        </h4>
                                     </div>
                                 </div>
                             </>
@@ -277,7 +321,8 @@ export default function ClinicDoctors() {
                                 <div className="w-full md:w-[450px] h-11 bg-white/50 dark:bg-slate-800/50 rounded-lg animate-pulse"></div>
                                 <div className="w-48 h-11 bg-white/50 dark:bg-slate-800/50 rounded-lg animate-pulse"></div>
                                 <div className="w-48 h-11 bg-white/50 dark:bg-slate-800/50 rounded-lg animate-pulse"></div>
-                                <div className="w-11 h-11 bg-white/50 dark:bg-slate-800/50 rounded-lg animate-pulse"></div>
+                                <div className="w-48 h-11 bg-white/50 dark:bg-slate-800/50 rounded-lg animate-pulse"></div>
+                                <div className="w-48 h-11 bg-white/50 dark:bg-slate-800/50 rounded-lg animate-pulse"></div>
                             </>
                         ) : (
                             <>
@@ -294,7 +339,7 @@ export default function ClinicDoctors() {
                                 <div className="flex flex-wrap items-center gap-3">
                                     <ClinicFilterDropdown
                                         value={statusFilter}
-                                        options={['Tất cả bác sĩ', 'Đang hoạt động', 'Nghỉ phép', 'Đã đủ lịch']}
+                                        options={['Tất cả bác sĩ', 'Đang hoạt động', 'Ngưng hoạt động', 'Nghỉ phép']}
                                         onChange={setStatusFilter}
                                     />
 
@@ -304,9 +349,17 @@ export default function ClinicDoctors() {
                                         onChange={setSpecialtyFilter}
                                     />
 
-                                    <button className="p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary transition-all shadow-sm group">
-                                        <span className="material-symbols-outlined text-[22px] group-hover:rotate-180 transition-transform duration-500">tune</span>
-                                    </button>
+                                    <ClinicFilterDropdown
+                                        value={degreeFilter}
+                                        options={['Học vị', ...degrees]}
+                                        onChange={setDegreeFilter}
+                                    />
+
+                                    <ClinicFilterDropdown
+                                        value={experienceFilter}
+                                        options={['Kinh nghiệm', ...experiences]}
+                                        onChange={setExperienceFilter}
+                                    />
                                 </div>
                             </>
                         )}
@@ -315,6 +368,7 @@ export default function ClinicDoctors() {
                     <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800/50 overflow-hidden font-display transition-all duration-300 hover:shadow-md">
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
+                                {/* ... thead */}
                                 <thead>
                                     <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
                                         <th className="px-8 py-4">
@@ -382,7 +436,15 @@ export default function ClinicDoctors() {
                                             <tr key={idx} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors group cursor-pointer border-b border-slate-50 dark:border-slate-800 last:border-0">
                                                 <td className="px-8 py-4">
                                                     <div className="flex items-center gap-4">
-                                                        <img alt={dr.name} className="w-11 h-11 rounded-xl object-cover ring-2 ring-primary/10" src={dr.img} />
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); openImagePreview(dr.img, `Ảnh bác sĩ: ${dr.name}`); }}
+                                                            className="relative shrink-0 group/avatar overflow-hidden rounded-xl"
+                                                        >
+                                                            <img alt={dr.name} className="w-11 h-11 rounded-xl object-cover ring-2 ring-primary/10 transition-transform duration-500 group-hover/avatar:scale-110" src={dr.img} />
+                                                            <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover/avatar:opacity-100 flex items-center justify-center transition-opacity border-0">
+                                                                <span className="material-symbols-outlined text-white text-[16px]">zoom_in</span>
+                                                            </div>
+                                                        </button>
                                                         <div>
                                                             <p className="text-[14px] font-medium text-slate-700 dark:text-slate-200 transition-colors tracking-tight italic-none">{dr.name}</p>
                                                             <p className="text-[12px] text-slate-500 font-medium">{dr.id}</p>
@@ -404,15 +466,13 @@ export default function ClinicDoctors() {
                                                     <div className="flex items-center gap-2">
                                                         <span className="text-[14px] font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">{dr.licenseNumber || 'Chưa cập nhật'}</span>
                                                         {dr.licenseImageUrl && (
-                                                            <a 
-                                                                href={dr.licenseImageUrl} 
-                                                                target="_blank" 
-                                                                rel="noopener noreferrer" 
+                                                            <button
+                                                                onClick={(e) => { e.stopPropagation(); openImagePreview(dr.licenseImageUrl, `Chứng chỉ hành nghề: ${dr.name}`); }}
                                                                 className="w-7 h-7 flex items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all shadow-sm"
                                                                 title="Xem ảnh bằng chứng CCHN"
                                                             >
                                                                 <span className="material-symbols-outlined text-[16px]">visibility</span>
-                                                            </a>
+                                                            </button>
                                                         )}
                                                     </div>
                                                 </td>
@@ -424,20 +484,21 @@ export default function ClinicDoctors() {
                                                 <td className="px-6 py-4">
                                                     <span className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[12px] font-bold italic-none shadow-md transition-all text-white ${dr.statusColor === 'primary' ? 'bg-emerald-500' :
                                                         dr.statusColor === 'amber' ? 'bg-amber-500' :
-                                                            'bg-slate-400'
+                                                            dr.statusColor === 'rose' ? 'bg-rose-500' :
+                                                                'bg-slate-400'
                                                         }`}>
                                                         {dr.status}
                                                     </span>
                                                 </td>
                                                 <td className="px-8 py-4 text-right whitespace-nowrap">
                                                     <div className="flex items-center justify-end gap-2">
-                                                        <button onClick={() => { setSelectedDoctor(dr); setIsEditModalOpen(true); }} className="p-2 text-primary bg-primary/5 hover:bg-primary/10 rounded-lg transition-colors" title="Chỉnh sửa">
+                                                        <button onClick={(e) => { e.stopPropagation(); setSelectedDoctor(dr); setIsEditModalOpen(true); }} className="p-2 text-primary bg-primary/5 hover:bg-primary/10 rounded-lg transition-colors" title="Chỉnh sửa">
                                                             <span className="material-symbols-outlined text-[20px]">edit</span>
                                                         </button>
-                                                        <button onClick={() => { setSelectedDoctor(dr); setIsAssignmentModalOpen(true); }} className="p-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors" title="Điều phối">
+                                                        <button onClick={(e) => { e.stopPropagation(); setSelectedDoctor(dr); setIsAssignmentModalOpen(true); }} className="p-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors" title="Điều phối">
                                                             <span className="material-symbols-outlined text-[20px]">assignment_ind</span>
                                                         </button>
-                                                        <button onClick={() => { setSelectedDoctor(dr); setIsDeleteModalOpen(true); }} className="p-2 text-rose-500 bg-rose-50 hover:bg-rose-100 rounded-lg transition-colors" title="Xóa">
+                                                        <button onClick={(e) => { e.stopPropagation(); setSelectedDoctor(dr); setIsDeleteModalOpen(true); }} className="p-2 text-rose-500 bg-rose-50 hover:bg-rose-100 rounded-lg transition-colors" title="Xóa">
                                                             <span className="material-symbols-outlined text-[20px]">delete</span>
                                                         </button>
                                                     </div>
@@ -471,7 +532,7 @@ export default function ClinicDoctors() {
                             ) : (
                                 <>
                                     <p className="text-[14px] font-medium text-slate-500">
-                                        Hiển thị <span className="font-bold text-slate-900 dark:text-white">{doctors.length}</span> trên <span className="font-bold text-slate-900 dark:text-white">{totalElements}</span> bác sĩ
+                                        Hiển thị <span className="font-medium text-slate-900 dark:text-white">{doctors.length}</span>/<span className="font-medium text-slate-900 dark:text-white">{totalElements}</span> bác sĩ
                                     </p>
                                     <div className="flex items-center gap-3">
                                         <button
@@ -505,6 +566,7 @@ export default function ClinicDoctors() {
                 <EditDoctorModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} isSaving={isEditing} onSave={handleEditDoctor} initialData={selectedDoctor} />
                 <DeleteDoctorModal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} isDeleting={isDeleting} onDelete={handleDeleteDoctor} doctorData={selectedDoctor} />
                 <DoctorAssignmentModal isOpen={isAssignmentModalOpen} onClose={() => setIsAssignmentModalOpen(false)} doctorData={selectedDoctor} />
+                <ImageModal isOpen={isPreviewModalOpen} onClose={() => setIsPreviewModalOpen(false)} imageUrl={previewImageUrl} title={previewTitle} />
 
                 <Toast
                     show={showToast}

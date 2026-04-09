@@ -74,13 +74,13 @@ export default function ClinicDashboard() {
                 <text
                     x={0}
                     y={0}
-                    dy={16}
+                    dy={18}
                     textAnchor={textAnchor}
-                    fill="#475569"
+                    fill="#64748b"
                     fontSize={14}
-                    fontWeight={600}
+                    className="font-medium tabular-nums"
                 >
-                    {payload.value}
+                    {index === length - 1 ? 'Hôm nay' : payload.value}
                 </text>
             </g>
         );
@@ -395,16 +395,8 @@ export default function ClinicDashboard() {
                     {/* Charts Section */}
                     <section className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         {/* New Patients Chart */}
-                        <div className={`lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/70 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between relative ${isUpdating ? 'opacity-60 pointer-events-none' : ''}`}>
-                            {isUpdating && (
-                                <div className="absolute inset-0 bg-white/40 dark:bg-slate-900/40 backdrop-blur-[2px] z-10 flex items-center justify-center rounded-2xl">
-                                    <div className="flex flex-col items-center gap-3">
-                                        <div className="w-8 h-8 border-4 border-sky-500/30 border-t-sky-500 rounded-full animate-spin"></div>
-                                        <p className="text-[12px] font-bold text-sky-600">Đang cập nhật biểu đồ...</p>
-                                    </div>
-                                </div>
-                            )}
-                            {isLoading ? (
+                        <div className={`lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/70 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between relative`}>
+                            {(isLoading || isUpdating) ? (
                                 <div className="space-y-12 animate-pulse">
                                     <div className="flex justify-between items-center">
                                         <div className="space-y-3">
@@ -469,7 +461,7 @@ export default function ClinicDashboard() {
                                         </div>
                                         <div className="h-[220px] w-full mt-4">
                                             <ResponsiveContainer width="100%" height="100%">
-                                                <AreaChart data={mainStats.chartData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
+                                                <AreaChart data={mainStats.chartData} margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
                                                     <defs>
                                                         <linearGradient id="colorValueClinic" x1="0" y1="0" x2="0" y2="1">
                                                             <stop offset="5%" stopColor={selectedChartMetric === 'Chỉ số rủi ro' ? '#ef4444' : selectedChartMetric === 'Tải lượng bác sĩ' ? '#10b981' : '#0ea5e9'} stopOpacity={0.2} />
@@ -482,7 +474,7 @@ export default function ClinicDashboard() {
                                                         axisLine={false}
                                                         tickLine={false}
                                                         tick={<CustomXAxisTick length={mainStats.chartData.length} />}
-                                                        interval={0}
+                                                        ticks={mainStats.chartData.filter((_: any, i: number, arr: any[]) => (arr.length - 1 - i) % (arr.length > 20 ? 7 : arr.length > 10 ? 2 : 1) === 0).map((d: any) => d.month)}
                                                     />
                                                     <YAxis hide domain={['auto', 'auto']} />
                                                     <Tooltip content={<CustomTooltip />} cursor={{ stroke: selectedChartMetric === 'Chỉ số rủi ro' ? '#ef4444' : selectedChartMetric === 'Tải lượng bác sĩ' ? '#10b981' : '#0ea5e9', strokeWidth: 1, strokeDasharray: '4 4' }} />
@@ -494,11 +486,22 @@ export default function ClinicDashboard() {
                                                         fillOpacity={1}
                                                         fill="url(#colorValueClinic)"
                                                         animationDuration={1500}
-                                                        dot={{
-                                                            r: 4,
-                                                            fill: '#fff',
-                                                            stroke: selectedChartMetric === 'Chỉ số rủi ro' ? '#ef4444' : selectedChartMetric === 'Tải lượng bác sĩ' ? '#10b981' : '#0ea5e9',
-                                                            strokeWidth: 2,
+                                                        dot={(props: any) => {
+                                                            const { cx, cy, index } = props;
+                                                            const step = mainStats.chartData.length > 20 ? 7 : mainStats.chartData.length > 10 ? 2 : 1;
+                                                            const isLabeled = (mainStats.chartData.length - 1 - index) % step === 0;
+                                                            if (!isLabeled) return <></>;
+                                                            return (
+                                                                <circle
+                                                                    key={`dot-${index}`}
+                                                                    cx={cx}
+                                                                    cy={cy}
+                                                                    r={4}
+                                                                    fill="#fff"
+                                                                    stroke={selectedChartMetric === 'Chỉ số rủi ro' ? '#ef4444' : selectedChartMetric === 'Tải lượng bác sĩ' ? '#10b981' : '#0ea5e9'}
+                                                                    strokeWidth={2}
+                                                                />
+                                                            );
                                                         }}
                                                         activeDot={{
                                                             r: 6,

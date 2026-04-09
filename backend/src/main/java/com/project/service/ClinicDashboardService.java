@@ -22,7 +22,7 @@ public interface ClinicDashboardService {
 
         void deletePatient(Long clinicId, Long patientId);
 
-        org.springframework.data.domain.Page<ClinicDoctorResponse> getDoctorRecords(Long clinicId, String keyword,
+        org.springframework.data.domain.Page<ClinicDoctorResponse> getDoctorRecords(Long clinicId, String keyword, String status, String specialty, String degree, String experience,
                         org.springframework.data.domain.Pageable pageable);
 
         void createDoctor(Long clinicId, CreateDoctorRequest request);

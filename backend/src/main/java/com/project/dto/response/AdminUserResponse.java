@@ -21,5 +21,6 @@ public class AdminUserResponse {
     private String licenseNumber;
     private String degree;
     private String bio;
+    private String licenseImageUrl;
     private LocalDateTime createdAt;
 }

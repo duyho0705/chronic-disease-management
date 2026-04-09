@@ -409,7 +409,7 @@ public class AdminServiceImpl implements AdminService {
     public Page<AdminUserResponse> getUsers(String role, String status, Long clinicId, String keyword,
             Pageable pageable) {
         String search = (keyword != null && !keyword.isBlank()) ? "%" + keyword.toLowerCase().trim() + "%" : null;
-        Page<User> page = userRepository.findByFilters(role, status, clinicId, search, pageable);
+        Page<User> page = userRepository.findByFilters(role, status, clinicId, null, null, null, search, pageable);
         return page.map(userMapper::toAdminUserResponse);
     }
 
