@@ -69,8 +69,13 @@ export default function ClinicReports() {
 
     const mainStats = {
         totalPatients: stats?.totalPatients || '0',
+        highRiskAlerts: stats?.highRiskAlerts || 0,
         patientGrowth: stats?.patientGrowth || '+0%',
+        adherenceRate: stats?.adherenceRate || 0,
+        improvementRate: stats?.improvementRate || 0,
+        avgConsultationTime: stats?.avgConsultationTime || 0,
         growthStats: stats?.growthStats || null,
+        diseaseAnalytics: stats?.diseaseAnalytics || [],
         diseaseRatios: stats?.diseaseRatios?.map((dr: any) => ({
             ...dr,
             value: dr.percentage
@@ -80,7 +85,7 @@ export default function ClinicReports() {
                 ? stats.patientGrowthChart.map((d: any) => ({
                     month: d.month,
                     value: d.value,
-                    inpatientValue: Math.floor(d.value * 0.4)
+                    inpatientValue: d.secondaryValue || Math.floor(d.value * 0.4)
                 }))
                 : [])
             : selectedChartMetric === 'Tải lượng bác sĩ'
@@ -246,11 +251,11 @@ export default function ClinicReports() {
                                         </div>
                                         <span className="text-rose-500 text-xs font-bold">Cần chú ý</span>
                                     </div>
-                                    <h3 className="text-slate-500 text-sm font-medium">Bệnh nhân Nguy cơ cao</h3>
-                                    <p className="text-3xl font-black mt-1 text-slate-900 dark:text-white">12 <span className="text-sm font-bold text-slate-400">ca</span></p>
+                                    <h3 className="text-[14px] font-medium text-slate-500">Bệnh nhân Nguy cơ cao</h3>
+                                    <p className="text-3xl font-black mt-1 text-slate-900 dark:text-white">{mainStats.highRiskAlerts} <span className="text-sm font-bold text-slate-400">ca</span></p>
                                     <p className="text-[13px] text-rose-500 mt-2 font-medium flex items-center gap-1">
                                         <span className="material-symbols-outlined text-[14px]">trending_up</span>
-                                        +2 ca so với tuần trước
+                                        {stats?.highRiskGrowth || '+0 ca'}
                                     </p>
                                 </div>
                                 <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group">
@@ -258,14 +263,10 @@ export default function ClinicReports() {
                                         <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center text-indigo-600">
                                             <span className="material-symbols-outlined size-6" style={{ fontVariationSettings: "'FILL' 1" }}>verified_user</span>
                                         </div>
-                                        <div className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-3 py-1 rounded-full text-[12px] font-bold">Tốt</div>
+                                        <div className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-3 py-1 rounded-full text-[12px] font-bold">{mainStats.adherenceRate > 85 ? 'Tốt' : 'TB'}</div>
                                     </div>
-                                    <h3 className="text-slate-500 text-sm font-medium">Tỷ lệ Tuân thủ</h3>
-                                    <p className="text-3xl font-black mt-1 text-slate-900 dark:text-white">92%</p>
-                                    <div className="mt-4 flex gap-1">
-                                        <div className="h-1.5 flex-[4] bg-primary rounded-full"></div>
-                                        <div className="h-1.5 flex-[1] bg-slate-100 dark:bg-slate-800 rounded-full"></div>
-                                    </div>
+                                    <h3 className="text-[14px] font-medium text-slate-500">Tỷ lệ Tuân thủ</h3>
+                                    <p className="text-3xl font-black mt-1 text-slate-900 dark:text-white">{mainStats.adherenceRate.toFixed(1)}%</p>
                                 </div>
                                 <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group">
                                     <div className="flex justify-between items-start mb-4">
@@ -278,7 +279,7 @@ export default function ClinicReports() {
                                         </div>
                                     </div>
                                     <h3 className="text-slate-500 text-sm font-medium">Tỷ lệ Cải thiện</h3>
-                                    <p className="text-3xl font-black mt-1 text-slate-900 dark:text-white">76.4%</p>
+                                    <p className="text-3xl font-black mt-1 text-slate-900 dark:text-white">{mainStats.improvementRate.toFixed(1)}%</p>
                                     <p className="text-[12px] text-slate-400 mt-2 font-medium">Chuyển sang nhóm ổn định</p>
                                 </div>
                                 <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group">
@@ -288,11 +289,8 @@ export default function ClinicReports() {
                                         </div>
                                         <span className="text-slate-400 text-xs font-bold font-display text-[11px] uppercase tracking-wider tabular-nums">TB 15p</span>
                                     </div>
-                                    <h3 className="text-slate-500 text-sm font-medium">Thời gian khám TB</h3>
-                                    <p className="text-3xl font-black mt-1 text-slate-900 dark:text-white">18.5 <span className="text-sm font-bold text-slate-400">phút</span></p>
-                                    <div className="mt-4 h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                        <div className="h-full bg-blue-500 w-[65%]"></div>
-                                    </div>
+                                    <h3 className="text-[14px] font-medium text-slate-500">Thời gian khám trung bình</h3>
+                                    <p className="text-3xl font-black mt-1 text-slate-900 dark:text-white">{mainStats.avgConsultationTime.toFixed(1)} <span className="text-sm font-bold text-slate-400">phút</span></p>
                                 </div>
                             </>
                         )}
@@ -326,7 +324,7 @@ export default function ClinicReports() {
                                 <>
                                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                                         <div>
-                                            <h3 className="text-[22px] font-bold text-slate-900 dark:text-white tracking-tight">Thống kê xu hướng</h3>
+                                            <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Thống kê xu hướng</h3>
                                             <p className="text-[15px] text-slate-500 font-medium italic-none">Dữ liệu phân tích theo {selectedChartMetric.toLowerCase()}</p>
                                         </div>
                                         <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
@@ -458,26 +456,21 @@ export default function ClinicReports() {
                             ) : (
                                 <>
                                     <div className="w-full text-left mb-8">
-                                        <h3 className="text-[22px] font-bold text-slate-900 dark:text-white tracking-tight">Phân tích Trạng thái</h3>
+                                        <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Phân tích Trạng thái</h3>
                                         <p className="text-[15px] text-slate-500 font-medium italic-none">Sức khỏe bệnh nhân theo nhóm bệnh</p>
                                     </div>
 
                                     <div className="flex-1 space-y-7">
-                                        {[
-                                            { name: 'Tiểu đường', stable: 65, mid: 20, risk: 15, color: 'emerald' },
-                                            { name: 'Huyết áp', stable: 75, mid: 15, risk: 10, color: 'blue' },
-                                            { name: 'Tim mạch', stable: 50, mid: 30, risk: 20, color: 'amber' },
-                                            { name: 'Khác', stable: 85, mid: 10, risk: 5, color: 'slate' }
-                                        ].map((item, i) => (
+                                        {mainStats.diseaseRatios.map((item: any, i: number) => (
                                             <div key={i} className="group cursor-default">
                                                 <div className="flex justify-between items-end mb-2">
-                                                    <span className="text-[14px] font-bold text-slate-700 dark:text-slate-300">{item.name}</span>
-                                                    <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">{item.stable + item.mid + item.risk}% Tổng ca</span>
+                                                    <span className="text-[14px] font-bold text-slate-700 dark:text-slate-300">{item.label}</span>
+                                                    <span className="text-[14px] font-medium text-slate-500">{item.percentage} Tổng ca</span>
                                                 </div>
                                                 <div className="h-3 flex w-full rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800/50 shadow-inner">
-                                                    <div className="h-full bg-emerald-500 transition-all duration-500 hover:brightness-110" style={{ width: `${item.stable}%` }} title="Ổn định"></div>
-                                                    <div className="h-full bg-amber-400 transition-all duration-500 hover:brightness-110" style={{ width: `${item.mid}%` }} title="Trung bình"></div>
-                                                    <div className="h-full bg-rose-500 transition-all duration-500 hover:brightness-110" style={{ width: `${item.risk}%` }} title="Nguy cơ cao"></div>
+                                                    <div className="h-full bg-emerald-500 transition-all duration-500 hover:brightness-110" style={{ width: `${item.stableRate || 0}%` }} title="Ổn định"></div>
+                                                    <div className="h-full bg-amber-400 transition-all duration-500 hover:brightness-110" style={{ width: `${item.midRate || 0}%` }} title="Trung bình"></div>
+                                                    <div className="h-full bg-rose-500 transition-all duration-500 hover:brightness-110" style={{ width: `${item.riskRate || 0}%` }} title="Nguy cơ cao"></div>
                                                 </div>
                                             </div>
                                         ))}
@@ -486,15 +479,15 @@ export default function ClinicReports() {
                                     <div className="mt-10 pt-6 border-t border-slate-50 dark:border-slate-800 flex flex-wrap gap-4 justify-center">
                                         <div className="flex items-center gap-2">
                                             <div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
-                                            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-tighter">Ổn định</span>
+                                            <span className="text-[15px] font-medium text-slate-500">Ổn định</span>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <div className="w-2.5 h-2.5 rounded-full bg-amber-400"></div>
-                                            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-tighter">Trung bình</span>
+                                            <span className="text-[15px] font-medium text-slate-500">Trung bình</span>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <div className="w-2.5 h-2.5 rounded-full bg-rose-500"></div>
-                                            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-tighter">Nguy cơ cao</span>
+                                            <span className="text-[15px] font-medium text-slate-500">Nguy cơ cao</span>
                                         </div>
                                     </div>
                                 </>
@@ -517,7 +510,7 @@ export default function ClinicReports() {
                                     <span className="material-symbols-outlined text-[18px]">filter_list</span>
                                     {activeFilter}
                                 </button>
-                                
+
                                 {isFilterOpen && (
                                     <>
                                         <div className="fixed inset-0 z-[160]" onClick={() => setIsFilterOpen(false)}></div>
@@ -557,35 +550,49 @@ export default function ClinicReports() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
-                                    {[
-                                        { name: 'Tiểu đường Type 2', cases: '124', index: '7.2 mmol/L', risk: '+5.2%', status: 'Cần theo dõi', color: 'text-rose-500' },
-                                        { name: 'Cao huyết áp', cases: '89', index: '135/85 mmHg', risk: '-2.1%', status: 'Kiểm soát tốt', color: 'text-emerald-500' },
-                                        { name: 'Bệnh tim mạch', cases: '45', index: '78 bpm', risk: '+0.5%', status: 'Ổn định', color: 'text-blue-500' },
-                                        { name: 'Rối loạn mỡ máu', cases: '67', index: '5.4 mmol/L', risk: '+1.2%', status: 'Bình thường', color: 'text-slate-500' }
-                                    ].map((item, idx) => (
+                                    {((mainStats.diseaseAnalytics.length > 0 ? mainStats.diseaseAnalytics : [])
+                                        .filter((item: any) => {
+                                            if (activeFilter === 'Tất cả nhóm bệnh') return true;
+                                            if (activeFilter === 'Nhóm Nguy cơ cao') return item.assessment === 'Cần lưu ý' || item.assessment.includes('Rủi ro');
+                                            if (activeFilter === 'Nhóm Ổn định') return item.assessment === 'Tốt' || item.assessment === 'Ổn định' || item.assessment === 'Bình thường';
+                                            if (activeFilter === 'Nhóm đang theo dõi') return item.assessment === 'Cần theo dõi' || item.assessment === 'Đang kiểm soát';
+                                            return true;
+                                        })
+                                        .length > 0 ?
+                                        mainStats.diseaseAnalytics.filter((item: any) => {
+                                            if (activeFilter === 'Tất cả nhóm bệnh') return true;
+                                            if (activeFilter === 'Nhóm Nguy cơ cao') return item.assessment === 'Cần lưu ý' || item.assessment.includes('Rủi ro');
+                                            if (activeFilter === 'Nhóm Ổn định') return item.assessment === 'Tốt' || item.assessment === 'Ổn định' || item.assessment === 'Bình thường';
+                                            if (activeFilter === 'Nhóm đang theo dõi') return item.assessment === 'Cần theo dõi' || item.assessment === 'Đang kiểm soát';
+                                            return true;
+                                        })
+                                        : (mainStats.diseaseAnalytics.length === 0 ? [
+                                            { diseaseName: 'Đang tải...', totalCases: 0, averageIndex: 'N/A', riskVariation: '0%', assessment: 'N/A', statusColor: 'bg-slate-400' }
+                                        ] : [])
+                                    ).map((item: any, idx: number) => (
                                         <tr key={idx} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-all">
                                             <td className="px-8 py-5">
                                                 <div className="flex items-center gap-3">
-                                                    <div className={`w-2 h-8 rounded-full ${item.color.replace('text', 'bg')}`}></div>
-                                                    <span className="font-bold text-slate-900 dark:text-white italic-none">{item.name}</span>
+                                                    <div className={`w-2 h-8 rounded-full ${item.statusColor}`}></div>
+                                                    <span className="font-bold text-slate-900 dark:text-white italic-none">{item.diseaseName}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-5 font-bold text-slate-700 dark:text-slate-300 tabular-nums">{item.cases} ca</td>
+                                            <td className="px-8 py-5 font-bold text-slate-700 dark:text-slate-300 tabular-nums">{item.totalCases} ca</td>
                                             <td className="px-8 py-5">
                                                 <div className="flex items-center gap-2">
-                                                    <span className="text-[14px] font-black text-slate-900 dark:text-white italic-none">{item.index.split(' ')[0]}</span>
-                                                    <span className="text-[11px] font-bold text-slate-400 uppercase leading-none">{item.index.split(' ').slice(1).join(' ')}</span>
+                                                    <span className="text-[14px] font-black text-slate-900 dark:text-white italic-none">{item.averageIndex.split(' ')[0]}</span>
+                                                    <span className="text-[11px] font-bold text-slate-400 uppercase leading-none">{item.averageIndex.split(' ').slice(1).join(' ')}</span>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-5 text-center">
-                                                <span className={`text-[13px] font-bold px-3 py-1 rounded-lg ${item.risk.startsWith('+') ? 'text-rose-500 bg-rose-50 dark:bg-rose-500/10' : 'text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10'}`}>
-                                                    {item.risk} {item.risk.startsWith('+') ? '↑' : '↓'}
+                                                <span className={`text-[13px] font-bold px-3 py-1 rounded-lg ${item.riskVariation.startsWith('-') ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10' : 'text-rose-500 bg-rose-50 dark:bg-rose-500/10'}`}>
+                                                    {item.riskVariation} {item.riskVariation.startsWith('-') ? '↓' : '↑'}
                                                 </span>
                                             </td>
                                             <td className="px-8 py-5">
                                                 <div className="flex items-center gap-2">
-                                                    <div className={`w-2 h-2 rounded-full ${item.color.replace('text', 'bg')} animate-pulse`}></div>
-                                                    <span className={`text-[13px] font-bold ${item.color}`}>{item.status}</span>
+                                                    <div className={`w-2 h-2 rounded-full ${item.statusColor} animate-pulse`}></div>
+                                                    <span className={`text-[13px] font-bold ${item.statusColor.replace('bg-', 'text-')}`}>{item.assessment}</span>
                                                 </div>
                                             </td>
                                         </tr>

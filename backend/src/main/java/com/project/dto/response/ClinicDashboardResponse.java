@@ -15,12 +15,17 @@ public class ClinicDashboardResponse {
     
     private String patientGrowth;
     private String highRiskGrowth;
+    
+    private double adherenceRate;
+    private double improvementRate;
+    private double avgConsultationTime;
 
     private List<DiseaseRatioDto> diseaseRatios;
     private List<PatientGrowthChartDto> patientGrowthChart;
     private List<PatientGrowthChartDto> riskIndexChart;
     private List<PatientGrowthChartDto> doctorLoadChart;
     private GrowthStatsDto growthStats;
+    private List<DiseaseAnalysisDto> diseaseAnalytics;
     private List<DoctorPerformanceDto> doctorPerformances;
     private List<String> insights;
     private double averageDoctorLoad;
@@ -31,6 +36,20 @@ public class ClinicDashboardResponse {
         private String label;
         private String percentage;
         private String color;
+        private double stableRate;
+        private double midRate;
+        private double riskRate;
+    }
+
+    @Data
+    @Builder
+    public static class DiseaseAnalysisDto {
+        private String diseaseName;
+        private int totalCases;
+        private String averageIndex; // e.g., "126 mg/dL"
+        private String riskVariation; // e.g., "-4.2%"
+        private String assessment; // e.g., "Ổn định"
+        private String statusColor;
     }
 
     @Data
@@ -38,6 +57,7 @@ public class ClinicDashboardResponse {
     public static class PatientGrowthChartDto {
         private String month;
         private int value;
+        private int secondaryValue; // for inpatient vs outpatient
         private boolean active;
     }
 

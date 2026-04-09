@@ -111,7 +111,7 @@ export default function ClinicRiskAlerts() {
                             ))
                         ) : (
                             <>
-                                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group border border-primary/5">
+                                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm relative overflow-hidden group border border-primary/5">
                                     <div className="relative z-10">
                                         <p className="text-sm font-medium text-slate-500 mb-4">Tổng cảnh báo</p>
                                         <h3 className="text-3xl font-black text-slate-900 dark:text-white leading-none">{dashboardStats?.highRiskAlerts || 0}</h3>
@@ -122,33 +122,29 @@ export default function ClinicRiskAlerts() {
                                     </div>
                                 </div>
 
-                                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group border border-red-100 dark:border-red-900/30">
+                                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm relative overflow-hidden group border border-red-100 dark:border-red-900/30">
                                     <div>
                                         <div className="flex items-center gap-2 mb-4">
                                             <p className="text-sm font-bold text-red-500">Khẩn cấp</p>
                                         </div>
                                         <h3 className="text-3xl font-black text-red-500 leading-none">{Math.max(0, (dashboardStats?.highRiskAlerts || 0) - 7)}</h3>
                                     </div>
-                                    <p className="text-red-400/70 text-[13px] font-medium mt-4">Cần can thiệp ngay lập tức</p>
+                                    <p className="text-red-600/70 text-[14px] font-medium mt-4">Cần can thiệp ngay lập tức</p>
                                 </div>
 
-                                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group border border-amber-100 dark:border-amber-900/30">
+                                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm relative overflow-hidden group border border-amber-100 dark:border-amber-900/30">
                                     <div>
                                         <div className="flex items-center gap-2 mb-4">
                                             <p className="text-sm font-bold text-amber-600">Theo dõi</p>
                                         </div>
                                         <h3 className="text-3xl font-black text-amber-600 leading-none">{dashboardStats?.pendingFollowUps || 0}</h3>
                                     </div>
-                                    <p className="text-amber-500/60 text-[13px] font-medium mt-4">Đang trong ngưỡng nguy cơ</p>
+                                    <p className="text-amber-600/70 text-[14px] font-medium mt-4">Đang trong ngưỡng nguy cơ</p>
                                 </div>
-
                                 <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-primary/5">
                                     <div>
                                         <p className="text-sm font-medium text-slate-500 mb-4">Đã xử lý</p>
                                         <h3 className="text-3xl font-black text-emerald-600 leading-none">07</h3>
-                                    </div>
-                                    <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full mt-6 overflow-hidden">
-                                        <div className="bg-primary h-full w-[29%]"></div>
                                     </div>
                                 </div>
                             </>
@@ -245,52 +241,54 @@ export default function ClinicRiskAlerts() {
                                                 const isRed = idx % 2 === 0;
                                                 const valueLabel = isRed ? '185/115' : '15.5';
                                                 const unitLabel = isRed ? 'mmHg' : 'mmol/L';
-                                                
+
                                                 return (
-                                                <tr key={idx} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                                                    <td className="px-8 py-5">
-                                                        <div className="flex items-center gap-3">
-                                                            <img alt="Bệnh nhân" className="w-10 h-10 rounded-xl object-cover ring-2 ring-primary/10" src={patient.img || 'https://lh3.googleusercontent.com/aida-public/AB6AXuDT-wP05202-0C6gA-L8_9Z7wB6g_b6C1C1-V1wT13_9A2y-6G0D_1w-5969566_8-6oYg7KEx-iWv43R6wX7T--2_n0vM28148mX0G23-xQwTj_8-B7O-i-lE_h4QnO-aV4-Yw4H-x-L1-m0T8_m1mS2A5z-oV5019-3Yn'} />
-                                                            <div>
-                                                                <p className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">{patient.name}</p>
-                                                                <p className="text-[13px] text-slate-500 font-medium">{patient.condition}</p>
+                                                    <tr key={idx} className="group">
+                                                        <td className="px-8 py-5">
+                                                            <div className="flex items-center gap-3">
+                                                                <img alt="Bệnh nhân" className="w-10 h-10 rounded-xl object-cover ring-2 ring-primary/10" src={patient.img || 'https://lh3.googleusercontent.com/aida-public/AB6AXuDT-wP05202-0C6gA-L8_9Z7wB6g_b6C1C1-V1wT13_9A2y-6G0D_1w-5969566_8-6oYg7KEx-iWv43R6wX7T--2_n0vM28148mX0G23-xQwTj_8-B7O-i-lE_h4QnO-aV4-Yw4H-x-L1-m0T8_m1mS2A5z-oV5019-3Yn'} />
+                                                                <div>
+                                                                    <p className="text-sm font-bold text-slate-900 dark:text-white">{patient.name}</p>
+                                                                    <p className="text-[13px] text-slate-500 font-medium">{patient.condition}</p>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-4 py-5 text-center">
-                                                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
-                                                            {patient.age || '—'}
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-4 py-5 font-mono text-xs text-slate-500 font-medium">{patient.id}</td>
-                                                    <td className="px-4 py-5">
-                                                        <div className="flex flex-col">
-                                                            <span className={`text-sm font-bold ${isRed ? 'text-red-500' : 'text-amber-500'}`}>
-                                                                {isRed ? 'HA ' : 'Glu '}{valueLabel}
+                                                        </td>
+                                                        <td className="px-4 py-5 text-center">
+                                                            <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                                                                {patient.age || '—'}
                                                             </span>
-                                                            <span className="text-[10px] text-slate-400 font-medium">{unitLabel}</span>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-4 py-5 text-xs text-slate-500 font-medium">10:45 AM</td>
-                                                    <td className="px-4 py-5">
-                                                        <div className="flex justify-center">
-                                                            <span className={`inline-flex px-4 py-1.5 ${isRed ? 'bg-red-500' : 'bg-amber-500'} text-white text-[13px] font-bold rounded-full shadow-sm whitespace-nowrap`}>
-                                                                {isRed ? 'Khẩn cấp' : 'Theo dõi'}
-                                                            </span>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-8 py-5 text-right space-x-1">
-                                                        <button className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all" title="Can thiệp gấp">
-                                                            <span className="material-symbols-outlined text-[22px]">call</span>
-                                                        </button>
-                                                        <button className="p-2 text-primary hover:bg-primary/5 rounded-lg transition-all" title="Xem hồ sơ">
-                                                            <span className="material-symbols-outlined text-[22px]">visibility</span>
-                                                        </button>
-                                                        <button className="p-2 text-slate-400 hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-all" title="Kê đơn nhanh">
-                                                            <span className="material-symbols-outlined text-[22px]">prescriptions</span>
-                                                        </button>
-                                                    </td>
-                                                </tr>
+                                                        </td>
+                                                        <td className="px-4 py-5 font-medium text-sm text-slate-600">{patient.id}</td>
+                                                        <td className="px-4 py-5">
+                                                            <div className="flex flex-col">
+                                                                <span className={`text-sm font-bold ${isRed ? 'text-red-500' : 'text-amber-500'}`}>
+                                                                    {isRed ? 'HA ' : 'Glu '}{valueLabel}
+                                                                </span>
+                                                                <span className="text-[13px] text-slate-400 font-medium">{unitLabel}</span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-4 py-5 font-medium text-sm text-slate-500 italic-none">
+                                                            {patient.alertTime || patient.lastTime || '10:45 AM'}
+                                                        </td>
+                                                        <td className="px-4 py-5">
+                                                            <div className="flex justify-center">
+                                                                <span className={`inline-flex px-4 py-1.5 ${isRed ? 'bg-red-500' : 'bg-amber-500'} text-white text-[13px] font-bold rounded-full shadow-sm whitespace-nowrap`}>
+                                                                    {isRed ? 'Khẩn cấp' : 'Theo dõi'}
+                                                                </span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-8 py-5 text-right space-x-1">
+                                                            <button className="p-2 text-red-500 rounded-lg" title="Can thiệp gấp">
+                                                                <span className="material-symbols-outlined text-[22px]">call</span>
+                                                            </button>
+                                                            <button className="p-2 text-primary rounded-lg" title="Xem hồ sơ">
+                                                                <span className="material-symbols-outlined text-[22px]">visibility</span>
+                                                            </button>
+                                                            <button className="p-2 text-slate-400 rounded-lg" title="Kê đơn nhanh">
+                                                                <span className="material-symbols-outlined text-[22px]">prescriptions</span>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
                                                 );
                                             })}
                                         </tbody>
@@ -396,12 +394,12 @@ export default function ClinicRiskAlerts() {
                                             { icon: 'description', label: 'Xuất hồ sơ khẩn cấp' },
                                             { icon: 'history_edu', label: 'Lịch sử phác đồ' }
                                         ].map((action, idx) => (
-                                            <button key={idx} className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors group">
+                                            <button key={idx} className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl group">
                                                 <div className="flex items-center gap-3 text-slate-700 dark:text-slate-200">
                                                     <span className="material-symbols-outlined text-primary text-lg">{action.icon}</span>
                                                     <span className="text-sm font-bold">{action.label}</span>
                                                 </div>
-                                                <span className="material-symbols-outlined text-slate-300 group-hover:translate-x-1 group-hover:text-primary transition-all">chevron_right</span>
+                                                <span className="material-symbols-outlined text-slate-300">chevron_right</span>
                                             </button>
                                         ))
                                     )}

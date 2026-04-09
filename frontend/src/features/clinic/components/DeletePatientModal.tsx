@@ -65,7 +65,7 @@ export default function DeletePatientModal({
 
           <div className="space-y-4 border-t border-slate-100 dark:border-slate-800 pt-6">
             <div className="space-y-2">
-              <label className="text-[13px] font-medium text-slate-600 dark:text-slate-400 italic-none">
+              <label className="text-[14px] font-medium text-slate-600 dark:text-slate-400 italic-none">
                 Để xác nhận, vui lòng nhập <span className="font-bold text-slate-900 dark:text-slate-200">"{patientData.name}"</span>
               </label>
               <input
@@ -78,7 +78,7 @@ export default function DeletePatientModal({
             </div>
 
             <div className="space-y-2">
-              <label className="text-[13px] font-medium text-slate-600 dark:text-slate-400 italic-none">
+              <label className="text-[14px] font-medium text-slate-600 dark:text-slate-400 italic-none">
                 Để xác nhận, vui lòng nhập <span className="font-bold text-slate-900 dark:text-slate-200">"{targetPhrase}"</span>
               </label>
               <input
@@ -93,7 +93,7 @@ export default function DeletePatientModal({
 
           <div className="p-4 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20 rounded-xl flex items-center gap-3 font-display">
             <span className="material-symbols-outlined text-red-500 text-[20px]">error</span>
-            <p className="text-[13px] font-bold text-red-600 dark:text-red-400 italic-none mb-0">
+            <p className="text-[14px] font-bold text-red-600 dark:text-red-400 italic-none mb-0">
               Việc xóa hồ sơ của {patientData.name} không thể hoàn tác.
             </p>
           </div>
@@ -112,8 +112,8 @@ export default function DeletePatientModal({
             onClick={() => onDelete(patientData.dbId)}
             disabled={isDeleting || !isConfirmed}
             className={`px-8 py-2.5 text-sm font-bold text-white rounded-lg transition-all shadow-md flex items-center gap-2 ${isConfirmed
-                ? 'bg-red-600 hover:bg-red-700 shadow-red-500/20'
-                : 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed border border-slate-200 dark:border-slate-700 shadow-none'
+              ? 'bg-red-600 hover:bg-red-700 shadow-red-500/20'
+              : 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed border border-slate-200 dark:border-slate-700 shadow-none'
               }`}
             type="button"
           >
