@@ -33,4 +33,8 @@ public class CreatePatientRequest {
     private String avatarUrl;
     private String treatmentStatus;
     private String status;
+    private java.time.LocalDate assignmentDate;
+    private String assignmentTime;
+    private String appointmentType;
+    private String meetingLink;
 }

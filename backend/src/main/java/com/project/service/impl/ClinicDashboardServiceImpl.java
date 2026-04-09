@@ -8,6 +8,7 @@ import com.project.dto.response.ClinicDoctorResponse;
 import com.project.dto.response.DoctorSnippetDto;
 import com.project.entity.Patient;
 import com.project.entity.User;
+import com.project.entity.Appointment;
 import com.project.repository.AppointmentRepository;
 import com.project.repository.PrescriptionRepository;
 import com.project.repository.PatientRepository;
@@ -29,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,14 +58,72 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
     @Override
     @Transactional(readOnly = true)
     public ClinicDashboardResponse getDashboardData(Long clinicId, String period) {
-        long totalPatients = patientRepository.countByClinicIdAndIsDeletedFalse(clinicId);
-        long highRiskCount = patientRepository.countByClinicIdAndRiskLevelAndIsDeletedFalse(clinicId,
-                AppConstants.RISK_HIGH);
-        long monitoringCount = patientRepository.countByClinicIdAndRiskLevelAndIsDeletedFalse(clinicId,
-                AppConstants.RISK_MONITORING);
+        // Optimized: Start all primary data fetching in parallel
+        java.util.concurrent.CompletableFuture<Long> totalPatientsFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
+            patientRepository.countByClinicIdAndIsDeletedFalse(clinicId));
+            
+        java.util.concurrent.CompletableFuture<Long> highRiskCountFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
+            patientRepository.countByClinicIdAndRiskLevelAndIsDeletedFalse(clinicId, AppConstants.RISK_HIGH));
+            
+        java.util.concurrent.CompletableFuture<Long> monitoringCountFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
+            patientRepository.countByClinicIdAndRiskLevelAndIsDeletedFalse(clinicId, AppConstants.RISK_MONITORING));
 
-        // Optimized pathology composition using GROUP BY
-        List<Object[]> pathologyResults = patientRepository.countPatientsByChronicCondition(clinicId);
+        java.util.concurrent.CompletableFuture<List<Object[]>> pathologyFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
+            patientRepository.countPatientsByChronicCondition(clinicId));
+
+        java.util.concurrent.CompletableFuture<List<String>> insightsFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
+            clinicalAnalyticsService.getClinicInsights(clinicId));
+
+        // Period logic for charts
+        LocalDateTime now = LocalDateTime.now();
+        int iterations = 6;
+        String timeUnit = "MONTH";
+        LocalDateTime startDate;
+
+        if ("7d".equals(period)) {
+            iterations = 7;
+            timeUnit = "DAY";
+            startDate = now.minusDays(6).withHour(0).withMinute(0).withSecond(0);
+        } else if ("30d".equals(period)) {
+            iterations = 30;
+            timeUnit = "DAY";
+            startDate = now.minusDays(29).withHour(0).withMinute(0).withSecond(0);
+        } else if ("1y".equals(period)) {
+            iterations = 12;
+            timeUnit = "MONTH";
+            startDate = now.minusMonths(11).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
+        } else {
+            startDate = now.minusMonths(5).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
+        }
+
+        final String finalTimeUnit = timeUnit;
+        final LocalDateTime finalStartDate = startDate;
+
+        java.util.concurrent.CompletableFuture<List<Object[]>> patientStatsFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
+            "DAY".equals(finalTimeUnit) ? patientRepository.countDailyPatients(clinicId, finalStartDate) : patientRepository.countMonthlyPatients(clinicId, finalStartDate)
+        );
+
+        java.util.concurrent.CompletableFuture<List<Object[]>> riskStatsFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
+            "DAY".equals(finalTimeUnit) ? patientRepository.countDailyHighRiskPatients(clinicId, AppConstants.RISK_HIGH, finalStartDate) : patientRepository.countMonthlyHighRiskPatients(clinicId, AppConstants.RISK_HIGH, finalStartDate)
+        );
+
+        java.util.concurrent.CompletableFuture<List<User>> doctorUsersFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
+            userRepository.findByFilters("DOCTOR", "ACTIVE", clinicId, null, null, null, null, PageRequest.of(0, 100)).getContent()
+        );
+
+        // Wait for primary blocks
+        java.util.concurrent.CompletableFuture.allOf(
+            totalPatientsFuture, highRiskCountFuture, monitoringCountFuture, 
+            pathologyFuture, insightsFuture, patientStatsFuture, 
+            riskStatsFuture, doctorUsersFuture
+        ).join();
+
+        long totalPatients = totalPatientsFuture.join();
+        long highRiskCount = highRiskCountFuture.join();
+        long monitoringCount = monitoringCountFuture.join();
+        List<String> insights = insightsFuture.join();
+        List<Object[]> pathologyResults = pathologyFuture.join();
+
         Map<String, Long> conditionCounts = new HashMap<>();
         for (Object[] result : pathologyResults) {
             String condition = (String) result[0];
@@ -166,51 +226,6 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
                     .build());
         }
 
-        // Dynamic Chart Data based on Period
-        List<ClinicDashboardResponse.PatientGrowthChartDto> patientGrowthChart = new ArrayList<>();
-        List<ClinicDashboardResponse.PatientGrowthChartDto> riskIndexChart = new ArrayList<>();
-        List<ClinicDashboardResponse.PatientGrowthChartDto> doctorLoadChart = new ArrayList<>();
-
-        LocalDateTime now = LocalDateTime.now();
-        int iterations = 6;
-        String timeUnit = "MONTH";
-        LocalDateTime startDate;
-
-        if ("7d".equals(period)) {
-            iterations = 7;
-            timeUnit = "DAY";
-            startDate = now.minusDays(6).withHour(0).withMinute(0).withSecond(0);
-        } else if ("30d".equals(period)) {
-            iterations = 30;
-            timeUnit = "DAY";
-            startDate = now.minusDays(29).withHour(0).withMinute(0).withSecond(0);
-        } else if ("1y".equals(period)) {
-            iterations = 12;
-            timeUnit = "MONTH";
-            startDate = now.minusMonths(11).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
-        } else {
-            startDate = now.minusMonths(5).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
-        }
-
-        // 1. Fetch ALL chart data in parallel for maximum speed
-        final String finalTimeUnit = timeUnit;
-        final LocalDateTime finalStartDate = startDate;
-
-        java.util.concurrent.CompletableFuture<List<Object[]>> patientStatsFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
-            "DAY".equals(finalTimeUnit) ? patientRepository.countDailyPatients(clinicId, finalStartDate) : patientRepository.countMonthlyPatients(clinicId, finalStartDate)
-        );
-
-        java.util.concurrent.CompletableFuture<List<Object[]>> riskStatsFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
-            "DAY".equals(finalTimeUnit) ? patientRepository.countDailyHighRiskPatients(clinicId, AppConstants.RISK_HIGH, finalStartDate) : patientRepository.countMonthlyHighRiskPatients(clinicId, AppConstants.RISK_HIGH, finalStartDate)
-        );
-
-        java.util.concurrent.CompletableFuture<List<User>> doctorUsersFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
-            userRepository.findByFilters("DOCTOR", "ACTIVE", clinicId, null, null, null, null, PageRequest.of(0, 100)).getContent()
-        );
-
-        // Wait for primary data
-        java.util.concurrent.CompletableFuture.allOf(patientStatsFuture, riskStatsFuture, doctorUsersFuture).join();
-
         List<Object[]> patientStats = patientStatsFuture.join();
         List<Object[]> riskStats = riskStatsFuture.join();
         List<User> doctorUsers = doctorUsersFuture.join();
@@ -254,6 +269,11 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
             String k = generateKey(r, finalTimeUnit);
             loadMap.put(k, loadMap.getOrDefault(k, 0L) + ((Number) r["DAY".equals(finalTimeUnit) ? 1 : 2]).longValue());
         }
+
+        // Initialize chart data lists
+        List<ClinicDashboardResponse.PatientGrowthChartDto> patientGrowthChart = new ArrayList<>();
+        List<ClinicDashboardResponse.PatientGrowthChartDto> riskIndexChart = new ArrayList<>();
+        List<ClinicDashboardResponse.PatientGrowthChartDto> doctorLoadChart = new ArrayList<>();
 
         // Build the charts from pre-fetched data
         for (int i = iterations - 1; i >= 0; i--) {
@@ -355,7 +375,7 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
                         .peakMonth(peakMonthLabel + " (" + peakValue + ")")
                         .build())
                 .doctorPerformances(performances)
-                .insights(clinicalAnalyticsService.getClinicInsights(clinicId))
+                .insights(insights)
                 .averageDoctorLoad(doctorUsers.isEmpty() ? 0 : (double) totalPatients / doctorUsers.size())
                 .build();
     }
@@ -574,6 +594,35 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
         try {
             patientRepository.save(patient);
             log.info("Successfully updated patient {}", patientId);
+
+            // Handle Appointment Creation if assignment info is provided
+            if (request.getAssignmentDate() != null && request.getAssignmentTime() != null && !request.getAssignmentTime().isEmpty()) {
+                try {
+                    LocalTime time = LocalTime.parse(request.getAssignmentTime());
+                    LocalDateTime apptDateTime = LocalDateTime.of(request.getAssignmentDate(), time);
+
+                    // Fetch doctor info for the appointment cache
+                    User doctor = userRepository.findById(patient.getDoctorId()).orElse(null);
+                    
+                    Appointment appointment = Appointment.builder()
+                            .patient(patient)
+                            .doctorId(patient.getDoctorId())
+                            .appointmentTime(apptDateTime)
+                            .status("SCHEDULED")
+                            .type(request.getAppointmentType() != null ? request.getAppointmentType() : "IN_PERSON")
+                            .meetingLink(request.getMeetingLink())
+                            .reason("Gán chỉ định chương trình: " + patient.getChronicCondition())
+                            .doctorName(doctor != null ? doctor.getFullName() : "Bác sĩ phụ trách")
+                            .doctorSpecialty(doctor != null ? doctor.getSpecialization() : null)
+                            .doctorAvatarUrl(doctor != null ? doctor.getAvatarUrl() : null)
+                            .build();
+                    
+                    appointmentRepository.save(appointment);
+                    log.info("Created scheduled appointment for patient {} at {}", patientId, apptDateTime);
+                } catch (Exception e) {
+                    log.error("Failed to create appointment during assignment: {}", e.getMessage());
+                }
+            }
         } catch (Exception e) {
             log.error("Error saving patient {}: {}", patientId, e.getMessage());
             throw new RuntimeException("LỗI hệ thống khi lưu hồ sơ bệnh nhân: " + e.getMessage());

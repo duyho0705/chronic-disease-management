@@ -31,4 +31,34 @@ public interface HealthMetricRepository extends JpaRepository<HealthMetric, Long
     @Query("SELECT h FROM HealthMetric h WHERE h.patient.id = :patientId " +
            "AND h.isDeleted = false ORDER BY h.measuredAt DESC")
     List<HealthMetric> findRecentByPatientId(@Param("patientId") Long patientId, Pageable pageable);
+
+    @Query("SELECT h FROM HealthMetric h WHERE h.patient.clinicId = :clinicId " +
+           "AND h.metricType = :metricType AND h.measuredAt >= :since " +
+           "AND h.isDeleted = false " +
+           "ORDER BY h.patient.id, h.measuredAt ASC")
+    List<HealthMetric> findByClinicIdAndMetricTypeAndSince(@Param("clinicId") Long clinicId, 
+                                                          @Param("metricType") MetricType metricType, 
+                                                          @Param("since") LocalDateTime since);
+
+    @Query("SELECT h FROM HealthMetric h WHERE h.patient.doctorId = :doctorId " +
+           "AND h.metricType = :metricType AND h.measuredAt >= :since " +
+           "AND h.isDeleted = false " +
+           "ORDER BY h.patient.id, h.measuredAt ASC")
+    List<HealthMetric> findByDoctorIdAndMetricTypeAndSince(@Param("doctorId") Long doctorId, 
+                                                          @Param("metricType") MetricType metricType, 
+                                                          @Param("since") LocalDateTime since);
+
+    @Query("SELECT p.id FROM Patient p " +
+           "LEFT JOIN HealthMetric h ON p.id = h.patient.id AND h.measuredAt >= :since AND h.isDeleted = false " +
+           "WHERE p.clinicId = :clinicId AND p.isDeleted = false " +
+           "GROUP BY p.id HAVING COUNT(h.id) = 0")
+    List<Long> findPatientIdsInClinicWithNoMetricsSince(@Param("clinicId") Long clinicId, 
+                                                       @Param("since") LocalDateTime since);
+
+    @Query("SELECT p.id FROM Patient p " +
+           "LEFT JOIN HealthMetric h ON p.id = h.patient.id AND h.measuredAt >= :since AND h.isDeleted = false " +
+           "WHERE p.doctorId = :doctorId AND p.isDeleted = false " +
+           "GROUP BY p.id HAVING COUNT(h.id) = 0")
+    List<Long> findPatientIdsInDoctorWithNoMetricsSince(@Param("doctorId") Long doctorId, 
+                                                       @Param("since") LocalDateTime since);
 }

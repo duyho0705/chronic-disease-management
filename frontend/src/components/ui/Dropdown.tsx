@@ -12,6 +12,7 @@ interface DropdownProps {
   onChange: (value: string) => void;
   className?: string;
   variant?: 'default' | 'badge';
+  icon?: React.ReactNode;
 }
 
 export default function Dropdown({
@@ -19,7 +20,8 @@ export default function Dropdown({
   value,
   onChange,
   className = "",
-  variant = 'default'
+  variant = 'default',
+  icon
 }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -46,19 +48,23 @@ export default function Dropdown({
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={`
-          flex items-center justify-between gap-3 transition-all duration-300 active:scale-100
+          relative flex items-center justify-between gap-3 transition-all duration-300 active:scale-100
           ${variant === 'badge'
             ? 'px-4 py-1.5 bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800'
-            : 'px-4 h-[42px] bg-white dark:bg-slate-900 border rounded-xl shadow-sm'
+            : `pr-4 min-h-[42px] bg-white dark:bg-slate-900 border rounded-xl shadow-sm ${icon ? 'pl-11' : 'pl-4'}`
           }
           ${isOpen
             ? 'border-primary shadow-lg shadow-primary/10 ring-4 ring-primary/5'
             : variant !== 'badge' ? 'border-slate-400 dark:border-slate-700 hover:border-slate-500 dark:hover:border-slate-500' : ''
           }
-          ${className}
           w-full
         `}
       >
+        {icon && (
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
+            {icon}
+          </div>
+        )}
         <span className={`text-[14px] font-medium font-display ${variant === 'badge' ? 'text-slate-600 dark:text-slate-300' : 'text-slate-700 dark:text-slate-200'}`}>
           {selectedOption?.label}
         </span>

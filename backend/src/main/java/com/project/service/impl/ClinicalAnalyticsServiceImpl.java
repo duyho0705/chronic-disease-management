@@ -2,7 +2,6 @@ package com.project.service.impl;
 
 import com.project.entity.HealthMetric;
 import com.project.entity.MetricType;
-import com.project.entity.Patient;
 import com.project.repository.HealthMetricRepository;
 import com.project.repository.PatientRepository;
 import com.project.service.ClinicalAnalyticsService;
@@ -25,27 +24,28 @@ public class ClinicalAnalyticsServiceImpl implements ClinicalAnalyticsService {
         List<String> insights = new ArrayList<>();
         LocalDateTime since = LocalDateTime.now().minusWeeks(1);
 
-        // 1. Check for High-Risk trends
+        // 1. Check for High-Risk trends - Keep as is, it's a count query
         long highRiskCount = patientRepository.countByClinicIdAndRiskLevelAndIsDeletedFalse(clinicId, "Nguy cơ cao");
         if (highRiskCount > 0) {
             insights.add("Phát hiện " + highRiskCount
                     + " bệnh nhân có chỉ số nguy cơ cao. Khuyến nghị Bác sĩ kiểm tra lại phác đồ điều trị.");
         }
 
-        // 2. Check for increasing BP trends in the clinic across ALL patients
-        List<Patient> patients = patientRepository.findByClinicId(clinicId);
+        // 2. Optimized: Check for increasing BP trends in the clinic using a single query
+        List<HealthMetric> allMetrics = healthMetricRepository.findByClinicIdAndMetricTypeAndSince(clinicId, MetricType.BLOOD_PRESSURE, since);
+        
+        java.util.Map<Long, List<HealthMetric>> patientMetricsMap = allMetrics.stream()
+                .collect(java.util.stream.Collectors.groupingBy(h -> h.getPatient().getId()));
+
         int increasingBP = 0;
-        for (Patient p : patients) {
-            List<HealthMetric> metrics = healthMetricRepository
-                    .findByPatientIdAndMetricTypeAndMeasuredAtBetweenAndIsDeletedFalse(
-                            p.getId(), MetricType.BLOOD_PRESSURE, since, LocalDateTime.now());
+        for (List<HealthMetric> metrics : patientMetricsMap.values()) {
             if (metrics.size() >= 2) {
-                if (metrics.get(metrics.size() - 1).getValue().doubleValue() > metrics.get(0).getValue()
-                        .doubleValue()) {
+                if (metrics.get(metrics.size() - 1).getValue().doubleValue() > metrics.get(0).getValue().doubleValue()) {
                     increasingBP++;
                 }
             }
         }
+        
         if (increasingBP > 0) {
             insights.add("Có " + increasingBP + " bệnh nhân có xu hướng tăng huyết áp trong 7 ngày qua.");
         }
@@ -66,17 +66,12 @@ public class ClinicalAnalyticsServiceImpl implements ClinicalAnalyticsService {
             insights.add("Cảnh báo: Bạn đang quản lý " + highRiskCount + " bệnh nhân thuộc nhóm nguy cơ cao.");
         }
 
-        // Suggest follow-up for patients with no recent metrics
-        List<Patient> patients = patientRepository.findByDoctorIdAndIsDeletedFalse(doctorId);
-        int missingMetrics = 0;
+        // Optimized Suggest follow-up for patients with no recent metrics
         LocalDateTime since = LocalDateTime.now().minusDays(3);
-        for (Patient p : patients) {
-            long count = healthMetricRepository
-                    .findByPatientIdAndMeasuredAtBetweenAndIsDeletedFalse(p.getId(), since, LocalDateTime.now()).size();
-            if (count == 0) {
-                missingMetrics++;
-            }
-        }
+        List<Long> missingMetricPatientIds = healthMetricRepository.findPatientIdsInDoctorWithNoMetricsSince(doctorId, since);
+        
+        int missingMetrics = missingMetricPatientIds.size();
+        
         if (missingMetrics > 0) {
             insights.add(
                     "Nhắc nhở: Có " + missingMetrics + " bệnh nhân chưa cập nhật chỉ số sức khỏe trong 3 ngày qua.");

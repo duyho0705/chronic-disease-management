@@ -202,7 +202,7 @@ export default function ClinicDoctors() {
                     setNotifications={setNotifications}
                 />
 
-                <div className="p-8 space-y-10">
+                <div className="p-8 space-y-6">
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                         {isLoading ? (
                             <div className="space-y-2">
@@ -230,7 +230,7 @@ export default function ClinicDoctors() {
                     </div>
 
                     {/* Statistic Overview Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 italic-none mb-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 italic-none mb-6">
                         {isLoading || !stats ? (
                             [...Array(4)].map((_, i) => (
                                 <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm space-y-4 animate-pulse">
@@ -305,7 +305,7 @@ export default function ClinicDoctors() {
                                     <div>
                                         <p className="text-[14px] font-medium text-slate-600 mb-0.5">Tải lượng trung bình</p>
                                         <h4 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">
-                                            {stats?.averageDoctorLoad ? stats.averageDoctorLoad.toFixed(1) : 0}
+                                            {stats?.averageDoctorLoad ? Math.round(stats.averageDoctorLoad) : 0}
                                             <span className="text-sm font-medium text-slate-600 ml-1">bệnh nhân / bác sĩ</span>
                                         </h4>
                                     </div>

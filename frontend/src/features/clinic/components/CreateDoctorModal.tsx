@@ -395,7 +395,7 @@ export default function CreateDoctorModal({
                                             name="experience"
                                             value={formData.experience}
                                             onChange={handleChange}
-                                            placeholder="VD: 10 năm"
+                                            placeholder="Nhập số năm"
                                             className="w-full pl-11 pr-4 h-[42px] rounded-lg border border-slate-400 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all"
                                         />
                                     </div>

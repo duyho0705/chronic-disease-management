@@ -248,7 +248,7 @@ export default function ClinicDashboard() {
                     setNotifications={setNotifications}
                 />
 
-                <div className="p-8 space-y-8">
+                <div className="p-8 space-y-6">
                     {/* Welcome Section */}
                     <section className="flex flex-wrap items-center justify-between gap-4">
                         <div className="space-y-1">

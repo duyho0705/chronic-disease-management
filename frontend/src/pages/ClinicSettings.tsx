@@ -93,21 +93,7 @@ export default function ClinicSettings() {
                 />
 
                 <div className="p-8 space-y-8 max-w-5xl mx-auto w-full">
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-                        <div className="space-y-1">
-                            {isLoading ? (
-                                <div className="space-y-2">
-                                    <div className="h-8 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-64"></div>
-                                    <div className="h-4 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-80"></div>
-                                </div>
-                            ) : (
-                                <>
-                                    <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">Cấu hình Phòng khám</h3>
-                                    <p className="text-slate-500 font-medium">Quản lý thông tin định danh và vận hành của cơ sở y tế</p>
-                                </>
-                            )}
-                        </div>
-                    </div>
+
 
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 italic-none">
                         {/* Profile Photo Section */}
@@ -115,7 +101,7 @@ export default function ClinicSettings() {
                             <div className="bg-white dark:bg-slate-900 p-8 rounded-[32px] border border-slate-200/60 dark:border-slate-800/80 shadow-sm flex flex-col items-center text-center group">
                                 <div className="relative mb-6">
                                     <div className="w-32 h-32 rounded-[40px] bg-primary/10 p-1 group-hover:bg-primary/20 transition-all duration-500">
-                                        <img 
+                                        <img
                                             src={clinicData.imageUrl || 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=200'}
                                             className="w-full h-full object-cover rounded-[36px] shadow-lg"
                                             alt="Clinic Logo"
@@ -155,17 +141,17 @@ export default function ClinicSettings() {
                                         <span className="w-1.5 h-6 bg-primary rounded-full"></span>
                                         Thông tin cơ bản
                                     </h4>
-                                    
+
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
                                             <label className="text-[14px] font-bold text-slate-600 dark:text-slate-400 ml-1">Tên Phòng khám</label>
                                             <div className="relative">
                                                 <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">home_health</span>
-                                                <input 
-                                                    type="text" 
+                                                <input
+                                                    type="text"
                                                     className="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl text-[14px] font-medium focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all"
                                                     value={clinicData.name}
-                                                    onChange={e => setClinicData({...clinicData, name: e.target.value})}
+                                                    onChange={e => setClinicData({ ...clinicData, name: e.target.value })}
                                                     placeholder="Nhập tên phòng khám"
                                                 />
                                             </div>
@@ -174,11 +160,11 @@ export default function ClinicSettings() {
                                             <label className="text-[14px] font-bold text-slate-600 dark:text-slate-400 ml-1">Số điện thoại</label>
                                             <div className="relative">
                                                 <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">call</span>
-                                                <input 
-                                                    type="text" 
+                                                <input
+                                                    type="text"
                                                     className="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl text-[14px] font-medium focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all"
                                                     value={clinicData.phone}
-                                                    onChange={e => setClinicData({...clinicData, phone: e.target.value})}
+                                                    onChange={e => setClinicData({ ...clinicData, phone: e.target.value })}
                                                     placeholder="Số điện thoại liên hệ"
                                                 />
                                             </div>
@@ -187,11 +173,11 @@ export default function ClinicSettings() {
                                             <label className="text-[14px] font-bold text-slate-600 dark:text-slate-400 ml-1">Địa chỉ chi tiết</label>
                                             <div className="relative">
                                                 <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">location_on</span>
-                                                <input 
-                                                    type="text" 
+                                                <input
+                                                    type="text"
                                                     className="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl text-[14px] font-medium focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all"
                                                     value={clinicData.address}
-                                                    onChange={e => setClinicData({...clinicData, address: e.target.value})}
+                                                    onChange={e => setClinicData({ ...clinicData, address: e.target.value })}
                                                     placeholder="Số nhà, tên đường, Phường/Xã, Quận/Huyện, Tỉnh/Thành phố"
                                                 />
                                             </div>
@@ -208,11 +194,11 @@ export default function ClinicSettings() {
                                         <label className="text-[14px] font-bold text-slate-600 dark:text-slate-400 ml-1">Logo URL (Preview)</label>
                                         <div className="relative">
                                             <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">link</span>
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 className="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl text-[14px] font-medium focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all"
                                                 value={clinicData.imageUrl}
-                                                onChange={e => setClinicData({...clinicData, imageUrl: e.target.value})}
+                                                onChange={e => setClinicData({ ...clinicData, imageUrl: e.target.value })}
                                                 placeholder="https://example.com/logo.png"
                                             />
                                         </div>
@@ -220,7 +206,7 @@ export default function ClinicSettings() {
                                 </div>
 
                                 <div className="pt-6 flex flex-col md:flex-row gap-4">
-                                    <button 
+                                    <button
                                         type="submit"
                                         disabled={isSaving || isLoading}
                                         className="flex-1 px-8 py-4 bg-primary text-white rounded-2xl font-black text-[16px] shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:scale-100 flex items-center justify-center gap-3"
@@ -234,7 +220,7 @@ export default function ClinicSettings() {
                                             </>
                                         )}
                                     </button>
-                                    <button 
+                                    <button
                                         type="button"
                                         className="px-8 py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl font-bold text-[16px] hover:bg-slate-200 dark:hover:bg-slate-700 transition-all active:scale-95"
                                     >
@@ -246,11 +232,11 @@ export default function ClinicSettings() {
                     </div>
                 </div>
 
-                <Toast 
-                    show={showToast} 
-                    title={toastMessage} 
-                    type={toastType} 
-                    onClose={() => setShowToast(false)} 
+                <Toast
+                    show={showToast}
+                    title={toastMessage}
+                    type={toastType}
+                    onClose={() => setShowToast(false)}
                 />
             </main>
         </div>
