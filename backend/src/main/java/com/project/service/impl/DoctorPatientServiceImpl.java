@@ -183,6 +183,8 @@ public class DoctorPatientServiceImpl implements DoctorPatientService {
             log.debug("No metrics for patient {}", p.getId());
         }
 
+        String[] healthTrendData = calculateHealthTrend(p.getId());
+
         return DoctorPatientResponse.builder()
                 .id(p.getId())
                 .patientCode(p.getPatientCode())
@@ -198,7 +200,35 @@ public class DoctorPatientServiceImpl implements DoctorPatientService {
                 .latestGlucose(latestGlucose)
                 .latestBp(latestBp)
                 .avatarUrl(p.getAvatarUrl())
+                .healthTrend(healthTrendData[0])
+                .trendColor(healthTrendData[1])
                 .build();
+    }
+
+    private String[] calculateHealthTrend(Long patientId) {
+        try {
+            // Analyze the two most recent glucose readings for trend
+            List<HealthMetric> recent = healthMetricRepository
+                    .findTop2ByPatientIdAndMetricTypeAndIsDeletedFalseOrderByMeasuredAtDesc(patientId, MetricType.BLOOD_SUGAR);
+
+            if (recent.size() < 2) {
+                return new String[]{"Cần thêm dữ liệu", "text-slate-400"};
+            }
+
+            double latest = recent.get(0).getValue().doubleValue();
+            double previous = recent.get(1).getValue().doubleValue();
+            double diff = latest - previous;
+
+            if (diff > 0.5) { // Significant increase (Bad for blood sugar)
+                return new String[]{"Xu hướng xấu", "text-rose-500"};
+            } else if (diff < -0.5) { // Significant decrease (Good for blood sugar)
+                return new String[]{"Đang cải thiện", "text-emerald-500"};
+            } else {
+                return new String[]{"Ổn định", "text-sky-500"};
+            }
+        } catch (Exception e) {
+            return new String[]{"Ổn định", "text-slate-400"};
+        }
     }
 
     private HealthMetricResponse mapToMetricResponse(HealthMetric m) {

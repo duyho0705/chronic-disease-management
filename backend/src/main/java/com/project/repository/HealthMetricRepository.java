@@ -28,6 +28,9 @@ public interface HealthMetricRepository extends JpaRepository<HealthMetric, Long
     Optional<HealthMetric> findTopByPatientIdAndMetricTypeAndIsDeletedFalseOrderByMeasuredAtDesc(
             Long patientId, MetricType metricType);
 
+    List<HealthMetric> findTop2ByPatientIdAndMetricTypeAndIsDeletedFalseOrderByMeasuredAtDesc(
+            Long patientId, MetricType metricType);
+
     @Query("SELECT h FROM HealthMetric h WHERE h.patient.id = :patientId " +
            "AND h.isDeleted = false ORDER BY h.measuredAt DESC")
     List<HealthMetric> findRecentByPatientId(@Param("patientId") Long patientId, Pageable pageable);

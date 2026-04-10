@@ -25,4 +25,6 @@ public class DoctorPatientResponse {
     private String latestGlucose;
     private String latestBp;
     private String avatarUrl;
+    private String healthTrend; // e.g., "Worsening", "Improving", "Stable"
+    private String trendColor; // e.g., "text-rose-500", "text-emerald-500", "text-slate-400"
 }
