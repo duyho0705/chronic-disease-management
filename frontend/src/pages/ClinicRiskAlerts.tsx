@@ -174,25 +174,25 @@ export default function ClinicRiskAlerts() {
                                         <thead>
                                             <tr className="bg-slate-50 dark:bg-slate-800/50 font-display">
                                                 <th className="px-8 py-5">
-                                                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-20"></div> : <span className="text-[15px] font-medium text-slate-500">Bệnh nhân</span>}
+                                                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-20"></div> : <span className="text-[15px] font-medium text-slate-700">Bệnh nhân</span>}
                                                 </th>
                                                 <th className="px-4 py-5 font-mono text-center">
-                                                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-12 mx-auto"></div> : <span className="text-[15px] font-medium text-slate-500">Tuổi</span>}
+                                                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-12 mx-auto"></div> : <span className="text-[15px] font-medium text-slate-700">Tuổi</span>}
                                                 </th>
                                                 <th className="px-4 py-5">
-                                                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-16"></div> : <span className="text-[15px] font-medium text-slate-500"> Mã hồ sơ</span>}
+                                                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-16"></div> : <span className="text-[15px] font-medium text-slate-700"> Mã hồ sơ</span>}
                                                 </th>
                                                 <th className="px-4 py-5">
-                                                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-32"></div> : <span className="text-[15px] font-medium text-slate-500">Chỉ số sinh tồn</span>}
+                                                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-32"></div> : <span className="text-[15px] font-medium text-slate-700">Chỉ số sinh tồn</span>}
                                                 </th>
                                                 <th className="px-4 py-5">
-                                                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-20"></div> : <span className="text-[15px] font-medium text-slate-500">Thời điểm</span>}
+                                                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-20"></div> : <span className="text-[15px] font-medium text-slate-700">Thời điểm</span>}
                                                 </th>
                                                 <th className="px-4 py-5 text-center">
-                                                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-20 mx-auto"></div> : <span className="text-[15px] font-medium text-slate-500">Mức độ</span>}
+                                                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-20 mx-auto"></div> : <span className="text-[15px] font-medium text-slate-700">Mức độ</span>}
                                                 </th>
                                                 <th className="px-8 py-5 text-right">
-                                                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-20 ml-auto"></div> : <span className="text-[15px] font-medium text-slate-500">Hành động</span>}
+                                                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded w-20 ml-auto"></div> : <span className="text-[15px] font-medium text-slate-700">Hành động</span>}
                                                 </th>
                                             </tr>
                                         </thead>
@@ -328,53 +328,7 @@ export default function ClinicRiskAlerts() {
 
                         {/* Side Panels */}
                         <div className="space-y-6">
-                            {/* AI Insights Card */}
-                            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-primary/10 shadow-sm relative overflow-hidden group">
-                                {isLoading ? (
-                                    <div className="animate-pulse space-y-4">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-4 h-4 bg-slate-200 dark:bg-slate-800 rounded-full"></div>
-                                            <div className="w-20 h-4 bg-slate-200 dark:bg-slate-800 rounded"></div>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-full"></div>
-                                            <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-[80%]"></div>
-                                        </div>
-                                        <div className="flex items-center gap-4 pt-2">
-                                            <div className="flex -space-x-2">
-                                                {[1, 2, 3].map(i => <div key={i} className="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-800 border-2 border-white dark:border-slate-900"></div>)}
-                                            </div>
-                                            <div className="w-16 h-3 bg-slate-100 dark:bg-slate-800 rounded"></div>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <>
-                                        <div className="flex items-center gap-2 mb-4 text-emerald-600 dark:text-primary">
-                                            <span className="material-symbols-outlined font-variation-settings: 'FILL' 1" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
-                                            <h5 className="text-sm font-bold">Health Insights</h5>
-                                        </div>
-                                        <div className="space-y-4 mb-6">
-                                            {(dashboardStats?.insights && dashboardStats.insights.length > 0) ? (
-                                                dashboardStats.insights.map((insight: string, idx: number) => (
-                                                    <p key={idx} className="text-slate-700 dark:text-slate-300 font-medium leading-relaxed text-sm">
-                                                        "{insight}"
-                                                    </p>
-                                                ))
-                                            ) : (
-                                                <p className="text-slate-500 italic text-sm">Chưa có phân tích mới trong hôm nay.</p>
-                                            )}
-                                        </div>
-                                        <div className="flex items-center gap-4">
-                                            <div className="flex -space-x-2">
-                                                {[1, 2, 3].map((_, i) => (
-                                                    <div key={i} className="w-8 h-8 rounded-full border-2 border-white dark:border-slate-800 bg-slate-200" />
-                                                ))}
-                                            </div>
-                                            <button className="text-primary text-xs font-bold hover:underline">Xem chi tiết</button>
-                                        </div>
-                                    </>
-                                )}
-                            </div>
+
 
                             {/* Quick Actions Card */}
                             <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-primary/5">
@@ -406,34 +360,7 @@ export default function ClinicRiskAlerts() {
                                 </div>
                             </div>
 
-                            {/* Team Status Card */}
-                            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-primary/5">
-                                {isLoading ? (
-                                    <div className="h-5 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-28 mb-6"></div>
-                                ) : (
-                                    <h5 className="text-sm font-bold text-slate-500 mb-6">Trực cấp cứu</h5>
-                                )}
-                                {isLoading ? (
-                                    <div className="flex items-center gap-4 animate-pulse">
-                                        <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-xl"></div>
-                                        <div className="space-y-2">
-                                            <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-32"></div>
-                                            <div className="h-3 bg-slate-50 dark:bg-slate-800/50 rounded w-24"></div>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="flex items-center gap-4">
-                                        <div className="relative">
-                                            <img alt="Trực ban" className="w-12 h-12 rounded-xl object-cover ring-2 ring-primary/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAblEzsD1Y4LmmLITIgNYTpxsVwTH-CuEIwKSyz2DiksI-eNLSYk1gZrmmqOVrcMKKM5jS7RPa_zzJz8mK_750j2GRZhTYhIwJ5ZsFDKSU2YJh8148ZzjqpUaDJpW-2FCH9ePgqjtR0J0okNk52zIt0VmcEuF9Jdgkxq32SfbJAoI8tmcGNm4EyWO-YasHos3g46VFbraimlZwxu9ZsDPQL5M2BVTYJo_ALwYMlxNUmvU_cE5dn9itLl5iLuaN2VukHSDXCWN41XNI" />
-                                            <span className="absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full"></span>
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-bold text-slate-900 dark:text-white">BS. Nguyễn Minh Anh</p>
-                                            <p className="text-[11px] text-slate-500 font-medium tracking-tight">Hệ thống phản ứng nhanh</p>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
+
                         </div>
                     </div>
                 </div>

@@ -133,86 +133,97 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
             }
         }
 
-        // Sort by patient count descending
-        List<Map.Entry<String, Long>> sortedConditions = conditionCounts.entrySet().stream()
-                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-                .collect(Collectors.toList());
+        // Calculate Real Reporting Metrics
+        LocalDateTime since = LocalDateTime.now().minusMonths(1);
+        long totalAppts = appointmentRepository.countByClinicIdAndCreatedAtAfter(clinicId, since);
+        long completedAppts = appointmentRepository.countByClinicIdAndStatusAndCreatedAtAfter(clinicId, "COMPLETED", since);
+        double adherenceRate = totalAppts > 0 ? (double) completedAppts * 100 / totalAppts : 0.0;
+        
+        // Improvement Rate: % of patients with clinical metrics improving (Simplified for now)
+        double improvementRate = 0.0; 
+        double avgConsultationTime = 15.0; // Keep as baseline or calculate if appt duration exists
 
-        List<ClinicDashboardResponse.DiseaseRatioDto> diseaseRatios = new ArrayList<>();
-        long topConditionsSum = 0;
-        int displayLimit = 3;
-
-        // Calculate Reporting Metrics
-        double adherenceRate = 88.5 + (new Random().nextDouble() * 5); // Simulated realistic range
-        double improvementRate = 72.0 + (new Random().nextDouble() * 8);
-        double avgConsultationTime = 15.0 + (new Random().nextDouble() * 10);
-
-        // Build Disease Analytics Table Data
+        // Build Disease Analytics Table Data from REAL condition counts
         List<ClinicDashboardResponse.DiseaseAnalysisDto> diseaseAnalytics = new ArrayList<>();
-        for (Map.Entry<String, Long> entry : sortedConditions) {
+        
+        // Use the real distribution data for diseaseRatios
+        List<Object[]> riskDist = patientRepository.countRiskDistributionByCondition(clinicId);
+        Map<String, Map<String, Long>> mappedDist = new HashMap<>();
+        for (Object[] row : riskDist) {
+            String condition = (String) row[0];
+            String risk = (String) row[1];
+            long count = (Long) row[2];
+            mappedDist.computeIfAbsent(condition != null ? condition : "Khác", k -> new HashMap<>()).put(risk, count);
+        }
+
+        List<ClinicDashboardResponse.DiseaseRatioDto> allDiseaseRatios = new ArrayList<>();
+        String[] colors = { "bg-emerald-500", "bg-sky-400", "bg-amber-400", "bg-rose-400", "bg-violet-400", "bg-pink-400" };
+
+        for (Map.Entry<String, Map<String, Long>> entry : mappedDist.entrySet()) {
             String condition = entry.getKey();
-            int total = entry.getValue().intValue();
+            Map<String, Long> risks = entry.getValue();
             
-            // Heuristics for realistic demo data based on condition
-            String avgIndex = "N/A";
-            String trend = "-2.4%";
-            String assessment = "Ổn định";
-            String color = "bg-emerald-500";
+            long stable = risks.getOrDefault("STABLE", risks.getOrDefault("Ổn định", 0L));
+            long moderate = risks.getOrDefault("MODERATE", risks.getOrDefault("Trung bình", 0L));
+            long high = risks.getOrDefault("HIGH", risks.getOrDefault("Nguy cơ cao", 0L));
+            long totalForDisease = stable + moderate + high;
 
-            if (condition.contains("Tiểu đường")) {
-                avgIndex = "126 mg/dL"; trend = "-4.2%"; assessment = "Tốt";
-            } else if (condition.contains("Huyết áp")) {
-                avgIndex = "135/85 mmHg"; trend = "+1.5%"; assessment = "Cần lưu ý"; color = "bg-amber-400";
-            } else if (condition.contains("Tim mạch")) {
-                avgIndex = "82 bpm"; trend = "-0.8%"; assessment = "Ổn định";
-            }
+            String percentage = totalPatients > 0 ? (totalForDisease * 100 / totalPatients) + "%" : "0%";
 
+            allDiseaseRatios.add(ClinicDashboardResponse.DiseaseRatioDto.builder()
+                    .label(condition)
+                    .percentage(percentage)
+                    .color("")
+                    .value(totalForDisease)
+                    .stableRate((double) stable * 100 / Math.max(1, totalForDisease))
+                    .midRate((double) moderate * 100 / Math.max(1, totalForDisease))
+                    .riskRate((double) high * 100 / Math.max(1, totalForDisease))
+                    .build());
+
+            // Add to diseaseAnalytics table
             diseaseAnalytics.add(ClinicDashboardResponse.DiseaseAnalysisDto.builder()
                     .diseaseName(condition)
-                    .totalCases(total)
-                    .averageIndex(avgIndex)
-                    .riskVariation(trend)
-                    .assessment(assessment)
-                    .statusColor(color)
+                    .totalCases((int) totalForDisease)
+                    .averageIndex("Chưa cập nhật")
+                    .riskVariation("0%")
+                    .assessment(high > 0 ? "Theo dõi sát" : "Ổn định")
+                    .statusColor(high > 0 ? "bg-rose-500" : "bg-emerald-500")
                     .build());
         }
 
-        // Colors for top conditions
-        String[] colors = { "bg-emerald-500", "bg-sky-400", "bg-amber-400", "bg-rose-400" };
+        // Sort by patient count descending and keep top 3 + aggregate rest as "Khác"
+        allDiseaseRatios.sort((a, b) -> Long.compare(b.getValue(), a.getValue()));
 
-        for (int i = 0; i < Math.min(displayLimit, sortedConditions.size()); i++) {
-            Map.Entry<String, Long> entry = sortedConditions.get(i);
-            long count = entry.getValue();
-            topConditionsSum += count;
+        List<ClinicDashboardResponse.DiseaseRatioDto> diseaseRatios = new ArrayList<>();
+        int colorIdx = 0;
 
-            String percentage = totalPatients > 0 ? (count * 100 / totalPatients) + "%" : "0%";
-
-            // Calculate health status distribution for this disease (Simulated for now, can be linked to Patient records)
-            double baseStable = 60 + (new Random().nextInt(20));
-            double baseRisk = 5 + (new Random().nextInt(15));
-            double baseMid = 100 - baseStable - baseRisk;
-
-            diseaseRatios.add(ClinicDashboardResponse.DiseaseRatioDto.builder()
-                    .label(entry.getKey())
-                    .percentage(percentage)
-                    .color(colors[i % colors.length])
-                    .stableRate(baseStable)
-                    .midRate(baseMid)
-                    .riskRate(baseRisk)
-                    .build());
+        for (int i = 0; i < Math.min(3, allDiseaseRatios.size()); i++) {
+            ClinicDashboardResponse.DiseaseRatioDto dto = allDiseaseRatios.get(i);
+            dto.setColor(colors[colorIdx++ % colors.length]);
+            diseaseRatios.add(dto);
         }
 
-        // Group remaining patients into "Khác" (Others)
-        long othersCount = totalPatients - topConditionsSum;
-        if (othersCount > 0) {
-            String othersPct = totalPatients > 0 ? (othersCount * 100 / totalPatients) + "%" : "0%";
+        // Aggregate remaining entries into "Khác"
+        if (allDiseaseRatios.size() > 3) {
+            long otherTotal = 0;
+            double otherStable = 0, otherMid = 0, otherRisk = 0;
+            for (int i = 3; i < allDiseaseRatios.size(); i++) {
+                ClinicDashboardResponse.DiseaseRatioDto dto = allDiseaseRatios.get(i);
+                long v = dto.getValue();
+                otherTotal += v;
+                otherStable += dto.getStableRate() * v / 100.0;
+                otherMid += dto.getMidRate() * v / 100.0;
+                otherRisk += dto.getRiskRate() * v / 100.0;
+            }
+            String otherPercentage = totalPatients > 0 ? (otherTotal * 100 / totalPatients) + "%" : "0%";
             diseaseRatios.add(ClinicDashboardResponse.DiseaseRatioDto.builder()
                     .label("Khác")
-                    .percentage(othersPct)
+                    .percentage(otherPercentage)
                     .color("bg-slate-400")
-                    .stableRate(80.0)
-                    .midRate(15.0)
-                    .riskRate(5.0)
+                    .value(otherTotal)
+                    .stableRate(otherTotal > 0 ? otherStable * 100.0 / otherTotal : 0)
+                    .midRate(otherTotal > 0 ? otherMid * 100.0 / otherTotal : 0)
+                    .riskRate(otherTotal > 0 ? otherRisk * 100.0 / otherTotal : 0)
                     .build());
         }
 
@@ -222,6 +233,7 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
                     .label("Chưa phân loại")
                     .percentage("100%")
                     .color("bg-slate-400")
+                    .value(totalPatients)
                     .stableRate(100.0)
                     .build());
         }

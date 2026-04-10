@@ -68,6 +68,22 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
         @Query("SELECT a.doctorId, COUNT(a) FROM Appointment a WHERE a.doctorId IN :doctorIds AND a.isDeleted = false GROUP BY a.doctorId")
         List<Object[]> countAppointmentsByDoctorIds(List<Long> doctorIds);
 
+
         @Query("SELECT a FROM Appointment a JOIN User u ON a.doctorId = u.id WHERE u.clinicId = :clinicId AND a.isDeleted = false ORDER BY a.appointmentTime DESC")
         Page<Appointment> findByClinicId(@org.springframework.data.repository.query.Param("clinicId") Long clinicId, Pageable pageable);
+
+        @Query("SELECT COUNT(a) FROM Appointment a JOIN User u ON a.doctorId = u.id WHERE u.clinicId = :clinicId AND a.isDeleted = false AND a.createdAt >= :since")
+        long countByClinicIdAndCreatedAtAfter(@org.springframework.data.repository.query.Param("clinicId") Long clinicId, @org.springframework.data.repository.query.Param("since") LocalDateTime since);
+
+        @Query("SELECT COUNT(a) FROM Appointment a JOIN User u ON a.doctorId = u.id WHERE u.clinicId = :clinicId AND a.status = :status AND a.isDeleted = false AND a.createdAt >= :since")
+        long countByClinicIdAndStatusAndCreatedAtAfter(@org.springframework.data.repository.query.Param("clinicId") Long clinicId, @org.springframework.data.repository.query.Param("status") String status, @org.springframework.data.repository.query.Param("since") LocalDateTime since);
+
+        @Query("SELECT COUNT(a) FROM Appointment a JOIN User u ON a.doctorId = u.id " +
+               "WHERE u.clinicId = :clinicId AND a.status = 'SCHEDULED' AND a.appointmentTime < :now AND a.isDeleted = false")
+        long countOverdueByClinicId(@org.springframework.data.repository.query.Param("clinicId") Long clinicId, @org.springframework.data.repository.query.Param("now") LocalDateTime now);
+
+        @Query("SELECT a FROM Appointment a JOIN User u ON a.doctorId = u.id " +
+               "WHERE u.clinicId = :clinicId AND a.patient.id = :patientId AND a.status = 'SCHEDULED' " +
+               "AND a.isDeleted = false ORDER BY a.appointmentTime ASC")
+        List<Appointment> findNextAppointmentsByPatient(@org.springframework.data.repository.query.Param("clinicId") Long clinicId, @org.springframework.data.repository.query.Param("patientId") Long patientId, Pageable pageable);
 }

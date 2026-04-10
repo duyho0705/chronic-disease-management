@@ -36,6 +36,7 @@ public class ClinicDashboardResponse {
         private String label;
         private String percentage;
         private String color;
+        private long value; // actual patient count
         private double stableRate;
         private double midRate;
         private double riskRate;

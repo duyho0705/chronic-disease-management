@@ -82,5 +82,8 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
     @Query("SELECT p.riskLevel, COUNT(p) FROM Patient p WHERE p.doctorId = :doctorId AND p.isDeleted = false GROUP BY p.riskLevel")
     List<Object[]> countPatientsByRiskLevelForDoctor(Long doctorId);
 
+    @Query("SELECT p.chronicCondition, p.riskLevel, COUNT(p) FROM Patient p WHERE p.clinicId = :clinicId AND p.isDeleted = false GROUP BY p.chronicCondition, p.riskLevel")
+    List<Object[]> countRiskDistributionByCondition(Long clinicId);
+
     List<Patient> findByDoctorIdAndIsDeletedFalse(Long doctorId);
 }

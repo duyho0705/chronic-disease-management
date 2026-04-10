@@ -37,11 +37,11 @@ export default function ClinicDashboard() {
         growthStats: stats?.growthStats || null,
         diseaseRatios: stats?.diseaseRatios?.map((dr: any) => ({
             ...dr,
-            value: dr.percentage // Map percentage from backend to value used in frontend
+            value: dr.percentage // percentage for chart segment calculation
         })) || [
                 { color: 'bg-emerald-500', label: 'Tiểu đường', value: '40%' },
                 { color: 'bg-amber-400', label: 'Cao huyết áp', value: '35%' },
-                { color: 'bg-sky-400', label: 'Bệnh tim mạch', value: '25%' },
+                { color: 'bg-sky-400', label: 'Khác', value: '25%' },
             ],
         chartData: selectedChartMetric === 'Lượng bệnh nhân'
             ? (stats?.patientGrowthChart && stats.patientGrowthChart.length > 0
@@ -571,16 +571,16 @@ export default function ClinicDashboard() {
                                         <h3 className="text-[18px] font-bold text-slate-700">Cơ cấu bệnh lý</h3>
                                         <p className="text-[14px] text-slate-500 font-medium mt-1">Phân tích theo danh mục</p>
                                     </div>
-                                    <div className="relative w-48 h-48 mx-auto my-10">
+                                    <div className={`relative w-48 h-48 mx-auto my-10 transition-transform duration-500 ${hoveredSegment !== null ? 'scale-105' : 'scale-100'}`}>
                                         <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                                            <circle className="stroke-slate-100 dark:stroke-slate-800" cx="18" cy="18" fill="none" r="15" pathLength="100" strokeWidth="4"></circle>
+                                            {/* Background track */}
+                                            <circle className="stroke-slate-100 dark:stroke-slate-800" cx="18" cy="18" fill="none" r="15" pathLength="100" strokeWidth="3.5"></circle>
 
                                             {/* Dynamic segments based on diseaseRatios */}
                                             {(() => {
                                                 let currentOffset = 0;
                                                 const totalValue = mainStats.diseaseRatios.reduce((acc: number, item: any) => acc + (parseInt(String(item.value).replace('%', '')) || 0), 0);
 
-                                                // Pre-calculate all segment properties to keep offsets consistent
                                                 const segments = mainStats.diseaseRatios.map((item: any, idx: number) => {
                                                     const percentage = parseInt(String(item.value).replace('%', '')) || 0;
                                                     if (percentage <= 0) return null;
@@ -590,84 +590,155 @@ export default function ClinicDashboard() {
                                                     const dashOffset = -currentOffset;
                                                     currentOffset += normalizedPercentage;
 
-                                                    let strokeClass = "stroke-emerald-500";
-                                                    if (item.color.includes("amber") || item.color.includes("yellow")) strokeClass = "stroke-amber-400";
-                                                    if (item.color.includes("blue") || item.color.includes("sky")) strokeClass = "stroke-sky-400";
-                                                    if (item.color.includes("indigo")) strokeClass = "stroke-indigo-400";
-                                                    if (item.color.includes("teal")) strokeClass = "stroke-teal-500";
-                                                    if (item.color.includes("primary")) strokeClass = "stroke-sky-500";
-                                                    if (item.color.includes("emerald")) strokeClass = "stroke-emerald-500";
-                                                    if (item.color.includes("slate") || item.color.includes("gray")) strokeClass = "stroke-slate-400";
-                                                    if (item.color.includes("rose") || item.color.includes("pink")) strokeClass = "stroke-rose-400";
+                                                    let strokeColor = "#10b981";
+                                                    if (item.color.includes("amber") || item.color.includes("yellow")) strokeColor = "#fbbf24";
+                                                    if (item.color.includes("blue") || item.color.includes("sky")) strokeColor = "#38bdf8";
+                                                    if (item.color.includes("indigo")) strokeColor = "#818cf8";
+                                                    if (item.color.includes("teal")) strokeColor = "#14b8a6";
+                                                    if (item.color.includes("primary")) strokeColor = "#0ea5e9";
+                                                    if (item.color.includes("emerald")) strokeColor = "#10b981";
+                                                    if (item.color.includes("slate") || item.color.includes("gray")) strokeColor = "#94a3b8";
+                                                    if (item.color.includes("rose") || item.color.includes("pink")) strokeColor = "#fb7185";
 
-                                                    return { idx, strokeClass, dashArray, dashOffset };
+                                                    return { idx, strokeColor, dashArray, dashOffset };
                                                 }).filter(Boolean);
 
-                                                // Draw in two passes: non-hovered first, then hovered last to be on top
                                                 return (
                                                     <>
+                                                        {/* Glow filter for hovered segment */}
+                                                        <defs>
+                                                            {(segments as any[]).map(s => (
+                                                                <filter key={`glow-${s.idx}`} id={`glow-${s.idx}`} x="-50%" y="-50%" width="200%" height="200%">
+                                                                    <feGaussianBlur stdDeviation="1.2" result="blur" />
+                                                                    <feFlood floodColor={s.strokeColor} floodOpacity="0.5" result="color" />
+                                                                    <feComposite in="color" in2="blur" operator="in" result="shadow" />
+                                                                    <feMerge>
+                                                                        <feMergeNode in="shadow" />
+                                                                        <feMergeNode in="SourceGraphic" />
+                                                                    </feMerge>
+                                                                </filter>
+                                                            ))}
+                                                        </defs>
+
+                                                        {/* Non-hovered segments (drawn first, behind) */}
                                                         {(segments as any[]).filter(s => s.idx !== hoveredSegment).map(s => (
                                                             <circle
                                                                 key={s.idx}
-                                                                className={`${s.strokeClass} cursor-pointer transition-all duration-300 ease-in-out`}
                                                                 cx="18" cy="18" fill="none" r="15"
                                                                 pathLength="100"
+                                                                stroke={s.strokeColor}
                                                                 strokeDasharray={s.dashArray}
                                                                 strokeDashoffset={s.dashOffset}
-                                                                strokeWidth="4"
+                                                                strokeWidth="3.5"
                                                                 strokeLinecap="round"
+                                                                className="cursor-pointer"
+                                                                style={{
+                                                                    transition: 'stroke-width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease',
+                                                                    opacity: hoveredSegment !== null ? 0.4 : 1,
+                                                                }}
                                                                 onMouseEnter={() => setHoveredSegment(s.idx)}
                                                                 onMouseLeave={() => setHoveredSegment(null)}
                                                             ></circle>
                                                         ))}
+
+                                                        {/* Hovered segment (drawn last, on top) */}
                                                         {(segments as any[]).filter(s => s.idx === hoveredSegment).map(s => (
                                                             <circle
                                                                 key={s.idx}
-                                                                className={`${s.strokeClass} cursor-pointer transition-all duration-300 ease-in-out`}
                                                                 cx="18" cy="18" fill="none" r="15"
                                                                 pathLength="100"
+                                                                stroke={s.strokeColor}
                                                                 strokeDasharray={s.dashArray}
                                                                 strokeDashoffset={s.dashOffset}
-                                                                strokeWidth="6"
+                                                                strokeWidth="5.5"
                                                                 strokeLinecap="round"
+                                                                className="cursor-pointer"
+                                                                style={{
+                                                                    transition: 'stroke-width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                                                                    filter: `url(#glow-${s.idx})`,
+                                                                }}
                                                                 onMouseEnter={() => setHoveredSegment(s.idx)}
                                                                 onMouseLeave={() => setHoveredSegment(null)}
-                                                                style={{ filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.1))' }}
                                                             ></circle>
                                                         ))}
                                                     </>
                                                 );
                                             })()}
                                         </svg>
+                                        {/* Center text with scale animation */}
                                         <div className="absolute inset-0 flex flex-col items-center justify-center font-display pointer-events-none">
-                                            <span className="text-3xl font-bold text-slate-900 dark:text-white transition-all duration-300">
+                                            <span
+                                                key={hoveredSegment !== null ? `seg-${hoveredSegment}` : 'total'}
+                                                className="text-3xl font-bold text-slate-900 dark:text-white"
+                                                style={{
+                                                    animation: 'centerPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                                                }}
+                                            >
                                                 {hoveredSegment !== null
                                                     ? mainStats.diseaseRatios[hoveredSegment].value
                                                     : mainStats.totalPatients}
                                             </span>
-                                            <span className="text-[14px] font-medium text-slate-400 mt-1 transition-all duration-300 text-center px-4">
+                                            <span
+                                                key={hoveredSegment !== null ? `label-${hoveredSegment}` : 'label-total'}
+                                                className="text-[13px] font-semibold text-slate-400 mt-0.5 text-center px-4"
+                                                style={{
+                                                    animation: 'centerFade 0.3s ease-out',
+                                                }}
+                                            >
                                                 {hoveredSegment !== null
                                                     ? mainStats.diseaseRatios[hoveredSegment].label
                                                     : 'Bệnh nhân'}
                                             </span>
                                         </div>
                                     </div>
+
+                                    {/* Legend with animated highlight */}
                                     <div className="grid grid-cols-2 gap-3">
                                         {mainStats.diseaseRatios.map((item: any, idx: number) => (
                                             <div
                                                 key={idx}
-                                                className={`flex justify-between items-center p-3 rounded-xl border transition-all duration-300 cursor-pointer ${hoveredSegment === idx ? 'bg-white dark:bg-slate-700 shadow-md border-slate-200 dark:border-slate-600 scale-[1.02]' : 'bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-700/50'}`}
+                                                className={`relative flex justify-between items-center p-3 rounded-xl border cursor-pointer overflow-hidden ${hoveredSegment === idx ? 'bg-white dark:bg-slate-700 shadow-lg border-slate-200 dark:border-slate-600 scale-[1.03]' : 'bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-700/50 scale-100'}`}
+                                                style={{ transition: 'all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)' }}
                                                 onMouseEnter={() => setHoveredSegment(idx)}
                                                 onMouseLeave={() => setHoveredSegment(null)}
                                             >
+                                                {/* Animated left accent bar */}
+                                                <div
+                                                    className={`absolute left-0 top-0 bottom-0 w-1 rounded-r-full ${item.color}`}
+                                                    style={{
+                                                        transition: 'transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease',
+                                                        transform: hoveredSegment === idx ? 'scaleY(1)' : 'scaleY(0)',
+                                                        opacity: hoveredSegment === idx ? 1 : 0,
+                                                    }}
+                                                ></div>
                                                 <div className="flex items-center gap-3 min-w-0">
-                                                    <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${item.color}`}></div>
-                                                    <span className={`font-bold text-[13px] truncate transition-colors ${hoveredSegment === idx ? 'text-primary' : 'text-slate-700 dark:text-slate-200'}`}>{item.label}</span>
+                                                    <div
+                                                        className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${item.color}`}
+                                                        style={{
+                                                            transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                                                            transform: hoveredSegment === idx ? 'scale(1.4)' : 'scale(1)',
+                                                            boxShadow: hoveredSegment === idx ? '0 0 8px currentColor' : 'none',
+                                                        }}
+                                                    ></div>
+                                                    <span className={`font-bold text-[13px] truncate transition-colors duration-200 ${hoveredSegment === idx ? 'text-primary' : 'text-slate-700 dark:text-slate-200'}`}>{item.label}</span>
                                                 </div>
-                                                <span className="text-[13px] font-black text-slate-900 dark:text-white ml-2 flex-shrink-0">{item.value}</span>
+                                                <span className={`text-[13px] font-black ml-2 flex-shrink-0 transition-colors duration-200 ${hoveredSegment === idx ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>{item.value}</span>
                                             </div>
                                         ))}
                                     </div>
+
+                                    {/* Keyframe animations */}
+                                    <style>{`
+                                        @keyframes centerPop {
+                                            0% { transform: scale(0.7); opacity: 0.3; }
+                                            60% { transform: scale(1.08); }
+                                            100% { transform: scale(1); opacity: 1; }
+                                        }
+                                        @keyframes centerFade {
+                                            0% { opacity: 0; transform: translateY(4px); }
+                                            100% { opacity: 1; transform: translateY(0); }
+                                        }
+                                    `}</style>
                                 </>
                             )}
                         </div>
