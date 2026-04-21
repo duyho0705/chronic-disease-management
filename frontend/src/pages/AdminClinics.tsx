@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import ExcelJS from 'exceljs';
 import AdminLayout from '../layouts/AdminLayout';
 import CreateClinicModal from '../features/admin/components/CreateClinicModal';
 import EditClinicModal from '../features/admin/components/EditClinicModal';
@@ -8,6 +9,7 @@ import { clinicApi } from '../api/clinic';
 
 export default function AdminClinics() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
@@ -28,13 +30,17 @@ export default function AdminClinics() {
     { title: 'Tổng bác sĩ hệ thống', value: '0', icon: 'stethoscope', color: 'indigo' },
   ]);
 
-  const fetchClinics = async () => {
-    setIsLoading(true);
+  const fetchClinics = async (silent = false) => {
+    if (!silent) setIsLoading(true);
     try {
-      const response = await clinicApi.getClinics({
-        keyword: searchTerm,
-        status: statusFilter === 'ALL' ? undefined : statusFilter
-      });
+      const [response, statsRes] = await Promise.all([
+        clinicApi.getClinics({
+          keyword: debouncedSearchTerm,
+          status: statusFilter === 'ALL' ? undefined : statusFilter
+        }),
+        clinicApi.getClinicStats()
+      ]);
+
       const clinics = response.data.content;
       setClinicList(clinics.map((c: any) => ({
         id: c.clinicCode,
@@ -43,14 +49,14 @@ export default function AdminClinics() {
         address: c.address,
         phone: c.phone,
         doctors: c.doctorCount || 0,
+        patientCount: c.patientCount || 0,
+        appointmentCount: 0, // Not yet available in DB, default to 0
         status: c.status === 'ACTIVE' ? 'Hoạt động' : 'Ngưng hoạt động',
         image: c.imageUrl,
         adminFullName: c.managerName,
         adminEmail: c.managerEmail
       })));
 
-      // Fetch REAL stats from API
-      const statsRes = await clinicApi.getClinicStats();
       const s = statsRes.data;
       setStats([
         { title: 'Tổng số phòng khám', value: s.totalClinics.toString(), change: '+0%', icon: 'apartment', color: 'primary' },
@@ -61,60 +67,102 @@ export default function AdminClinics() {
     } catch (error) {
       console.error('Failed to fetch clinics:', error);
     } finally {
-      setIsLoading(false);
+      if (!silent) setIsLoading(false);
     }
   };
 
   useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
+
+  useEffect(() => {
     fetchClinics();
-  }, [searchTerm, statusFilter]);
+  }, [debouncedSearchTerm, statusFilter]);
 
-  const handleExport = () => {
+  const handleExport = async () => {
     const today = new Date().toLocaleDateString('vi-VN');
-    const excelContent = `
-      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-      <head>
-        <meta charset="utf-8" />
-        <style>
-          th { background: #3bb9f3; color: white; font-weight: bold; border: 0.5pt solid #ccc; }
-          td { border: 0.5pt solid #ccc; mso-number-format:"\\@"; }
-        </style>
-      </head>
-      <body>
-        <h3>DANH SÁCH CHI TIẾT PHÒNG KHÁM - ${today}</h3>
-        <table border="1">
-          <thead>
-            <tr>
-              <th>Mã Phòng Khám</th>
-              <th>Tên Phòng Khám</th>
-              <th>Địa Chỉ</th>
-              <th>Số Điện Thoại</th>
-              <th>Số Lượng Bác Sĩ</th>
-              <th>Trạng Thái</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${clinicList.map(c => `
-              <tr>
-                <td>${c.id}</td>
-                <td>${c.name}</td>
-                <td>${c.address}</td>
-                <td>${c.phone}</td>
-                <td>${c.doctors}</td>
-                <td>${c.status}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </body>
-      </html>
-    `;
+    
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Danh Sách Phòng Khám');
 
-    const blob = new Blob([excelContent], { type: 'application/vnd.ms-excel' });
+    // Title Row
+    worksheet.addRow([`DANH SÁCH CHI TIẾT CÁC CƠ SỞ / PHÒNG KHÁM HỆ THỐNG - ${today}`]);
+    worksheet.mergeCells('A1:F1');
+    const titleRow = worksheet.getRow(1);
+    titleRow.font = { name: 'Arial', family: 4, size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+    titleRow.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0284C7' } }; // sky-600 (Primary)
+    titleRow.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
+    titleRow.height = 30;
+
+    // Header Row
+    const headerRow = worksheet.addRow([
+      'Mã Định Danh', 
+      'Tên Cơ Sở y Tế', 
+      'Địa Chỉ Thường Trú', 
+      'Hotline', 
+      'Số Bác Sĩ', 
+      'Trạng Thái Hệ Thống'
+    ]);
+    
+    headerRow.font = { bold: true, color: { argb: 'FF1E293B' } }; // slate-800
+    headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } }; // slate-100
+    headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+    headerRow.height = 25;
+
+    // Define column widths for Autofit capability
+    worksheet.columns = [
+      { width: 18 }, // Code
+      { width: 45 }, // Name
+      { width: 60 }, // Address
+      { width: 18 }, // Phone
+      { width: 15 }, // Doctors
+      { width: 25 }  // Status
+    ];
+
+    // Data Rows
+    clinicList.forEach(clinic => {
+      const row = worksheet.addRow([
+        clinic.id,
+        clinic.name,
+        clinic.address,
+        clinic.phone,
+        clinic.doctors,
+        clinic.status
+      ]);
+      row.alignment = { vertical: 'middle', wrapText: true };
+      
+      const statusCell = row.getCell(6);
+      if (clinic.status === 'Hoạt động') {
+         statusCell.font = { color: { argb: 'FF10B981' }, bold: true }; // emerald-500
+      } else {
+         statusCell.font = { color: { argb: 'FFEF4444' }, bold: true }; // red-500
+      }
+    });
+
+    // Add professional borders
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber > 1) { // Skip main banner title
+        row.eachCell({ includeEmpty: true }, (cell) => {
+          cell.border = {
+            top: {style:'thin', color: {argb:'FFCBD5E1'}},
+            left: {style:'thin', color: {argb:'FFCBD5E1'}},
+            bottom: {style:'thin', color: {argb:'FFCBD5E1'}},
+            right: {style:'thin', color: {argb:'FFCBD5E1'}}
+          };
+        });
+      }
+    });
+
+    // Convert to Binary Blob and Download
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `Danh_sach_phong_kham_${today.replace(/\//g, '-')}.xls`;
+    link.download = `Danh_sach_phong_kham_${today.replace(/\//g, '-')}.xlsx`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -135,7 +183,7 @@ export default function AdminClinics() {
       });
 
       setToastTitle(`Đã khởi tạo hệ thống cho ${data.name} thành công!`);
-      fetchClinics();
+      fetchClinics(true); // Silent revalidation feels realtime
     } catch (error: any) {
       console.error('Failed to create clinic:', error);
       const msg = error.response?.data?.message || 'Lỗi hệ thống';
@@ -161,7 +209,7 @@ export default function AdminClinics() {
       });
 
       setToastTitle(`Cập nhật thông tin ${data.name} thành công!`);
-      fetchClinics(); // Sync with DB
+      fetchClinics(true); // Silent database refresh
     } catch (error) {
       console.error('Failed to update clinic:', error);
       setToastTitle(`Lỗi khi cập nhật ${data.name}`);
@@ -179,8 +227,6 @@ export default function AdminClinics() {
 
     // 1. Optimistic UI update (Instant)
     setClinicList(prev => prev.map(c => c.realId === clinic.realId ? { ...c, status: newStatusLabel } : c));
-    setToastTitle(`Đã ${action} phòng khám ${clinic.name} thành công!`);
-    setShowToast(true);
 
     try {
       // 2. Background update
@@ -429,12 +475,12 @@ export default function AdminClinics() {
                               )}
                             </div>
                             <div>
-                              <span className="block font-bold text-slate-900 dark:text-white text-base leading-tight">{clinic.name}</span>
+                              <span className="block font-semibold text-slate-900 dark:text-white text-[14px] leading-tight">{clinic.name}</span>
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-5">
-                          <code className="text-[15px] text-slate-600 dark:text-slate-500 font-bold">{clinic.id}</code>
+                          <code className="text-[15px] text-slate-600 dark:text-slate-500 font-semibold">{clinic.id}</code>
                         </td>
                         <td className="px-6 py-5 relative group/address">
                           <p className="text-sm text-slate-600 dark:text-slate-400 font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-[220px]">
@@ -503,7 +549,7 @@ export default function AdminClinics() {
                 </>
               ) : (
                 <>
-                  <span className="text-[14px] text-slate-500 font-medium">Đang hiển thị {filteredClinics.length}/{clinicList.length} phòng khám</span>
+                  <span className="text-[14px] text-slate-500 font-medium">Hiển thị {filteredClinics.length}/{clinicList.length} phòng khám</span>
                   <div className="flex gap-1">
                     <button className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-white dark:hover:bg-slate-700 transition-colors">
                       <span className="material-symbols-outlined text-sm">chevron_left</span>
@@ -537,42 +583,8 @@ export default function AdminClinics() {
               </>
             ) : (
               <>
-                <div className="lg:col-span-2 bg-primary/5 dark:bg-primary/10 p-8 rounded-2xl border border-primary/10 flex items-center justify-between">
-                  <div>
-                    <h5 className="text-[19px] font-bold text-slate-900 dark:text-white mb-2">Tăng trưởng hạ tầng quý 3</h5>
-                    <p className="text-[16px] font-medium text-slate-500 leading-relaxed max-w-md">Mạng lưới Vitality đã mở rộng thêm 2 phòng khám đa khoa mới trong tháng này. Hiệu suất kết nối giữa các đơn vị tăng 15%.</p>
-                    <button className="mt-4 flex items-center gap-2 text-primary font-bold text-sm hover:underline">
-                      Xem báo cáo hạ tầng
-                      <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                    </button>
-                  </div>
-                </div>
-                <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-primary/10 shadow-sm flex flex-col justify-center text-left">
-                  <div className="flex items-center gap-3 mb-6">
-                    <span className="material-symbols-outlined text-indigo-500">hub</span>
-                    <h5 className="text-xl font-black text-slate-900 dark:text-white">Kết nối hệ thống</h5>
-                  </div>
-                  <div className="space-y-6">
-                    <div>
-                      <div className="flex items-center justify-between text-[14px] font-medium text-slate-500 mb-2">
-                        <span>Bảo trì hệ thống</span>
-                        <span className="text-primary">Xong</span>
-                      </div>
-                      <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                        <div className="bg-primary h-full w-full"></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex items-center justify-between text-[14px] font-medium text-slate-500 mb-2">
-                        <span>Đồng bộ dữ liệu</span>
-                        <span className="text-slate-600 dark:text-slate-300">94%</span>
-                      </div>
-                      <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                        <div className="bg-primary h-full w-[94%]"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+
+
               </>
             )}
           </div>

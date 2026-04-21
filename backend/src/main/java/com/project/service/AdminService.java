@@ -12,7 +12,7 @@ import org.springframework.data.domain.Pageable;
 public interface AdminService {
 
     // === Dashboard ===
-    AdminDashboardResponse getDashboardData(String timeRange);
+    AdminDashboardResponse getDashboardData(String timeRange, String metric);
 
     // === Clinic Management ===
     AdminClinicStatsResponse getClinicStats();

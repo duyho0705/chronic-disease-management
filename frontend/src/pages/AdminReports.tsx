@@ -20,7 +20,14 @@ export default function AdminReports() {
     try {
       const res = await adminApi.getReportsData(reportType, performanceFilter);
       if (res && res.data) {
-        setReportsData(res.data);
+        const processedData = {
+          ...res.data,
+          growthTrend: (res.data.growthTrend || []).map((pt: any) => ({
+            ...pt,
+            label: pt.label.replace(/^Th\. /i, 'Tháng ')
+          }))
+        };
+        setReportsData(processedData);
       }
     } catch (error) {
       console.error('Failed to fetch report data:', error);

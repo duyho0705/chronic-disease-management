@@ -13,6 +13,8 @@ interface DropdownProps {
   className?: string;
   variant?: 'default' | 'badge';
   icon?: React.ReactNode;
+  disabled?: boolean;
+  size?: 'sm' | 'md' | 'lg';
 }
 
 export default function Dropdown({
@@ -21,7 +23,9 @@ export default function Dropdown({
   onChange,
   className = "",
   variant = 'default',
-  icon
+  icon,
+  disabled = false,
+  size = 'md'
 }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -46,17 +50,19 @@ export default function Dropdown({
     <div className={`relative ${className}`} ref={containerRef}>
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+        disabled={disabled}
         className={`
-          relative flex items-center justify-between gap-3 transition-all duration-300 active:scale-100
+          relative flex items-center justify-between gap-3 transition-all duration-300
           ${variant === 'badge'
             ? 'px-4 py-1.5 bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800'
-            : `pr-4 min-h-[42px] bg-white dark:bg-slate-900 border rounded-xl shadow-sm ${icon ? 'pl-11' : 'pl-4'}`
+            : `pr-4 ${size === 'sm' ? 'min-h-[36px]' : 'min-h-[42px]'} bg-white dark:bg-slate-900 border rounded-xl shadow-sm ${icon ? 'pl-11' : 'pl-4'}`
           }
           ${isOpen
             ? 'border-primary shadow-lg shadow-primary/10 ring-4 ring-primary/5'
             : variant !== 'badge' ? 'border-slate-400 dark:border-slate-700 hover:border-slate-500 dark:hover:border-slate-500' : ''
           }
+          ${disabled ? 'opacity-50 cursor-not-allowed grayscale-[0.5]' : 'active:scale-[0.98]'}
           w-full
         `}
       >

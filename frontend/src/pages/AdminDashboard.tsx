@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { ROUTES } from '../constants/routes';
 import AdminLayout from '../layouts/AdminLayout';
 import Dropdown from '../components/ui/Dropdown';
 import CreateClinicModal from '../features/admin/components/CreateClinicModal';
@@ -23,18 +25,22 @@ export default function AdminDashboard() {
   const [isLoadingChart, setIsLoadingChart] = useState(true);
 
   useEffect(() => {
-    fetchDashboardData(timeRange);
-  }, [timeRange]);
+    fetchDashboardData(timeRange, selectedChartMetric);
+  }, [timeRange, selectedChartMetric]);
 
-  const fetchDashboardData = async (range: string = 'DAY') => {
+  const fetchDashboardData = async (range: string = 'DAY', metric: string = 'Lượng bệnh nhân') => {
     setIsLoadingChart(true);
     try {
-      const res = await adminApi.getDashboardData(range);
+      const res = await adminApi.getDashboardData(range, metric);
       if (res && res.data) {
         setStats(res.data.stats);
         setClinics(res.data.clinicPerformances || []);
         setActivities(res.data.recentActivities || []);
-        setChartData(res.data.chartData || []);
+        const processedChart = (res.data.chartData || []).map((item: any) => ({
+          ...item,
+          label: item.label.replace(/^Th\. /i, 'Tháng ')
+        }));
+        setChartData(processedChart);
       }
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
@@ -51,13 +57,44 @@ export default function AdminDashboard() {
           <p className="text-[13px] font-bold text-slate-700 mb-1">{label}</p>
           <div className="flex items-center gap-2">
             <p className="text-[14px] font-medium text-slate-600 dark:text-white">
-              {payload[0].value} <span className="text-slate-600 font-medium text-[12px]">bệnh nhân mới</span>
+              {selectedChartMetric === 'Doanh thu' 
+                ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(payload[0].value)
+                : selectedChartMetric === 'Tỷ lệ hài lòng'
+                  ? `${payload[0].value}%`
+                  : payload[0].value} 
+              <span className="text-slate-600 font-medium text-[12px] ml-1">
+                {selectedChartMetric === 'Lượng bệnh nhân' && 'bệnh nhân mới'}
+                {selectedChartMetric === 'Lượt đặt lịch' && 'lượt đặt'}
+                {selectedChartMetric === 'Tỷ lệ hài lòng' && 'hài lòng'}
+              </span>
             </p>
           </div>
         </div>
       );
     }
     return null;
+  };
+
+  const CustomXAxisTick = ({ x, y, payload, index }: any) => {
+    let textAnchor: "middle" | "start" | "end" = "middle";
+    if (index === 0) textAnchor = "start";
+    else if (index === 3) textAnchor = "end";
+
+    return (
+      <g transform={`translate(${x},${y})`}>
+        <text
+          x={0}
+          y={0}
+          dy={18}
+          textAnchor={textAnchor}
+          fill="#475569"
+          fontSize={13}
+          fontWeight={500}
+        >
+          {payload.value}
+        </text>
+      </g>
+    );
   };
 
   const handleExportExcel = () => {
@@ -158,7 +195,7 @@ export default function AdminDashboard() {
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="flex-1 min-w-0">
-            {isLoadingChart ? (
+            {!stats ? (
               <div className="space-y-3">
                 <div className="h-8 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-72"></div>
                 <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-96"></div>
@@ -171,7 +208,7 @@ export default function AdminDashboard() {
             )}
           </div>
           <div className="flex gap-2">
-            {isLoadingChart ? (
+            {!stats ? (
               <>
                 <div className="w-32 h-10 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-lg shadow-sm"></div>
                 <div className="w-32 h-10 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded-lg shadow-sm"></div>
@@ -199,7 +236,7 @@ export default function AdminDashboard() {
 
         {/* Summary Cards Bento Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {isLoadingChart || !stats ? (
+          {!stats ? (
             // Skeleton Summary Cards
             [...Array(4)].map((_, idx) => (
               <div key={`summary-skeleton-${idx}`} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm animate-pulse text-left">
@@ -280,7 +317,7 @@ export default function AdminDashboard() {
           <div className="col-span-12 lg:col-span-8 bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm relative group/chart overflow-hidden text-left">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
               <div>
-                {isLoadingChart ? (
+                {!stats ? (
                   <div className="space-y-2">
                     <div className="h-6 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-64"></div>
                     <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-48"></div>
@@ -294,7 +331,7 @@ export default function AdminDashboard() {
               </div>
               <div className="flex items-center gap-6">
                 {/* Time Range Selector */}
-                {isLoadingChart ? (
+                {!stats ? (
                   <div className="w-40 h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl"></div>
                 ) : (
                   <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
@@ -328,7 +365,7 @@ export default function AdminDashboard() {
                   </div>
                 )}
 
-                {isLoadingChart ? (
+                {!stats ? (
                   <div className="w-48 h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl"></div>
                 ) : (
                   <Dropdown
@@ -354,7 +391,7 @@ export default function AdminDashboard() {
                 </div>
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 30 }}>
+                  <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 10, bottom: 30 }}>
                     <defs>
                       <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#3bb9f3" stopOpacity={0.2} />
@@ -366,9 +403,14 @@ export default function AdminDashboard() {
                       dataKey="label"
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fill: '#475569', fontSize: 13, fontWeight: 500 }}
-                      dy={18}
-                      textAnchor="middle"
+                      tick={<CustomXAxisTick />}
+                      ticks={[
+                        chartData[0]?.label,
+                        chartData[Math.floor(chartData.length * 0.33)]?.label,
+                        chartData[Math.floor(chartData.length * 0.66)]?.label,
+                        chartData[chartData.length - 1]?.label
+                      ].filter(Boolean)}
+                      interval={0}
                     />
                     <YAxis
                       hide
@@ -407,21 +449,27 @@ export default function AdminDashboard() {
           {/* Recent Activity (Placeholder logic) */}
           <div className="col-span-12 lg:col-span-4 bg-slate-50 dark:bg-slate-900/50 p-8 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col text-left">
             <div className="flex items-center justify-between mb-6">
-              {isLoadingChart ? (
+              {!stats ? (
                 <div className="h-6 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-48"></div>
               ) : (
                 <h2 className="text-[19px] font-bold text-slate-900 dark:text-white tracking-tight">Hoạt động hệ thống</h2>
               )}
-              {isLoadingChart ? (
+              {!stats ? (
                 <div className="w-6 h-6 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-full"></div>
               ) : (
-                <span className="material-symbols-outlined text-slate-400">history</span>
+                <Link 
+                  to={ROUTES.ADMIN.AUDIT_LOGS}
+                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 hover:text-primary transition-all group"
+                  title="Xem tất cả nhật ký"
+                >
+                  <span className="material-symbols-outlined text-[22px] group-active:rotate-[-45deg] transition-transform">history</span>
+                </Link>
               )}
             </div>
             <div className="space-y-6 flex-1">
-              {isLoadingChart ? (
+              {!stats ? (
                 // Skeleton Activities
-                [...Array(4)].map((_, idx) => (
+                [...Array(3)].map((_, idx) => (
                   <div key={`activity-skeleton-${idx}`} className="flex gap-4 animate-pulse">
                     <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 shrink-0"></div>
                     <div className="space-y-2 flex-1">
@@ -431,13 +479,13 @@ export default function AdminDashboard() {
                   </div>
                 ))
               ) : activities.length > 0 ? (
-                activities.map((act, idx) => (
+                activities.slice(0, 3).map((act, idx) => (
                   <div key={idx} className="flex gap-4 group">
                     <div className="relative">
                       <div className={`w-10 h-10 rounded-full bg-${act.color || 'blue'}-100 dark:bg-${act.color || 'blue'}-900/30 flex items-center justify-center text-${act.color || 'blue'}-600 dark:text-${act.color || 'blue'}-400 z-10 relative`}>
                         <span className="material-symbols-outlined text-lg">{act.icon || 'history'}</span>
                       </div>
-                      {idx !== activities.length - 1 && <div className="absolute top-10 left-1/2 -translate-x-1/2 w-0.5 h-full bg-slate-200 dark:bg-slate-800"></div>}
+                      {idx !== Math.min(activities.length, 4) - 1 && <div className="absolute top-10 left-1/2 -translate-x-1/2 w-0.5 h-full bg-slate-200 dark:bg-slate-800"></div>}
                     </div>
                     <div>
                       <p className="text-[15px] font-bold text-slate-900 dark:text-white">{act.title}</p>
@@ -460,7 +508,7 @@ export default function AdminDashboard() {
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-primary/10 overflow-hidden shadow-sm font-display text-left">
           <div className="p-6 border-b border-primary/10 flex items-center justify-between">
             <div>
-              {isLoadingChart ? (
+              {!stats ? (
                 <>
                   <div className="h-6 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-64 mb-3"></div>
                   <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-80"></div>
@@ -478,30 +526,30 @@ export default function AdminDashboard() {
               <thead>
                 <tr className="bg-slate-50/50 dark:bg-slate-800/50">
                   <th className="px-8 py-4">
-                    {isLoadingChart ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-24"></div> : <span className="text-[15px] font-medium text-slate-500">Tên Phòng Khám</span>}
+                    {(!stats) ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-24"></div> : <span className="text-[15px] font-medium text-slate-500">Tên Phòng Khám</span>}
                   </th>
                   <th className="px-6 py-4">
-                    {isLoadingChart ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16"></div> : <span className="text-[15px] font-medium text-slate-500">Mã cơ sở</span>}
+                    {(!stats) ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16"></div> : <span className="text-[15px] font-medium text-slate-500">Mã cơ sở</span>}
                   </th>
                   <th className="px-6 py-4">
-                    {isLoadingChart ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16"></div> : <span className="text-[15px] font-medium text-slate-500">Liên Hệ</span>}
+                    {(!stats) ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16"></div> : <span className="text-[15px] font-medium text-slate-500">Liên Hệ</span>}
                   </th>
                   <th className="px-6 py-4">
-                    {isLoadingChart ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-12"></div> : <span className="text-[15px] font-medium text-slate-500">Bác Sĩ</span>}
+                    {(!stats) ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-12"></div> : <span className="text-[15px] font-medium text-slate-500">Bác Sĩ</span>}
                   </th>
                   <th className="px-6 py-4">
-                    {isLoadingChart ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16"></div> : <span className="text-[15px] font-medium text-slate-500">Bệnh Nhân</span>}
+                    {(!stats) ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16"></div> : <span className="text-[15px] font-medium text-slate-500">Bệnh Nhân</span>}
                   </th>
                   <th className="px-6 py-4">
-                    {isLoadingChart ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16"></div> : <span className="text-[15px] font-medium text-slate-500">Tăng Trưởng</span>}
+                    {(!stats) ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16"></div> : <span className="text-[15px] font-medium text-slate-500">Tăng Trưởng</span>}
                   </th>
                   <th className="px-6 py-4">
-                    {isLoadingChart ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16"></div> : <span className="text-[15px] font-medium text-slate-500">Trạng Thái</span>}
+                    {!stats ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16"></div> : <span className="text-[15px] font-medium text-slate-500">Trạng Thái</span>}
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
-                {isLoadingChart ? (
+                {!stats ? (
                   // Skeleton Rows
                   [...Array(4)].map((_, i) => (
                     <tr key={`clinic-skeleton-${i}`} className="animate-pulse">

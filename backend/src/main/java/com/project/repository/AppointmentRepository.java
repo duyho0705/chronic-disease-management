@@ -86,4 +86,18 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
                "WHERE u.clinicId = :clinicId AND a.patient.id = :patientId AND a.status = 'SCHEDULED' " +
                "AND a.isDeleted = false ORDER BY a.appointmentTime ASC")
         List<Appointment> findNextAppointmentsByPatient(@org.springframework.data.repository.query.Param("clinicId") Long clinicId, @org.springframework.data.repository.query.Param("patientId") Long patientId, Pageable pageable);
+        @Query(value = "SELECT CAST(created_at AS DATE) as d, COUNT(*) FROM appointments " +
+                      "WHERE is_deleted = false AND created_at >= :startDate " +
+                      "GROUP BY CAST(created_at AS DATE) ORDER BY d ASC", nativeQuery = true)
+        List<Object[]> countAllAppointmentsByDayNative(@org.springframework.data.repository.query.Param("startDate") LocalDateTime startDate);
+
+        @Query(value = "SELECT DATE_TRUNC('month', created_at) as m, COUNT(*) FROM appointments " +
+                      "WHERE is_deleted = false AND created_at >= :startDate " +
+                      "GROUP BY m ORDER BY m ASC", nativeQuery = true)
+        List<Object[]> countAllAppointmentsByMonthNative(@org.springframework.data.repository.query.Param("startDate") LocalDateTime startDate);
+
+        @Query(value = "SELECT DATE_TRUNC('year', created_at) as y, COUNT(*) FROM appointments " +
+                      "WHERE is_deleted = false AND created_at >= :startDate " +
+                      "GROUP BY y ORDER BY y ASC", nativeQuery = true)
+        List<Object[]> countAllAppointmentsByYearNative(@org.springframework.data.repository.query.Param("startDate") LocalDateTime startDate);
 }

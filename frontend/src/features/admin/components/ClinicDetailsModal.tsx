@@ -26,118 +26,139 @@ const ClinicDetailsModal: React.FC<ClinicDetailsModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-      <div
-        className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] transition-all duration-300"
-        onClick={onClose}
-      ></div>
+      <div className="absolute inset-0 bg-slate-900/10 backdrop-blur-[2px] transition-all duration-300" onClick={onClose}></div>
 
-      <div className="relative bg-white dark:bg-slate-900 w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-300 border border-primary/10 transition-all max-h-[92vh]">
+      <div className="relative bg-white dark:bg-slate-900 w-full max-w-3xl rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-300 max-h-[95vh] border border-slate-200 dark:border-slate-800">
         {/* Modal Header */}
-        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 sticky top-0 z-20">
-          <div className="flex items-center gap-3">
-            <div className="bg-indigo-500/10 p-2.5 rounded-xl text-indigo-500 flex items-center justify-center">
-              <span className="material-symbols-outlined font-bold">visibility</span>
-            </div>
-            <div>
-              <h2 className="text-[20px] font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">Chi tiết phòng khám</h2>
-            </div>
-          </div>
+        <div className="px-6 md:px-8 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md z-20">
+          <h2 className="text-[20px] font-medium text-slate-900 dark:text-white eading-tight">Chi tiết phòng khám</h2>
+          <span className={`px-4 py-1.5 rounded-xl text-[13px] font-bold shadow-sm ${clinic.status === 'Hoạt động' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'}`}>
+            {clinic.status}
+          </span>
         </div>
 
         {/* Content */}
-        <div className="p-6 md:p-8 space-y-8 overflow-y-auto custom-scrollbar flex-1 bg-white dark:bg-slate-900 text-left">
-          {/* Hero Section with Image & Basic Info */}
-          <div className="flex flex-col md:flex-row gap-8 items-start pb-8 border-b border-slate-100 dark:border-slate-800">
-            <div className="w-full md:w-48 h-48 rounded-2xl overflow-hidden border-4 border-white dark:border-slate-800 shadow-xl flex-shrink-0 bg-slate-100 flex items-center justify-center">
-              {clinic.image ? (
-                <img src={clinic.image} alt={clinic.name} className="w-full h-full object-cover" />
-              ) : (
-                <span className="material-symbols-outlined text-6xl text-slate-300">home_health</span>
-              )}
-            </div>
-            <div className="space-y-4 flex-1">
-              <div className="space-y-1">
-                <span className={`px-3 py-1 rounded-full text-[13px] font-bold text-white ${clinic.status === 'Hoạt động' ? 'bg-emerald-500' : 'bg-red-500'}`}>
-                  {clinic.status}
-                </span>
-                <h3 className="text-2xl font-black text-slate-900 dark:text-white leading-tight">{clinic.name}</h3>
-                <div className="flex items-center gap-2 text-slate-500 font-medium">
-                  <span className="material-symbols-outlined text-sm">location_on</span>
-                  <span className="text-sm">{clinic.address}</span>
-                </div>
-              </div>
+        <div className="px-6 md:px-8 pt-6 pb-6 overflow-y-auto custom-scrollbar flex-1 bg-white dark:bg-slate-900/50 text-left">
+          <div className="space-y-6">
 
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-6 pt-2">
-                <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800/50">
-                  <p className="text-[14px] font-medium text-slate-500 mb-1">Số lượng bác sĩ</p>
-                  <p className="text-xl font-black text-slate-900 dark:text-white">{clinic.doctors}</p>
-                </div>
-                <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800/50">
-                  <p className="text-[14px] font-medium text-slate-500 mb-1">Số lượng bệnh nhân</p>
-                  <p className="text-xl font-black text-slate-900 dark:text-white">1,240</p>
-                </div>
-                <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800/50">
-                  <p className="text-[14px] font-medium text-slate-500 mb-1">Lượt khám tháng này</p>
-                  <p className="text-xl font-black text-primary">+342</p>
-                </div>
+            {/* Overview Banner */}
+            <div className="bg-white dark:bg-slate-900 p-4 lg:p-5 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-center gap-6">
+              <div className="w-24 h-24 rounded-2xl overflow-hidden border-2 border-slate-100 dark:border-slate-800 shadow-lg flex-shrink-0 bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
+                {clinic.image ? (
+                  <img src={clinic.image} alt={clinic.name} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="material-symbols-outlined text-4xl text-slate-300">home_health</span>
+                )}
               </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 pt-4">
-            {/* Contact Info */}
-            <div className="space-y-6">
-              <div className="flex items-center gap-2 pb-2 border-l-4 border-l-indigo-500 pl-3">
-                <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-sm tracking-wide lowercase first-letter:uppercase">Thông tin liên hệ</h3>
-              </div>
-              <div className="space-y-5">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 flex-shrink-0">
-                    <span className="material-symbols-outlined text-[20px]">call</span>
-                  </div>
-                  <div>
-                    <p className="text-[13px] font-medium text-slate-500 ">Số hotline</p>
-                    <p className="text-[15px] font-bold text-slate-900 dark:text-white leading-tight">{clinic.phone}</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 flex-shrink-0">
-                    <span className="material-symbols-outlined text-[20px]">mail</span>
-                  </div>
-                  <div>
-                    <p className="text-[13px] font-medium text-slate-500 ">Email hỗ trợ</p>
-                    <p className="text-[15px] font-bold text-slate-900 dark:text-white leading-tight">support.{clinic.id.toLowerCase()}@vitality.com</p>
+              <div className="flex-1 text-center md:text-left space-y-2">
+                <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{clinic.name}</h3>
+                <div className="flex flex-col md:flex-row items-center gap-4 text-slate-500 font-medium">
+                  <div className="flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[18px]">location_on</span>
+                    <span className="text-[14px]">{clinic.address}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Admin Info */}
-            <div className="space-y-6">
-              <div className="flex items-center gap-2 pb-2 border-l-4 border-l-emerald-500 pl-3">
-                <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-sm tracking-wide lowercase first-letter:uppercase">Người quản lý trực tiếp</h3>
-              </div>
-              <div className="bg-emerald-50/20 dark:bg-emerald-900/10 p-6 rounded-2xl border border-emerald-500/10 flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-600 flex-shrink-0">
-                  <span className="material-symbols-outlined text-2xl">manage_accounts</span>
+            {/* Quick Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+                  <span className="material-symbols-outlined text-[24px]">stethoscope</span>
                 </div>
                 <div>
-                  <p className="text-sm font-black text-slate-900 dark:text-white">Hồ Văn Duy</p>
-                  <p className="text-[13px] font-medium text-slate-500 italic">Quản lý phòng khám</p>
+                  <p className="text-[13px] font-medium text-slate-500">Bác sĩ</p>
+                  <p className="text-[20px] font-bold text-slate-900 dark:text-white leading-tight">{clinic.doctors}</p>
                 </div>
               </div>
+              <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+                  <span className="material-symbols-outlined text-[24px]">groups</span>
+                </div>
+                <div>
+                  <p className="text-[13px] font-medium text-slate-500">Bệnh nhân</p>
+                  <p className="text-[20px] font-bold text-slate-900 dark:text-white leading-tight">{clinic.patientCount !== undefined ? clinic.patientCount : '1,240'}</p>
+                </div>
+              </div>
+              <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+                  <span className="material-symbols-outlined text-[24px]">receipt_long</span>
+                </div>
+                <div>
+                  <p className="text-[13px] font-medium text-slate-500">Lượt khám</p>
+                  <p className="text-[20px] font-bold text-slate-900 dark:text-white leading-tight">{clinic.appointmentCount !== undefined ? '+' + clinic.appointmentCount : '+342'}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Information Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+              {/* Contact Info Block */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 pb-1 ml-1">
+                  <div className="text-primary/80 dark:text-primary flex items-center justify-center">
+                    <span className="material-symbols-outlined text-[24px]">contact_support</span>
+                  </div>
+                  <h3 className="font-medium text-slate-500 dark:text-slate-100 text-[15px] italic-none ml-1">Thông tin liên hệ</h3>
+                </div>
+
+                <div className="bg-white dark:bg-slate-900 p-4 lg:p-5 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-500 flex-shrink-0 border border-slate-200 dark:border-slate-700">
+                      <span className="material-symbols-outlined text-[20px]">call</span>
+                    </div>
+                    <div>
+                      <p className="text-[12px] font-medium text-slate-500 leading-tight">Số hotline phòng khám</p>
+                      <p className="text-[14px] font-medium text-slate-800 dark:text-slate-200">{clinic.phone}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-500 flex-shrink-0 border border-slate-200 dark:border-slate-700">
+                      <span className="material-symbols-outlined text-[20px]">mail</span>
+                    </div>
+                    <div>
+                      <p className="text-[12px] font-medium text-slate-500 leading-tight">Email phòng khám</p>
+                      <p className="text-[14px] font-medium text-slate-800 dark:text-slate-200">{clinic.adminEmail}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Management Info Block */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 pb-1 ml-1">
+                  <div className="text-primary/80 dark:text-primary flex items-center justify-center">
+                    <span className="material-symbols-outlined text-[24px]">admin_panel_settings</span>
+                  </div>
+                  <h3 className="font-medium text-slate-500 dark:text-slate-100 text-[15px] italic-none ml-1">Quản lý cơ sở</h3>
+                </div>
+
+                <div className="bg-primary/5 p-4 lg:p-5 rounded-2xl border border-primary/20 shadow-sm flex items-center gap-4 h-[calc(100%-36px)]">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+                    <span className="material-symbols-outlined text-[24px]">manage_accounts</span>
+                  </div>
+                  <div>
+                    <p className="text-[15px] font-semibold text-slate-900 dark:text-white">{clinic.adminFullName || 'Quản trị viên hệ thống'}</p>
+                    <p className="text-[13px] font-medium text-slate-500">Giám đốc phòng khám</p>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="px-8 py-5 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3 sticky bottom-0 z-20">
+        {/* Modal Footer */}
+        <div className="px-6 md:px-8 py-5 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end rounded-b-3xl">
           <button
             onClick={onClose}
-            className="px-10 py-2.5 text-sm font-extrabold text-white bg-slate-900 dark:bg-slate-800 hover:opacity-90 rounded-xl transition-all shadow-xl"
+            className="px-8 py-2.5 bg-slate-800 dark:bg-slate-700 text-white text-[14px] font-medium rounded-xl shadow-lg shadow-slate-800/25 hover:bg-slate-700 dark:hover:bg-slate-600 transition-all flex items-center gap-2"
             type="button"
           >
-            Đóng thông tin
+            <span className="material-symbols-outlined text-[20px]">close</span>
+            <span>Đóng thông tin</span>
           </button>
         </div>
       </div>

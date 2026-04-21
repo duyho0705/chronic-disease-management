@@ -91,19 +91,23 @@ public class RiskAlertServiceImpl implements RiskAlertService {
     @Override
     @Transactional
     public void dismissAlert(Long alertId) {
-        patientAlertRepository.findById(alertId).ifPresent(a -> {
-            a.setDismissed(true);
-            patientAlertRepository.save(a);
-        });
+        if (alertId != null) {
+            patientAlertRepository.findById(alertId).ifPresent(a -> {
+                a.setDismissed(true);
+                patientAlertRepository.save(a);
+            });
+        }
     }
 
     @Override
     @Transactional
     public void markAlertAsRead(Long alertId) {
-        patientAlertRepository.findById(alertId).ifPresent(a -> {
-            a.setRead(true);
-            patientAlertRepository.save(a);
-        });
+        if (alertId != null) {
+            patientAlertRepository.findById(alertId).ifPresent(a -> {
+                a.setRead(true);
+                patientAlertRepository.save(a);
+            });
+        }
     }
 
     private RiskAlertResponse.RiskPatientItem mapToRiskPatientItem(Patient p, Long clinicId) {
@@ -111,8 +115,9 @@ public class RiskAlertServiceImpl implements RiskAlertService {
                 .stream().findFirst().orElse(null);
         
         String doctorName = "Chưa phân công";
-        if (p.getDoctorId() != null) {
-            doctorName = userRepository.findById(p.getDoctorId())
+        Long doctorId = p.getDoctorId();
+        if (doctorId != null) {
+            doctorName = userRepository.findById(doctorId)
                     .map(User::getFullName)
                     .orElse("Chưa phân công");
         }

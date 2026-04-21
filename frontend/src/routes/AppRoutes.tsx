@@ -22,7 +22,7 @@ import ClinicDoctors from '../pages/ClinicDoctors';
 import ClinicAssignment from '../pages/ClinicAssignment';
 import ClinicSettings from '../pages/ClinicSettings';
 
-import LandingPage from '../pages/LandingPage';
+import LandingPage from '../pages/VelorahLandingPage';
 import PatientLayout from '../layouts/PatientLayout';
 import PatientDashboard from '../pages/PatientDashboard';
 import PatientAppointments from '../pages/PatientAppointments';
