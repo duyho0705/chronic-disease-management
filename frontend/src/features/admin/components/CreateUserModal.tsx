@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import ReactDOM from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Dropdown from '../../../components/ui/Dropdown';
 
@@ -119,17 +120,17 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
     }
   };
 
-  return (
+  const modalContent = (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
           <style>{autofillStyles}</style>
           
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-slate-900/10 backdrop-blur-[2px]"
+            className="absolute inset-0 bg-white/20 dark:bg-slate-900/40 backdrop-blur-[2px]"
             onClick={onClose}
           />
 
@@ -267,7 +268,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                           value={formData.password}
                           onChange={handleChange}
                           placeholder="Tối thiểu 6 ký tự"
-                          className={`w-full pl-11 pr-12 h-[42px] rounded-lg border ${formErrors.password ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all`}
+                          className={`w-full pl-11 pr-12 h-[42px] rounded-lg border ${formErrors.password ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all`}
                         />
                         <button
                           type="button"
@@ -290,7 +291,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                           value={formData.confirmPassword}
                           onChange={handleChange}
                           placeholder="Nhập lại mật khẩu"
-                          className={`w-full pl-11 pr-12 h-[42px] rounded-lg border ${formErrors.confirmPassword ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all`}
+                          className={`w-full pl-11 pr-12 h-[42px] rounded-lg border ${formErrors.confirmPassword ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all`}
                         />
                         <button
                           type="button"
@@ -342,6 +343,8 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
       )}
     </AnimatePresence>
   );
+
+  return ReactDOM.createPortal(modalContent, document.body);
 };
 
 export default CreateUserModal;

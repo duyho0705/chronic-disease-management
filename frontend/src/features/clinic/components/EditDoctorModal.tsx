@@ -305,7 +305,7 @@ export default function EditDoctorModal({
                                                 placeholder="Để trống nếu không đổi"
                                                 title="Bỏ trống nếu không muốn thay đổi mật khẩu"
                                                 autoComplete="new-password"
-                                                className={`w-full pl-11 pr-12 h-[42px] rounded-xl border ${formErrors.password ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all`}
+                                                className={`w-full pl-11 pr-12 h-[42px] rounded-xl border ${formErrors.password ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all`}
                                             />
                                             <button
                                                 type="button"
@@ -333,7 +333,7 @@ export default function EditDoctorModal({
                                                 placeholder="Để trống nếu không đổi"
                                                 title="Bỏ trống nếu không muốn thay đổi mật khẩu"
                                                 autoComplete="new-password"
-                                                className={`w-full pl-11 pr-12 h-[42px] rounded-xl border ${formErrors.confirmPassword ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all`}
+                                                className={`w-full pl-11 pr-12 h-[42px] rounded-xl border ${formErrors.confirmPassword ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all`}
                                             />
                                             <button
                                                 type="button"

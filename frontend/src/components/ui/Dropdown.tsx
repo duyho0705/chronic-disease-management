@@ -55,12 +55,12 @@ export default function Dropdown({
         className={`
           relative flex items-center justify-between gap-3 transition-all duration-300
           ${variant === 'badge'
-            ? 'px-4 py-1.5 bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800'
-            : `pr-4 ${size === 'sm' ? 'min-h-[36px]' : 'min-h-[42px]'} bg-white dark:bg-slate-900 border rounded-xl shadow-sm ${icon ? 'pl-11' : 'pl-4'}`
+            ? 'px-4 py-1.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-400 dark:border-slate-700 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800'
+            : `pr-4 ${size === 'sm' ? 'min-h-[36px]' : 'min-h-[42px]'} bg-white dark:bg-slate-900 border border-slate-400 dark:border-slate-700 rounded-xl shadow-sm ${icon ? 'pl-11' : 'pl-4'}`
           }
           ${isOpen
             ? 'border-primary shadow-lg shadow-primary/10 ring-4 ring-primary/5'
-            : variant !== 'badge' ? 'border-slate-400 dark:border-slate-700 hover:border-slate-500 dark:hover:border-slate-500' : ''
+            : 'hover:border-slate-500 dark:hover:border-slate-500'
           }
           ${disabled ? 'opacity-50 cursor-not-allowed grayscale-[0.5]' : 'active:scale-[0.98]'}
           w-full

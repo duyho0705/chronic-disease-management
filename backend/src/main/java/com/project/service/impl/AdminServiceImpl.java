@@ -57,6 +57,7 @@ public class AdminServiceImpl implements AdminService {
     private final AuditLogRepository auditLogRepository;
     private final SystemConfigRepository systemConfigRepository;
     private final AppointmentRepository appointmentRepository;
+    private final com.project.service.AuditService auditService;
     private final PasswordEncoder passwordEncoder;
     private final ClinicMapper clinicMapper;
     private final UserMapper userMapper;
@@ -116,17 +117,16 @@ public class AdminServiceImpl implements AdminService {
                 .doctorTrend("+4 mới")
                 .build();
 
-        List<AdminDashboardResponse.ClinicPerformanceDto> performances = clinicRepository.findAll().stream()
+        List<AdminDashboardResponse.ClinicPerformanceDto> performances = clinicRepository.findByFilters("ACTIVE", null, org.springframework.data.domain.PageRequest.of(0, 5)).getContent().stream()
                 .map(c -> AdminDashboardResponse.ClinicPerformanceDto.builder()
                         .name(c.getName())
                         .clinicCode(c.getClinicCode())
                         .phone(c.getPhone())
-                        .doctorCount(5) // Scaled mock
-                        .patientCount(120) // Scaled mock
+                        .doctorCount(c.getDoctorCount() != null ? c.getDoctorCount() : 0)
+                        .patientCount(c.getPatientCount() != null ? c.getPatientCount() : 0)
                         .growth("+5%")
                         .status(c.getStatus())
                         .build())
-                .limit(5)
                 .collect(Collectors.toList());
 
         List<AdminDashboardResponse.SystemActivityDto> activities = auditLogRepository
@@ -732,31 +732,17 @@ public class AdminServiceImpl implements AdminService {
                 .status(logEntry.getStatus()).build());
     }
 
-    @Transactional(propagation = org.springframework.transaction.annotation.Propagation.REQUIRES_NEW)
-    public void recordActivity(String action, String module, String details, String status) {
+    private void recordActivity(String action, String module, String details, String status) {
+        Long userId = 1L;
+        String userName = "Hệ thống";
         try {
-            Long userId = 1L;
-            String userName = "Hệ thống";
-            
-            try {
-                org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-                if (auth != null && auth.getPrincipal() instanceof com.project.security.CustomUserDetails) {
-                    com.project.security.CustomUserDetails user = (com.project.security.CustomUserDetails) auth.getPrincipal();
-                    userId = user.getId();
-                    userName = user.getFullName(); // wait, does CustomUserDetails have getFullName()? No, let's check.
-                }
-            } catch (Exception ignored) {}
-
-            auditLogRepository.save(Objects.requireNonNull(com.project.entity.AuditLog.builder()
-                    .userId(userId)
-                    .userName(userName)
-                    .action(action)
-                    .module(module)
-                    .details(details)
-                    .status(status)
-                    .build()));
-        } catch (Exception e) {
-            log.error("Failed to record audit activity: {}", e.getMessage());
-        }
+            org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.getPrincipal() instanceof com.project.security.CustomUserDetails) {
+                com.project.security.CustomUserDetails user = (com.project.security.CustomUserDetails) auth.getPrincipal();
+                userId = user.getId();
+                userName = user.getFullName();
+            }
+        } catch (Exception ignored) {}
+        auditService.recordActivity(userId, userName, action, module, details, status);
     }
 }

@@ -2,17 +2,12 @@ import { useState, useEffect } from 'react';
 import AdminLayout from '../layouts/AdminLayout';
 import Dropdown from '../components/ui/Dropdown';
 import CreateTicketModal from '../features/admin/components/CreateTicketModal';
+import SupportTicketDetailModal from '../features/admin/components/SupportTicketDetailModal';
 import Toast from '../components/ui/Toast';
+import { supportApi } from '../api/support';
 
 export default function AdminSupport() {
-  const [tickets, setTickets] = useState([
-    { id: 'TKT-7821', user: 'BS. Nguyễn Văn An', clinic: 'Phòng khám Đức An', clinicCode: 'VD-301', subject: 'Lỗi đồng bộ dữ liệu', category: 'Kỹ thuật', priority: 'Cao', status: 'Đang xử lý', date: '28/05/2024 14:30', avatar: 'https://i.pravatar.cc/150?u=an' },
-    { id: 'TKT-7820', user: 'Quản lý Trần Thị Bình', clinic: 'Phòng khám Thiên Vũ', clinicCode: 'TD-005', subject: 'Cần hướng dẫn về báo cáo quý', category: 'Hỗ trợ nghiệp vụ', priority: 'Trung bình', status: 'Chờ phản hồi', date: '28/05/2024 11:15', avatar: 'https://i.pravatar.cc/150?u=binh' },
-    { id: 'TKT-7815', user: 'Hệ thống', clinic: 'Phòng Khám Phong Châu', clinicCode: 'SYS-00', subject: 'Cảnh báo bộ nhớ máy chủ vượt ngưỡng', category: 'Hạ tầng', priority: 'Khẩn cấp', status: 'Mới', date: '28/05/2024 09:00', avatar: 'https://i.pravatar.cc/150?u=system' },
-    { id: 'TKT-7798', user: 'BS. Lê Văn Cường', clinic: 'Phòng khám Đức Tín', clinicCode: 'Q7-101', subject: 'Quên mật khẩu bác sĩ', category: 'Hệ thống', priority: 'Cao', status: 'Đã giải quyết', date: '27/05/2024 20:45', avatar: 'https://i.pravatar.cc/150?u=cuong' },
-    { id: 'TKT-7782', user: 'BS. Phạm Minh Đức', clinic: 'Phòng khám Vũ An', clinicCode: 'ML-009', subject: 'Yêu cầu tính năng xuất PDF hồ sơ', category: 'Yêu cầu tính năng', priority: 'Thấp', status: 'Đã đóng', date: '27/05/2024 15:30', avatar: 'https://i.pravatar.cc/150?u=duc' },
-  ]);
-
+  const [tickets, setTickets] = useState<any[]>([]);
   const [selectedStatus, setSelectedStatus] = useState('Tất cả trạng thái');
   const [selectedPriority, setSelectedPriority] = useState('Tất cả cấp độ');
   const [searchTerm, setSearchTerm] = useState('');
@@ -23,25 +18,87 @@ export default function AdminSupport() {
   const [showToast, setShowToast] = useState(false);
   const [toastTitle, setToastTitle] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const [totalElements, setTotalElements] = useState(0);
+  const itemsPerPage = 10;
   const [isLoading, setIsLoading] = useState(true);
 
+  const [stats, setStats] = useState([
+    { label: 'Tổng yêu cầu', value: '0', icon: 'confirmation_number', color: 'primary' },
+    { label: 'Mới', value: '0', icon: 'pending_actions', color: 'amber' },
+    { label: 'Đang xử lý', value: '0', icon: 'loop', color: 'primary' },
+    { label: 'Khẩn cấp', value: '0', icon: 'report_problem', color: 'red' },
+  ]);
+
+  const fetchTickets = async () => {
+    setIsLoading(true);
+    try {
+      const response = await supportApi.getAllTickets({
+        status: selectedStatus === 'Tất cả trạng thái' ? undefined : selectedStatus,
+        priority: selectedPriority === 'Tất cả cấp độ' ? undefined : selectedPriority,
+        page: currentPage - 1,
+        size: itemsPerPage
+      });
+      
+      const mappedTickets = response.data.content.map((t: any) => ({
+        id: t.ticketCode || `TKT-${t.id}`,
+        dbId: t.id,
+        user: t.creator?.fullName || 'BS. Nguyễn Văn An',
+        clinic: t.clinic?.name || 'Phòng khám Đức An',
+        clinicCode: t.clinic?.clinicCode || 'VD-301',
+        subject: t.subject,
+        message: t.message,
+        category: t.category,
+        priority: t.priority,
+        status: t.status,
+        date: new Date(t.createdAt).toLocaleDateString('vi-VN') + ' ' + new Date(t.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+        avatar: t.creator?.avatar || `https://i.pravatar.cc/150?u=${t.id}`
+      }));
+      
+      setTickets(mappedTickets);
+      setTotalElements(response.data.totalElements);
+    } catch (error) {
+      console.error("Failed to fetch tickets:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const response = await supportApi.getStats();
+      const s = response.data;
+      setStats([
+        { label: 'Tổng yêu cầu', value: s.total?.toString() || '0', icon: 'confirmation_number', color: 'primary' },
+        { label: 'Mới', value: s['new']?.toString() || '0', icon: 'pending_actions', color: 'amber' },
+        { label: 'Đang xử lý', value: s.processing?.toString() || '0', icon: 'loop', color: 'primary' },
+        { label: 'Khẩn cấp', value: s.urgent?.toString() || '0', icon: 'report_problem', color: 'red' },
+      ]);
+    } catch (error) {
+      console.error("Failed to fetch stats:", error);
+    }
+  };
+
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 2000);
-    return () => clearTimeout(timer);
-  }, []);
+    fetchTickets();
+    fetchStats();
+  }, [selectedStatus, selectedPriority, currentPage]);
 
   const statusOptions = ['Mới', 'Đang xử lý', 'Chờ phản hồi', 'Đã giải quyết', 'Đã đóng'];
 
-  const stats = [
-    { label: 'Tổng yêu cầu', value: '142', icon: 'confirmation_number', color: 'primary' },
-    { label: 'Chờ xử lý', value: '12', icon: 'pending_actions', color: 'amber' },
-    { label: 'Khẩn cấp', value: '03', icon: 'report_problem', color: 'red' },
-    { label: 'Phản hồi trong 24h', value: '98%', icon: 'speed', color: 'emerald' },
-  ];
 
-  const handleStatusUpdate = (id: string, newStatus: string) => {
-    setTickets(prev => prev.map(t => t.id === id ? { ...t, status: newStatus } : t));
+
+  const handleStatusUpdate = async (id: string | number, newStatus: string) => {
+    try {
+      const ticket = tickets.find(t => t.id === id);
+      if (!ticket) return;
+      await supportApi.updateTicketStatus(ticket.dbId, newStatus);
+      fetchTickets();
+      fetchStats();
+      setToastTitle(`Yêu cầu ${id} đã được chuyển sang trạng thái ${newStatus}`);
+      setShowToast(true);
+    } catch (error) {
+      console.error("Failed to update status:", error);
+    }
   };
 
   const handleOpenTicket = (ticket: any) => {
@@ -51,46 +108,34 @@ export default function AdminSupport() {
 
   const handleCreateTicket = async (data: any) => {
     setIsSaving(true);
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    const newTicket = {
-      id: `TKT-${Math.floor(Math.random() * 9000) + 1000}`,
-      user: 'Dr. Admin',
-      clinic: 'Hệ thống chính',
-      clinicCode: 'SYS-01',
-      subject: data.subject,
-      category: data.category,
-      priority: data.priority,
-      status: 'Mới',
-      date: new Date().toLocaleString('vi-VN', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      }),
-      avatar: 'https://i.pravatar.cc/150?u=admin'
-    };
-    setTickets([newTicket, ...tickets]);
-    setIsSaving(false);
-    setIsCreateModalOpen(false);
-    setToastTitle(`Yêu cầu #${newTicket.id} đã được gửi thành công!`);
-    setShowToast(true);
+    try {
+      const response = await supportApi.createTicket({
+        subject: data.subject,
+        message: data.message,
+        category: data.category,
+        priority: data.priority,
+        status: 'Mới'
+      });
+      setToastTitle(`Yêu cầu #${response.data.ticketCode} đã được gửi thành công!`);
+      setShowToast(true);
+      fetchTickets();
+      fetchStats();
+      setIsCreateModalOpen(false);
+    } catch (error) {
+      console.error("Failed to create ticket:", error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const filteredTickets = tickets.filter(t => {
-    const matchesSearch = t.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    return t.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
       t.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       t.user.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = selectedStatus === 'Tất cả trạng thái' || t.status === selectedStatus;
-    const matchesPriority = selectedPriority === 'Tất cả cấp độ' || t.priority === selectedPriority;
-    return matchesSearch && matchesStatus && matchesPriority;
   });
 
-  const totalPages = Math.ceil(filteredTickets.length / itemsPerPage);
-  const paginatedTickets = filteredTickets.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const totalPages = Math.ceil(totalElements / itemsPerPage);
+  const paginatedTickets = filteredTickets;
 
   // Reset to first page when filters change
   useEffect(() => {
@@ -99,7 +144,7 @@ export default function AdminSupport() {
 
   return (
     <AdminLayout>
-      <section className="py-8 md:py-12 px-4 md:px-8 flex-1 flex flex-col justify-center space-y-8 animate-in fade-in duration-700 font-display text-left">
+      <section className="py-8 md:py-10 px-4 md:px-8 flex-1 flex flex-col space-y-8 animate-in fade-in duration-700 font-display text-left">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
@@ -122,9 +167,8 @@ export default function AdminSupport() {
           ) : (
             <button
               onClick={() => setIsCreateModalOpen(true)}
-              className="bg-primary text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-primary/20 active:scale-95 transition-all text-[13px] hover:shadow-primary/30"
+              className="bg-primary text-white px-6 py-2.5 rounded-xl font-medium shadow-lg shadow-primary/20 active:scale-95 transition-all text-[14px] hover:shadow-primary/30"
             >
-              <span className="material-symbols-outlined text-[20px]">add_task</span>
               Tạo yêu cầu mới
             </button>
           )}
@@ -143,15 +187,6 @@ export default function AdminSupport() {
           ) : (
             stats.map((stat, idx) => (
               <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm">
-                <div className="flex justify-between items-start mb-4">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.color === 'primary' ? 'bg-primary/10 text-primary' :
-                    stat.color === 'red' ? 'bg-red-50 text-red-500' :
-                      stat.color === 'amber' ? 'bg-amber-50 text-amber-500' :
-                        'bg-emerald-50 text-emerald-500'
-                    }`}>
-                    <span className="material-symbols-outlined text-2xl">{stat.icon}</span>
-                  </div>
-                </div>
                 <p className="text-slate-500 text-[15px] font-medium mt-1">{stat.label}</p>
                 <h3 className="text-2xl font-black text-slate-900 dark:text-white mt-1">{stat.value}</h3>
               </div>
@@ -170,9 +205,9 @@ export default function AdminSupport() {
                 <div className="h-11 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl w-full"></div>
               ) : (
                 <div className="relative">
-                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">search</span>
                   <input
-                    className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl pl-10 pr-4 py-2.5 text-[14px] font-bold focus:ring-2 focus:ring-primary shadow-sm outline-none"
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-400 dark:border-slate-700 rounded-xl pl-11 pr-4 min-h-[42px] text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none hover:border-slate-500 dark:hover:border-slate-500 focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all shadow-sm"
                     placeholder="Tiêu đề, mã yêu cầu hoặc người gửi..."
                     type="text"
                     value={searchTerm}
@@ -192,6 +227,7 @@ export default function AdminSupport() {
                   options={['Tất cả trạng thái', 'Mới', 'Đang xử lý', 'Chờ phản hồi', 'Đã giải quyết', 'Đã đóng']}
                   value={selectedStatus}
                   onChange={setSelectedStatus}
+                  icon={<span className="material-symbols-outlined text-[20px] text-slate-400">settings</span>}
                 />
               )}
             </div>
@@ -206,6 +242,7 @@ export default function AdminSupport() {
                   options={['Tất cả cấp độ', 'Khẩn cấp', 'Cao', 'Trung bình', 'Thấp']}
                   value={selectedPriority}
                   onChange={setSelectedPriority}
+                  icon={<span className="material-symbols-outlined text-[20px] text-slate-400">priority_high</span>}
                 />
               )}
             </div>
@@ -307,8 +344,8 @@ export default function AdminSupport() {
                       <td className="px-8 py-5 text-right">
                         <button
                           onClick={() => handleOpenTicket(t)}
-                          className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary hover:bg-primary/10 transition-all flex items-center justify-center shadow-sm">
-                          <span className="material-symbols-outlined text-[20px]">forum</span>
+                          className="px-4 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-500 hover:text-primary hover:bg-primary/10 transition-all font-medium text-[13px] border border-slate-200 dark:border-slate-700 shadow-sm">
+                          Xử lý
                         </button>
                       </td>
                     </tr>
@@ -352,99 +389,12 @@ export default function AdminSupport() {
         </div>
 
 
-        {/* Support Ticket Detail Modal */}
-        {isTicketModalOpen && selectedTicket && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]" onClick={() => setIsTicketModalOpen(false)}></div>
-            <div className="relative bg-white dark:bg-slate-900 w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-300 border border-primary/10 max-h-[90vh]">
-              {/* Modal Header */}
-              <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="bg-primary/10 p-2.5 rounded-xl text-primary">
-                    <span className="material-symbols-outlined font-bold">support_agent</span>
-                  </div>
-                  <div>
-                    <h3 className="text-[18px] font-black text-slate-900 dark:text-white leading-tight">Xử lý yêu cầu {selectedTicket.id}</h3>
-                    <p className="text-[13px] font-bold text-slate-400 mt-1">{selectedTicket.category} • {selectedTicket.priority}</p>
-                  </div>
-                </div>
-                <button onClick={() => setIsTicketModalOpen(false)} className="w-10 h-10 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400">
-                  <span className="material-symbols-outlined text-xl">close</span>
-                </button>
-              </div>
-
-              {/* Conversation Content */}
-              <div className="p-8 space-y-8 overflow-y-auto custom-scrollbar flex-1 text-left">
-                <div className="flex gap-4">
-                  <img className="w-10 h-10 rounded-xl" src={selectedTicket.avatar} alt={selectedTicket.user} />
-                  <div className="bg-slate-50 dark:bg-slate-800 p-5 rounded-2xl rounded-tl-none flex-1">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[14px] font-black text-slate-900 dark:text-white uppercase tracking-tighter">{selectedTicket.user}</span>
-                      <span className="text-[11px] font-bold text-slate-400 italic-none">{selectedTicket.date}</span>
-                    </div>
-                    <h4 className="text-[15px] font-bold text-slate-800 dark:text-white mb-2">{selectedTicket.subject}</h4>
-                    <p className="text-[14px] text-slate-600 dark:text-slate-400 font-medium italic-none leading-relaxed">
-                      Kính thưa Ban quản trị, tôi gặp lỗi khi cố gắng xuất báo cáo doanh thu tuần. Hệ thống báo lỗi "Xác thực không thành công" dù tôi đã đăng nhập bình thường. Mong được hỗ trợ sớm để kịp nộp báo cáo quý.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex gap-4 flex-row-reverse">
-                  <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-bold text-sm shrink-0">AD</div>
-                  <div className="bg-primary/5 dark:bg-primary/10 p-5 rounded-2xl rounded-tr-none flex-1 border border-primary/10">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[14px] font-black text-primary uppercase tracking-tighter">HỆ THỐNG (ADMIN)</span>
-                      <span className="text-[11px] font-bold text-primary/60 italic-none">Vừa mới xong</span>
-                    </div>
-                    <p className="text-[14px] text-slate-600 dark:text-slate-300 font-medium italic-none leading-relaxed">
-                      Chúng tôi đã ghi nhận yêu cầu của bác sĩ. Kỹ thuật viên đang kiểm tra lại phân quyền tài khoản của bác sĩ trên module Báo cáo.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Modal Footer / Reply Area */}
-              <div className="p-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 space-y-4 text-left">
-                <div className="relative">
-                  <textarea
-                    rows={2}
-                    placeholder="Nhập nội dung phản hồi cho bác sĩ..."
-                    className="w-full bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 rounded-2xl px-5 py-3 text-[14px] focus:border-primary outline-none transition-all resize-none font-medium"
-                  ></textarea>
-                  <div className="absolute right-3 bottom-3 flex gap-2">
-                    <button className="p-2 text-slate-400 hover:text-primary transition-colors">
-                      <span className="material-symbols-outlined text-xl">attach_file</span>
-                    </button>
-                    <button className="p-2 text-slate-400 hover:text-primary transition-colors">
-                      <span className="material-symbols-outlined text-xl">image</span>
-                    </button>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center">
-                  <p className="text-[11px] font-bold text-slate-400 italic-none">* Sau khi gửi, trạng thái sẽ chuyển thành "Chờ phản hồi"</p>
-                  <div className="flex gap-3">
-                    {(selectedTicket.status === 'Mới' || selectedTicket.status === 'Chờ phản hồi') && (
-                      <button
-                        onClick={() => {
-                          handleStatusUpdate(selectedTicket.id, 'Đang xử lý');
-                          setIsTicketModalOpen(false);
-                        }}
-                        className="bg-emerald-500 text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all text-[13px]"
-                      >
-                        <span className="material-symbols-outlined text-lg">check_circle</span>
-                        Tiếp nhận yêu cầu
-                      </button>
-                    )}
-                    <button className="bg-emerald-500 text-white px-8 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all text-[13px]">
-                      <span className="material-symbols-outlined text-lg rotate-[-45deg] mb-1">send</span>
-                      Phản hồi ngay
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        <SupportTicketDetailModal
+          isOpen={isTicketModalOpen}
+          onClose={() => setIsTicketModalOpen(false)}
+          ticket={selectedTicket}
+          onUpdateStatus={handleStatusUpdate}
+        />
         <CreateTicketModal
           isOpen={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}

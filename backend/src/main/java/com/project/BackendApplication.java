@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication
+@org.springframework.scheduling.annotation.EnableAsync
 @Slf4j
 public class BackendApplication {
     public static void main(String[] args) {

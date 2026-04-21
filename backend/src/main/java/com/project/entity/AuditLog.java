@@ -4,7 +4,11 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "audit_logs")
+@Table(name = "audit_logs", indexes = {
+    @Index(name = "idx_audit_created_at", columnList = "created_at"),
+    @Index(name = "idx_audit_module", columnList = "module"),
+    @Index(name = "idx_audit_user_id", columnList = "user_id")
+})
 @Getter
 @Setter
 @NoArgsConstructor

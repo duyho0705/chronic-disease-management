@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import AdminLayout from '../layouts/AdminLayout';
 import Dropdown from '../components/ui/Dropdown';
 import Toast from '../components/ui/Toast';
+import CreateServiceModal from '../features/admin/components/CreateServiceModal';
+import { medicalServiceApi } from '../api/medicalService';
 
 export default function AdminServices() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -10,18 +12,30 @@ export default function AdminServices() {
   const [showToast, setShowToast] = useState(false);
   const [toastTitle, setToastTitle] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [editingService, setEditingService] = useState<any>(null);
+  const [services, setServices] = useState<any[]>([]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 2000);
-    return () => clearTimeout(timer);
+  const fetchServices = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const res = await medicalServiceApi.getAll();
+      if (res && res.data) {
+        // Backend returns real data, frontend might still want some formatting
+        // but for now we just use it directly
+        setServices(res.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch services:', error);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  const [services, setServices] = useState([
-    { id: 'SVC-001', name: 'Gói Chăm sóc Tiểu đường Toàn diện', category: 'Gói điều trị', price: '5,000,000đ', duration: '6 tháng', status: 'Đang kinh doanh', features: ['Khám định kỳ hàng tháng', 'Xét nghiệm đường huyết 24/7', 'Tư vấn dinh dưỡng'] },
-    { id: 'SVC-002', name: 'Tư vấn Cao huyết áp từ xa', category: 'Tư vấn online', price: '200,000đ', duration: 'Mỗi lần', status: 'Đang kinh doanh', features: ['Gọi Video call 20p', 'Kê đơn thuốc điện tử', 'Theo dõi huyết áp qua App'] },
-    { id: 'SVC-003', name: 'Xét nghiệm Tổng quát tại nhà', category: 'Dịch vụ tại nhà', price: '1,200,000đ', duration: 'Mỗi lần', status: 'Ngừng kinh doanh', features: ['Lấy máu tại nhà', 'Trả kết quả qua App', 'Bác sĩ giải thích kết quả'] },
-    { id: 'SVC-004', name: 'Gói Quản lý Tim mạch Cơ bản', category: 'Gói điều trị', price: '3,500,000đ', duration: '12 tháng', status: 'Đang kinh doanh', features: ['Đo điện tâm đồ', 'Tư vấn lối sống', 'Cảnh báo nguy cơ AI'] },
-  ]);
+  useEffect(() => {
+    fetchServices();
+  }, [fetchServices]);
 
   const categories = ['Tất cả danh mục', 'Gói điều trị', 'Tư vấn online', 'Dịch vụ tại nhà', 'Xét nghiệm chuyên sâu'];
 
@@ -32,16 +46,57 @@ export default function AdminServices() {
     return matchesSearch && matchesCategory && matchesStatus;
   });
 
-  const handleToggleStatus = (id: string) => {
-    setServices(services.map(s => {
-      if (s.id === id) {
-        const newStatus = s.status === 'Đang kinh doanh' ? 'Ngừng kinh doanh' : 'Đang kinh doanh';
-        setToastTitle(`Đã chuyển trạng thái dịch vụ ${s.name}`);
+  const handleToggleStatus = async (id: number, name: string) => {
+    try {
+      const res = await medicalServiceApi.toggleStatus(id);
+      if (res && res.data) {
+        setServices(services.map(s => s.id === id ? res.data : s));
+        setToastTitle(`Đã chuyển trạng thái dịch vụ ${name}`);
         setShowToast(true);
-        return { ...s, status: newStatus };
       }
-      return s;
-    }));
+    } catch (error) {
+      console.error('Failed to toggle status:', error);
+      setToastTitle('Lỗi khi chuyển trạng thái');
+      setShowToast(true);
+    }
+  };
+
+  const handleSaveService = async (data: any) => {
+    setIsSaving(true);
+    try {
+      if (editingService) {
+        const res = await medicalServiceApi.update(editingService.id, data);
+        if (res && res.data) {
+          setServices(services.map(s => s.id === editingService.id ? res.data : s));
+          setToastTitle(`Đã cập nhật dịch vụ ${data.name} thành công!`);
+        }
+      } else {
+        const res = await medicalServiceApi.create(data);
+        if (res && res.data) {
+          setServices([res.data, ...services]);
+          setToastTitle(`Đã khởi tạo dịch vụ ${data.name} thành công!`);
+        }
+      }
+      setIsCreateModalOpen(false);
+      setEditingService(null);
+      setShowToast(true);
+    } catch (error) {
+      console.error('Failed to save service:', error);
+      setToastTitle('Lỗi khi lưu dịch vụ');
+      setShowToast(true);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleEditClick = (service: any) => {
+    setEditingService(service);
+    setIsCreateModalOpen(true);
+  };
+
+  const handleCreateOpen = () => {
+    setEditingService(null);
+    setIsCreateModalOpen(true);
   };
 
   return (
@@ -65,8 +120,11 @@ export default function AdminServices() {
           {isLoading ? (
             <div className="w-40 h-10 bg-slate-900 dark:bg-slate-800 animate-pulse rounded-lg shadow-sm"></div>
           ) : (
-            <button className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-lg shadow-slate-900/10 active:scale-95 transition-all text-[13px]">
-              <span className="material-symbols-outlined text-[18px]">add_box</span>
+            <button 
+              onClick={handleCreateOpen}
+              className="bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-primary/20 active:scale-95 transition-all text-[14.5px]"
+            >
+              <span className="material-symbols-outlined text-[20px]">add_box</span>
               Tạo dịch vụ mới
             </button>
           )}
@@ -84,9 +142,9 @@ export default function AdminServices() {
             ))
           ) : (
             [
-              { label: 'Tổng số dịch vụ', value: '12', icon: 'medical_information', color: 'primary' },
-              { label: 'Gói khám hoạt động', value: '8', icon: 'package_2', color: 'emerald' },
-              { label: 'Doanh thu dự kiến', value: '450M', icon: 'payments', color: 'amber' },
+              { label: 'Tổng số dịch vụ', value: services.length.toString(), icon: 'medical_information', color: 'primary' },
+              { label: 'Gói khám hoạt động', value: services.filter(s => s.status === 'Đang kinh doanh').length.toString(), icon: 'package_2', color: 'emerald' },
+              { label: 'Ước tính (VNĐ)', value: (services.reduce((acc, s) => acc + (Number(s.price) || 0), 0) / 1000000).toFixed(0) + 'M', icon: 'payments', color: 'amber' },
               { label: 'Lượt đăng ký mới', value: '+124', icon: 'trending_up', color: 'blue' }
             ].map((stat, idx) => (
               <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-all">
@@ -113,9 +171,9 @@ export default function AdminServices() {
               <div className="h-11 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl w-full"></div>
             ) : (
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">search</span>
                 <input 
-                  className="w-full bg-primary/5 dark:bg-slate-800 border-none rounded-xl pl-10 pr-4 py-2.5 text-[14px] font-bold outline-none ring-primary/20 focus:ring-2" 
+                  className="w-full bg-white dark:bg-slate-900 border border-slate-400 dark:border-slate-700 rounded-xl pl-11 pr-4 min-h-[42px] text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none hover:border-slate-500 dark:hover:border-slate-500 focus:border-primary focus:shadow-lg focus:shadow-primary/10 focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" 
                   placeholder="Tên gói hoặc mã..." 
                   type="text" 
                   value={searchTerm}
@@ -131,7 +189,12 @@ export default function AdminServices() {
             {isLoading ? (
               <div className="h-11 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl w-full"></div>
             ) : (
-              <Dropdown options={categories} value={selectedCategory} onChange={setSelectedCategory} />
+              <Dropdown 
+                options={categories} 
+                value={selectedCategory} 
+                onChange={setSelectedCategory}
+                icon={<span className="material-symbols-outlined text-[20px] text-slate-400">category</span>}
+              />
             )}
           </div>
           <div>
@@ -141,7 +204,12 @@ export default function AdminServices() {
             {isLoading ? (
               <div className="h-11 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl w-full"></div>
             ) : (
-              <Dropdown options={['Tất cả trạng thái', 'Đang kinh doanh', 'Ngừng kinh doanh']} value={selectedStatus} onChange={setSelectedStatus} />
+              <Dropdown 
+                options={['Tất cả trạng thái', 'Đang kinh doanh', 'Ngừng kinh doanh']} 
+                value={selectedStatus} 
+                onChange={setSelectedStatus}
+                icon={<span className="material-symbols-outlined text-[20px] text-slate-400">check_circle</span>}
+              />
             )}
           </div>
         </div>
@@ -187,7 +255,9 @@ export default function AdminServices() {
                   <div className="flex items-center gap-4 py-2">
                     <div className="bg-slate-50 dark:bg-slate-800 px-4 py-2 rounded-xl">
                       <p className="text-[10px] text-slate-400 font-bold uppercase mb-0.5">Giá dịch vụ</p>
-                      <p className="text-lg font-black text-primary leading-none">{service.price}</p>
+                      <p className="text-lg font-black text-primary leading-none">
+                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(service.price)}
+                      </p>
                     </div>
                     <div className="bg-slate-50 dark:bg-slate-800 px-4 py-2 rounded-xl">
                       <p className="text-[10px] text-slate-400 font-bold uppercase mb-0.5">Thời hạn</p>
@@ -195,7 +265,7 @@ export default function AdminServices() {
                     </div>
                   </div>
                   <ul className="space-y-2 pt-2">
-                    {service.features.map((feature, i) => (
+                    {service.features.map((feature: string, i: number) => (
                       <li key={i} className="flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-400">
                         <span className="material-symbols-outlined text-primary text-[18px]">check_circle</span>
                         {feature}
@@ -204,13 +274,16 @@ export default function AdminServices() {
                   </ul>
                 </div>
                 <div className="px-6 py-4 bg-slate-50 dark:bg-slate-800/50 border-t border-primary/5 flex justify-between items-center">
-                  <button className="text-slate-500 hover:text-primary font-bold text-sm transition-colors flex items-center gap-1">
+                  <button 
+                    onClick={() => handleEditClick(service)}
+                    className="text-slate-500 hover:text-primary font-bold text-sm transition-colors flex items-center gap-1"
+                  >
                     <span className="material-symbols-outlined text-xl">edit</span>
                     Chỉnh sửa
                   </button>
                   <div className="flex gap-3">
                     <button
-                      onClick={() => handleToggleStatus(service.id)}
+                      onClick={() => handleToggleStatus(service.id, service.name)}
                       className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${service.status === 'Đang kinh doanh'
                         ? 'bg-red-50 text-red-500 hover:bg-red-500 hover:text-white'
                         : 'bg-emerald-50 text-emerald-500 hover:bg-emerald-500 hover:text-white'
@@ -228,6 +301,17 @@ export default function AdminServices() {
       </section>
 
       <Toast show={showToast} title={toastTitle} onClose={() => setShowToast(false)} />
+
+      <CreateServiceModal
+        isOpen={isCreateModalOpen}
+        onClose={() => {
+          setIsCreateModalOpen(false);
+          setEditingService(null);
+        }}
+        isSaving={isSaving}
+        onSave={handleSaveService}
+        initialData={editingService}
+      />
     </AdminLayout>
   );
 }

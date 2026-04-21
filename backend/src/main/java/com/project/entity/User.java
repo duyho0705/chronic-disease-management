@@ -6,8 +6,9 @@ import lombok.*;
 @Entity
 @Table(name = "users", indexes = {
     @Index(name = "idx_user_clinic_id", columnList = "clinic_id"),
-    @Index(name = "idx_user_user_type", columnList = "user_type"),
+    @Index(name = "idx_user_role", columnList = "role"),
     @Index(name = "idx_user_status", columnList = "status"),
+    @Index(name = "idx_user_created_at", columnList = "created_at"),
     @Index(name = "idx_user_is_deleted", columnList = "is_deleted")
 })
 @Getter

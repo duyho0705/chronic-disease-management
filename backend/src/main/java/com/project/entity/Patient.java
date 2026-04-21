@@ -14,6 +14,7 @@ import java.math.BigDecimal;
     @Index(name = "idx_patient_risk_level", columnList = "risk_level"),
     @Index(name = "idx_patient_created_at", columnList = "created_at"),
     @Index(name = "idx_patient_is_deleted", columnList = "is_deleted"),
+    @Index(name = "idx_patient_chronic_condition", columnList = "chronic_condition"),
     @Index(name = "idx_patient_clinic_created_deleted", columnList = "clinic_id, created_at, is_deleted")
 })
 @Getter

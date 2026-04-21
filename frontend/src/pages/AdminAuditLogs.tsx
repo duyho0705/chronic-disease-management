@@ -60,7 +60,7 @@ export default function AdminAuditLogs() {
 
   const handleExport = async () => {
     const today = new Date().toLocaleDateString('vi-VN');
-    
+
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Nhật Ký Hệ Thống');
 
@@ -76,13 +76,13 @@ export default function AdminAuditLogs() {
     // Header Row
     const headerRow = worksheet.addRow([
       'Thời Gian',
-      'Người Dùng', 
-      'Hoạt Động / Hành Động', 
-      'Mô Đun', 
-      'Chi Tiết', 
+      'Người Dùng',
+      'Hoạt Động / Hành Động',
+      'Mô Đun',
+      'Chi Tiết',
       'Địa Chỉ IP'
     ]);
-    
+
     headerRow.font = { bold: true, color: { argb: 'FF1E293B' } }; // slate-800
     headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } }; // slate-100
     headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
@@ -120,14 +120,14 @@ export default function AdminAuditLogs() {
         log.ip
       ]);
       row.alignment = { vertical: 'middle', wrapText: true };
-      
+
       const actionCell = row.getCell(3);
       if (log.action.toLowerCase().includes('xóa') || log.action.toLowerCase().includes('khóa') || log.action.toLowerCase().includes('lỗi')) {
-         actionCell.font = { color: { argb: 'FFEF4444' }, bold: true }; // red-500
+        actionCell.font = { color: { argb: 'FFEF4444' }, bold: true }; // red-500
       } else if (log.action.toLowerCase().includes('tạo mới') || log.action.toLowerCase().includes('đăng nhập')) {
-         actionCell.font = { color: { argb: 'FF10B981' }, bold: true }; // emerald-500
+        actionCell.font = { color: { argb: 'FF10B981' }, bold: true }; // emerald-500
       } else {
-         actionCell.font = { color: { argb: 'FF3B82F6' }, bold: true }; // blue-500
+        actionCell.font = { color: { argb: 'FF3B82F6' }, bold: true }; // blue-500
       }
     });
 
@@ -136,10 +136,10 @@ export default function AdminAuditLogs() {
       if (rowNumber > 1) {
         row.eachCell({ includeEmpty: true }, (cell) => {
           cell.border = {
-            top: {style:'thin', color: {argb:'FFCBD5E1'}},
-            left: {style:'thin', color: {argb:'FFCBD5E1'}},
-            bottom: {style:'thin', color: {argb:'FFCBD5E1'}},
-            right: {style:'thin', color: {argb:'FFCBD5E1'}}
+            top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+            left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+            bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+            right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
           };
         });
       }
@@ -191,10 +191,10 @@ export default function AdminAuditLogs() {
         </div>
 
         {/* Filter Section */}
-        <div className="space-y-6 text-left">
+        <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-primary/5 space-y-6 text-left italic-none">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="relative text-left">
-              <label className="text-[14px] font-medium text-slate-700 mb-2 block px-1">
+              <label className="text-[14px] font-medium text-slate-500 dark:text-slate-400 mb-2 block px-1">
                 {isLoading ? <div className="h-3 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-32 mb-2"></div> : "Tìm kiếm sự kiện"}
               </label>
               {isLoading ? (
@@ -203,7 +203,7 @@ export default function AdminAuditLogs() {
                 <div className="relative">
                   <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">search</span>
                   <input
-                    className="w-full h-[40px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 rounded-xl pl-10 pr-4 py-2 text-[14px] font-bold placeholder:font-medium focus:ring-2 focus:ring-primary shadow-sm outline-none text-slate-900 dark:text-white transition-all duration-300"
+                    className="w-full h-[40px] bg-white dark:bg-slate-900 border border-slate-400 dark:border-slate-700 hover:border-slate-500 dark:hover:border-slate-500 rounded-xl pl-10 pr-4 py-2 text-[14px] font-medium placeholder:font-medium focus:ring-4 focus:ring-primary/5 focus:border-primary shadow-sm outline-none text-slate-900 dark:text-white transition-all duration-300"
                     placeholder="Nội dung ví dụ: Khóa tài khoản..."
                     type="text"
                     value={searchTerm}
@@ -213,7 +213,7 @@ export default function AdminAuditLogs() {
               )}
             </div>
             <div className="text-left">
-              <label className="text-[14px] font-medium text-slate-700 mb-2 block px-1">
+              <label className="text-[14px] font-medium text-slate-500 dark:text-slate-400 mb-2 block px-1">
                 {isLoading ? <div className="h-3 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-32 mb-2"></div> : "Người thực hiện"}
               </label>
               {isLoading ? (
@@ -222,7 +222,7 @@ export default function AdminAuditLogs() {
                 <div className="relative">
                   <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">person</span>
                   <input
-                    className="w-full h-[40px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 rounded-xl pl-10 pr-4 py-2 text-[14px] font-bold placeholder:font-medium focus:ring-2 focus:ring-primary shadow-sm outline-none text-slate-900 dark:text-white transition-all duration-300"
+                    className="w-full h-[40px] bg-white dark:bg-slate-900 border border-slate-400 dark:border-slate-700 hover:border-slate-500 dark:hover:border-slate-500 rounded-xl pl-10 pr-4 py-2 text-[14px] font-medium placeholder:font-medium focus:ring-4 focus:ring-primary/5 focus:border-primary shadow-sm outline-none text-slate-900 dark:text-white transition-all duration-300"
                     placeholder="Tên người thực hiện..."
                     type="text"
                     value={selectedUser}
@@ -232,7 +232,7 @@ export default function AdminAuditLogs() {
               )}
             </div>
             <div className="text-left">
-              <label className="text-[14px] font-medium text-slate-700 mb-2 block px-1">
+              <label className="text-[14px] font-medium text-slate-500 dark:text-slate-400 mb-2 block px-1">
                 {isLoading ? <div className="h-3 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-16 mb-2"></div> : "Mô-đun"}
               </label>
               {isLoading ? (
@@ -306,64 +306,64 @@ export default function AdminAuditLogs() {
                     </tr>
                   ))
                 ) : logList.length > 0 ? (
-                    logList.map((log: any) => {
-                      const dateObj = new Date(log.time);
-                      const displayTime = !isNaN(dateObj.getTime()) 
-                        ? dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-                        : log.time;
-                      const displayDate = !isNaN(dateObj.getTime())
-                        ? dateObj.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
-                        : '';
+                  logList.map((log: any) => {
+                    const dateObj = new Date(log.time);
+                    const displayTime = !isNaN(dateObj.getTime())
+                      ? dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+                      : log.time;
+                    const displayDate = !isNaN(dateObj.getTime())
+                      ? dateObj.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                      : '';
 
-                      return (
-                        <tr key={log.id} className="hover:bg-primary/5 transition-colors group">
-                          <td className="px-8 py-5">
-                            <div className="flex flex-col">
-                              <span className="text-[14px] font-black text-slate-900 dark:text-white leading-tight">{displayTime}</span>
-                              <span className="text-[13px] font-medium text-slate-500 dark:text-slate-500 mt-0.5">{displayDate}</span>
-                            </div>
-                          </td>
-                      <td className="px-6 py-5">
-                        <div className="flex items-center gap-3">
-                          <img
-                            className="w-8 h-8 rounded-lg overflow-hidden shrink-0 border border-primary/10"
-                            src={log.user.avatar || `https://i.pravatar.cc/150?u=${log.id}`}
-                            alt={log.user.name}
-                          />
-                          <span className="text-[14px] font-bold text-slate-700 dark:text-slate-200">{log.user.name}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-5">
-                        <span className="text-[14px] font-bold tracking-tighter text-slate-700 dark:text-slate-200">
-                          {log.action}
-                        </span>
-                      </td>
-                      <td className="px-6 py-5">
-                        <span className="text-[13px] font-bold text-slate-600 dark:text-slate-400">{log.module}</span>
-                      </td>
-                      <td className="px-6 py-5">
-                        <p className="text-[14px] font-bold text-slate-800 dark:text-slate-200 line-clamp-1 max-w-sm">
-                          {log.details ? log.details
-                            .replace(/DOCTOR/g, 'Bác sĩ')
-                            .replace(/ADMIN/g, 'Quản trị viên')
-                            .replace(/PATIENT/g, 'Bệnh nhân')
-                            .replace(/CLINIC_MANAGER/g, 'Quản lý phòng khám')
-                            : '--'}
-                        </p>
-                      </td>
-                      <td className="px-8 py-5 text-right flex justify-end">
-                        <code
-                          onClick={() => handleIpClick(log.ip)}
-                          className="text-[12px] font-mono font-bold text-white bg-emerald-500 px-3 py-1.5 rounded-xl shadow-sm cursor-pointer hover:bg-emerald-600 transition-all flex items-center gap-1.5 select-none"
-                        >
-                          <span className="material-symbols-outlined text-[16px]">info</span>
-                          {log.ip}
-                        </code>
-                      </td>
-                        </tr>
-                      );
-                    })
-                  ) : (
+                    return (
+                      <tr key={log.id} className="hover:bg-primary/5 transition-colors group">
+                        <td className="px-8 py-5">
+                          <div className="flex flex-col">
+                            <span className="text-[14px] font-medium text-slate-600 dark:text-white leading-tight">{displayTime}</span>
+                            <span className="text-[13px] font-medium text-slate-500 dark:text-slate-500 mt-0.5">{displayDate}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-5">
+                          <div className="flex items-center gap-3">
+                            <img
+                              className="w-8 h-8 rounded-lg overflow-hidden shrink-0 border border-primary/10"
+                              src={log.user.avatar || `https://i.pravatar.cc/150?u=${log.id}`}
+                              alt={log.user.name}
+                            />
+                            <span className="text-[14px] font-medium text-slate-600 dark:text-slate-300">{log.user.name}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-5">
+                          <span className="text-[14px] font-medium tracking-tight text-slate-600 dark:text-slate-300">
+                            {log.action}
+                          </span>
+                        </td>
+                        <td className="px-6 py-5">
+                          <span className="text-[14px] font-medium text-slate-600 dark:text-slate-400 italic-none">{log.module}</span>
+                        </td>
+                        <td className="px-6 py-5">
+                          <p className="text-[14px] font-medium text-slate-600 dark:text-slate-400 line-clamp-1 max-w-sm italic-none">
+                            {log.details ? log.details
+                              .replace(/DOCTOR/g, 'Bác sĩ')
+                              .replace(/ADMIN/g, 'Quản trị viên')
+                              .replace(/PATIENT/g, 'Bệnh nhân')
+                              .replace(/CLINIC_MANAGER/g, 'Quản lý phòng khám')
+                              : '--'}
+                          </p>
+                        </td>
+                        <td className="px-8 py-5 text-right flex justify-end">
+                          <code
+                            onClick={() => handleIpClick(log.ip)}
+                            className="text-[12px] font-mono font-bold text-white bg-emerald-500 px-3 py-1.5 rounded-xl shadow-sm cursor-pointer hover:bg-emerald-600 transition-all flex items-center gap-1.5 select-none"
+                          >
+                            <span className="material-symbols-outlined text-[16px]">info</span>
+                            {log.ip}
+                          </code>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
                   <tr>
                     <td colSpan={6} className="px-8 py-12 text-center">
                       <div className="flex flex-col items-center gap-2 text-slate-400">
