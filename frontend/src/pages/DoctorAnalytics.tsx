@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import ExcelJS from 'exceljs';
 import TopBar from '../components/common/TopBar';
 import PatientDetailModal from '../features/patient/components/PatientDetailModal';
 import AdviceModal from '../features/patient/components/AdviceModal';
@@ -67,6 +68,85 @@ export default function DoctorAnalytics() {
         } finally {
             setIsAdviceSaving(false);
         }
+    };
+    const handleExportExcel = async () => {
+        const today = new Date().toLocaleDateString('vi-VN');
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Phân Tích Nguy Cơ');
+
+        // Title Row
+        worksheet.addRow([`BÁO CÁO PHÂN TÍCH NGUY CƠ SỨC KHỎE BỆNH NHÂN - ${today}`]);
+        worksheet.mergeCells('A1:E1');
+        const titleRow = worksheet.getRow(1);
+        titleRow.font = { name: 'Arial', family: 4, size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+        titleRow.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0284C7' } }; // sky-600
+        titleRow.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
+        titleRow.height = 30;
+
+        // Header Row
+        const headerRow = worksheet.addRow([
+            'Họ và Tên', 
+            'Mã Bệnh Nhân', 
+            'Chỉ Số Gần Nhất', 
+            'Phân Tích AI', 
+            'Bệnh Lý Ghi Nhận'
+        ]);
+        
+        headerRow.font = { bold: true, color: { argb: 'FF1E293B' } }; // slate-800
+        headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } }; // slate-100
+        headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+        headerRow.height = 25;
+
+        // Column Widths
+        worksheet.columns = [
+            { width: 35 }, // Name
+            { width: 15 }, // Code
+            { width: 25 }, // Index
+            { width: 45 }, // AI analysis
+            { width: 30 }  // Condition
+        ];
+
+        // Data Rows
+        patients.forEach(p => {
+            const row = worksheet.addRow([
+                p.fullName,
+                p.patientCode || 'N/A',
+                p.latestBp || p.latestGlucose || 'N/A',
+                p.chronicCondition || 'Cần kiểm tra ngay',
+                p.chronicCondition || 'Chưa xác định'
+            ]);
+            row.alignment = { vertical: 'middle', wrapText: true };
+            
+            const indexCell = row.getCell(3);
+            indexCell.font = { color: { argb: 'FFEF4444' }, bold: true }; // Analytics mostly shows high risk
+            
+            const aiCell = row.getCell(4);
+            aiCell.font = { color: { argb: 'FFEF4444' }, bold: true };
+        });
+
+        // Borders
+        worksheet.eachRow((row, rowNumber) => {
+            if (rowNumber > 1) {
+                row.eachCell({ includeEmpty: true }, (cell) => {
+                    cell.border = {
+                        top: {style:'thin', color: {argb:'FFCBD5E1'}},
+                        left: {style:'thin', color: {argb:'FFCBD5E1'}},
+                        bottom: {style:'thin', color: {argb:'FFCBD5E1'}},
+                        right: {style:'thin', color: {argb:'FFCBD5E1'}}
+                    };
+                });
+            }
+        });
+
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `Phan_tich_nguy_co_${today.replace(/\//g, '-')}.xlsx`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
     return (
         <div className="flex min-h-screen font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100">
@@ -145,9 +225,17 @@ export default function DoctorAnalytics() {
 
                 <div className="p-4 md:p-8 space-y-6 md:space-y-8">
                     {/* Header Section */}
-                    <div className="mb-8">
-                        <h2 className="text-[22px] font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">Phân tích nguy cơ</h2>
-                        <p className="text-slate-500 text-[15px] font-medium mt-1">Hệ thống giám sát và dự báo rủi ro sức khỏe bệnh nhân</p>
+                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+                        <div>
+                            <h2 className="text-[22px] font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">Phân tích nguy cơ</h2>
+                            <p className="text-slate-500 text-[15px] font-medium mt-1">Hệ thống giám sát và dự báo rủi ro sức khỏe bệnh nhân</p>
+                        </div>
+                        <button
+                            onClick={handleExportExcel}
+                            className="bg-white text-slate-700 border border-slate-200 px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 shadow-sm transition-all hover:bg-slate-50">
+                            <span className="material-symbols-outlined text-[20px]">ios_share</span>
+                            Xuất dữ liệu
+                        </button>
                     </div>
 
                     {/* Stats Grid */}

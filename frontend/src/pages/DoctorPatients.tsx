@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import ExcelJS from 'exceljs';
 import PrescriptionModal from '../features/prescription/components/PrescriptionModal';
 import AdviceModal from '../features/patient/components/AdviceModal';
 import RescheduleModal from '../features/patient/components/RescheduleModal';
@@ -115,6 +116,95 @@ export default function DoctorPatients() {
       setIsAddingNewMedicine(false);
     }
   };
+
+  const handleExportExcel = async () => {
+    const today = new Date().toLocaleDateString('vi-VN');
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Danh Sách Bệnh Nhân');
+
+    // Title Row
+    worksheet.addRow([`DANH SÁCH BỆNH NHÂN ĐANG QUẢN LÝ - ${today}`]);
+    worksheet.mergeCells('A1:G1');
+    const titleRow = worksheet.getRow(1);
+    titleRow.font = { name: 'Arial', family: 4, size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+    titleRow.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0284C7' } }; // sky-600
+    titleRow.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
+    titleRow.height = 30;
+
+    // Header Row
+    const headerRow = worksheet.addRow([
+      'Họ và Tên', 
+      'Mã Bệnh Nhân', 
+      'Tuổi', 
+      'Bệnh Lý', 
+      'Chỉ Số Gần Nhất', 
+      'Cập Nhật Cuối', 
+      'Mức Độ Nguy Cơ'
+    ]);
+    
+    headerRow.font = { bold: true, color: { argb: 'FF1E293B' } }; // slate-800
+    headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } }; // slate-100
+    headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+    headerRow.height = 25;
+
+    // Column Widths
+    worksheet.columns = [
+      { width: 35 }, // Name
+      { width: 15 }, // Code
+      { width: 10 }, // Age
+      { width: 30 }, // Condition
+      { width: 25 }, // Index
+      { width: 20 }, // Last Update
+      { width: 25 }  // Risk
+    ];
+
+    // Data Rows
+    patients.forEach(p => {
+      const row = worksheet.addRow([
+        p.fullName,
+        p.patientCode || 'N/A',
+        p.age || '-',
+        p.chronicCondition || 'N/A',
+        `${p.latestGlucose || ''} | ${p.latestBp || ''}`,
+        p.lastUpdate || 'N/A',
+        p.riskLevel || 'Ổn định'
+      ]);
+      row.alignment = { vertical: 'middle', wrapText: true };
+      
+      const riskCell = row.getCell(7);
+      if (p.riskLevel?.includes('Nguy cơ cao') || p.riskLevel === 'HIGH_RISK') {
+         riskCell.font = { color: { argb: 'FFEF4444' }, bold: true };
+      } else if (p.riskLevel?.includes('theo dõi') || p.riskLevel === 'MONITORING') {
+         riskCell.font = { color: { argb: 'FFF59E0B' }, bold: true };
+      } else {
+         riskCell.font = { color: { argb: 'FF10B981' }, bold: true };
+      }
+    });
+
+    // Borders
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber > 1) {
+        row.eachCell({ includeEmpty: true }, (cell) => {
+          cell.border = {
+            top: {style:'thin', color: {argb:'FFCBD5E1'}},
+            left: {style:'thin', color: {argb:'FFCBD5E1'}},
+            bottom: {style:'thin', color: {argb:'FFCBD5E1'}},
+            right: {style:'thin', color: {argb:'FFCBD5E1'}}
+          };
+        });
+      }
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `Danh_sach_benh_nhan_${today.replace(/\//g, '-')}.xlsx`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
   return (
     <div className="flex min-h-screen font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100">
       {/* Sidebar Navigation */}
@@ -202,12 +292,20 @@ export default function DoctorPatients() {
               <h2 className="text-[22px] font-extrabold tracking-tight text-slate-900 mb-2">Danh sách bệnh nhân</h2>
               <p className="text-slate-500 text-[15px] font-medium">Quản lý và theo dõi lộ trình chăm sóc sức khỏe của {totalPatients} bệnh nhân đang điều trị trực tiếp.</p>
             </div>
-            <button
-              onClick={() => setIsAddPatientModalOpen(true)}
-              className="bg-primary text-slate-900 px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 shadow-lg shadow-primary/10 transition-all">
-              <span className="material-symbols-outlined">person_add</span>
-              Thêm bệnh nhân mới
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={handleExportExcel}
+                className="bg-white text-slate-700 border border-slate-200 px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 shadow-sm transition-all hover:bg-slate-50">
+                <span className="material-symbols-outlined text-[20px]">ios_share</span>
+                Xuất danh sách
+              </button>
+              <button
+                onClick={() => setIsAddPatientModalOpen(true)}
+                className="bg-primary text-slate-900 px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 shadow-lg shadow-primary/10 transition-all">
+                <span className="material-symbols-outlined">person_add</span>
+                Thêm bệnh nhân mới
+              </button>
+            </div>
           </div>
 
           {/* Filters */}

@@ -97,13 +97,8 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
       <div className={`relative flex flex-col lg:flex-row h-fit max-h-[92vh] md:max-h-[85vh] transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] ${isAddingNewMedicine ? 'max-w-7xl w-full' : 'max-w-4xl w-full'} mx-2 md:mx-4`}>
         {/* Left Panel: Original Prescription UI */}
         <div className={`bg-white dark:bg-slate-900 rounded-2xl shadow-2xl flex flex-col flex-shrink-0 transition-all duration-700 overflow-hidden ${isAddingNewMedicine ? 'w-full lg:w-[65%]' : 'w-full'}`}>
-          <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-6 py-4">
-            <div className="flex items-center gap-3">
-              <div className="bg-primary/10 p-2 rounded-xl text-primary">
-                <span className="material-symbols-outlined font-medium">description</span>
-              </div>
-              <h2 className="text-[18px] font-bold tracking-tight text-slate-900 dark:text-white">Kê đơn thuốc mới</h2>
-            </div>
+          <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-8 py-5">
+            <h2 className="text-[20px] font-medium text-slate-900 dark:text-white leading-tight">Kê đơn thuốc mới</h2>
           </div>
 
           <div className="flex-1 overflow-y-auto p-6 space-y-8 text-left custom-scrollbar bg-white dark:bg-slate-900">
@@ -270,15 +265,8 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
         {/* Right Panel: Add Medicine */}
         {isAddingNewMedicine && (
           <div className="flex-1 mt-6 lg:mt-0 lg:ml-6 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-right-10 md:slide-in-from-bottom-10 lg:slide-in-from-right-10 duration-700 relative w-full">
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-4 md:px-6 py-4">
-              <div className="flex items-center gap-3">
-                <div className="bg-primary/10 p-2.5 rounded-2xl text-primary">
-                  <span className="material-symbols-outlined font-medium">pill</span>
-                </div>
-                <div className="text-left">
-                  <h3 className="text-[18px] font-bold tracking-tight text-slate-900 dark:text-white">Thêm thuốc mới</h3>
-                </div>
-              </div>
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-8 py-5">
+              <h3 className="text-[20px] font-medium text-slate-900 dark:text-white leading-tight">Thêm thuốc mới</h3>
             </div>
  
             <div className="p-8 space-y-6 flex-1 overflow-y-auto text-left custom-scrollbar bg-white dark:bg-slate-900">

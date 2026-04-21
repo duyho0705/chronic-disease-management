@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import ExcelJS from 'exceljs';
 import AdminLayout from '../layouts/AdminLayout';
 import CreateClinicModal from '../features/admin/components/CreateClinicModal';
@@ -591,26 +592,38 @@ export default function AdminClinics() {
         </section>
       </AdminLayout>
 
-      <CreateClinicModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        isSaving={isSaving}
-        onSave={handleCreateClinic}
-      />
+      <AnimatePresence>
+        {isCreateModalOpen && (
+          <CreateClinicModal
+            isOpen={isCreateModalOpen}
+            onClose={() => setIsCreateModalOpen(false)}
+            isSaving={isSaving}
+            onSave={handleCreateClinic}
+          />
+        )}
+      </AnimatePresence>
 
-      <EditClinicModal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        clinic={selectedClinic}
-        isSaving={isSaving}
-        onSave={handleEditClinic}
-      />
+      <AnimatePresence>
+        {isEditModalOpen && (
+          <EditClinicModal
+            isOpen={isEditModalOpen}
+            onClose={() => setIsEditModalOpen(false)}
+            clinic={selectedClinic}
+            isSaving={isSaving}
+            onSave={handleEditClinic}
+          />
+        )}
+      </AnimatePresence>
 
-      <ClinicDetailsModal
-        isOpen={isDetailsModalOpen}
-        onClose={() => setIsDetailsModalOpen(false)}
-        clinic={selectedClinic}
-      />
+      <AnimatePresence>
+        {isDetailsModalOpen && (
+          <ClinicDetailsModal
+            isOpen={isDetailsModalOpen}
+            onClose={() => setIsDetailsModalOpen(false)}
+            clinic={selectedClinic}
+          />
+        )}
+      </AnimatePresence>
 
       <Toast
         show={showToast}

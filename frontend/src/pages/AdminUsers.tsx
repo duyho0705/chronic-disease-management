@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
+import { AnimatePresence } from 'framer-motion';
+import ExcelJS from 'exceljs';
 import AdminLayout from '../layouts/AdminLayout';
 import Dropdown from '../components/ui/Dropdown';
 import CreateUserModal from '../features/admin/components/CreateUserModal';
@@ -117,52 +119,93 @@ export default function AdminUsers() {
   const clinicOptions = clinics.map(c => c.name);
   const filterClinicOptions = ['Tất cả cơ sở', ...clinicOptions];
 
-  const handleExport = () => {
+  const handleExport = async () => {
     const today = new Date().toLocaleDateString('vi-VN');
-    const excelContent = `
-      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-      <head>
-        <meta charset="utf-8" />
-      </head>
-      <body>
-        <h3>DANH SÁCH NGƯỜI DÙNG HỆ THỐNG - ${today}</h3>
-        <table border="1">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Họ và Tên</th>
-              <th>Email</th>
-              <th>Số Điện Thoại</th>
-              <th>Vai Trò</th>
-              <th>Cơ Sở/Phòng Khám</th>
-              <th>Ngày Tham Gia</th>
-              <th>Trạng Thái</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${userList.map(u => `
-              <tr>
-                <td>${u.id}</td>
-                <td>${u.name}</td>
-                <td>${u.email}</td>
-                <td>${u.phone}</td>
-                <td>${u.role}</td>
-                <td>${u.clinic}</td>
-                <td>${u.date}</td>
-                <td>${u.status}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </body>
-      </html>
-    `;
+    
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Danh Sách Người Dùng');
 
-    const blob = new Blob([excelContent], { type: 'application/vnd.ms-excel' });
+    // Title Row
+    worksheet.addRow([`DANH SÁCH NGƯỜI DÙNG HỆ THỐNG - ${today}`]);
+    worksheet.mergeCells('A1:H1');
+    const titleRow = worksheet.getRow(1);
+    titleRow.font = { name: 'Arial', family: 4, size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+    titleRow.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0284C7' } }; // sky-600
+    titleRow.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
+    titleRow.height = 30;
+
+    // Header Row
+    const headerRow = worksheet.addRow([
+      'Mã ĐD', 
+      'Họ và Tên', 
+      'Email', 
+      'Số Điện Thoại', 
+      'Vai Trò', 
+      'Cơ Sở Làm Việc', 
+      'Ngày Tham Gia', 
+      'Trạng Thái'
+    ]);
+    
+    headerRow.font = { bold: true, color: { argb: 'FF1E293B' } }; // slate-800
+    headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } }; // slate-100
+    headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+    headerRow.height = 25;
+
+    // Define column widths for Autofit capability
+    worksheet.columns = [
+      { width: 10 }, // ID
+      { width: 35 }, // Name
+      { width: 35 }, // Email
+      { width: 18 }, // Phone
+      { width: 22 }, // Role
+      { width: 35 }, // Clinic
+      { width: 20 }, // Date
+      { width: 25 }  // Status
+    ];
+
+    // Data Rows
+    userList.forEach(u => {
+      const row = worksheet.addRow([
+        u.id,
+        u.name,
+        u.email,
+        u.phone,
+        u.role,
+        u.clinic,
+        u.date,
+        u.status
+      ]);
+      row.alignment = { vertical: 'middle', wrapText: true };
+      
+      const statusCell = row.getCell(8);
+      if (u.status === 'Hoạt động') {
+         statusCell.font = { color: { argb: 'FF10B981' }, bold: true }; // emerald-500
+      } else {
+         statusCell.font = { color: { argb: 'FFEF4444' }, bold: true }; // red-500
+      }
+    });
+
+    // Add professional borders
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber > 1) { // Skip main banner title
+        row.eachCell({ includeEmpty: true }, (cell) => {
+          cell.border = {
+            top: {style:'thin', color: {argb:'FFCBD5E1'}},
+            left: {style:'thin', color: {argb:'FFCBD5E1'}},
+            bottom: {style:'thin', color: {argb:'FFCBD5E1'}},
+            right: {style:'thin', color: {argb:'FFCBD5E1'}}
+          };
+        });
+      }
+    });
+
+    // Convert to Binary Blob and Download
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `Danh_sach_nguoi_dung_${today.replace(/\//g, '-')}.xls`;
+    link.download = `Danh_sach_nguoi_dung_${today.replace(/\//g, '-')}.xlsx`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -614,22 +657,30 @@ export default function AdminUsers() {
         isLoading={isSaving}
       />
 
-      <CreateUserModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        isSaving={isSaving}
-        onSave={handleCreateUser}
-        availableClinics={clinics}
-      />
+      <AnimatePresence>
+        {isCreateModalOpen && (
+          <CreateUserModal
+            isOpen={isCreateModalOpen}
+            onClose={() => setIsCreateModalOpen(false)}
+            isSaving={isSaving}
+            onSave={handleCreateUser}
+            availableClinics={clinics}
+          />
+        )}
+      </AnimatePresence>
 
-      <EditUserModal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        user={selectedUser}
-        isSaving={isSaving}
-        onSave={handleEditUser}
-        availableClinics={clinics}
-      />
+      <AnimatePresence>
+        {isEditModalOpen && (
+          <EditUserModal
+            isOpen={isEditModalOpen}
+            onClose={() => setIsEditModalOpen(false)}
+            user={selectedUser}
+            isSaving={isSaving}
+            onSave={handleEditUser}
+            availableClinics={clinics}
+          />
+        )}
+      </AnimatePresence>
 
       <Toast
         show={showToast}

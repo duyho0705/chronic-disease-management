@@ -390,3 +390,67 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 input:focus + .custom-input-icon {
   color: #38bdf8;
 }
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(30px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.motion-active-bg {
+  position: absolute;
+  inset: 0;
+  background: white;
+  border-radius: inherit;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  z-index: 0;
+}
+
+.dark .motion-active-bg {
+  background: #1e293b;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+.motion-active-bg {
+  position: absolute;
+  inset: 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+  z-index: 0;
+}
+
+.dark .motion-active-bg {
+  background: #1e293b;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}

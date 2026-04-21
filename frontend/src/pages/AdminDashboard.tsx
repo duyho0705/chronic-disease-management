@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import ExcelJS from 'exceljs';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../constants/routes';
 import AdminLayout from '../layouts/AdminLayout';
@@ -97,67 +98,95 @@ export default function AdminDashboard() {
     );
   };
 
-  const handleExportExcel = () => {
-    // Detailed Clinic Data for Export
-    const reportData = [
-      { id: 'TA-102', name: 'Phòng khám Đa khoa Tâm Anh', address: '108 Hoàng Như Tiếp, Long Biên, Hà Nội', doctors: 42, patients: 1240, growth: '+8.4%', status: 'Đang hoạt động' },
-      { id: 'ND-204', name: 'Phòng khám Nhi Đồng 1', address: '341 Sư Vạn Hạnh, Quận 10, TP.HCM', doctors: 28, patients: 892, growth: '+3.2%', status: 'Đang hoạt động' },
-      { id: 'VD-301', name: 'Vitality Dental Care', address: '25 Nguyễn Huệ, Quận 1, TP.HCM', doctors: 12, patients: 415, growth: '-1.5%', status: 'Ngưng hoạt động' },
-      { id: 'ML-009', name: 'Mediscan Central Lab', address: '12 Nguyễn Trãi, Quận 5, TP.HCM', doctors: 15, patients: 156, growth: '+2.0%', status: 'Đang hoạt động' }
+  const handleExportExcel = async () => {
+    const today = new Date().toLocaleDateString('vi-VN');
+    
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Báo Cáo Tổng Hợp');
+
+    // Title Row
+    worksheet.addRow([`BÁO CÁO HOẠT ĐỘNG TOÀN TUYẾN CƠ SỞ Y TẾ - NGÀY ${today}`]);
+    worksheet.mergeCells('A1:G1');
+    const titleRow = worksheet.getRow(1);
+    titleRow.font = { name: 'Arial', family: 4, size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+    titleRow.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0284C7' } }; // sky-600
+    titleRow.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
+    titleRow.height = 30;
+
+    // Header Row
+    const headerRow = worksheet.addRow([
+      'Mã Định Danh', 
+      'Tên Cơ Sở/Phòng Khám', 
+      'Liên Hệ', 
+      'Đội Ngũ Bác Sĩ', 
+      'Lượng Bệnh Nhân', 
+      'Tăng Trưởng', 
+      'Trạng Thái Kích Hoạt'
+    ]);
+    
+    headerRow.font = { bold: true, color: { argb: 'FF1E293B' } }; // slate-800
+    headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } }; // slate-100
+    headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+    headerRow.height = 25;
+
+    // Default Widths
+    worksheet.columns = [
+      { width: 18 },  // Code
+      { width: 45 },  // Name
+      { width: 20 },  // Phone
+      { width: 18 },  // Doctors
+      { width: 20 },  // Patients
+      { width: 15 },  // Growth
+      { width: 25 }   // Status
     ];
 
-    const today = new Date().toLocaleDateString('vi-VN');
+    // Data Binding from State
+    clinics.forEach(c => {
+      const displayStatus = c.status === 'ACTIVE' ? 'Hoạt động' : 'Ngưng hoạt động';
+      const row = worksheet.addRow([
+        c.clinicCode || c.id,
+        c.name,
+        c.phone || c.address,
+        c.doctorCount || 0,
+        c.patientCount || 0,
+        c.growth || '0%',
+        displayStatus
+      ]);
+      row.alignment = { vertical: 'middle', wrapText: true };
+      
+      const statusCell = row.getCell(7);
+      if (c.status === 'ACTIVE') {
+         statusCell.font = { color: { argb: 'FF10B981' }, bold: true };
+      } else {
+         statusCell.font = { color: { argb: 'FFEF4444' }, bold: true };
+      }
 
-    // Generating an HTML-based Excel format that tells Excel to auto-fit columns
-    const excelContent = `
-      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-      <head>
-        <meta charset="utf-8" />
-        <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Bao cao chi nhanh</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
-        <style>
-          table { border-collapse: collapse; width: 100%; }
-          th { background: #3bb9f3; color: white; height: 35px; text-align: left; font-weight: bold; padding: 5px; }
-          td { border: 0.5pt solid #ccc; padding: 5px; mso-number-format:"\\@"; }
-          .header-row { height: 40px; background-color: #3bb9f3; }
-        </style>
-      </head>
-      <body>
-        <h3>BÁO CÁO CƠ SỞ Y TẾ VITALITY - NGÀY ${today}</h3>
-        <table>
-          <thead>
-            <tr class="header-row">
-              <th>Mã ID</th>
-              <th>Tên Cơ Sở/Phòng Khám</th>
-              <th>Địa Chỉ Chi Tiết</th>
-              <th>Đội Ngũ BS</th>
-              <th>Lượng Bệnh Nhân</th>
-              <th>Tăng Trưởng</th>
-              <th>Trạng Thái</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${reportData.map(item => `
-              <tr>
-                <td>${item.id}</td>
-                <td>${item.name}</td>
-                <td>${item.address}</td>
-                <td>${item.doctors}</td>
-                <td>${item.patients}</td>
-                <td>${item.growth}</td>
-                <td>${item.status}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </body>
-      </html>
-    `;
+      // Format growth column
+      const growthCell = row.getCell(6);
+      growthCell.font = { color: { argb: 'FF3B82F6' }, bold: true }; // blue-500
+    });
 
-    const blob = new Blob([excelContent], { type: 'application/vnd.ms-excel' });
+    // Outer and Inner Borders
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber > 1) {
+        row.eachCell({ includeEmpty: true }, (cell) => {
+          cell.border = {
+            top: {style:'thin', color: {argb:'FFCBD5E1'}},
+            left: {style:'thin', color: {argb:'FFCBD5E1'}},
+            bottom: {style:'thin', color: {argb:'FFCBD5E1'}},
+            right: {style:'thin', color: {argb:'FFCBD5E1'}}
+          };
+        });
+      }
+    });
+
+    // Execute Download
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `Bao_cao_chi_nhanh_Vitality_${today.replace(/\//g, '-')}.xls`;
+    link.download = `Bao_cao_tong_hop_${today.replace(/\//g, '-')}.xlsx`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -481,11 +510,8 @@ export default function AdminDashboard() {
               ) : activities.length > 0 ? (
                 activities.slice(0, 3).map((act, idx) => (
                   <div key={idx} className="flex gap-4 group">
-                    <div className="relative">
-                      <div className={`w-10 h-10 rounded-full bg-${act.color || 'blue'}-100 dark:bg-${act.color || 'blue'}-900/30 flex items-center justify-center text-${act.color || 'blue'}-600 dark:text-${act.color || 'blue'}-400 z-10 relative`}>
-                        <span className="material-symbols-outlined text-lg">{act.icon || 'history'}</span>
-                      </div>
-                      {idx !== Math.min(activities.length, 4) - 1 && <div className="absolute top-10 left-1/2 -translate-x-1/2 w-0.5 h-full bg-slate-200 dark:bg-slate-800"></div>}
+                    <div className={`w-10 h-10 rounded-full bg-${act.color || 'blue'}-100 dark:bg-${act.color || 'blue'}-900/30 flex items-center justify-center text-${act.color || 'blue'}-600 dark:text-${act.color || 'blue'}-400 shrink-0`}>
+                      <span className="material-symbols-outlined text-lg">{act.icon || 'history'}</span>
                     </div>
                     <div>
                       <p className="text-[15px] font-bold text-slate-900 dark:text-white">{act.title}</p>

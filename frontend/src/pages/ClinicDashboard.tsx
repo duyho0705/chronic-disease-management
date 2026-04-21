@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import ExcelJS from 'exceljs';
 import { useNavigate } from 'react-router-dom';
 import { clinicApi } from '../api/clinic';
 import ClinicSidebar from '../components/common/ClinicSidebar';
@@ -217,8 +218,96 @@ export default function ClinicDashboard() {
         }
     };
 
-    const handleExportExcel = () => {
-        setShowExportModal(true);
+    const handleExportExcel = async () => {
+        const today = new Date().toLocaleDateString('vi-VN');
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Báo Cáo Hiệu Suất');
+
+        // Main Title
+        worksheet.addRow([`BÁO CÁO HIỆU SUẤT ĐỘI NGŨ Y BÁC SĨ - ${today}`]);
+        worksheet.mergeCells('A1:F1');
+        const titleRow = worksheet.getRow(1);
+        titleRow.font = { name: 'Arial', family: 4, size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+        titleRow.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0284C7' } }; // sky-600
+        titleRow.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
+        titleRow.height = 30;
+
+        // Header
+        const headerRow = worksheet.addRow([
+            'Họ và Tên', 
+            'Chuyên Khoa / Vai Trò', 
+            'Bệnh Nhân Đang QL', 
+            'Chỉ Số Tuân Thủ', 
+            'Tải Lượng Công Việc',
+            'Trạng Thái'
+        ]);
+        
+        headerRow.font = { bold: true, color: { argb: 'FF1E293B' } }; // slate-800
+        headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } }; // slate-100
+        headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+        headerRow.height = 25;
+
+        // Column Widths
+        worksheet.columns = [
+            { width: 35 }, // Name
+            { width: 30 }, // Role/Spec
+            { width: 20 }, // Patients
+            { width: 20 }, // Compliance
+            { width: 25 }, // Load
+            { width: 20 }  // Status
+        ];
+
+        // Data Rows
+        doctors.forEach((dr: any) => {
+            const row = worksheet.addRow([
+                dr.name,
+                dr.role || 'Bác sĩ chuyên khoa',
+                dr.patients || 0,
+                dr.adherence || '0%',
+                `${dr.load || 0}%`,
+                dr.status === 'Hoạt động' ? 'Sẵn sàng' : 'Vắng mặt'
+            ]);
+            row.alignment = { vertical: 'middle' };
+            
+            // Status Color
+            const statusCell = row.getCell(6);
+            if (dr.status === 'Hoạt động') {
+                statusCell.font = { color: { argb: 'FF10B981' }, bold: true };
+            } else {
+                statusCell.font = { color: { argb: 'FFEF4444' }, bold: true };
+            }
+
+            // Load color mapping
+            const loadCell = row.getCell(5);
+            const loadVal = dr.load || 0;
+            if (loadVal > 90) loadCell.font = { color: { argb: 'FFEF4444' }, bold: true };
+            else if (loadVal > 70) loadCell.font = { color: { argb: 'FFF59E0B' }, bold: true };
+            else loadCell.font = { color: { argb: 'FF10B981' }, bold: true };
+        });
+
+        // Borders
+        worksheet.eachRow((row, rowNumber) => {
+            if (rowNumber > 1) {
+                row.eachCell({ includeEmpty: true }, (cell) => {
+                    cell.border = {
+                        top: {style:'thin', color: {argb:'FFCBD5E1'}},
+                        left: {style:'thin', color: {argb:'FFCBD5E1'}},
+                        bottom: {style:'thin', color: {argb:'FFCBD5E1'}},
+                        right: {style:'thin', color: {argb:'FFCBD5E1'}}
+                    };
+                });
+            }
+        });
+
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `Bao_cao_hieu_suat_bac_si_${today.replace(/\//g, '-')}.xlsx`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     return (

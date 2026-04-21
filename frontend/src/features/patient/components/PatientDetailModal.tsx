@@ -297,7 +297,7 @@ export default function PatientDetailModal({ isOpen, onClose, patient }: Patient
             {/* Breadcrumb & Actions (Simplified for Modal) */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
               <div className="flex items-center gap-4">
-                <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">Chi tiết hồ sơ bệnh án</h2>
+                <h2 className="text-[20px] font-medium text-slate-900 dark:text-white">Chi tiết hồ sơ bệnh án</h2>
               </div>
               <div className="flex flex-wrap gap-2 no-print">
                 <button

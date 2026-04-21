@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import ExcelJS from 'exceljs';
 import ClinicSidebar from '../components/common/ClinicSidebar';
 import TopBar from '../components/common/TopBar';
 import { clinicApi } from '../api/clinic';
@@ -123,6 +124,99 @@ export default function ClinicReports() {
 
     // Removed getMetricSummary as usage was removed
 
+    const handleExportExcel = async () => {
+        const today = new Date().toLocaleDateString('vi-VN');
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Báo Cáo Tổng Hợp');
+
+        // Main Title Row
+        worksheet.addRow([`BÁO CÁO PHÂN TÍCH XU HƯỚNG BỆNH MÃN TÍNH - ${today}`]);
+        worksheet.mergeCells('A1:E1');
+        const titleRow = worksheet.getRow(1);
+        titleRow.font = { name: 'Arial', family: 4, size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+        titleRow.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0284C7' } }; // sky-600
+        titleRow.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
+        titleRow.height = 30;
+
+        // Header Row
+        const headerRow = worksheet.addRow([
+            'Nhóm Bệnh', 
+            'Số Ca Mắc', 
+            'Chỉ Số Trung Bình', 
+            'Biến Động Rủi Ro', 
+            'Đánh Giá Tổng Quan'
+        ]);
+        
+        headerRow.font = { bold: true, color: { argb: 'FF1E293B' } }; // slate-800
+        headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } }; // slate-100
+        headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+        headerRow.height = 25;
+
+        // Column Widths
+        worksheet.columns = [
+            { width: 30 }, // Disease
+            { width: 15 }, // Cases
+            { width: 30 }, // Avg Index
+            { width: 20 }, // Risk Var
+            { width: 35 }  // Assessment
+        ];
+
+        // Data Rows
+        const dataToExport = mainStats.diseaseAnalytics || [];
+        dataToExport.forEach((item: any) => {
+            const row = worksheet.addRow([
+                item.diseaseName,
+                `${item.totalCases} ca`,
+                item.averageIndex,
+                item.riskVariation,
+                item.assessment
+            ]);
+            row.alignment = { vertical: 'middle' };
+            
+            // Color code the risk variation
+            const riskVarCell = row.getCell(4);
+            if (item.riskVariation.startsWith('-')) {
+                riskVarCell.font = { color: { argb: 'FF10B981' }, bold: true }; // emerald-500
+            } else {
+                riskVarCell.font = { color: { argb: 'FFEF4444' }, bold: true }; // red-500
+            }
+
+            // Status Assessment Color
+            const assessmentCell = row.getCell(5);
+            if (item.assessment === 'Tốt' || item.assessment === 'Ổn định') {
+                assessmentCell.font = { color: { argb: 'FF10B981' }, bold: true };
+            } else if (item.assessment.includes('Rủi ro') || item.assessment.includes('Lưu ý')) {
+                assessmentCell.font = { color: { argb: 'FFEF4444' }, bold: true };
+            } else {
+                assessmentCell.font = { color: { argb: 'FFF59E0B' }, bold: true }; // amber-500
+            }
+        });
+
+        // Borders
+        worksheet.eachRow((row, rowNumber) => {
+            if (rowNumber > 1) {
+                row.eachCell({ includeEmpty: true }, (cell) => {
+                    cell.border = {
+                        top: {style:'thin', color: {argb:'FFCBD5E1'}},
+                        left: {style:'thin', color: {argb:'FFCBD5E1'}},
+                        bottom: {style:'thin', color: {argb:'FFCBD5E1'}},
+                        right: {style:'thin', color: {argb:'FFCBD5E1'}}
+                    };
+                });
+            }
+        });
+
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `Bao_cao_dich_te_${today.replace(/\//g, '-')}.xlsx`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     return (
         <div className="flex min-h-screen font-display bg-[#f6f8f7] dark:bg-slate-950 text-slate-900 dark:text-slate-100 italic-none">
             {/* Sidebar Navigation - Shared Component */}
@@ -191,7 +285,10 @@ export default function ClinicReports() {
                                         </button>
                                     </div>
                                     <div className="flex gap-2">
-                                        <button className="flex items-center gap-2 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-xl text-sm font-bold border border-slate-200 dark:border-slate-800 hover:bg-slate-50 transition-all shadow-sm whitespace-nowrap">
+                                        <button 
+                                            onClick={handleExportExcel}
+                                            className="flex items-center gap-2 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-xl text-sm font-bold border border-slate-200 dark:border-slate-800 hover:bg-slate-50 transition-all shadow-sm whitespace-nowrap"
+                                        >
                                             <span className="material-symbols-outlined text-[20px] text-emerald-500">upload_file</span>
                                             Excel
                                         </button>

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import ExcelJS from 'exceljs';
 import AdminLayout from '../layouts/AdminLayout';
 import Dropdown from '../components/ui/Dropdown';
 import { auditApi } from '../api/audit';
@@ -57,8 +58,103 @@ export default function AdminAuditLogs() {
     setIsIpModalOpen(true);
   };
 
-  const handleExport = () => {
-    alert(`Đang xuất ${logList.length} bản ghi nhật ký hệ thống...`);
+  const handleExport = async () => {
+    const today = new Date().toLocaleDateString('vi-VN');
+    
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Nhật Ký Hệ Thống');
+
+    // Title Row
+    worksheet.addRow([`NHẬT KÝ HOẠT ĐỘNG HỆ THỐNG - ${today}`]);
+    worksheet.mergeCells('A1:F1');
+    const titleRow = worksheet.getRow(1);
+    titleRow.font = { name: 'Arial', family: 4, size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+    titleRow.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0284C7' } }; // sky-600
+    titleRow.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
+    titleRow.height = 30;
+
+    // Header Row
+    const headerRow = worksheet.addRow([
+      'Thời Gian',
+      'Người Dùng', 
+      'Hoạt Động / Hành Động', 
+      'Mô Đun', 
+      'Chi Tiết', 
+      'Địa Chỉ IP'
+    ]);
+    
+    headerRow.font = { bold: true, color: { argb: 'FF1E293B' } }; // slate-800
+    headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } }; // slate-100
+    headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+    headerRow.height = 25;
+
+    // Define column widths for Autofit capability
+    worksheet.columns = [
+      { width: 25 }, // Time
+      { width: 30 }, // User Default: 8
+      { width: 35 }, // Action
+      { width: 25 }, // Module
+      { width: 60 }, // Details
+      { width: 20 }  // IP
+    ];
+
+    // Data Rows
+    logList.forEach(log => {
+      const dateObj = new Date(log.time);
+      const displayDateTime = !isNaN(dateObj.getTime())
+        ? dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' - ' + dateObj.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
+        : log.time;
+
+      const detailsCleaned = log.details ? log.details
+        .replace(/DOCTOR/g, 'Bác sĩ')
+        .replace(/ADMIN/g, 'Quản trị viên')
+        .replace(/PATIENT/g, 'Bệnh nhân')
+        .replace(/CLINIC_MANAGER/g, 'Quản lý phòng khám') : '--';
+
+      const row = worksheet.addRow([
+        displayDateTime,
+        log.user?.name || '--',
+        log.action,
+        log.module,
+        detailsCleaned,
+        log.ip
+      ]);
+      row.alignment = { vertical: 'middle', wrapText: true };
+      
+      const actionCell = row.getCell(3);
+      if (log.action.toLowerCase().includes('xóa') || log.action.toLowerCase().includes('khóa') || log.action.toLowerCase().includes('lỗi')) {
+         actionCell.font = { color: { argb: 'FFEF4444' }, bold: true }; // red-500
+      } else if (log.action.toLowerCase().includes('tạo mới') || log.action.toLowerCase().includes('đăng nhập')) {
+         actionCell.font = { color: { argb: 'FF10B981' }, bold: true }; // emerald-500
+      } else {
+         actionCell.font = { color: { argb: 'FF3B82F6' }, bold: true }; // blue-500
+      }
+    });
+
+    // Add professional borders
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber > 1) {
+        row.eachCell({ includeEmpty: true }, (cell) => {
+          cell.border = {
+            top: {style:'thin', color: {argb:'FFCBD5E1'}},
+            left: {style:'thin', color: {argb:'FFCBD5E1'}},
+            bottom: {style:'thin', color: {argb:'FFCBD5E1'}},
+            right: {style:'thin', color: {argb:'FFCBD5E1'}}
+          };
+        });
+      }
+    });
+
+    // Convert to Binary Blob and Download
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `Nhat_ky_he_thong_${today.replace(/\//g, '-')}.xlsx`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (

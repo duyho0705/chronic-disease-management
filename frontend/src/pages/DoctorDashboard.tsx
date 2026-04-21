@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import ExcelJS from 'exceljs';
 import TopBar from '../components/common/TopBar';
 import PatientDetailModal from '../features/patient/components/PatientDetailModal';
 import AdviceModal from '../features/patient/components/AdviceModal';
@@ -58,6 +60,15 @@ export default function DoctorDashboard() {
   // Toast State
   const [showToast, setShowToast] = useState(false);
   const [toastTitle, setToastTitle] = useState('');
+  const [dashboardTimeRange, setDashboardTimeRange] = useState('7 ngày qua');
+  const [filterRisk, setFilterRisk] = useState<'ALL' | 'HIGH_RISK' | 'STABLE'>('ALL');
+
+  const filteredPatients = useMemo(() => {
+    if (filterRisk === 'ALL') return myPatients;
+    return myPatients.filter((p: any) => p.status === (filterRisk === 'HIGH_RISK' ? 'Nguy cơ cao' : 'Ổn định'));
+  }, [myPatients, filterRisk]);
+
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const handleSaveAdvice = async () => {
     if (!advicePatientId) return;
@@ -67,7 +78,7 @@ export default function DoctorDashboard() {
       // For now, let's just send the message payload directly (assumes backend handles conversation creation if not exists)
       const messageContent = `[Tư vấn ${adviceCategory}] ${adviceContent}`;
       await doctorApi.sendMessage({ receiverId: advicePatientId, content: messageContent });
-      
+
       setToastTitle(`Đã gửi lời khuyên đến ${advicePatientName} thành công!`);
       setShowToast(true);
       setIsAdviceModalOpen(false);
@@ -101,9 +112,7 @@ export default function DoctorDashboard() {
   const [currentMonth, setCurrentMonth] = useState(now.getMonth());
   const [currentYear, setCurrentYear] = useState(now.getFullYear());
   const [isSaving, setIsSaving] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
-  const [dashboardTimeRange, setDashboardTimeRange] = useState('7 ngày qua');
 
   const removeMedication = (id: number) => {
     setMedications(medications.filter(m => m.id !== id));
@@ -154,13 +163,88 @@ export default function DoctorDashboard() {
         setMedications([]);
         setToastTitle('Kê đơn thành công!');
         setShowToast(true);
-        fetchDashboardData(); // Refresh list
+        fetchDashboardData();
       }
     } catch (e) {
       console.error('Failed to save prescription', e);
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleExportExcel = async () => {
+    const today = new Date().toLocaleDateString('vi-VN');
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Báo Cáo Nhanh');
+
+    // Title Row
+    worksheet.addRow([`BÁO CÁO NHANH TÌNH TRẠNG BỆNH NHÂN - ${today}`]);
+    worksheet.mergeCells('A1:D1');
+    const titleRow = worksheet.getRow(1);
+    titleRow.font = { name: 'Arial', family: 4, size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+    titleRow.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0284C7' } }; // sky-600
+    titleRow.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
+    titleRow.height = 30;
+
+    // Header Row
+    const headerRow = worksheet.addRow([
+      'Họ và Tên',
+      'Tuổi',
+      'Chỉ Số HA/Đường',
+      'Trạng Thái Nguy Cơ'
+    ]);
+
+    headerRow.font = { bold: true, color: { argb: 'FF1E293B' } }; // slate-800
+    headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } }; // slate-100
+    headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+    headerRow.height = 25;
+
+    // Column Widths
+    worksheet.columns = [
+      { width: 35 }, // Name
+      { width: 10 }, // Age
+      { width: 25 }, // Index
+      { width: 30 }  // Condition/Risk
+    ];
+
+    // Data Rows
+    const dataToExport = dashData?.highRiskPatients || [];
+    dataToExport.forEach((item: any) => {
+      const row = worksheet.addRow([
+        item.fullName,
+        item.age,
+        item.latestBp || 'N/A',
+        item.chronicCondition
+      ]);
+      row.alignment = { vertical: 'middle' };
+
+      const riskCell = row.getCell(4);
+      riskCell.font = { color: { argb: 'FFEF4444' }, bold: true };
+    });
+
+    // Borders
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber > 1) {
+        row.eachCell({ includeEmpty: true }, (cell) => {
+          cell.border = {
+            top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+            left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+            bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+            right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
+          };
+        });
+      }
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `Bao_cao_nhanh_BS_${today.replace(/\//g, '-')}.xlsx`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
   return (
     <>
@@ -255,7 +339,7 @@ export default function DoctorDashboard() {
                 ))
               ) : (
                 <>
-                    <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm">
+                  <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm">
                     <div className="flex justify-between items-start mb-4">
                       <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
                         <span className="material-symbols-outlined size-6">person</span>
@@ -313,13 +397,13 @@ export default function DoctorDashboard() {
                       <div className="flex items-center gap-4">
                         <div className="w-14 h-14 rounded-full bg-slate-100 dark:bg-slate-800"></div>
                         <div className="space-y-2">
-                            <div className="h-5 bg-slate-200 dark:bg-slate-800 rounded w-40"></div>
-                            <div className="h-3 bg-slate-100 dark:bg-slate-800/50 rounded w-32"></div>
+                          <div className="h-5 bg-slate-200 dark:bg-slate-800 rounded w-40"></div>
+                          <div className="h-3 bg-slate-100 dark:bg-slate-800/50 rounded w-32"></div>
                         </div>
                       </div>
                       <div className="hidden sm:block space-y-2">
-                          <div className="h-3 bg-slate-100 dark:bg-slate-800/50 rounded w-16 mx-auto"></div>
-                          <div className="h-6 bg-slate-200 dark:bg-slate-800 rounded w-24"></div>
+                        <div className="h-3 bg-slate-100 dark:bg-slate-800/50 rounded w-16 mx-auto"></div>
+                        <div className="h-6 bg-slate-200 dark:bg-slate-800 rounded w-24"></div>
                       </div>
                       <div className="w-24 h-8 bg-slate-100 dark:bg-slate-800 rounded-full"></div>
                     </div>
@@ -349,7 +433,7 @@ export default function DoctorDashboard() {
                             </div>
                           </div>
                           <div className="flex flex-row sm:flex-col gap-2 w-full sm:w-auto">
-                            <span className="flex-1 sm:flex-none bg-red-500 text-white text-[11px] font-bold px-4 py-1.5 rounded-full text-center shadow-sm shadow-red-500/20 uppercase tracking-wider whitespace-nowrap">Nguy cấp</span>
+                            <span className="flex-1 sm:flex-none bg-red-500 text-white text-[11px] font-bold px-4 py-1.5 rounded-full text-center shadow-sm shadow-red-500/20 whitespace-nowrap">Nguy cấp</span>
                             <div className="flex gap-2">
                               <Link to={ROUTES.DOCTOR.MESSAGES} className="flex-1 sm:flex-none bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center">
                                 <span className="material-symbols-outlined text-base">chat</span>
@@ -476,38 +560,38 @@ export default function DoctorDashboard() {
                       [...Array(3)].map((_, i) => (
                         <div key={i} className="p-5 flex items-center gap-5 animate-pulse">
                           <div className="min-w-[70px] space-y-1">
-                             <div className="h-3 bg-slate-100 dark:bg-slate-800 rounded w-10"></div>
-                             <div className="h-5 bg-slate-200 dark:bg-slate-800 rounded w-14"></div>
+                            <div className="h-3 bg-slate-100 dark:bg-slate-800 rounded w-10"></div>
+                            <div className="h-5 bg-slate-200 dark:bg-slate-800 rounded w-14"></div>
                           </div>
                           <div className="flex-1 space-y-2">
-                             <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-24"></div>
-                             <div className="h-3 bg-slate-100 dark:bg-slate-800/50 rounded w-full"></div>
+                            <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-24"></div>
+                            <div className="h-3 bg-slate-100 dark:bg-slate-800/50 rounded w-full"></div>
                           </div>
                         </div>
                       ))
                     ) : (
                       <>
-                      {dashData?.upcomingAppointments?.length > 0 ? (
-                        dashData.upcomingAppointments.slice(0, 3).map((appt: any) => (
-                          <div key={appt.id} className="p-5 flex items-center gap-5 hover:bg-slate-50 transition-colors cursor-pointer group">
-                            <div className="flex-shrink-0 text-left min-w-[70px]">
-                              <p className="text-[12px] font-bold text-slate-400 mb-1">
-                                {new Date(appt.appointmentTime).toLocaleDateString('vi-VN') === new Date().toLocaleDateString('vi-VN') ? 'Hôm nay' : 'Sắp tới'}
-                              </p>
-                              <p className="text-xl font-black text-primary leading-tight">
-                                {new Date(appt.appointmentTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
-                              </p>
+                        {dashData?.upcomingAppointments?.length > 0 ? (
+                          dashData.upcomingAppointments.slice(0, 3).map((appt: any) => (
+                            <div key={appt.id} className="p-5 flex items-center gap-5 hover:bg-slate-50 transition-colors cursor-pointer group">
+                              <div className="flex-shrink-0 text-left min-w-[70px]">
+                                <p className="text-[12px] font-bold text-slate-400 mb-1">
+                                  {new Date(appt.appointmentTime).toLocaleDateString('vi-VN') === new Date().toLocaleDateString('vi-VN') ? 'Hôm nay' : 'Sắp tới'}
+                                </p>
+                                <p className="text-xl font-black text-primary leading-tight">
+                                  {new Date(appt.appointmentTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                                </p>
+                              </div>
+                              <div className="flex-1 overflow-hidden">
+                                <p className="font-bold truncate text-[15px] text-slate-900 dark:text-white mb-0.5">{appt.patientName}</p>
+                                <p className="text-[13px] text-slate-500 font-medium">{appt.reason}</p>
+                              </div>
+                              <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-all text-xl">chevron_right</span>
                             </div>
-                            <div className="flex-1 overflow-hidden">
-                              <p className="font-bold truncate text-[15px] text-slate-900 dark:text-white mb-0.5">{appt.patientName}</p>
-                              <p className="text-[13px] text-slate-500 font-medium">{appt.reason}</p>
-                            </div>
-                            <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-all text-xl">chevron_right</span>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="p-8 text-center text-slate-400 text-sm italic">Không có lịch hẹn sắp tới</div>
-                      )}
+                          ))
+                        ) : (
+                          <div className="p-8 text-center text-slate-400 text-sm italic">Không có lịch hẹn sắp tới</div>
+                        )}
                       </>
                     )}
                   </div>
@@ -521,132 +605,167 @@ export default function DoctorDashboard() {
               </aside>
             </div>
 
-            {/* Patient Management Table */}
             <section>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-extrabold">Quản lý bệnh nhân gần đây</h2>
+            <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+              <h2 className="text-xl font-extrabold">Quản lý bệnh nhân gần đây</h2>
+              <div className="flex items-center gap-4">
+                {isLoading ? (
+                  <div className="w-64 h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-2xl"></div>
+                ) : (
+                  <div className="flex bg-slate-100 dark:bg-slate-800/50 p-1.5 rounded-2xl relative overflow-hidden">
+                    {['TẤT CẢ', 'NGUY CƠ CAO', 'ỔN ĐỊNH'].map((opt) => (
+                      <button
+                        key={opt}
+                        onClick={() => setFilterRisk(opt === 'TẤT CẢ' ? 'ALL' : opt === 'NGUY CƠ CAO' ? 'HIGH_RISK' : 'STABLE')}
+                        className={`relative z-10 flex-1 px-5 py-2 text-[13px] font-bold transition-all duration-300 min-w-[110px] ${
+                          (filterRisk === 'ALL' && opt === 'TẤT CẢ') ||
+                          (filterRisk === 'HIGH_RISK' && opt === 'NGUY CƠ CAO') ||
+                          (filterRisk === 'STABLE' && opt === 'ỔN ĐỊNH')
+                            ? 'text-primary'
+                            : 'text-slate-500 hover:text-slate-700'
+                        }`}
+                      >
+                        {((filterRisk === 'ALL' && opt === 'TẤT CẢ') ||
+                          (filterRisk === 'HIGH_RISK' && opt === 'NGUY CƠ CAO') ||
+                          (filterRisk === 'STABLE' && opt === 'ỔN ĐỊNH')) && (
+                          <motion.div
+                            layoutId="activeTab"
+                            className="motion-active-bg"
+                            transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                          />
+                        )}
+                        <span className="relative z-10">{opt}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
                 <div className="flex gap-2">
-                  {isLoading ? (
-                    <>
-                      <div className="w-32 h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-md"></div>
-                      <div className="w-32 h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-md"></div>
-                    </>
-                  ) : (
-                    <>
-                      <button className="px-4 py-2 bg-white dark:bg-slate-800 border border-primary/10 rounded-md text-[14px] font-bold">Lọc theo khoa</button>
-                      <button className="px-4 py-2 bg-white dark:bg-slate-800 border border-primary/10 rounded-md text-[14px] font-bold">Xuất báo cáo</button>
-                    </>
-                  )}
+                  <button 
+                    onClick={handleExportExcel}
+                    className="px-4 py-2 bg-white dark:bg-slate-800 border border-primary/10 rounded-xl text-[14px] font-bold hover:bg-slate-50 transition-colors flex items-center gap-2 shadow-sm"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">download</span>
+                    Xuất báo cáo
+                  </button>
                 </div>
               </div>
+            </div>
               <div className="bg-white dark:bg-slate-900 rounded-2xl border border-primary/5 shadow-sm pb-10 overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                      <thead className="bg-primary/5 border-b border-primary/5">
-                        <tr>
-                          <th className="px-6 py-4 text-[14px] font-bold text-slate-500">Bệnh nhân</th>
-                          <th className="px-6 py-4 text-[14px] font-bold text-slate-500">Chỉ số gần nhất</th>
-                          <th className="px-6 py-4 text-[14px] font-bold text-slate-500">Tình trạng</th>
-                          <th className="px-6 py-4 text-[14px] font-bold text-slate-500">Cập nhật lần cuối</th>
-                          <th className="px-6 py-4 text-[14px] font-bold text-slate-500 text-right">Thao tác</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-primary/5">
-                        {isLoading ? (
-                          [...Array(5)].map((_, i) => (
-                            <tr key={i} className="animate-pulse">
-                              <td className="px-6 py-4">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-10 h-10 rounded-full bg-slate-100/80 dark:bg-slate-800 shrink-0"></div>
-                                  <div className="space-y-2">
-                                     <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-24"></div>
-                                     <div className="h-3 bg-slate-100 dark:bg-slate-800/50 rounded w-32"></div>
-                                  </div>
+                  <table className="w-full text-left">
+                    <thead className="bg-primary/5 border-b border-primary/5">
+                      <tr>
+                        <th className="px-6 py-4 text-[14px] font-bold text-slate-500">Bệnh nhân</th>
+                        <th className="px-6 py-4 text-[14px] font-bold text-slate-500">Chỉ số gần nhất</th>
+                        <th className="px-6 py-4 text-[14px] font-bold text-slate-500">Tình trạng</th>
+                        <th className="px-6 py-4 text-[14px] font-bold text-slate-500">Cập nhật lần cuối</th>
+                        <th className="px-6 py-4 text-[14px] font-bold text-slate-500 text-right">Thao tác</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-primary/5">
+                      {isLoading ? (
+                        [...Array(5)].map((_, i) => (
+                          <tr key={i} className="animate-pulse">
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-slate-100/80 dark:bg-slate-800 shrink-0"></div>
+                                <div className="space-y-2">
+                                  <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-24"></div>
+                                  <div className="h-3 bg-slate-100 dark:bg-slate-800/50 rounded w-32"></div>
                                 </div>
-                              </td>
-                              <td className="px-6 py-4">
-                                <div className="flex gap-4">
-                                   <div className="h-10 bg-slate-50 dark:bg-slate-800/50 rounded-xl w-16"></div>
-                                   <div className="h-10 bg-slate-50 dark:bg-slate-800/50 rounded-xl w-16"></div>
-                                </div>
-                              </td>
-                              <td className="px-6 py-4"><div className="h-7 bg-slate-200 dark:bg-slate-800 rounded-full w-20"></div></td>
-                              <td className="px-6 py-4"><div className="h-4 bg-slate-100 dark:bg-slate-800/50 rounded w-24"></div></td>
-                              <td className="px-6 py-4 text-right relative">
-                                <div className="h-8 w-8 bg-slate-200 dark:bg-slate-800 rounded-full ml-auto"></div>
-                              </td>
-                            </tr>
-                          ))
-                        ) : dashData?.recentPatients?.length > 0 ? (
-                          dashData.recentPatients.map((p: any) => (
-                            <tr key={p.id} className="hover:bg-primary/5 transition-colors">
-                              <td className="px-6 py-4">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
-                                    {p.fullName?.charAt(0)}
-                                  </div>
-                                  <div>
-                                    <p className="text-[16px] font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors tracking-tight">{p.fullName}</p>
-                                    <p className="text-[13px] text-slate-400 dark:text-slate-500 font-medium tracking-tight">Mã hồ sơ: {p.patientCode}</p>
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="px-6 py-4">
-                                <div className="flex gap-4">
-                                  <div className="text-[13px]">
-                                    <p className="text-slate-400 font-medium">Glucose</p>
-                                    <p className="font-bold text-[14px] text-slate-700 dark:text-slate-200">{p.latestGlucose || 'N/A'}</p>
-                                  </div>
-                                  <div className="text-[13px]">
-                                    <p className="text-slate-400 font-medium">Huyết áp</p>
-                                    <p className="font-bold text-[14px] text-slate-700 dark:text-slate-200">{p.latestBp || 'N/A'}</p>
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="px-6 py-4">
-                                <span className={`px-4 py-1.5 text-white text-[13px] font-bold rounded-full shadow-sm whitespace-nowrap inline-flex ${
-                                  p.riskLevel === 'HIGH_RISK' ? 'bg-red-500' : p.riskLevel === 'MONITORING' ? 'bg-amber-500' : 'bg-emerald-500'
-                                }`}>
-                                  {p.riskLevel === 'HIGH_RISK' ? 'Nguy cấp' : p.riskLevel === 'MONITORING' ? 'Cần theo dõi' : 'Ổn định'}
-                                </span>
-                              </td>
-                              <td className="px-6 py-4 text-[14px] text-slate-500 font-medium">{p.lastUpdate || 'Vừa xong'}</td>
-                              <td className="px-6 py-4 text-right relative">
-                                <button
-                                  onClick={() => setActiveMenu(activeMenu === p.id ? null : p.id)}
-                                  className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 rounded-full transition-all ml-auto">
-                                  <span className="material-symbols-outlined text-[22px]">more_vert</span>
-                                </button>
-                                {activeMenu === p.id && (
-                                  <>
-                                    <div className="fixed inset-0 z-[100]" onClick={() => setActiveMenu(null)}></div>
-                                    <div className="absolute right-6 top-12 w-56 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 py-2.5 z-[110] animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-200 overflow-hidden text-left">
-                                      <button
-                                        onClick={() => { setSelectedPatient(p); setIsPatientDetailModalOpen(true); setActiveMenu(null); }}
-                                        className="w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-3 group">
-                                        <span className="material-symbols-outlined text-slate-400 group-hover:text-primary text-xl">visibility</span>
-                                        <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Xem chi tiết hồ sơ</span>
-                                      </button>
-                                      <button
-                                        onClick={() => { setIsAdviceModalOpen(true); setAdvicePatientName(p.fullName); setAdvicePatientId(p.id); setActiveMenu(null); }}
-                                        className="w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-3 group">
-                                        <span className="material-symbols-outlined text-slate-400 group-hover:text-primary text-xl">send</span>
-                                        <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Gửi lời khuyên</span>
-                                      </button>
-                                    </div>
-                                  </>
-                                )}
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan={5} className="px-6 py-10 text-center text-slate-400 italic">Chưa có bệnh nhân gần đây</td>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex gap-4">
+                                <div className="h-10 bg-slate-50 dark:bg-slate-800/50 rounded-xl w-16"></div>
+                                <div className="h-10 bg-slate-50 dark:bg-slate-800/50 rounded-xl w-16"></div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4"><div className="h-7 bg-slate-200 dark:bg-slate-800 rounded-full w-20"></div></td>
+                            <td className="px-6 py-4"><div className="h-4 bg-slate-100 dark:bg-slate-800/50 rounded w-24"></div></td>
+                            <td className="px-6 py-4 text-right relative">
+                              <div className="h-8 w-8 bg-slate-200 dark:bg-slate-800 rounded-full ml-auto"></div>
+                            </td>
                           </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
+                        ))
+                      ) : filteredPatients.length > 0 ? (
+                        <AnimatePresence mode='popLayout'>
+                          {filteredPatients.map((p: any) => (
+                            <motion.tr
+                              layout
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.95 }}
+                              key={p.id}
+                              className="hover:bg-primary/5 transition-colors"
+                            >
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
+                                  {p.fullName?.charAt(0)}
+                                </div>
+                                <div>
+                                  <p className="text-[16px] font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors tracking-tight">{p.fullName}</p>
+                                  <p className="text-[13px] text-slate-400 dark:text-slate-500 font-medium tracking-tight">Mã hồ sơ: {p.patientCode}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex gap-4">
+                                <div className="text-[13px]">
+                                  <p className="text-slate-400 font-medium">Glucose</p>
+                                  <p className="font-bold text-[14px] text-slate-700 dark:text-slate-200">{p.latestGlucose || 'N/A'}</p>
+                                </div>
+                                <div className="text-[13px]">
+                                  <p className="text-slate-400 font-medium">Huyết áp</p>
+                                  <p className="font-bold text-[14px] text-slate-700 dark:text-slate-200">{p.latestBp || 'N/A'}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className={`px-4 py-1.5 text-white text-[13px] font-bold rounded-full shadow-sm whitespace-nowrap inline-flex ${p.riskLevel === 'HIGH_RISK' ? 'bg-red-500' : p.riskLevel === 'MONITORING' ? 'bg-amber-500' : 'bg-emerald-500'
+                                }`}>
+                                {p.riskLevel === 'HIGH_RISK' ? 'Nguy cấp' : p.riskLevel === 'MONITORING' ? 'Cần theo dõi' : 'Ổn định'}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-[14px] text-slate-500 font-medium">{p.lastUpdate || 'Vừa xong'}</td>
+                            <td className="px-6 py-4 text-right relative">
+                              <button
+                                onClick={() => setActiveMenu(activeMenu === p.id ? null : p.id)}
+                                className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 rounded-full transition-all ml-auto">
+                                <span className="material-symbols-outlined text-[22px]">more_vert</span>
+                              </button>
+                              {activeMenu === p.id && (
+                                <>
+                                  <div className="fixed inset-0 z-[100]" onClick={() => setActiveMenu(null)}></div>
+                                  <div className="absolute right-6 top-12 w-56 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 py-2.5 z-[110] animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-200 overflow-hidden text-left">
+                                    <button
+                                      onClick={() => { setSelectedPatient(p); setIsPatientDetailModalOpen(true); setActiveMenu(null); }}
+                                      className="w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-3 group">
+                                      <span className="material-symbols-outlined text-slate-400 group-hover:text-primary text-xl">visibility</span>
+                                      <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Xem chi tiết hồ sơ</span>
+                                    </button>
+                                    <button
+                                      onClick={() => { setIsAdviceModalOpen(true); setAdvicePatientName(p.fullName); setAdvicePatientId(p.id); setActiveMenu(null); }}
+                                      className="w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-3 group">
+                                      <span className="material-symbols-outlined text-slate-400 group-hover:text-primary text-xl">send</span>
+                                      <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Gửi lời khuyên</span>
+                                    </button>
+                                  </div>
+                                </>
+                              )}
+                            </td>
+                          </motion.tr>
+                        ))}
+                      </AnimatePresence>
+                      ) : (
+                        <tr>
+                          <td colSpan={5} className="px-6 py-10 text-center text-slate-400 italic">Chưa có bệnh nhân gần đây</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </section>
           </div>

@@ -44,16 +44,8 @@ const AdviceModal: React.FC<AdviceModalProps> = ({
       ></div>
 
       <div className="relative bg-white dark:bg-slate-900 w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-300 border border-primary/10 transition-all max-h-[90vh]">
-        {/* Header section with glassmorphism */}
-        <div className="px-8 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-20">
-          <div className="flex items-center gap-3">
-            <div className="bg-primary/10 p-2.5 rounded-xl text-primary">
-              <span className="material-symbols-outlined font-bold">campaign</span>
-            </div>
-            <div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white leading-tight">Gửi lời khuyên sức khỏe</h2>
-            </div>
-          </div>
+        <div className="px-8 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white/95 dark:bg-slate-900/95 backdrop-blur-md sticky top-0 z-20 font-display">
+          <h2 className="text-[20px] font-medium text-slate-900 dark:text-white leading-tight">Gửi lời khuyên sức khỏe</h2>
         </div>
 
         {/* Advice Content Area */}

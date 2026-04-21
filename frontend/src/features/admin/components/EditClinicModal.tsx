@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface EditClinicModalProps {
   isOpen: boolean;
@@ -55,8 +56,6 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
     };
   }, [isOpen]);
 
-  if (!isOpen) return null;
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -97,13 +96,27 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-slate-900/10 backdrop-blur-[2px] transition-all duration-300" onClick={onClose}></div>
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-slate-900/10 backdrop-blur-[2px]"
+            onClick={onClose}
+          />
 
-      <div className="relative bg-white dark:bg-slate-900 w-full max-w-3xl rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-300 max-h-[95vh] border border-slate-200 dark:border-slate-800">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="relative bg-white dark:bg-slate-900 w-full max-w-3xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh] border border-slate-200 dark:border-slate-800"
+          >
         {/* Modal Header */}
         <div className="px-6 md:px-8 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md z-20">
-          <h2 className="text-[20px] font-bold text-slate-900 dark:text-white tracking-tight leading-tight">Chỉnh sửa phòng khám</h2>
+          <h2 className="text-[20px] font-medium text-slate-900 dark:text-white leading-tight">Chỉnh sửa phòng khám</h2>
         </div>
 
         {/* Form Body */}
@@ -321,8 +334,10 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
             </button>
           </div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 };
 
