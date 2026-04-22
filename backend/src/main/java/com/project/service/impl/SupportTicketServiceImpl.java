@@ -11,8 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +23,7 @@ public class SupportTicketServiceImpl implements SupportTicketService {
     @Override
     @Transactional
     public SupportTicket createTicket(SupportTicket ticket) {
-        SupportTicket savedTicket = ticketRepository.save(ticket);
+        SupportTicket savedTicket = ticketRepository.save(Objects.requireNonNull(ticket));
         
         auditService.recordActivity(
             "CREATE_TICKET",
@@ -39,7 +38,7 @@ public class SupportTicketServiceImpl implements SupportTicketService {
     @Override
     @Transactional
     public SupportTicket updateTicketStatus(Long id, String status, String adminNote) {
-        SupportTicket ticket = ticketRepository.findById(id)
+        SupportTicket ticket = ticketRepository.findById(Objects.requireNonNull(id))
             .orElseThrow(() -> new RuntimeException("Không tìm thấy yêu cầu hỗ trợ"));
         
         String oldStatus = ticket.getStatus();
@@ -64,7 +63,7 @@ public class SupportTicketServiceImpl implements SupportTicketService {
 
     @Override
     public SupportTicket getTicketById(Long id) {
-        return ticketRepository.findById(id)
+        return ticketRepository.findById(Objects.requireNonNull(id))
             .orElseThrow(() -> new RuntimeException("Không tìm thấy yêu cầu hỗ trợ"));
     }
 
@@ -81,9 +80,9 @@ public class SupportTicketServiceImpl implements SupportTicketService {
             return ticketRepository.findByStatus(status, pageable);
         }
         if (priority != null && !priority.isEmpty() && !"Tất cả cấp độ".equalsIgnoreCase(priority)) {
-            return ticketRepository.findByPriority(priority, pageable);
+            return ticketRepository.findByPriority(priority, Objects.requireNonNull(pageable));
         }
-        return ticketRepository.findAll(pageable);
+        return ticketRepository.findAll(Objects.requireNonNull(pageable));
     }
 
     @Override
