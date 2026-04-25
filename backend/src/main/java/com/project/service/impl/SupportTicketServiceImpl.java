@@ -99,6 +99,6 @@ public class SupportTicketServiceImpl implements SupportTicketService {
     @Override
     @Transactional
     public void deleteTicket(Long id) {
-        ticketRepository.deleteById(id);
+        ticketRepository.deleteById(Objects.requireNonNull(id));
     }
 }

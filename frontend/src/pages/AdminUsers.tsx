@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import ExcelJS from 'exceljs';
+import * as ExcelJS from 'exceljs';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import AdminLayout from '../layouts/AdminLayout';
 import Dropdown from '../components/ui/Dropdown';
 import CreateUserModal from '../features/admin/components/CreateUserModal';
@@ -10,7 +11,22 @@ import { clinicApi } from '../api/clinic';
 import { userApi } from '../api/user';
 import DeleteConfirmModal from '../components/ui/DeleteConfirmModal';
 
+interface UserSnippet {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  role: string;
+  clinic: string;
+  clinicPhone?: string;
+  date: string;
+  status: string;
+  avatar: string;
+  rawRole: string;
+}
+
 export default function AdminUsers() {
+  const queryClient = useQueryClient();
   const [selectedRole, setSelectedRole] = useState('Tất cả vai trò');
   const [selectedClinic, setSelectedClinic] = useState('Tất cả cơ sở');
   const [selectedStatus, setSelectedStatus] = useState('Tất cả trạng thái');
@@ -25,11 +41,7 @@ export default function AdminUsers() {
   const [toastType, setToastType] = useState<'success' | 'error' | 'warning'>('success');
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [clinics, setClinics] = useState<any[]>([]);
-  const [userList, setUserList] = useState<any[]>([]);
-  const [userStats, setUserStats] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [pagination, setPagination] = useState({ page: 0, size: 10, total: 0 });
+  const [pagination, setPagination] = useState({ page: 0, size: 10 });
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -38,38 +50,54 @@ export default function AdminUsers() {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  useEffect(() => {
-    fetchClinics();
-    fetchStats();
-  }, []);
+  // Fetch Clinics
+  const { data: clinics = [] } = useQuery({
+    queryKey: ['clinics', { size: 100 }],
+    queryFn: async () => {
+      const res = await clinicApi.getClinics({ size: 100 });
+      return res.data.content || [];
+    }
+  });
 
-  const fetchUsers = useCallback(async (isSilent = false) => {
-    if (!isSilent) setIsLoading(true);
-    try {
-      const roleMapping: any = {
-        'Quản trị viên': 'ADMIN',
-        'Bác sĩ': 'DOCTOR',
-        'Quản lý phòng khám': 'CLINIC_MANAGER',
-        'Bệnh nhân': 'PATIENT'
-      };
+  // Fetch Stats
+  const { data: userStats } = useQuery({
+    queryKey: ['userStats'],
+    queryFn: async () => {
+      const res = await userApi.getUserStats();
+      return res.data;
+    }
+  });
 
-      const statusMapping: any = {
-        'Hoạt động': 'ACTIVE',
-        'Ngưng hoạt động': 'INACTIVE'
-      };
+  const queryParams = useMemo(() => {
+    const roleMapping: any = {
+      'Quản trị viên': 'ADMIN',
+      'Bác sĩ': 'DOCTOR',
+      'Quản lý phòng khám': 'CLINIC_MANAGER',
+      'Bệnh nhân': 'PATIENT'
+    };
 
-      const selectedClinicObj = clinics.find(c => c.name === selectedClinic);
+    const statusMapping: any = {
+      'Hoạt động': 'ACTIVE',
+      'Ngưng hoạt động': 'INACTIVE'
+    };
 
-      const params = {
-        role: selectedRole !== 'Tất cả vai trò' ? roleMapping[selectedRole] : null,
-        status: selectedStatus !== 'Tất cả trạng thái' ? statusMapping[selectedStatus] : null,
-        clinicId: selectedClinicObj ? selectedClinicObj.id : null,
-        keyword: debouncedSearch || null,
-        page: pagination.page,
-        size: pagination.size
-      };
+    const selectedClinicObj = clinics.find((c: any) => c.name === selectedClinic);
 
-      const res = await userApi.getUsers(params);
+    return {
+      role: selectedRole !== 'Tất cả vai trò' ? roleMapping[selectedRole] : null,
+      status: selectedStatus !== 'Tất cả trạng thái' ? statusMapping[selectedStatus] : null,
+      clinicId: selectedClinicObj ? selectedClinicObj.id : null,
+      keyword: debouncedSearch || null,
+      page: pagination.page,
+      size: pagination.size
+    };
+  }, [selectedRole, selectedClinic, selectedStatus, debouncedSearch, pagination.page, pagination.size, clinics]);
+
+  // Fetch Users with React Query
+  const { data: usersData, isLoading } = useQuery({
+    queryKey: ['users', queryParams],
+    queryFn: async () => {
+      const res = await userApi.getUsers(queryParams);
       if (res && res.data) {
         const mappedUsers = (res.data.content || []).map((u: any) => ({
           id: u.id,
@@ -84,39 +112,19 @@ export default function AdminUsers() {
           avatar: u.avatarUrl || `https://i.pravatar.cc/150?u=${u.email}`,
           rawRole: u.role,
         }));
-        setUserList(mappedUsers);
-        setPagination(prev => ({ ...prev, total: res.data.totalElements || 0 }));
+        return {
+          list: mappedUsers,
+          total: res.data.totalElements || 0
+        };
       }
-    } catch (error) {
-      console.error('Failed to fetch users:', error);
-    } finally {
-      if (!isSilent) setIsLoading(false);
+      return { list: [], total: 0 };
     }
-  }, [selectedRole, selectedClinic, selectedStatus, debouncedSearch, pagination.page, pagination.size, clinics]);
+  });
 
-  useEffect(() => {
-    fetchUsers();
-  }, [selectedRole, selectedClinic, selectedStatus, debouncedSearch, pagination.page, pagination.size]);
+  const userList = usersData?.list || [];
+  const totalElements = usersData?.total || 0;
 
-  const fetchClinics = async () => {
-    try {
-      const res = await clinicApi.getClinics({ size: 100 });
-      setClinics(res.data.content || []);
-    } catch (error) {
-      console.error('Failed to fetch clinics:', error);
-    }
-  };
-
-  const fetchStats = async () => {
-    try {
-      const res = await userApi.getUserStats();
-      setUserStats(res.data);
-    } catch (error) {
-      console.error('Failed to fetch user stats:', error);
-    }
-  };
-
-  const clinicOptions = clinics.map(c => c.name);
+  const clinicOptions = clinics.map((c: any) => c.name);
   const filterClinicOptions = ['Tất cả cơ sở', ...clinicOptions];
 
   const handleExport = async () => {
@@ -164,7 +172,7 @@ export default function AdminUsers() {
     ];
 
     // Data Rows
-    userList.forEach(u => {
+    userList.forEach((u: UserSnippet) => {
       const row = worksheet.addRow([
         u.id,
         u.name,
@@ -186,9 +194,9 @@ export default function AdminUsers() {
     });
 
     // Add professional borders
-    worksheet.eachRow((row, rowNumber) => {
+    worksheet.eachRow((row: ExcelJS.Row, rowNumber: number) => {
       if (rowNumber > 1) { // Skip main banner title
-        row.eachCell({ includeEmpty: true }, (cell) => {
+        row.eachCell({ includeEmpty: true }, (cell: ExcelJS.Cell) => {
           cell.border = {
             top: {style:'thin', color: {argb:'FFCBD5E1'}},
             left: {style:'thin', color: {argb:'FFCBD5E1'}},
@@ -218,8 +226,8 @@ export default function AdminUsers() {
       setIsCreateModalOpen(false);
       setToastTitle(`Tài khoản ${apiData.fullName} đã được khởi tạo!`);
       setShowToast(true);
-      fetchUsers();
-      fetchStats();
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      queryClient.invalidateQueries({ queryKey: ['userStats'] });
     } catch (error: any) {
       console.error('Failed to create user:', error);
       alert('Không thể tạo tài khoản: ' + (error.response?.data?.message || 'Có lỗi xảy ra'));
@@ -235,8 +243,8 @@ export default function AdminUsers() {
       setIsEditModalOpen(false);
       setToastTitle(`Cập nhật tài khoản ${data.fullName} thành công!`);
       setShowToast(true);
-      fetchUsers();
-      fetchStats();
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      queryClient.invalidateQueries({ queryKey: ['userStats'] });
     } catch (error: any) {
       console.error('Failed to update user:', error);
       alert('Lỗi cập nhật: ' + (error.response?.data?.message || 'Có lỗi xảy ra'));
@@ -250,25 +258,16 @@ export default function AdminUsers() {
     const action = isCurrentlyActive ? 'ngưng hoạt động' : 'kích hoạt';
 
     try {
-      // 1. API Call first (Stable UI - No Jumping)
       await userApi.toggleStatus(user.id);
-
-      // 2. Success logic
-      const newStatusLabel = isCurrentlyActive ? 'Ngưng hoạt động' : 'Hoạt động';
-      setUserList(prev => prev.map(u => u.id === user.id ? { ...u, status: newStatusLabel } : u));
-      
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      queryClient.invalidateQueries({ queryKey: ['userStats'] });
       setToastType('success');
       setToastTitle(`Đã ${action} tài khoản ${user.name}`);
       setShowToast(true);
-
-      // 3. Silent stats refresh
-      fetchStats();
     } catch (error: any) {
       console.error('Failed to toggle status:', error);
-      
-      // 4. Specific Error Handling as requested: Red notification and no state jump
       setToastType('error');
-      setToastTitle("Phòng khám đã ngưng hoạt động");
+      setToastTitle("Thao tác thất bại");
       setShowToast(true);
     }
   };
@@ -280,15 +279,14 @@ export default function AdminUsers() {
 
   const handleConfirmDelete = async () => {
     if (!deletingUser) return;
-
     setIsSaving(true);
     try {
       await userApi.deleteUser(deletingUser.id);
       setIsDeleteModalOpen(false);
       setToastTitle(`Đã xóa tài khoản ${deletingUser.name}`);
       setShowToast(true);
-      fetchUsers();
-      fetchStats();
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      queryClient.invalidateQueries({ queryKey: ['userStats'] });
     } catch (error: any) {
       console.error('Failed to delete user:', error);
       alert('Lỗi khi xóa người dùng: ' + (error.response?.data?.message || 'Có lỗi xảy ra'));
@@ -301,23 +299,23 @@ export default function AdminUsers() {
   return (
     <>
       <AdminLayout>
-        <section className="p-4 md:p-8 space-y-8 animate-in fade-in duration-700 font-display text-left">
+        <section className="p-4 md:p-8 space-y-6 md:space-y-8 animate-in fade-in duration-700 font-display text-left">
           {/* Page Header */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
               {isLoading ? (
                 <div className="space-y-3 mb-2">
-                  <div className="h-8 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-72"></div>
-                  <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-96"></div>
+                  <div className="h-8 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-48 sm:w-72"></div>
+                  <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-64 sm:w-96"></div>
                 </div>
               ) : (
                 <>
-                  <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Quản lý người dùng</h2>
-                  <p className="text-[16px] text-slate-500 mt-1 font-medium">Phân quyền và quản lý tài khoản toàn hệ thống.</p>
+                  <h2 className="text-xl md:text-2xl font-black tracking-tight text-slate-900 dark:text-white">Quản lý người dùng</h2>
+                  <p className="text-[14px] md:text-[16px] text-slate-500 mt-1 font-medium">Phân quyền và quản lý tài khoản toàn hệ thống.</p>
                 </>
               )}
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {isLoading ? (
                 <>
                   <div className="w-32 h-10 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-full shadow-sm"></div>
@@ -345,11 +343,11 @@ export default function AdminUsers() {
           </div>
 
           {/* Summary Bento Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-8">
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 md:gap-8">
             {isLoading || !userStats ? (
               // Skeleton Stats Cards
               [...Array(5)].map((_, idx) => (
-                <div key={`user-stat-skeleton-${idx}`} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm animate-pulse">
+                <div key={`user-stat-skeleton-${idx}`} className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm animate-pulse">
                   <div className="flex justify-between items-start mb-4">
                     <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800"></div>
                   </div>
@@ -365,26 +363,26 @@ export default function AdminUsers() {
                 { label: 'Quản lý phòng khám', value: userStats?.clinicManagerCount?.toString() || '0', icon: 'manage_accounts', color: 'amber' },
                 { label: 'Bệnh nhân', value: userStats?.patientCount?.toString() || '0', icon: 'person', color: 'emerald' }
               ].map((stat, idx) => (
-                <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-all group hover:shadow-md">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.color === 'primary' ? 'bg-primary/10 text-primary' :
+                <div key={idx} className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-all group hover:shadow-md">
+                  <div className="flex justify-between items-start mb-3 md:mb-4">
+                    <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center ${stat.color === 'primary' ? 'bg-primary/10 text-primary' :
                       stat.color === 'emerald' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600' :
                         stat.color === 'blue' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600' :
                           stat.color === 'amber' ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600' :
                             'bg-slate-100 dark:bg-slate-800 text-slate-600'
                       }`}>
-                      <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>{stat.icon}</span>
+                      <span className="material-symbols-outlined text-xl md:text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>{stat.icon}</span>
                     </div>
                   </div>
-                  <p className="text-slate-500 text-[15px] font-medium mt-1">{stat.label}</p>
-                  <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{stat.value}</h3>
+                  <p className="text-slate-500 text-[13px] md:text-[15px] font-medium mt-1">{stat.label}</p>
+                  <h3 className="text-lg md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{stat.value}</h3>
                 </div>
               ))
             )}
           </div>
 
           {/* Filter Section */}
-          <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-6">
+          <div className="bg-white dark:bg-slate-900 p-4 md:p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-4 md:space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="relative">
                 <label className="text-[14px] font-medium text-slate-500  mb-2 block px-1">
@@ -452,7 +450,87 @@ export default function AdminUsers() {
 
           {/* Data Table */}
           <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800 relative">
-            <div className="overflow-x-auto">
+            {/* Mobile Card View */}
+            <div className="block md:hidden">
+              {isLoading ? (
+                [...Array(5)].map((_, i) => (
+                  <div key={`skeleton-m-${i}`} className="p-4 border-b border-slate-100 dark:border-slate-800 animate-pulse">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 shrink-0"></div>
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-32"></div>
+                        <div className="h-3 bg-slate-100 dark:bg-slate-800/50 rounded w-40"></div>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="h-6 bg-slate-100 dark:bg-slate-800 rounded-full w-16"></div>
+                      <div className="h-6 bg-slate-200 dark:bg-slate-800 rounded-full w-20"></div>
+                    </div>
+                  </div>
+                ))
+              ) : userList.length === 0 ? (
+                <div className="px-6 py-20 text-center">
+                  <div className="flex flex-col items-center gap-2 text-slate-400">
+                    <span className="material-symbols-outlined text-3xl">person_search</span>
+                    <p className="font-medium text-[14px]">Không tìm thấy người dùng</p>
+                  </div>
+                </div>
+              ) : (
+                userList.map((user: UserSnippet, idx: number) => {
+                  const isActive = user.status === 'Hoạt động';
+                  return (
+                    <div key={idx} className="p-4 border-b border-slate-50 dark:border-slate-800">
+                      <div className="flex items-start gap-3 mb-3">
+                        <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 ring-2 ring-primary/10">
+                          <img alt={user.name} className="w-full h-full object-cover" src={user.avatar} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[14px] font-bold text-slate-900 dark:text-white truncate">{user.name}</p>
+                          <p className="text-[12px] text-slate-500 font-medium truncate">{user.email}</p>
+                        </div>
+                        <span className={`px-2.5 py-1 rounded-full text-white text-[11px] font-bold shrink-0 ${isActive ? 'bg-emerald-500' : 'bg-red-500'}`}>
+                          {user.status}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 flex-wrap mb-3">
+                        <span className="text-[12px] font-bold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-lg">{user.role}</span>
+                        <span className="text-[12px] font-medium text-slate-500">{user.clinic}</span>
+                        <span className="text-[12px] font-medium text-slate-400 ml-auto">{user.date}</span>
+                      </div>
+                      <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => { setSelectedUser({ ...user, fullName: user.name }); setIsEditModalOpen(true); }}
+                          className="w-8 h-8 flex items-center justify-center rounded-xl bg-primary/5 text-primary hover:bg-primary/10 transition-all"
+                          title="Chỉnh sửa"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">edit</span>
+                        </button>
+                        <button
+                          onClick={() => handleLockUser(user)}
+                          className={`w-8 h-8 flex items-center justify-center rounded-xl transition-all ${isActive
+                            ? 'bg-slate-100 text-slate-400 hover:bg-red-500/10 hover:text-red-500'
+                            : 'bg-red-500/10 text-red-500 hover:bg-emerald-500/10 hover:text-emerald-500'}`}
+                          title={isActive ? 'Ngưng hoạt động' : 'Kích hoạt'}
+                        >
+                          <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: isActive ? "'FILL' 0" : "'FILL' 1" }}>
+                            {isActive ? 'block' : 'check_circle'}
+                          </span>
+                        </button>
+                        <button
+                          onClick={() => handleDeleteUser(user)}
+                          className="w-8 h-8 flex items-center justify-center rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all"
+                          title="Xóa người dùng"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">delete</span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+            {/* Desktop Table View */}
+            <div className="overflow-x-auto hidden md:block">
               <table className="w-full text-left">
                 <thead>
                   <tr className="px-8 py-4 text-[15px] text-slate-500 leading-none">
@@ -528,7 +606,7 @@ export default function AdminUsers() {
                       </td>
                     </tr>
                   ) : (
-                    userList.map((user, idx) => {
+                    userList.map((user: UserSnippet, idx: number) => {
                       const isActive = user.status === 'Hoạt động';
                       return (
                         <tr key={idx} className="transition-colors group">
@@ -627,7 +705,7 @@ export default function AdminUsers() {
                       </button>
                       <button className="w-8 h-8 rounded-md bg-primary text-white text-[13px] font-extrabold shadow-md">{pagination.page + 1}</button>
                       <button
-                        disabled={(pagination.page + 1) * pagination.size >= pagination.total}
+                        disabled={(pagination.page + 1) * pagination.size >= totalElements}
                         onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
                         className="p-2 rounded-md text-slate-400 hover:bg-white hover:text-primary transition-all disabled:opacity-30 disabled:hover:bg-transparent"
                       >
@@ -637,7 +715,7 @@ export default function AdminUsers() {
 
                     <div className="order-3 md:order-1">
                       <p className="text-[14px] font-medium text-slate-500">
-                        Hiển thị <span className="text-slate-500 font-medium">{userList.length}</span>/<span className="text-slate-500 font-medium">{pagination.total}</span> tài khoản
+                        Hiển thị <span className="text-slate-500 font-medium">{userList.length}</span>/<span className="text-slate-500 font-medium">{totalElements}</span> tài khoản
                       </p>
                     </div>
                   </>

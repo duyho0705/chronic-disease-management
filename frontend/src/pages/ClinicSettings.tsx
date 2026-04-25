@@ -92,10 +92,10 @@ export default function ClinicSettings() {
                     setNotifications={setNotifications}
                 />
 
-                <div className="p-8 space-y-8 max-w-5xl mx-auto w-full">
+                <div className="p-4 md:p-8 space-y-6 md:space-y-8 max-w-5xl mx-auto w-full">
 
 
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 italic-none">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-8 italic-none">
                         {/* Profile Photo Section - Premium Redesign */}
                         <div className="lg:col-span-4 space-y-6">
                             <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 rounded-[40px] shadow-sm overflow-hidden group">
@@ -121,7 +121,7 @@ export default function ClinicSettings() {
 
                                     {/* Name & Code */}
                                     <div className="space-y-2 mb-8">
-                                        <h4 className="text-[20px] font-bold text-slate-900 dark:text-white leading-tight">{clinicData.name || 'Tên phòng khám'}</h4>
+                                        <h4 className="text-[17px] md:text-[20px] font-bold text-slate-900 dark:text-white leading-tight">{clinicData.name || 'Tên phòng khám'}</h4>
                                         <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-50 dark:bg-slate-800/50 rounded-full border border-slate-100 dark:border-slate-800">
                                             <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
                                             <span className="text-[12px] font-bold text-slate-500 uppercase tracking-widest">{clinicData.clinicCode || 'CL-0000'}</span>
@@ -162,9 +162,9 @@ export default function ClinicSettings() {
 
                         {/* Profile Settings Form */}
                         <div className="lg:col-span-8">
-                            <form onSubmit={handleSaveProfile} className="bg-white dark:bg-slate-900 rounded-[32px] p-8 md:p-10 border border-slate-200/60 dark:border-slate-800/80 shadow-sm space-y-8">
+                            <form onSubmit={handleSaveProfile} className="bg-white dark:bg-slate-900 rounded-[32px] p-6 md:p-10 border border-slate-200/60 dark:border-slate-800/80 shadow-sm space-y-6 md:space-y-8">
                                 <div className="space-y-6">
-                                    <h4 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-3">
+                                    <h4 className="text-base md:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-3">
                                         <span className="material-symbols-outlined text-primary text-[22px]">info</span>
                                         Thông tin cơ bản
                                     </h4>

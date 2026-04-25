@@ -101,19 +101,19 @@ export default function AdminServices() {
 
   return (
     <AdminLayout>
-      <section className="p-4 md:p-8 space-y-8 animate-in fade-in duration-700 font-display text-left">
+      <section className="p-4 md:p-8 space-y-6 md:space-y-8 animate-in fade-in duration-700 font-display text-left">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
             {isLoading ? (
               <div className="space-y-3 mb-2">
-                <div className="h-8 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-80"></div>
-                <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-96"></div>
+                <div className="h-8 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-48 sm:w-80"></div>
+                <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-64 sm:w-96"></div>
               </div>
             ) : (
               <>
-                <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Quản lý Dịch vụ & Gói khám</h2>
-                <p className="text-[16px] text-slate-500 mt-1 font-medium">Thiết lập các gói chăm sóc sức khỏe và phí dịch vụ y tế.</p>
+                <h2 className="text-xl md:text-2xl font-black tracking-tight text-slate-900 dark:text-white">Quản lý Dịch vụ & Gói khám</h2>
+                <p className="text-[14px] md:text-[16px] text-slate-500 mt-1 font-medium">Thiết lập các gói chăm sóc sức khỏe và phí dịch vụ y tế.</p>
               </>
             )}
           </div>
@@ -131,10 +131,10 @@ export default function AdminServices() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
           {isLoading ? (
             [...Array(4)].map((_, i) => (
-              <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm space-y-4">
+              <div key={i} className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl border border-primary/5 shadow-sm space-y-4">
                 <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 animate-pulse text-transparent">X</div>
                 <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-24"></div>
                 <div className="h-7 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16"></div>
@@ -147,22 +147,22 @@ export default function AdminServices() {
               { label: 'Ước tính (VNĐ)', value: (services.reduce((acc, s) => acc + (Number(s.price) || 0), 0) / 1000000).toFixed(0) + 'M', icon: 'payments', color: 'amber' },
               { label: 'Lượt đăng ký mới', value: '+124', icon: 'trending_up', color: 'blue' }
             ].map((stat, idx) => (
-              <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-all">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${stat.color === 'primary' ? 'bg-primary/10 text-primary' :
+              <div key={idx} className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl border border-primary/5 shadow-sm hover:shadow-md transition-all">
+                <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center mb-3 md:mb-4 ${stat.color === 'primary' ? 'bg-primary/10 text-primary' :
                   stat.color === 'emerald' ? 'bg-emerald-50 text-emerald-600' :
                     stat.color === 'amber' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'
                   }`}>
-                  <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>{stat.icon}</span>
+                  <span className="material-symbols-outlined text-xl md:text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>{stat.icon}</span>
                 </div>
-                <p className="text-slate-500 text-[15px] font-medium">{stat.label}</p>
-                <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{stat.value}</h3>
+                <p className="text-slate-500 text-[13px] md:text-[15px] font-medium">{stat.label}</p>
+                <h3 className="text-lg md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{stat.value}</h3>
               </div>
             ))
           )}
         </div>
 
         {/* Filters */}
-        <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-primary/5 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white dark:bg-slate-900 p-4 md:p-8 rounded-2xl shadow-sm border border-primary/5 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
           <div className="relative">
             <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">
               {isLoading ? <div className="h-3 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-32 mb-2"></div> : "Tìm kiếm dịch vụ"}

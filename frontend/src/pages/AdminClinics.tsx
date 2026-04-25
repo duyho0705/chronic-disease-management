@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import ExcelJS from 'exceljs';
+import * as ExcelJS from 'exceljs';
 import AdminLayout from '../layouts/AdminLayout';
 import CreateClinicModal from '../features/admin/components/CreateClinicModal';
 import EditClinicModal from '../features/admin/components/EditClinicModal';
@@ -144,9 +144,9 @@ export default function AdminClinics() {
     });
 
     // Add professional borders
-    worksheet.eachRow((row, rowNumber) => {
+    worksheet.eachRow((row: ExcelJS.Row, rowNumber: number) => {
       if (rowNumber > 1) { // Skip main banner title
-        row.eachCell({ includeEmpty: true }, (cell) => {
+        row.eachCell({ includeEmpty: true }, (cell: ExcelJS.Cell) => {
           cell.border = {
             top: {style:'thin', color: {argb:'FFCBD5E1'}},
             left: {style:'thin', color: {argb:'FFCBD5E1'}},
@@ -258,23 +258,23 @@ export default function AdminClinics() {
   return (
     <>
       <AdminLayout>
-        <section className="p-4 md:p-8 space-y-8 animate-in fade-in duration-700 font-display">
+        <section className="p-4 md:p-8 space-y-6 md:space-y-8 animate-in fade-in duration-700 font-display">
           {/* Header Section */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
               {isLoading ? (
                 <div className="space-y-3 mb-2">
-                  <div className="h-8 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-72"></div>
-                  <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-96"></div>
+                  <div className="h-8 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-48 sm:w-72"></div>
+                  <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-64 sm:w-96"></div>
                 </div>
               ) : (
                 <>
-                  <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Quản lý cơ sở y tế</h2>
-                  <p className="text-[16px] text-slate-500 mt-1 font-medium italic-none">Vận hành và giám sát mạng lưới phòng khám toàn hệ thống</p>
+                  <h2 className="text-xl md:text-2xl font-black tracking-tight text-slate-900 dark:text-white">Quản lý cơ sở y tế</h2>
+                  <p className="text-[14px] md:text-[16px] text-slate-500 mt-1 font-medium italic-none">Vận hành và giám sát mạng lưới phòng khám toàn hệ thống</p>
                 </>
               )}
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {isLoading ? (
                 <>
                   <div className="w-40 h-10 bg-slate-900 dark:bg-slate-800 animate-pulse rounded-lg shadow-sm"></div>
@@ -302,11 +302,11 @@ export default function AdminClinics() {
           </div>
 
           {/* Bento Grid Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
             {isLoading ? (
               // Skeleton Stats
               [...Array(4)].map((_, idx) => (
-                <div key={`stat-skeleton-${idx}`} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm animate-pulse text-left">
+                <div key={`stat-skeleton-${idx}`} className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl border border-primary/5 shadow-sm animate-pulse text-left">
                   <div className="flex items-center justify-between mb-4">
                     <div className="w-12 h-12 rounded-2xl bg-slate-200 dark:bg-slate-800"></div>
                   </div>
@@ -316,17 +316,17 @@ export default function AdminClinics() {
               ))
             ) : (
               stats.map((stat, idx) => (
-                <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm group hover:border-primary/20 transition-all text-left">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className={`w-12 h-12 rounded-2xl bg-${stat.color === 'primary' ? 'primary' : stat.color + '-500'}/10 flex items-center justify-center text-${stat.color === 'primary' ? 'primary' : stat.color + '-500'}`}>
-                      <span className="material-symbols-outlined text-2xl">{stat.icon}</span>
+                <div key={idx} className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl border border-primary/5 shadow-sm group hover:border-primary/20 transition-all text-left">
+                  <div className="flex items-center justify-between mb-3 md:mb-4">
+                    <div className={`w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-${stat.color === 'primary' ? 'primary' : stat.color + '-500'}/10 flex items-center justify-center text-${stat.color === 'primary' ? 'primary' : stat.color + '-500'}`}>
+                      <span className="material-symbols-outlined text-xl md:text-2xl">{stat.icon}</span>
                     </div>
                     {stat.change && (
-                      <span className="text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-1 rounded-lg text-[13px] font-bold">{stat.change} tháng</span>
+                      <span className="text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-1 rounded-lg text-[11px] md:text-[13px] font-bold">{stat.change} tháng</span>
                     )}
                   </div>
-                  <p className="text-slate-500 text-[15px] font-medium mb-1">{stat.title}</p>
-                  <h3 className="text-3xl font-black text-slate-900 dark:text-white">{stat.value}</h3>
+                  <p className="text-slate-500 text-[13px] md:text-[15px] font-medium mb-1">{stat.title}</p>
+                  <h3 className="text-xl md:text-3xl font-black text-slate-900 dark:text-white">{stat.value}</h3>
                 </div>
               ))
             )}
@@ -334,11 +334,11 @@ export default function AdminClinics() {
 
           {/* List Table Card */}
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm overflow-hidden border border-primary/5 text-left">
-            <div className="px-8 py-6 border-b border-primary/10 flex justify-between items-center">
+            <div className="px-4 md:px-8 py-4 md:py-6 border-b border-primary/10 flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
               {isLoading ? (
                 <div className="h-6 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-48"></div>
               ) : (
-                <h4 className="text-[19px] font-bold text-slate-900 dark:text-white">Danh sách chi tiết hệ thống</h4>
+                <h4 className="text-[16px] md:text-[19px] font-bold text-slate-900 dark:text-white">Danh sách chi tiết hệ thống</h4>
               )}
               <div className="flex gap-2">
                 {isLoading ? (
@@ -395,7 +395,90 @@ export default function AdminClinics() {
                 </div>
               </div>
             </div>
-            <div className="overflow-x-auto overflow-y-hidden">
+            {/* Mobile Card View */}
+            <div className="block md:hidden">
+              {isLoading ? (
+                [...Array(5)].map((_, i) => (
+                  <div key={`clinic-skeleton-m-${i}`} className="p-4 border-b border-slate-100 dark:border-slate-800 animate-pulse">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-12 h-12 rounded-xl bg-slate-200 dark:bg-slate-800 shrink-0"></div>
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-32"></div>
+                        <div className="h-3 bg-slate-100 dark:bg-slate-800/50 rounded w-24"></div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : filteredClinics.length === 0 ? (
+                <div className="px-4 py-20 text-center">
+                  <p className="text-slate-500 font-medium">Không tìm thấy phòng khám nào phù hợp.</p>
+                </div>
+              ) : (
+                filteredClinics.map((clinic, idx) => (
+                  <div key={idx} className="p-4 border-b border-slate-50 dark:border-slate-800">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-12 h-12 rounded-xl bg-primary/5 flex items-center justify-center overflow-hidden border border-primary/10 shrink-0">
+                        {clinic.image ? (
+                          <img className="w-full h-full object-cover" src={clinic.image} alt={clinic.name} />
+                        ) : (
+                          <span className="material-symbols-outlined text-primary/40">home_health</span>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[14px] font-semibold text-slate-900 dark:text-white truncate">{clinic.name}</p>
+                        <code className="text-[12px] text-slate-500 font-semibold">{clinic.id}</code>
+                      </div>
+                      <span className={`px-2.5 py-1 rounded-full text-white text-[11px] font-bold shrink-0 ${clinic.status === 'Hoạt động' ? 'bg-emerald-500' : 'bg-red-500'}`}>
+                        {clinic.status === 'Hoạt động' ? 'Hoạt động' : 'Ngưng'}
+                      </span>
+                    </div>
+                    <div className="space-y-1.5 mb-3">
+                      <p className="text-[13px] text-slate-500 font-medium truncate flex items-center gap-1.5">
+                        <span className="material-symbols-outlined text-[14px] text-slate-400">location_on</span>
+                        {clinic.address}
+                      </p>
+                      <p className="text-[13px] text-slate-600 dark:text-slate-400 font-bold flex items-center gap-1.5">
+                        <span className="material-symbols-outlined text-[14px] text-slate-400">call</span>
+                        {clinic.phone}
+                      </p>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[16px] text-primary">stethoscope</span>
+                        <span className="text-[13px] font-bold text-slate-700 dark:text-slate-300">{clinic.doctors} bác sĩ</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => { setSelectedClinic(clinic); setIsEditModalOpen(true); }}
+                          className="w-8 h-8 flex items-center justify-center rounded-xl bg-primary/5 text-primary hover:bg-primary/10 transition-all"
+                          title="Chỉnh sửa"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">edit</span>
+                        </button>
+                        <button
+                          onClick={() => handleLockClinic(clinic)}
+                          className={`w-8 h-8 flex items-center justify-center rounded-xl transition-all ${clinic.status === 'Hoạt động'
+                            ? 'bg-blue-500/5 text-blue-500 hover:bg-blue-500/10'
+                            : 'bg-red-500/5 text-red-500 hover:bg-red-500/10'}`}
+                          title={clinic.status === 'Hoạt động' ? 'Ngưng hoạt động' : 'Kích hoạt'}
+                        >
+                          <span className="material-symbols-outlined text-[16px]">{clinic.status === 'Hoạt động' ? 'block' : 'check_circle'}</span>
+                        </button>
+                        <button
+                          onClick={() => { setSelectedClinic(clinic); setIsDetailsModalOpen(true); }}
+                          className="w-8 h-8 flex items-center justify-center rounded-xl bg-indigo-500/5 text-indigo-500 hover:bg-indigo-500/10 transition-all"
+                          title="Chi tiết"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">visibility</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+            {/* Desktop Table View */}
+            <div className="overflow-x-auto overflow-y-hidden hidden md:block">
               <table className="w-full text-left">
                 <thead>
                   <tr className="bg-slate-50/50 dark:bg-slate-800/50">
@@ -538,7 +621,7 @@ export default function AdminClinics() {
                 </tbody>
               </table>
             </div>
-            <div className="px-8 py-6 bg-slate-50/50 dark:bg-slate-800/30 border-t border-primary/10 flex justify-between items-center">
+            <div className="px-4 md:px-8 py-4 md:py-6 bg-slate-50/50 dark:bg-slate-800/30 border-t border-primary/10 flex flex-col sm:flex-row justify-between items-center gap-3">
               {isLoading ? (
                 <>
                   <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-48"></div>

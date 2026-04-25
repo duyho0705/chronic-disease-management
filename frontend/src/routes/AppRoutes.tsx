@@ -30,13 +30,13 @@ import PatientHealthMetrics from '../pages/PatientHealthMetrics';
 import PatientMessages from '../pages/PatientMessages';
 import PatientPrescriptions from '../pages/PatientPrescriptions';
 import PatientProfile from '../pages/PatientProfile';
-import LoginPage from '../pages/LoginPage';
+
 
 const AppRoutes = () => {
   return (
     <Routes>
       <Route path={ROUTES.HOME} element={<LandingPage />} />
-      <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+
       
       {/* Patient Portal Routes */}
       <Route path="/patient" element={<PatientLayout />}>

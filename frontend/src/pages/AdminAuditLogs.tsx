@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import ExcelJS from 'exceljs';
+import * as ExcelJS from 'exceljs';
 import AdminLayout from '../layouts/AdminLayout';
 import Dropdown from '../components/ui/Dropdown';
 import { auditApi } from '../api/audit';
@@ -132,9 +132,9 @@ export default function AdminAuditLogs() {
     });
 
     // Add professional borders
-    worksheet.eachRow((row, rowNumber) => {
+    worksheet.eachRow((row: ExcelJS.Row, rowNumber: number) => {
       if (rowNumber > 1) {
-        row.eachCell({ includeEmpty: true }, (cell) => {
+        row.eachCell({ includeEmpty: true }, (cell: ExcelJS.Cell) => {
           cell.border = {
             top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
             left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
@@ -159,21 +159,21 @@ export default function AdminAuditLogs() {
 
   return (
     <AdminLayout>
-      <section className="p-4 md:p-8 space-y-8 animate-in fade-in duration-700 font-display text-left">
+      <section className="p-4 md:p-8 space-y-6 md:space-y-8 animate-in fade-in duration-700 font-display text-left">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
             {isLoading ? (
               <div className="space-y-3 mb-2 text-left">
-                <div className="h-8 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-64"></div>
-                <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-96"></div>
+                <div className="h-8 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-48 sm:w-64"></div>
+                <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-64 sm:w-96"></div>
               </div>
             ) : (
               <>
-                <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
+                <h2 className="text-xl md:text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
                   Nhật ký hệ thống
                 </h2>
-                <p className="text-[16px] text-slate-500 mt-1 font-medium">Theo dõi và truy vết mọi hoạt động của người dùng trên toàn hệ thống.</p>
+                <p className="text-[14px] md:text-[16px] text-slate-500 mt-1 font-medium">Theo dõi và truy vết mọi hoạt động của người dùng trên toàn hệ thống.</p>
               </>
             )}
           </div>
@@ -191,7 +191,7 @@ export default function AdminAuditLogs() {
         </div>
 
         {/* Filter Section */}
-        <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-primary/5 space-y-6 text-left italic-none">
+        <div className="bg-white dark:bg-slate-900 p-4 md:p-8 rounded-2xl shadow-sm border border-primary/5 space-y-4 md:space-y-6 text-left italic-none">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="relative text-left">
               <label className="text-[14px] font-medium text-slate-500 dark:text-slate-400 mb-2 block px-1">
@@ -250,7 +250,75 @@ export default function AdminAuditLogs() {
 
         {/* Timeline-style Table */}
         <div className="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-sm border border-primary/5 relative">
-          <div className="overflow-x-auto">
+          {/* Mobile Card View */}
+          <div className="block md:hidden">
+            {isLoading ? (
+              [...Array(pagination.size)].map((_, i) => (
+                <div key={`skeleton-m-${i}`} className="p-4 border-b border-slate-100 dark:border-slate-800 animate-pulse">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-800 shrink-0"></div>
+                    <div className="flex-1 space-y-1">
+                      <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-24"></div>
+                      <div className="h-3 bg-slate-100 dark:bg-slate-800/50 rounded w-32"></div>
+                    </div>
+                  </div>
+                  <div className="h-3 bg-slate-100 dark:bg-slate-800/50 rounded w-full mt-2"></div>
+                </div>
+              ))
+            ) : logList.length > 0 ? (
+              logList.map((log: any) => {
+                const dateObj = new Date(log.time);
+                const displayTime = !isNaN(dateObj.getTime())
+                  ? dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+                  : log.time;
+                const displayDate = !isNaN(dateObj.getTime())
+                  ? dateObj.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                  : '';
+                return (
+                  <div key={log.id} className="p-4 border-b border-slate-50 dark:border-slate-800">
+                    <div className="flex items-center gap-3 mb-2">
+                      <img
+                        className="w-8 h-8 rounded-lg overflow-hidden shrink-0 border border-primary/10"
+                        src={log.user.avatar || `https://i.pravatar.cc/150?u=${log.id}`}
+                        alt={log.user.name}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-bold text-slate-900 dark:text-white truncate">{log.user.name}</p>
+                        <p className="text-[11px] text-slate-400">{displayTime} - {displayDate}</p>
+                      </div>
+                      <code
+                        onClick={() => handleIpClick(log.ip)}
+                        className="text-[10px] font-mono font-bold text-white bg-emerald-500 px-2 py-1 rounded-lg cursor-pointer hover:bg-emerald-600 transition-all shrink-0"
+                      >
+                        {log.ip}
+                      </code>
+                    </div>
+                    <p className="text-[13px] font-medium text-slate-700 dark:text-slate-300 mb-1">{log.action}</p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-medium text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">{log.module}</span>
+                      <p className="text-[11px] text-slate-400 truncate flex-1">
+                        {log.details ? log.details
+                          .replace(/DOCTOR/g, 'Bác sĩ')
+                          .replace(/ADMIN/g, 'QTV')
+                          .replace(/PATIENT/g, 'BN')
+                          .replace(/CLINIC_MANAGER/g, 'QLPK')
+                          : '--'}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="px-4 py-12 text-center">
+                <div className="flex flex-col items-center gap-2 text-slate-400">
+                  <span className="material-symbols-outlined text-3xl">search_off</span>
+                  <p className="font-medium text-[14px]">Không tìm thấy nhật ký</p>
+                </div>
+              </div>
+            )}
+          </div>
+          {/* Desktop Table View */}
+          <div className="overflow-x-auto hidden md:block">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50/50 dark:bg-slate-800/50">

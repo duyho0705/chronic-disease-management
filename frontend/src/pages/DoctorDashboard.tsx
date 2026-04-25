@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import ExcelJS from 'exceljs';
+import * as ExcelJS from 'exceljs';
 import TopBar from '../components/common/TopBar';
 import PatientDetailModal from '../features/patient/components/PatientDetailModal';
 import AdviceModal from '../features/patient/components/AdviceModal';
@@ -223,9 +223,9 @@ export default function DoctorDashboard() {
     });
 
     // Borders
-    worksheet.eachRow((row, rowNumber) => {
+    worksheet.eachRow((row: ExcelJS.Row, rowNumber: number) => {
       if (rowNumber > 1) {
-        row.eachCell({ includeEmpty: true }, (cell) => {
+        row.eachCell({ includeEmpty: true }, (cell: ExcelJS.Cell) => {
           cell.border = {
             top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
             left: { style: 'thin', color: { argb: 'FFCBD5E1' } },

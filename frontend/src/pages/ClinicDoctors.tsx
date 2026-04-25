@@ -202,7 +202,7 @@ export default function ClinicDoctors() {
                     setNotifications={setNotifications}
                 />
 
-                <div className="p-8 space-y-6">
+                <div className="p-4 md:p-8 space-y-6">
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                         {isLoading ? (
                             <div className="space-y-2">
@@ -211,8 +211,8 @@ export default function ClinicDoctors() {
                             </div>
                         ) : (
                             <div className="space-y-1">
-                                <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Danh sách đội ngũ bác sĩ</h3>
-                                <p className="text-slate-500 font-medium">Quản lý và điều phối nhân sự y tế trong phòng khám</p>
+                                <h3 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight">Danh sách đội ngũ bác sĩ</h3>
+                                <p className="text-[13px] md:text-base text-slate-500 font-medium">Quản lý và điều phối nhân sự y tế trong phòng khám</p>
                             </div>
                         )}
 
@@ -230,10 +230,10 @@ export default function ClinicDoctors() {
                     </div>
 
                     {/* Statistic Overview Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 italic-none mb-6">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 italic-none mb-6">
                         {isLoading || !stats ? (
                             [...Array(4)].map((_, i) => (
-                                <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm space-y-4 animate-pulse">
+                                <div key={i} className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl border border-primary/5 shadow-sm space-y-4 animate-pulse">
                                     <div className="flex items-center justify-between">
                                         <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl"></div>
                                         <div className="w-24 h-6 bg-slate-50 dark:bg-slate-800 rounded-full"></div>
@@ -247,66 +247,66 @@ export default function ClinicDoctors() {
                         ) : (
                             <>
                                 {/* Total Doctors */}
-                                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
-                                            <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>stethoscope</span>
+                                <div className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
+                                    <div className="flex items-center justify-between mb-3 md:mb-4">
+                                        <div className="w-10 h-10 md:w-12 md:h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                                            <span className="material-symbols-outlined text-[20px] md:text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>stethoscope</span>
                                         </div>
-                                        <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[12px] font-bold rounded-full border border-emerald-100/50">Đang hoạt động</span>
+                                        <span className="px-2 md:px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] md:text-[12px] font-bold rounded-full border border-emerald-100/50">Đang hoạt động</span>
                                     </div>
                                     <div>
-                                        <p className="text-[14px] font-medium text-slate-500 mb-0.5">Tổng số bác sĩ</p>
-                                        <h4 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">
-                                            {stats?.doctorPerformances?.length || totalElements} <span className="text-sm font-medium text-slate-600">nhân sự</span>
+                                        <p className="text-[12px] md:text-[14px] font-medium text-slate-500 mb-0.5">Tổng số bác sĩ</p>
+                                        <h4 className="text-lg md:text-2xl font-bold text-slate-900 dark:text-white leading-tight">
+                                            {stats?.doctorPerformances?.length || totalElements} <span className="text-xs md:text-sm font-medium text-slate-600">nhân sự</span>
                                         </h4>
                                     </div>
                                 </div>
 
                                 {/* Active Doctors */}
-                                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/10 rounded-xl flex items-center justify-center text-emerald-600">
-                                            <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified_user</span>
+                                <div className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
+                                    <div className="flex items-center justify-between mb-3 md:mb-4">
+                                        <div className="w-10 h-10 md:w-12 md:h-12 bg-emerald-50 dark:bg-emerald-900/10 rounded-xl flex items-center justify-center text-emerald-600">
+                                            <span className="material-symbols-outlined text-[20px] md:text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified_user</span>
                                         </div>
-                                        <span className="px-3 py-1 bg-slate-50 text-slate-500 text-[12px] font-bold rounded-full border border-slate-200/50">Sẵn sàng</span>
+                                        <span className="px-2 md:px-3 py-1 bg-slate-50 text-slate-500 text-[10px] md:text-[12px] font-bold rounded-full border border-slate-200/50">Sẵn sàng</span>
                                     </div>
                                     <div>
-                                        <p className="text-[14px] font-medium text-slate-600 mb-0.5">Đã cấp chứng chỉ</p>
-                                        <h4 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">
-                                            {stats?.doctorPerformances?.filter((d: any) => d.status === 'ACTIVE').length || 0} <span className="text-sm font-medium text-slate-600">bác sĩ</span>
+                                        <p className="text-[12px] md:text-[14px] font-medium text-slate-600 mb-0.5">Đã cấp chứng chỉ</p>
+                                        <h4 className="text-lg md:text-2xl font-bold text-slate-900 dark:text-white leading-tight">
+                                            {stats?.doctorPerformances?.filter((d: any) => d.status === 'ACTIVE').length || 0} <span className="text-xs md:text-sm font-medium text-slate-600">bác sĩ</span>
                                         </h4>
                                     </div>
                                 </div>
 
                                 {/* Work Load/Performance */}
-                                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/10 rounded-xl flex items-center justify-center text-indigo-600">
-                                            <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>monitoring</span>
+                                <div className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
+                                    <div className="flex items-center justify-between mb-3 md:mb-4">
+                                        <div className="w-10 h-10 md:w-12 md:h-12 bg-indigo-50 dark:bg-indigo-900/10 rounded-xl flex items-center justify-center text-indigo-600">
+                                            <span className="material-symbols-outlined text-[20px] md:text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>monitoring</span>
                                         </div>
-                                        <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[12px] font-bold rounded-full border border-emerald-100/50">+12% Hiệu năng</span>
+                                        <span className="px-2 md:px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] md:text-[12px] font-bold rounded-full border border-emerald-100/50">+12% Hiệu năng</span>
                                     </div>
                                     <div>
-                                        <p className="text-[14px] font-medium text-slate-600 mb-0.5">Tỷ lệ hài lòng</p>
-                                        <h4 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">98.5 <span className="text-sm font-medium text-slate-600">%</span></h4>
+                                        <p className="text-[12px] md:text-[14px] font-medium text-slate-600 mb-0.5">Tỷ lệ hài lòng</p>
+                                        <h4 className="text-lg md:text-2xl font-bold text-slate-900 dark:text-white leading-tight">98.5 <span className="text-xs md:text-sm font-medium text-slate-600">%</span></h4>
                                     </div>
                                 </div>
 
                                 {/* Average Load */}
-                                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className="w-12 h-12 bg-sky-50 dark:bg-sky-900/10 rounded-xl flex items-center justify-center text-sky-600">
-                                            <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>speed</span>
+                                <div className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
+                                    <div className="flex items-center justify-between mb-3 md:mb-4">
+                                        <div className="w-10 h-10 md:w-12 md:h-12 bg-sky-50 dark:bg-sky-900/10 rounded-xl flex items-center justify-center text-sky-600">
+                                            <span className="material-symbols-outlined text-[20px] md:text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>speed</span>
                                         </div>
-                                        <span className={`px-3 py-1 text-[12px] font-bold rounded-full border ${stats?.averageDoctorLoad > 50 ? 'bg-rose-50 text-rose-600 border-rose-100/50' : 'bg-sky-50 text-sky-600 border-sky-100/50'}`}>
+                                        <span className={`px-2 md:px-3 py-1 text-[10px] md:text-[12px] font-bold rounded-full border ${stats?.averageDoctorLoad > 50 ? 'bg-rose-50 text-rose-600 border-rose-100/50' : 'bg-sky-50 text-sky-600 border-sky-100/50'}`}>
                                             {stats?.averageDoctorLoad > 50 ? 'Cảnh báo' : 'Ổn định'}
                                         </span>
                                     </div>
                                     <div>
-                                        <p className="text-[14px] font-medium text-slate-600 mb-0.5">Tải lượng trung bình</p>
-                                        <h4 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">
+                                        <p className="text-[12px] md:text-[14px] font-medium text-slate-600 mb-0.5">Tải lượng trung bình</p>
+                                        <h4 className="text-lg md:text-2xl font-bold text-slate-900 dark:text-white leading-tight">
                                             {stats?.averageDoctorLoad ? Math.round(stats.averageDoctorLoad) : 0}
-                                            <span className="text-sm font-medium text-slate-600 ml-1">bệnh nhân / bác sĩ</span>
+                                            <span className="text-xs md:text-sm font-medium text-slate-600 ml-1">bệnh nhân / bác sĩ</span>
                                         </h4>
                                     </div>
                                 </div>

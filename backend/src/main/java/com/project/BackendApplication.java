@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication
 @org.springframework.scheduling.annotation.EnableAsync
+@org.springframework.cache.annotation.EnableCaching
 @Slf4j
 public class BackendApplication {
     public static void main(String[] args) {

@@ -32,73 +32,77 @@ public class DoctorDashboardServiceImpl implements DoctorDashboardService {
 
         @Override
         @Transactional(readOnly = true)
+        @org.springframework.cache.annotation.Cacheable(value = "doctor_dashboard", key = "#doctorId")
         public DoctorDashboardResponse getDashboardData(Long doctorId) {
                 LocalDateTime now = LocalDateTime.now();
                 LocalDateTime startOfToday = LocalDate.now().atStartOfDay();
 
-                // 1. Fetch Stats - real data
-                long totalPatients = doctorPatientService.getTotalPatientCount(doctorId);
-                long highRiskCount = doctorPatientService.getHighRiskCount(doctorId);
-                long pendingAppointments = appointmentRepository.countByDoctorIdAndStatusInAndAppointmentTimeAfter(
+                // 1. Fetch Stats in parallel
+                java.util.concurrent.CompletableFuture<Long> totalPatientsFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
+                        doctorPatientService.getTotalPatientCount(doctorId));
+                
+                java.util.concurrent.CompletableFuture<Long> highRiskCountFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
+                        doctorPatientService.getHighRiskCount(doctorId));
+                
+                java.util.concurrent.CompletableFuture<Long> pendingAppointmentsFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
+                        appointmentRepository.countByDoctorIdAndStatusInAndAppointmentTimeAfter(
                                 doctorId,
                                 java.util.List.of(AppConstants.APPT_STATUS_PENDING, AppConstants.APPT_STATUS_SCHEDULED),
-                                now);
+                                now));
 
-                long unreadMessages = messageRepository
-                                .countByConversationDoctorIdAndIsReadFalseAndSenderIdNot(doctorId, doctorId);
+                java.util.concurrent.CompletableFuture<Long> unreadMessagesFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
+                        messageRepository.countByConversationDoctorIdAndIsReadFalseAndSenderIdNot(doctorId, doctorId));
 
-                DashboardStatsDto stats = DashboardStatsDto.builder()
-                                .totalPatients(totalPatients)
-                                .highRiskCount(highRiskCount)
-                                .pendingAppointmentsCount(pendingAppointments)
-                                .unreadMessagesCount(unreadMessages)
-                                .build();
-
-                // 2. Fetch Upcoming Appointments
-                List<AppointmentSnippetDto> upcomingAppointments = appointmentRepository.findUpcomingAppointments(
-                                doctorId, startOfToday, PageRequest.of(0, 5))
+                // 2. Fetch Appointments & Patients in parallel
+                java.util.concurrent.CompletableFuture<List<AppointmentSnippetDto>> upcomingAppointmentsFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
+                        appointmentRepository.findUpcomingAppointments(doctorId, startOfToday, PageRequest.of(0, 5))
                                 .stream()
                                 .map(apt -> AppointmentSnippetDto.builder()
                                                 .id(apt.getId())
-                                                .patientName(apt.getPatient() != null ? apt.getPatient().getFullName()
-                                                                : "N/A")
-                                                .displayTime(apt.getAppointmentTime() != null
-                                                                ? DateTimeUtils.formatForDashboard(
-                                                                                apt.getAppointmentTime())
-                                                                : "N/A")
+                                                .patientName(apt.getPatient() != null ? apt.getPatient().getFullName() : "N/A")
+                                                .displayTime(apt.getAppointmentTime() != null ? DateTimeUtils.formatForDashboard(apt.getAppointmentTime()) : "N/A")
                                                 .type(apt.getType())
-                                                .isPast(apt.getAppointmentTime() != null
-                                                                && apt.getAppointmentTime().isBefore(now))
+                                                .isPast(apt.getAppointmentTime() != null && apt.getAppointmentTime().isBefore(now))
                                                 .build())
-                                .collect(Collectors.toList());
+                                .collect(Collectors.toList()));
 
-                // 3. Recent patients (paginated, top 5)
-                List<DoctorPatientResponse> recentPatients = doctorPatientService
-                                .getMyPatients(doctorId, null, null, null, PageRequest.of(0, 5))
-                                .getContent();
+                java.util.concurrent.CompletableFuture<List<DoctorPatientResponse>> recentPatientsFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
+                        doctorPatientService.getMyPatients(doctorId, null, null, null, PageRequest.of(0, 5)).getContent());
 
-                // 4. High risk patients
-                List<DoctorPatientResponse> highRiskPatients = doctorPatientService
-                                .getMyPatients(doctorId, null, null, AppConstants.RISK_HIGH, PageRequest.of(0, 5))
-                                .getContent();
+                java.util.concurrent.CompletableFuture<List<DoctorPatientResponse>> highRiskPatientsDataFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
+                        doctorPatientService.getMyPatients(doctorId, null, null, AppConstants.RISK_HIGH, PageRequest.of(0, 5)).getContent());
+
+                java.util.concurrent.CompletableFuture<java.util.List<String>> insightsFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
+                        clinicalAnalyticsService.getDoctorInsights(doctorId));
+
+                // Wait for all
+                java.util.concurrent.CompletableFuture.allOf(
+                        totalPatientsFuture, highRiskCountFuture, pendingAppointmentsFuture, unreadMessagesFuture,
+                        upcomingAppointmentsFuture, recentPatientsFuture, highRiskPatientsDataFuture, insightsFuture
+                ).join();
+
+                DashboardStatsDto stats = DashboardStatsDto.builder()
+                                .totalPatients(totalPatientsFuture.join())
+                                .highRiskCount(highRiskCountFuture.join())
+                                .pendingAppointmentsCount(pendingAppointmentsFuture.join())
+                                .unreadMessagesCount(unreadMessagesFuture.join())
+                                .build();
 
                 return DoctorDashboardResponse.builder()
                                 .stats(stats)
-                                .upcomingAppointments(upcomingAppointments)
-                                .recentPatients(recentPatients)
-                                .highRiskPatients(highRiskPatients.stream()
+                                .upcomingAppointments(upcomingAppointmentsFuture.join())
+                                .recentPatients(recentPatientsFuture.join())
+                                .highRiskPatients(highRiskPatientsDataFuture.join().stream()
                                                 .map(p -> DoctorDashboardResponse.DoctorPatientResponseSnippet.builder()
                                                                 .id(p.getId())
                                                                 .name(p.getFullName())
                                                                 .condition(p.getChronicCondition())
                                                                 .riskLevel(p.getRiskLevel())
-                                                                .lastUpdate(p.getLastUpdate() != null
-                                                                                ? p.getLastUpdate()
-                                                                                : "Vừa xong")
+                                                                .lastUpdate(p.getLastUpdate() != null ? p.getLastUpdate() : "Vừa xong")
                                                                 .img(p.getAvatarUrl())
                                                                 .build())
                                                 .collect(Collectors.toList()))
-                                .insights(clinicalAnalyticsService.getDoctorInsights(doctorId))
+                                .insights(insightsFuture.join())
                                 .build();
         }
 }

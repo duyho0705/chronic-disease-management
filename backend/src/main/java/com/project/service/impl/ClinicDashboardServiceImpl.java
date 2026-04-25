@@ -57,6 +57,7 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
 
     @Override
     @Transactional(readOnly = true)
+    @org.springframework.cache.annotation.Cacheable(value = "clinic_dashboard", key = "#clinicId + '_' + #period")
     public ClinicDashboardResponse getDashboardData(Long clinicId, String period) {
         // Optimized: Start all primary data fetching in parallel
         java.util.concurrent.CompletableFuture<Long> totalPatientsFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
@@ -409,6 +410,7 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
 
     @Override
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "clinic_dashboard", allEntries = true)
     public void createPatient(Long clinicId, CreatePatientRequest request) {
         String email = request.getEmail();
 
@@ -488,6 +490,7 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
 
     @Override
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "clinic_dashboard", allEntries = true)
     public void updatePatient(Long clinicId, Long patientId, CreatePatientRequest request) {
         log.info("Updating patient {} for clinic {}", patientId, clinicId);
         Patient patient = patientRepository.findById(patientId)
@@ -643,6 +646,7 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
 
     @Override
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "clinic_dashboard", allEntries = true)
     public void deletePatient(Long clinicId, Long patientId) {
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new RuntimeException("Patient not found"));
@@ -716,6 +720,7 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
 
     @Override
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "clinic_dashboard", allEntries = true)
     public void createDoctor(Long clinicId, CreateDoctorRequest request) {
         User user = User.builder()
                 .email(request.getEmail())
@@ -739,6 +744,7 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
 
     @Override
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "clinic_dashboard", allEntries = true)
     public void updateDoctor(Long clinicId, Long doctorId, CreateDoctorRequest request) {
         User user = userRepository.findById(doctorId)
                 .orElseThrow(() -> new RuntimeException("Doctor not found"));
@@ -770,6 +776,7 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
 
     @Override
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "clinic_dashboard", allEntries = true)
     public void deleteDoctor(Long clinicId, Long doctorId) {
         User user = userRepository.findById(doctorId)
                 .orElseThrow(() -> new RuntimeException("Doctor not found"));

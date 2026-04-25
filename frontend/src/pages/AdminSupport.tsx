@@ -144,21 +144,21 @@ export default function AdminSupport() {
 
   return (
     <AdminLayout>
-      <section className="py-8 md:py-10 px-4 md:px-8 flex-1 flex flex-col space-y-8 animate-in fade-in duration-700 font-display text-left">
+      <section className="py-6 md:py-10 px-4 md:px-8 flex-1 flex flex-col space-y-6 md:space-y-8 animate-in fade-in duration-700 font-display text-left">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
             {isLoading ? (
               <div className="space-y-3 mb-2">
-                <div className="h-8 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-64"></div>
-                <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-96"></div>
+                <div className="h-8 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-48 sm:w-64"></div>
+                <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-64 sm:w-96"></div>
               </div>
             ) : (
               <>
-                <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
+                <h2 className="text-xl md:text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
                   Trung tâm hỗ trợ
                 </h2>
-                <p className="text-[16px] text-slate-500 mt-1 font-medium">Tiếp nhận và quản lý các yêu cầu kỹ thuật từ đội ngũ bác sĩ & phòng khám.</p>
+                <p className="text-[14px] md:text-[16px] text-slate-500 mt-1 font-medium">Tiếp nhận và quản lý các yêu cầu kỹ thuật từ đội ngũ bác sĩ & phòng khám.</p>
               </>
             )}
           </div>
@@ -175,10 +175,10 @@ export default function AdminSupport() {
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
           {isLoading ? (
             [...Array(4)].map((_, i) => (
-              <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm space-y-4">
+              <div key={i} className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl border border-primary/5 shadow-sm space-y-4">
                 <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 animate-pulse"></div>
                 <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-24"></div>
                 <div className="h-7 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-12"></div>
@@ -186,16 +186,16 @@ export default function AdminSupport() {
             ))
           ) : (
             stats.map((stat, idx) => (
-              <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm">
-                <p className="text-slate-500 text-[15px] font-medium mt-1">{stat.label}</p>
-                <h3 className="text-2xl font-black text-slate-900 dark:text-white mt-1">{stat.value}</h3>
+              <div key={idx} className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl border border-primary/5 shadow-sm">
+                <p className="text-slate-500 text-[13px] md:text-[15px] font-medium mt-1">{stat.label}</p>
+                <h3 className="text-lg md:text-2xl font-black text-slate-900 dark:text-white mt-1">{stat.value}</h3>
               </div>
             ))
           )}
         </div>
 
         {/* Filters */}
-        <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-primary/5 space-y-6">
+        <div className="bg-white dark:bg-slate-900 p-4 md:p-8 rounded-2xl shadow-sm border border-primary/5 space-y-4 md:space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="relative">
               <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">
@@ -251,7 +251,56 @@ export default function AdminSupport() {
 
         {/* Tickets List */}
         <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-primary/5 relative">
-          <div className="overflow-visible">
+          {/* Mobile Card View */}
+          <div className="block md:hidden">
+            {isLoading ? (
+              [...Array(itemsPerPage)].map((_, i) => (
+                <div key={i} className="p-4 border-b border-slate-100 dark:border-slate-800 animate-pulse">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 shrink-0"></div>
+                    <div className="flex-1 space-y-1">
+                      <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-32"></div>
+                      <div className="h-3 bg-slate-100 dark:bg-slate-800/50 rounded w-24"></div>
+                    </div>
+                  </div>
+                  <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-3/4"></div>
+                </div>
+              ))
+            ) : (
+              paginatedTickets.map((t) => (
+                <div key={t.id} className="p-4 border-b border-slate-50 dark:border-slate-800">
+                  <div className="flex items-center gap-3 mb-2">
+                    <img className="w-9 h-9 rounded-full ring-2 ring-primary/10 shrink-0" src={t.avatar} alt={t.user} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-black text-slate-900 dark:text-white truncate">{t.user}</p>
+                      <p className="text-[11px] text-slate-400">{t.date}</p>
+                    </div>
+                    <span className="text-[11px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md shrink-0">{t.id}</span>
+                  </div>
+                  <p className="text-[13px] font-bold text-slate-800 dark:text-slate-200 mb-2 line-clamp-2">{t.subject}</p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">{t.priority}</span>
+                      <Dropdown
+                        options={statusOptions}
+                        value={t.status}
+                        onChange={(val) => handleStatusUpdate(t.id, val)}
+                        variant="badge"
+                      />
+                    </div>
+                    <button
+                      onClick={() => handleOpenTicket(t)}
+                      className="px-3 py-1 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-500 hover:text-primary text-[12px] font-medium border border-slate-200 dark:border-slate-700"
+                    >
+                      Xử lý
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          {/* Desktop Table View */}
+          <div className="overflow-visible hidden md:block">
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-slate-50/50 dark:bg-slate-800/50 rounded-t-3xl">

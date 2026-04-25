@@ -45,19 +45,19 @@ export default function AdminReports() {
 
   return (
     <AdminLayout>
-      <section className="p-4 md:p-8 space-y-8 animate-in fade-in duration-700 font-display">
+      <section className="p-4 md:p-8 space-y-6 md:space-y-8 animate-in fade-in duration-700 font-display">
         {/* Header & Filters */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
             {isLoading ? (
               <div className="space-y-3 mb-2">
-                <div className="h-8 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-64"></div>
-                <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-96"></div>
+                <div className="h-8 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-48 sm:w-64"></div>
+                <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-64 sm:w-96"></div>
               </div>
             ) : (
               <>
-                <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Báo cáo hợp nhất</h2>
-                <p className="text-[16px] text-slate-500 mt-1 font-medium italic-none">Phân tích dữ liệu vận hành toàn hệ thống</p>
+                <h2 className="text-xl md:text-2xl font-black tracking-tight text-slate-900 dark:text-white">Báo cáo hợp nhất</h2>
+                <p className="text-[14px] md:text-[16px] text-slate-500 mt-1 font-medium italic-none">Phân tích dữ liệu vận hành toàn hệ thống</p>
               </>
             )}
           </div>
@@ -82,10 +82,10 @@ export default function AdminReports() {
         </div>
 
         {/* High-level Stats Bento */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
           {isLoading ? (
             [...Array(4)].map((_, i) => (
-              <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm space-y-4">
+              <div key={i} className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl border border-primary/5 shadow-sm space-y-4">
                 <div className="flex justify-between items-start">
                   <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 animate-pulse"></div>
                   <div className="h-6 w-16 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-full"></div>
@@ -96,28 +96,28 @@ export default function AdminReports() {
             ))
           ) : (
             statCards.map((stat, idx) => (
-              <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm transition-all group hover:shadow-md">
-                <div className="flex justify-between items-start mb-4">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.color === 'primary' ? 'bg-primary/10 text-primary' :
+              <div key={idx} className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl border border-primary/5 shadow-sm transition-all group hover:shadow-md">
+                <div className="flex justify-between items-start mb-3 md:mb-4">
+                  <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center ${stat.color === 'primary' ? 'bg-primary/10 text-primary' :
                     stat.color === 'emerald' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600' :
                       stat.color === 'blue' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600' :
                         stat.color === 'amber' ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600' :
                           stat.color === 'red' ? 'bg-red-50 dark:bg-red-900/20 text-red-600' :
                             'bg-slate-100 dark:bg-slate-800 text-slate-600'
                     }`}>
-                    <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>{stat.icon}</span>
+                    <span className="material-symbols-outlined text-xl md:text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>{stat.icon}</span>
                   </div>
-                  <span className={`px-2 py-0.5 rounded-full text-[13px] font-medium flex items-center gap-1 ${stat.trendType === 'up' ? 'bg-emerald-500 text-white' :
+                  <span className={`px-2 py-0.5 rounded-full text-[11px] md:text-[13px] font-medium flex items-center gap-1 ${stat.trendType === 'up' ? 'bg-emerald-500 text-white' :
                     stat.trendType === 'up-warning' ? 'bg-amber-500 text-white' :
                       'bg-primary text-white'
                     }`}>
                     {stat.trend}
                   </span>
                 </div>
-                <p className="text-slate-500 text-[15px] font-medium mt-1 font-display tracking-tight leading-none">{stat.label}</p>
-                <h3 className={`text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-2`}>
+                <p className="text-slate-500 text-[13px] md:text-[15px] font-medium mt-1 font-display tracking-tight leading-none">{stat.label}</p>
+                <h3 className={`text-lg md:text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-2`}>
                   {stat.value}
-                  {stat.unit && <span className="text-[14px] font-bold ml-1 opacity-50">{stat.unit}</span>}
+                  {stat.unit && <span className="text-[12px] md:text-[14px] font-bold ml-1 opacity-50">{stat.unit}</span>}
                 </h3>
               </div>
             ))
@@ -126,7 +126,7 @@ export default function AdminReports() {
 
         {/* Charts & Breakdown */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-primary/5 relative overflow-hidden flex flex-col">
+          <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-4 md:p-8 rounded-2xl shadow-sm border border-primary/5 relative overflow-hidden flex flex-col">
             <div className="flex items-center justify-between mb-8">
               {isLoading ? (
                 <div className="space-y-2">
@@ -141,7 +141,7 @@ export default function AdminReports() {
               )}
             </div>
 
-            <div className="relative h-64 w-full flex-1">
+            <div className="relative h-48 md:h-64 w-full flex-1">
               {isLoading ? (
                 <div className="absolute inset-0 flex items-end gap-2 px-2 overflow-hidden">
                   {[...Array(12)].map((_, i) => (
@@ -179,7 +179,7 @@ export default function AdminReports() {
             </div>
 
             <div className="mt-12 pt-8 border-t border-slate-50 dark:border-slate-800">
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+              <div className="grid grid-cols-2 gap-4 md:gap-8">
                 {isLoading ? (
                   [...Array(4)].map((_, i) => (
                     <div key={i} className="space-y-2">
@@ -209,7 +209,7 @@ export default function AdminReports() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-primary/5 flex flex-col">
+          <div className="bg-white dark:bg-slate-900 p-4 md:p-8 rounded-2xl shadow-sm border border-primary/5 flex flex-col">
             <h4 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white mb-2 leading-tight">Phân bổ bệnh nhân</h4>
             <p className="text-[15px] font-medium text-slate-500 mb-10">Mạng lưới chi nhánh tháng này</p>
             <div className="space-y-6 flex-1">
@@ -261,7 +261,7 @@ export default function AdminReports() {
 
         {/* Detailed Clinic PerformanceTable */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm border border-primary/5 relative">
-          <div className="p-8 border-b border-primary/5 flex flex-col md:flex-row md:items-center justify-between gap-4 text-left">
+          <div className="p-4 md:p-8 border-b border-primary/5 flex flex-col md:flex-row md:items-center justify-between gap-4 text-left">
             {isLoading ? (
               <div className="space-y-2">
                 <div className="h-6 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-64"></div>
@@ -269,8 +269,8 @@ export default function AdminReports() {
               </div>
             ) : (
               <div>
-                <h4 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Chi tiết hiệu suất phòng khám</h4>
-                <p className="text-[15px] font-medium text-slate-500 mt-1">Phân tích tải trọng và trạng thái vận hành</p>
+                <h4 className="text-lg md:text-xl font-bold tracking-tight text-slate-900 dark:text-white">Chi tiết hiệu suất phòng khám</h4>
+                <p className="text-[13px] md:text-[15px] font-medium text-slate-500 mt-1">Phân tích tải trọng và trạng thái vận hành</p>
               </div>
             )}
             {isLoading ? (
@@ -284,7 +284,49 @@ export default function AdminReports() {
               />
             )}
           </div>
-          <div className="overflow-x-auto">
+          {/* Mobile Card View */}
+          <div className="block md:hidden">
+            {isLoading ? (
+              [...Array(5)].map((_, i) => (
+                <div key={i} className="p-4 border-b border-slate-100 dark:border-slate-800 animate-pulse">
+                  <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-40 mb-2"></div>
+                  <div className="flex gap-3">
+                    <div className="h-6 bg-slate-100 dark:bg-slate-800 rounded-full w-16"></div>
+                    <div className="h-6 bg-slate-100 dark:bg-slate-800 rounded-full w-16"></div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              reportsData?.clinicPerformances?.map((row: any, idx: number) => (
+                <div key={idx} className="p-4 border-b border-slate-50 dark:border-slate-800">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-[14px] font-bold text-slate-900 dark:text-white truncate flex-1">{row.name}</p>
+                    <span className={`font-black text-[13px] shrink-0 ml-2 ${row.status === 'Tốt' ? 'text-emerald-500' : row.status === 'Ổn định' ? 'text-primary' : 'text-amber-500'}`}>
+                      {row.status}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="text-center bg-slate-50 dark:bg-slate-800/50 rounded-lg py-1.5">
+                      <p className="text-[10px] text-slate-400 font-medium">Số ca</p>
+                      <p className="text-[14px] font-extrabold text-slate-900 dark:text-white">{row.cases}</p>
+                    </div>
+                    <div className="text-center bg-slate-50 dark:bg-slate-800/50 rounded-lg py-1.5">
+                      <p className="text-[10px] text-slate-400 font-medium">Đặt lịch</p>
+                      <p className="text-[14px] font-bold text-emerald-600">{row.appointments}</p>
+                    </div>
+                    <div className="text-center bg-slate-50 dark:bg-slate-800/50 rounded-lg py-1.5">
+                      <p className="text-[10px] text-slate-400 font-medium">Tuân thủ</p>
+                      <span className={`text-[13px] font-bold ${parseInt(row.adherence) >= 90 ? 'text-emerald-500' : parseInt(row.adherence) >= 80 ? 'text-primary' : 'text-amber-500'}`}>
+                        {row.adherence}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          {/* Desktop Table View */}
+          <div className="overflow-x-auto hidden md:block">
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-slate-50/50 dark:bg-slate-800/10 border-b border-slate-50 dark:border-slate-800">

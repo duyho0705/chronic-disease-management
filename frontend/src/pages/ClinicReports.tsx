@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import ExcelJS from 'exceljs';
+import * as ExcelJS from 'exceljs';
 import ClinicSidebar from '../components/common/ClinicSidebar';
 import TopBar from '../components/common/TopBar';
 import { clinicApi } from '../api/clinic';
@@ -245,9 +245,7 @@ export default function ClinicReports() {
                     setNotifications={setNotifications}
                 />
 
-                {/* Content Area */}
-                <div className="p-8 space-y-8">
-                    {/* Header Controls */}
+                <div className="p-4 md:p-8 space-y-6">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 italic-none">
                         <div className="space-y-1">
                             {isLoading ? (
@@ -257,8 +255,8 @@ export default function ClinicReports() {
                                 </>
                             ) : (
                                 <>
-                                    <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight leading-tight">Báo cáo Tổng hợp</h2>
-                                    <p className="text-sm font-medium text-slate-500 italic-none">Xem và xuất dữ liệu báo cáo hoạt động phòng khám</p>
+                                    <h2 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight leading-tight">Báo cáo Tổng hợp</h2>
+                                    <p className="text-[13px] md:text-sm font-medium text-slate-500 italic-none">Xem và xuất dữ liệu báo cáo hoạt động phòng khám</p>
                                 </>
                             )}
                         </div>
@@ -301,11 +299,10 @@ export default function ClinicReports() {
                             )}
                         </div>
                     </div>
-                    {/* Metric Cards (Bento Style) */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 italic-none mb-6">
                         {isLoading ? (
                             [...Array(4)].map((_, i) => (
-                                <div key={i} className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm animate-pulse border border-slate-200/60 dark:border-slate-800/60 space-y-4 h-[180px] flex flex-col justify-between">
+                                <div key={i} className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm animate-pulse border border-slate-200/60 dark:border-slate-800/60 space-y-4 h-[180px] flex flex-col justify-between">
                                     <div className="space-y-4">
                                         <div className="flex justify-between">
                                             <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-xl"></div>
@@ -373,11 +370,8 @@ export default function ClinicReports() {
                         )}
                     </div>
 
-                    {/* Charts Section */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        {/* Cột trái: Xu hướng & Phân tích hành động */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
                         <div className="lg:col-span-2 flex flex-col gap-6">
-                            {/* Xu hướng bệnh nhân */}
                             <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 border border-slate-200/60 dark:border-slate-800/60 shadow-sm transition-all duration-300 hover:shadow-md">
                                 {isLoading ? (
                                     <div className="animate-pulse space-y-10">
@@ -457,7 +451,6 @@ export default function ClinicReports() {
                                             </ResponsiveContainer>
                                         </div>
 
-                                        {/* Key Stats Bar at Bottom */}
                                         <div className="grid grid-cols-3 gap-4 pt-6 border-t border-slate-50 dark:border-slate-800/50 mt-8">
                                             {[
                                                 selectedChartMetric === 'Lượng bệnh nhân' ? { label: 'Tăng trưởng', value: mainStats.patientGrowth, trend: mainStats.patientGrowth.startsWith('+'), icon: 'show_chart' } :
@@ -492,7 +485,6 @@ export default function ClinicReports() {
                                 )}
                             </div>
 
-                            {/* Khối Phân tích Tình trạng - Biểu đồ Sóng */}
                             <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 border border-slate-200/60 dark:border-slate-800/60 shadow-sm transition-all duration-300 hover:shadow-md overflow-hidden flex-1">
                                 <div className="flex flex-col h-full">
                                     <div className="flex items-center justify-between mb-4">
@@ -551,7 +543,6 @@ export default function ClinicReports() {
                             </div>
                         </div>
 
-                        {/* Risk Comparison Bar Chart (Grouped Bars) */}
                         <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 border border-slate-200/60 dark:border-slate-800/60 shadow-sm transition-all duration-300 hover:shadow-md flex flex-col">
                             {isLoading ? (
                                 <div className="w-full animate-pulse space-y-10">
@@ -636,7 +627,6 @@ export default function ClinicReports() {
                                         <button className="text-primary hover:underline transition-all">Chi tiết nhóm bệnh →</button>
                                     </div>
 
-                                    {/* Lời nhắc hành động */}
                                     <div className="flex flex-col gap-3 mt-6 pt-6 border-t border-slate-50 dark:border-slate-800">
                                         <p className="text-[18px] font-bold text-slate-900 dark:text-white tracking-tight">Nhắc nhở</p>
                                         {[
@@ -655,7 +645,6 @@ export default function ClinicReports() {
                         </div>
                     </div>
 
-                    {/* Disease Analytics Table */}
                     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800/60 shadow-sm transition-all duration-300 hover:shadow-md overflow-hidden">
                         <div className="px-8 py-6 flex justify-between items-center border-b border-slate-50 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/10">
                             <div>

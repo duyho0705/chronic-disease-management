@@ -227,7 +227,7 @@ export default function ClinicPatients() {
                     setNotifications={setNotifications}
                 />
 
-                <div className="p-8 space-y-6">
+                <div className="p-4 md:p-8 space-y-6">
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                         {isLoading ? (
                             <div className="space-y-2">
@@ -236,8 +236,8 @@ export default function ClinicPatients() {
                             </div>
                         ) : (
                             <div className="space-y-1">
-                                <h3 className="text-xl font-bold italic-none text-slate-900 dark:text-white tracking-tight">Hồ sơ bệnh nhân mãn tính</h3>
-                                <p className="text-slate-500 font-medium">Theo dõi và quản lý dữ liệu lâm sàng diện rộng</p>
+                                <h3 className="text-lg md:text-xl font-bold italic-none text-slate-900 dark:text-white tracking-tight">Hồ sơ bệnh nhân mãn tính</h3>
+                                <p className="text-[13px] md:text-base text-slate-500 font-medium">Theo dõi và quản lý dữ liệu lâm sàng diện rộng</p>
                             </div>
                         )}
 
@@ -255,10 +255,10 @@ export default function ClinicPatients() {
                     </div>
 
                     {/* Stats Summary - Separated Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 italic-none mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 italic-none mb-6">
                         {isLoading || !stats ? (
                             [...Array(3)].map((_, i) => (
-                                <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm space-y-4 animate-pulse">
+                                <div key={i} className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl border border-primary/5 shadow-sm space-y-4 animate-pulse">
                                     <div className="flex items-center justify-between">
                                         <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl"></div>
                                         <div className="w-24 h-6 bg-slate-50 dark:bg-slate-800 rounded-full"></div>
@@ -272,46 +272,46 @@ export default function ClinicPatients() {
                         ) : (
                             <>
                                 {/* Visit Performance */}
-                                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
-                                    <div className="flex items-center justify-between mb-4">
+                                <div className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
+                                    <div className="flex items-center justify-between mb-3 md:mb-4">
                                         <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
                                             <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>trending_up</span>
                                         </div>
-                                        <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full uppercase tracking-wider border border-emerald-100/50">
+                                        <span className="px-2 md:px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full uppercase tracking-wider border border-emerald-100/50">
                                             {stats?.patientGrowth || '+0%'} Tăng trưởng
                                         </span>
                                     </div>
                                     <div>
-                                        <p className="text-[14px] font-medium text-slate-500 mb-0.5">Hiệu suất khám bệnh</p>
-                                        <h4 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">{stats?.totalPatients || '0'} <span className="text-sm font-medium text-slate-600">ca</span></h4>
+                                        <p className="text-[12px] md:text-[14px] font-medium text-slate-500 mb-0.5">Hiệu suất khám bệnh</p>
+                                        <h4 className="text-lg md:text-2xl font-bold text-slate-900 dark:text-white leading-tight">{stats?.totalPatients || '0'} <span className="text-xs md:text-sm font-medium text-slate-600">ca</span></h4>
                                     </div>
                                 </div>
 
                                 {/* High Risk */}
-                                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
-                                    <div className="flex items-center justify-between mb-4">
+                                <div className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
+                                    <div className="flex items-center justify-between mb-3 md:mb-4">
                                         <div className="w-10 h-10 bg-rose-50 dark:bg-rose-900/10 rounded-xl flex items-center justify-center text-rose-600">
                                             <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>warning</span>
                                         </div>
                                         <span className="px-3 py-1 bg-slate-50 text-slate-500 text-[10px] font-bold rounded-full uppercase tracking-wider border border-slate-200/50">Thời gian thực</span>
                                     </div>
                                     <div>
-                                        <p className="text-[14px] font-medium text-slate-600 mb-0.5">Ca nguy cơ cao</p>
-                                        <h4 className="text-2xl font-bold text-red-500 leading-tight">{stats?.highRiskAlerts || '0'} <span className="text-sm font-medium text-red-300">cảnh báo</span></h4>
+                                        <p className="text-[12px] md:text-[14px] font-medium text-slate-600 mb-0.5">Ca nguy cơ cao</p>
+                                        <h4 className="text-lg md:text-2xl font-bold text-red-500 leading-tight">{stats?.highRiskAlerts || '0'} <span className="text-xs md:text-sm font-medium text-red-300">cảnh báo</span></h4>
                                     </div>
                                 </div>
 
                                 {/* Pending follow-up */}
-                                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
-                                    <div className="flex items-center justify-between mb-4">
+                                <div className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
+                                    <div className="flex items-center justify-between mb-3 md:mb-4">
                                         <div className="w-10 h-10 bg-indigo-50 dark:bg-indigo-900/10 rounded-xl flex items-center justify-center text-indigo-600">
                                             <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>schedule</span>
                                         </div>
                                         <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full uppercase tracking-wider border border-emerald-100/50">{stats?.highRiskGrowth || '+0 ca'} mới</span>
                                     </div>
                                     <div>
-                                        <p className="text-[14px] font-medium text-slate-600 mb-0.5">Chờ tái khám</p>
-                                        <h4 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">{stats?.pendingFollowUps || '0'} <span className="text-sm font-medium text-slate-600">lịch hẹn</span></h4>
+                                        <p className="text-[12px] md:text-[14px] font-medium text-slate-600 mb-0.5">Chờ tái khám</p>
+                                        <h4 className="text-lg md:text-2xl font-bold text-slate-900 dark:text-white leading-tight">{stats?.pendingFollowUps || '0'} <span className="text-xs md:text-sm font-medium text-slate-600">lịch hẹn</span></h4>
                                     </div>
                                 </div>
                             </>

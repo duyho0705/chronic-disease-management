@@ -131,19 +131,19 @@ export default function AdminSettings() {
 
   return (
     <AdminLayout>
-      <section className="p-4 md:p-8 space-y-8 animate-in fade-in duration-700 font-display text-left">
+      <section className="p-4 md:p-8 space-y-6 md:space-y-8 animate-in fade-in duration-700 font-display text-left">
         {/* Unified Top Header Area */}
-        <div className="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-sm border border-primary/5 relative overflow-hidden group text-left">
+        <div className="bg-white dark:bg-slate-900 p-4 md:p-8 rounded-3xl shadow-sm border border-primary/5 relative overflow-hidden group text-left">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
             {isLoadingPage ? (
               <div className="space-y-3">
-                <div className="h-8 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-64"></div>
-                <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-96"></div>
+                <div className="h-8 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-48 sm:w-64"></div>
+                <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-64 sm:w-96"></div>
               </div>
             ) : (
               <div>
-                <h2 className="text-2xl font-black tracking-tighter text-slate-900 dark:text-white leading-tight">Cấu hình tham số hệ thống</h2>
-                <p className="text-[16px] text-slate-500 mt-2 font-medium italic-none">Kiểm soát vận hành, bảo mật và đồng bộ hóa mạng lưới phòng khám toàn quốc</p>
+                <h2 className="text-xl md:text-2xl font-black tracking-tighter text-slate-900 dark:text-white leading-tight">Cấu hình tham số hệ thống</h2>
+                <p className="text-[14px] md:text-[16px] text-slate-500 mt-2 font-medium italic-none">Kiểm soát vận hành, bảo mật và đồng bộ hóa mạng lưới phòng khám toàn quốc</p>
               </div>
             )}
 
@@ -165,19 +165,19 @@ export default function AdminSettings() {
         </div>
 
         {/* Dynamic Grid Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start">
 
           {/* Main Controls - Left Column (Scale: 7) */}
           <div className="col-span-12 lg:col-span-7 space-y-8">
 
             {/* Section: Medical Thresholds */}
-            <section className="bg-blue-50/30 dark:bg-slate-900 p-8 rounded-3xl border border-blue-100 dark:border-slate-800 shadow-sm relative z-10">
-              <div className="flex items-center justify-between mb-10 pl-1 border-l-4 border-l-red-500">
+            <section className="bg-blue-50/30 dark:bg-slate-900 p-4 md:p-8 rounded-3xl border border-blue-100 dark:border-slate-800 shadow-sm relative z-10">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 md:mb-10 pl-1 border-l-4 border-l-red-500 gap-4">
                 <div className="flex flex-col">
                   {isLoadingPage ? (
                     <div className="h-6 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-48"></div>
                   ) : (
-                    <h3 className="text-[19px] font-black tracking-tight text-slate-900 dark:text-white leading-tight">Ngưỡng cảnh báo sinh tồn</h3>
+                    <h3 className="text-[16px] md:text-[19px] font-black tracking-tight text-slate-900 dark:text-white leading-tight">Ngưỡng cảnh báo sinh tồn</h3>
                   )}
                 </div>
                 {isLoadingPage ? (
@@ -310,7 +310,7 @@ export default function AdminSettings() {
           <div className="col-span-12 lg:col-span-5 space-y-8">
 
             {/* Section: Operating Parameters */}
-            <section className="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-primary/5 shadow-sm space-y-8 relative z-20">
+            <section className="bg-white dark:bg-slate-900 p-4 md:p-8 rounded-3xl border border-primary/5 shadow-sm space-y-6 md:space-y-8 relative z-20">
               <div className="flex items-center gap-4 border-l-4 border-l-blue-500 pl-4">
                 {isLoadingPage ? (
                   <div className="h-6 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-32"></div>
@@ -366,7 +366,7 @@ export default function AdminSettings() {
             </section>
 
             {/* Section: Security Policy */}
-            <section className="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-primary/5 shadow-sm space-y-8 relative z-10">
+            <section className="bg-white dark:bg-slate-900 p-4 md:p-8 rounded-3xl border border-primary/5 shadow-sm space-y-6 md:space-y-8 relative z-10">
               <div className="flex items-center gap-4 border-l-4 border-l-amber-500 pl-4">
                 {isLoadingPage ? (
                   <div className="h-6 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-40"></div>

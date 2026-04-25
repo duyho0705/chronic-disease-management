@@ -35,5 +35,4 @@ export const ROUTES = {
     AUDIT_LOGS: '/admin/audit-logs',
     SUPPORT: '/admin/support',
   },
-  LOGIN: '/login',
 };

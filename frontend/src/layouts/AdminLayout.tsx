@@ -37,16 +37,32 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <div className="flex min-h-screen font-display bg-background-light dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased italic-none">
+      {/* Mobile overlay backdrop */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[140] lg:hidden transition-opacity duration-300"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar Navigation - Shared across Admin Pages */}
-      <aside className={`fixed left-0 top-0 bottom-0 bg-white dark:bg-slate-900 border-r border-primary/10 flex flex-col z-[150] transition-transform duration-300 w-72 lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} shadow-2xl lg:shadow-none shadow-primary/10`}>
-        <Link to={ROUTES.HOME} target="_blank" rel="noopener noreferrer" className="p-6 flex items-center gap-3 border-b border-primary/5 hover:opacity-80 transition-opacity cursor-pointer">
-          <div className="w-10 h-10 bg-primary flex items-center justify-center rounded-xl text-white shadow-lg shadow-primary/20">
+      <aside className={`fixed left-0 top-0 bottom-0 bg-white dark:bg-slate-900 border-r border-primary/10 flex flex-col z-[150] transition-transform duration-300 ease-out w-[280px] lg:w-72 lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} shadow-2xl lg:shadow-none shadow-primary/10`}>
+        <div className="p-6 flex items-center justify-between border-b border-primary/5">
+          <Link to={ROUTES.HOME} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer">
+            <div className="w-10 h-10 bg-primary flex items-center justify-center rounded-xl text-white shadow-lg shadow-primary/20">
             <span className="material-symbols-outlined fill-1" style={{ fontVariationSettings: "'FILL' 1" }}>health_metrics</span>
           </div>
           <div>
             <h1 className="text-xl font-black text-slate-900 dark:text-white leading-none">DamDiep</h1>
-          </div>
-        </Link>
+            </div>
+          </Link>
+          <button
+            onClick={() => setIsSidebarOpen(false)}
+            className="lg:hidden w-9 h-9 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all active:scale-90"
+          >
+            <span className="material-symbols-outlined text-[20px]">close</span>
+          </button>
+        </div>
 
         <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar italic-none">
           {navItems.map((item, idx) => {
@@ -62,6 +78,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 to={item.path}
                 target={isExternal ? "_blank" : undefined}
                 rel={isExternal ? "noopener noreferrer" : undefined}
+                onClick={() => setIsSidebarOpen(false)}
               >
                 <span className="material-symbols-outlined" style={{ fontVariationSettings: isActive ? "'FILL' 1" : "''" }}>
                   {item.icon}

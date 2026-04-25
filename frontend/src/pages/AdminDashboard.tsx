@@ -220,23 +220,23 @@ export default function AdminDashboard() {
 
   return (
     <AdminLayout>
-      <div className="p-4 md:p-8 space-y-8 animate-in fade-in duration-700 font-display text-left">
+      <div className="p-4 md:p-8 space-y-6 md:space-y-8 animate-in fade-in duration-700 font-display text-left">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="flex-1 min-w-0">
             {!stats ? (
               <div className="space-y-3">
-                <div className="h-8 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-72"></div>
-                <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-96"></div>
+                <div className="h-8 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-48 sm:w-72"></div>
+                <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-64 sm:w-96"></div>
               </div>
             ) : (
               <>
-                <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Tổng quan</h2>
-                <p className="text-[16px] text-slate-500 mt-1 font-medium italic-none">Theo dõi hiệu suất vận hành hệ thống</p>
+                <h2 className="text-xl md:text-2xl font-black tracking-tight text-slate-900 dark:text-white">Tổng quan</h2>
+                <p className="text-[14px] md:text-[16px] text-slate-500 mt-1 font-medium italic-none">Theo dõi hiệu suất vận hành hệ thống</p>
               </>
             )}
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {!stats ? (
               <>
                 <div className="w-32 h-10 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-lg shadow-sm"></div>
@@ -246,14 +246,14 @@ export default function AdminDashboard() {
               <>
                 <button
                   onClick={() => setIsCreateModalOpen(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl font-bold transition-all text-[13px] shadow-lg shadow-primary/20 hover:shadow-primary/30"
+                  className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl font-bold transition-all text-[13px] shadow-lg shadow-primary/20 hover:shadow-primary/30 whitespace-nowrap"
                 >
                   <span className="material-symbols-outlined text-[18px]">add</span>
                   Thêm phòng khám
                 </button>
                 <button
                   onClick={handleExportExcel}
-                  className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-lg font-bold transition-all text-[13px] border border-primary/10 shadow-sm"
+                  className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-lg font-bold transition-all text-[13px] border border-primary/10 shadow-sm whitespace-nowrap"
                 >
                   <span className="material-symbols-outlined text-[18px]">ios_share</span>
                   Xuất báo cáo
@@ -264,11 +264,11 @@ export default function AdminDashboard() {
         </div>
 
         {/* Summary Cards Bento Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
           {!stats ? (
             // Skeleton Summary Cards
             [...Array(4)].map((_, idx) => (
-              <div key={`summary-skeleton-${idx}`} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm animate-pulse text-left">
+              <div key={`summary-skeleton-${idx}`} className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl border border-primary/5 shadow-sm animate-pulse text-left">
                 <div className="flex justify-between items-start">
                   <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-xl"></div>
                   <div className="w-10 h-5 bg-slate-50 dark:bg-slate-800 rounded-lg"></div>
@@ -282,58 +282,58 @@ export default function AdminDashboard() {
           ) : (
             <>
               {/* Card 1 */}
-              <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
+              <div className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl border border-primary/5 shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
                 <div className="flex justify-between items-start">
-                  <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl flex items-center justify-center text-emerald-600">
-                    <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>groups</span>
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl flex items-center justify-center text-emerald-600">
+                    <span className="material-symbols-outlined text-xl md:text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>groups</span>
                   </div>
-                  <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">{stats?.patientGrowth || '+0%'}</span>
+                  <span className="text-[10px] md:text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">{stats?.patientGrowth || '+0%'}</span>
                 </div>
-                <div className="mt-4">
-                  <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{stats?.totalPatients || 0}</h3>
-                  <p className="text-slate-500 text-[15px] font-medium mt-1 font-display">Tổng số bệnh nhân</p>
+                <div className="mt-3 md:mt-4">
+                  <h3 className="text-xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">{stats?.totalPatients || 0}</h3>
+                  <p className="text-slate-500 text-[13px] md:text-[15px] font-medium mt-1 font-display">Tổng số bệnh nhân</p>
                 </div>
               </div>
 
               {/* Card 2 */}
-              <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
+              <div className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl border border-primary/5 shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
                 <div className="flex justify-between items-start">
-                  <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-xl flex items-center justify-center text-blue-600">
-                    <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>apartment</span>
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-50 dark:bg-blue-900/20 rounded-xl flex items-center justify-center text-blue-600">
+                    <span className="material-symbols-outlined text-xl md:text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>apartment</span>
                   </div>
-                  <span className="text-[11px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-lg uppercase tracking-wider">{stats?.clinicTrend || 'Ổn định'}</span>
+                  <span className="text-[10px] md:text-[11px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-lg uppercase tracking-wider">{stats?.clinicTrend || 'Ổn định'}</span>
                 </div>
-                <div className="mt-4">
-                  <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{stats?.activeClinics || 0}</h3>
-                  <p className="text-slate-500 text-[15px] font-medium mt-1 font-display">Phòng khám hoạt động</p>
+                <div className="mt-3 md:mt-4">
+                  <h3 className="text-xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">{stats?.activeClinics || 0}</h3>
+                  <p className="text-slate-500 text-[13px] md:text-[15px] font-medium mt-1 font-display">Phòng khám hoạt động</p>
                 </div>
               </div>
 
               {/* Card 3 */}
-              <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
+              <div className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl border border-primary/5 shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
                 <div className="flex justify-between items-start">
-                  <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl flex items-center justify-center text-indigo-600">
-                    <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>stethoscope</span>
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl flex items-center justify-center text-indigo-600">
+                    <span className="material-symbols-outlined text-xl md:text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>stethoscope</span>
                   </div>
-                  <span className="text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg">{stats?.doctorTrend || '+0 mới'}</span>
+                  <span className="text-[10px] md:text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg">{stats?.doctorTrend || '+0 mới'}</span>
                 </div>
-                <div className="mt-4">
-                  <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{stats?.totalDoctors || 0}</h3>
-                  <p className="text-slate-500 text-[15px] font-medium mt-1 font-display">Đội ngũ Bác sĩ</p>
+                <div className="mt-3 md:mt-4">
+                  <h3 className="text-xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">{stats?.totalDoctors || 0}</h3>
+                  <p className="text-slate-500 text-[13px] md:text-[15px] font-medium mt-1 font-display">Đội ngũ Bác sĩ</p>
                 </div>
               </div>
 
               {/* Card 4 - High Risk Level Style from Doctor */}
-              <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/5 shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
+              <div className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl border border-primary/5 shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
                 <div className="flex justify-between items-start">
-                  <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center text-red-600">
-                    <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>warning</span>
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center text-red-600">
+                    <span className="material-symbols-outlined text-xl md:text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>warning</span>
                   </div>
                   <span className="px-2 py-1 bg-red-500 text-white text-[10px] font-bold rounded-full uppercase tracking-wider">Theo dõi</span>
                 </div>
-                <div className="mt-4">
-                  <h3 className="text-3xl font-black text-red-600 tracking-tight">{stats?.highRiskAlerts || 0}</h3>
-                  <p className="text-slate-500 text-[15px] font-medium mt-1 font-display">Cảnh báo rủi ro cao</p>
+                <div className="mt-3 md:mt-4">
+                  <h3 className="text-xl md:text-3xl font-black text-red-600 tracking-tight">{stats?.highRiskAlerts || 0}</h3>
+                  <p className="text-slate-500 text-[13px] md:text-[15px] font-medium mt-1 font-display">Cảnh báo rủi ro cao</p>
                 </div>
               </div>
             </>
@@ -341,10 +341,10 @@ export default function AdminDashboard() {
         </div>
 
         {/* Main Layout Section: Chart and Activity */}
-        <div className="grid grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-8">
           {/* Chart Section (Placeholder for real charts) */}
-          <div className="col-span-12 lg:col-span-8 bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm relative group/chart overflow-hidden text-left">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+          <div className="lg:col-span-8 bg-white dark:bg-slate-900 p-4 md:p-8 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm relative group/chart overflow-hidden text-left">
+            <div className="flex flex-col gap-4 mb-6 md:mb-8">
               <div>
                 {!stats ? (
                   <div className="space-y-2">
@@ -353,12 +353,12 @@ export default function AdminDashboard() {
                   </div>
                 ) : (
                   <>
-                    <h2 className="text-[19px] font-bold text-slate-900 dark:text-white tracking-tight">Thống kê vận hành hệ thống</h2>
-                    <p className="text-[15px] text-slate-500 mt-1">Báo cáo chi tiết theo {selectedChartMetric.toLowerCase()}</p>
+                    <h2 className="text-[16px] md:text-[19px] font-bold text-slate-900 dark:text-white tracking-tight">Thống kê vận hành hệ thống</h2>
+                    <p className="text-[13px] md:text-[15px] text-slate-500 mt-1">Báo cáo chi tiết theo {selectedChartMetric.toLowerCase()}</p>
                   </>
                 )}
               </div>
-              <div className="flex items-center gap-6">
+              <div className="flex flex-wrap items-center gap-3 md:gap-6">
                 {/* Time Range Selector */}
                 {!stats ? (
                   <div className="w-40 h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl"></div>
@@ -408,7 +408,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Visual Chart Area */}
-            <div className="h-[300px] w-full relative">
+            <div className="h-[220px] md:h-[300px] w-full relative">
               {isLoadingChart ? (
                 <div className="absolute inset-0 bg-slate-50 dark:bg-slate-800/50 animate-pulse rounded-xl flex flex-col justify-end p-8 gap-12">
                   <div className="flex items-end justify-between gap-4 h-full">
@@ -476,12 +476,12 @@ export default function AdminDashboard() {
           </div>
 
           {/* Recent Activity (Placeholder logic) */}
-          <div className="col-span-12 lg:col-span-4 bg-slate-50 dark:bg-slate-900/50 p-8 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col text-left">
+          <div className="lg:col-span-4 bg-slate-50 dark:bg-slate-900/50 p-4 md:p-8 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col text-left">
             <div className="flex items-center justify-between mb-6">
               {!stats ? (
                 <div className="h-6 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-48"></div>
               ) : (
-                <h2 className="text-[19px] font-bold text-slate-900 dark:text-white tracking-tight">Hoạt động hệ thống</h2>
+                <h2 className="text-[16px] md:text-[19px] font-bold text-slate-900 dark:text-white tracking-tight">Hoạt động hệ thống</h2>
               )}
               {!stats ? (
                 <div className="w-6 h-6 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-full"></div>
@@ -514,9 +514,9 @@ export default function AdminDashboard() {
                       <span className="material-symbols-outlined text-lg">{act.icon || 'history'}</span>
                     </div>
                     <div>
-                      <p className="text-[15px] font-bold text-slate-900 dark:text-white">{act.title}</p>
-                      <p className="text-[14px] text-slate-500 font-medium mt-0.5 leading-relaxed">{act.description}</p>
-                      <span className="text-[13px] font-medium text-slate-400 dark:text-slate-500 mt-2 inline-block italic-none tracking-tight">{act.timeAgo}</span>
+                      <p className="text-[13px] md:text-[15px] font-bold text-slate-900 dark:text-white">{act.title}</p>
+                      <p className="text-[12px] md:text-[14px] text-slate-500 font-medium mt-0.5 leading-relaxed">{act.description}</p>
+                      <span className="text-[11px] md:text-[13px] font-medium text-slate-400 dark:text-slate-500 mt-2 inline-block italic-none tracking-tight">{act.timeAgo}</span>
                     </div>
                   </div>
                 ))
@@ -532,7 +532,7 @@ export default function AdminDashboard() {
 
         {/* Performance Table Section */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-primary/10 overflow-hidden shadow-sm font-display text-left">
-          <div className="p-6 border-b border-primary/10 flex items-center justify-between">
+          <div className="p-4 md:p-6 border-b border-primary/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               {!stats ? (
                 <>
@@ -541,13 +541,62 @@ export default function AdminDashboard() {
                 </>
               ) : (
                 <>
-                  <h3 className="text-[19px] font-bold text-slate-900 dark:text-white">Danh sách chi nhánh mới</h3>
-                  <p className="text-[15px] text-slate-500 mt-1">Lấy dữ liệu trực tiếp từ các phòng khám</p>
+                  <h3 className="text-[16px] md:text-[19px] font-bold text-slate-900 dark:text-white">Danh sách chi nhánh mới</h3>
+                  <p className="text-[13px] md:text-[15px] text-slate-500 mt-1">Lấy dữ liệu trực tiếp từ các phòng khám</p>
                 </>
               )}
             </div>
           </div>
-          <div className="overflow-x-auto">
+          {/* Mobile Card View */}
+          <div className="block md:hidden">
+            {!stats ? (
+              [...Array(4)].map((_, i) => (
+                <div key={`clinic-skeleton-m-${i}`} className="p-4 border-b border-slate-100 dark:border-slate-800 animate-pulse">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-9 h-9 rounded-xl bg-slate-200 dark:bg-slate-800"></div>
+                    <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-40"></div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-24"></div>
+                    <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-20"></div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              clinics.map((clinic) => (
+                <div key={clinic.id} className="p-4 border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[#3bb9f3] shrink-0">
+                      <span className="material-symbols-outlined text-[20px]">home_health</span>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[14px] font-bold text-slate-900 dark:text-white truncate">{clinic.name}</p>
+                      <code className="text-[11px] font-bold text-slate-400">{clinic.clinicCode}</code>
+                    </div>
+                    <span className={`px-2.5 py-1 text-white text-[11px] font-bold rounded-full shrink-0 ${clinic.status === 'ACTIVE' ? 'bg-emerald-500' : 'bg-red-500'}`}>
+                      {clinic.status === 'ACTIVE' ? 'Hoạt động' : 'Ngưng'}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3 text-center">
+                    <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg py-1.5">
+                      <p className="text-[10px] text-slate-400 font-medium">Bác sĩ</p>
+                      <p className="text-[14px] font-bold text-slate-900 dark:text-white">{clinic.doctorCount || 0}</p>
+                    </div>
+                    <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg py-1.5">
+                      <p className="text-[10px] text-slate-400 font-medium">Bệnh nhân</p>
+                      <p className="text-[14px] font-bold text-slate-900 dark:text-white">{clinic.patientCount || 0}</p>
+                    </div>
+                    <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg py-1.5">
+                      <p className="text-[10px] text-slate-400 font-medium">Tăng trưởng</p>
+                      <p className="text-[14px] font-bold text-[#3bb9f3]">{clinic.growth}</p>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          {/* Desktop Table View */}
+          <div className="overflow-x-auto hidden md:block">
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-slate-50/50 dark:bg-slate-800/50">
@@ -576,7 +625,6 @@ export default function AdminDashboard() {
               </thead>
               <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
                 {!stats ? (
-                  // Skeleton Rows
                   [...Array(4)].map((_, i) => (
                     <tr key={`clinic-skeleton-${i}`} className="animate-pulse">
                       <td className="px-8 py-4 whitespace-nowrap">

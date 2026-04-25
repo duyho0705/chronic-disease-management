@@ -64,7 +64,7 @@ export default function ClinicRiskAlerts() {
                 />
 
                 {/* Content Area */}
-                <div className="p-8 space-y-8">
+                <div className="p-4 md:p-8 space-y-6 md:space-y-8">
                     {/* Header Controls */}
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 italic-none mb-6">
                         <div className="space-y-1">
@@ -75,8 +75,8 @@ export default function ClinicRiskAlerts() {
                                 </>
                             ) : (
                                 <>
-                                    <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight leading-tight">Cảnh báo Nguy cơ</h2>
-                                    <p className="text-sm font-medium text-slate-500 italic-none">Theo dõi các chỉ số sinh tồn và cảnh báo khẩn cấp</p>
+                                    <h2 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight leading-tight">Cảnh báo Nguy cơ</h2>
+                                    <p className="text-[13px] md:text-sm font-medium text-slate-500 italic-none">Theo dõi các chỉ số sinh tồn và cảnh báo khẩn cấp</p>
                                 </>
                             )}
                         </div>
@@ -100,10 +100,10 @@ export default function ClinicRiskAlerts() {
                         )}
                     </div>
                     {/* Quick Stats Bento Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                         {isLoading ? (
                             [1, 2, 3, 4].map(i => (
-                                <div key={`stat-${i}`} className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm animate-pulse border border-primary/5 space-y-4">
+                                <div key={`stat-${i}`} className="bg-white dark:bg-slate-900 p-4 md:p-5 rounded-2xl shadow-sm animate-pulse border border-primary/5 space-y-4">
                                     <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-24"></div>
                                     <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded w-16"></div>
                                     <div className="h-4 bg-slate-50 dark:bg-slate-800/50 rounded w-32 mt-4"></div>
@@ -111,55 +111,55 @@ export default function ClinicRiskAlerts() {
                             ))
                         ) : (
                             <>
-                                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm relative overflow-hidden group border border-primary/5">
+                                <div className="bg-white dark:bg-slate-900 p-4 md:p-5 rounded-2xl shadow-sm relative overflow-hidden group border border-primary/5">
                                     <div className="relative z-10">
-                                        <p className="text-sm font-medium text-slate-500 mb-4">Tổng cảnh báo</p>
-                                        <h3 className="text-3xl font-black text-slate-900 dark:text-white leading-none">{dashboardStats?.highRiskAlerts || 0}</h3>
+                                        <p className="text-[12px] md:text-sm font-medium text-slate-500 mb-3 md:mb-4">Tổng cảnh báo</p>
+                                        <h3 className="text-xl md:text-3xl font-black text-slate-900 dark:text-white leading-none">{dashboardStats?.highRiskAlerts || 0}</h3>
                                     </div>
-                                    <div className="mt-6 flex items-center text-primary text-[13px] font-bold gap-1">
+                                    <div className="mt-4 md:mt-6 flex items-center text-primary text-[11px] md:text-[13px] font-bold gap-1">
                                         <span className="material-symbols-outlined text-sm">trending_up</span>
                                         +12% so với hôm qua
                                     </div>
                                 </div>
 
-                                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm relative overflow-hidden group border border-red-100 dark:border-red-900/30">
+                                <div className="bg-white dark:bg-slate-900 p-4 md:p-5 rounded-2xl shadow-sm relative overflow-hidden group border border-red-100 dark:border-red-900/30">
                                     <div>
-                                        <div className="flex items-center gap-2 mb-4">
-                                            <p className="text-sm font-bold text-red-500">Khẩn cấp</p>
+                                        <div className="flex items-center gap-2 mb-3 md:mb-4">
+                                            <p className="text-[12px] md:text-sm font-bold text-red-500">Khẩn cấp</p>
                                         </div>
-                                        <h3 className="text-3xl font-black text-red-500 leading-none">{Math.max(0, (dashboardStats?.highRiskAlerts || 0) - 7)}</h3>
+                                        <h3 className="text-xl md:text-3xl font-black text-red-500 leading-none">{Math.max(0, (dashboardStats?.highRiskAlerts || 0) - 7)}</h3>
                                     </div>
-                                    <p className="text-red-600/70 text-[14px] font-medium mt-4">Cần can thiệp ngay lập tức</p>
+                                    <p className="text-red-600/70 text-[12px] md:text-[14px] font-medium mt-3 md:mt-4">Cần can thiệp ngay lập tức</p>
                                 </div>
 
-                                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm relative overflow-hidden group border border-amber-100 dark:border-amber-900/30">
+                                <div className="bg-white dark:bg-slate-900 p-4 md:p-5 rounded-2xl shadow-sm relative overflow-hidden group border border-amber-100 dark:border-amber-900/30">
                                     <div>
-                                        <div className="flex items-center gap-2 mb-4">
-                                            <p className="text-sm font-bold text-amber-600">Theo dõi</p>
+                                        <div className="flex items-center gap-2 mb-3 md:mb-4">
+                                            <p className="text-[12px] md:text-sm font-bold text-amber-600">Theo dõi</p>
                                         </div>
-                                        <h3 className="text-3xl font-black text-amber-600 leading-none">{dashboardStats?.pendingFollowUps || 0}</h3>
+                                        <h3 className="text-xl md:text-3xl font-black text-amber-600 leading-none">{dashboardStats?.pendingFollowUps || 0}</h3>
                                     </div>
-                                    <p className="text-amber-600/70 text-[14px] font-medium mt-4">Đang trong ngưỡng nguy cơ</p>
+                                    <p className="text-amber-600/70 text-[12px] md:text-[14px] font-medium mt-3 md:mt-4">Đang trong ngưỡng nguy cơ</p>
                                 </div>
-                                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-primary/5">
+                                <div className="bg-white dark:bg-slate-900 p-4 md:p-5 rounded-2xl shadow-sm border border-primary/5">
                                     <div>
-                                        <p className="text-sm font-medium text-slate-500 mb-4">Đã xử lý</p>
-                                        <h3 className="text-3xl font-black text-emerald-600 leading-none">07</h3>
+                                        <p className="text-[12px] md:text-sm font-medium text-slate-500 mb-3 md:mb-4">Đã xử lý</p>
+                                        <h3 className="text-xl md:text-3xl font-black text-emerald-600 leading-none">07</h3>
                                     </div>
                                 </div>
                             </>
                         )}
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
                         {/* Patient Risk Table */}
                         <div className="lg:col-span-2 space-y-6">
                             <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm border border-primary/5">
-                                <div className="px-8 py-6 flex justify-between items-center border-b border-primary/5">
+                                <div className="px-4 md:px-8 py-4 md:py-6 flex justify-between items-center border-b border-primary/5">
                                     {isLoading ? (
                                         <div className="h-7 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-72"></div>
                                     ) : (
-                                        <h4 className="text-[20px] font-bold text-slate-900 dark:text-white tracking-tight">Danh sách bệnh nhân nguy cơ cao</h4>
+                                        <h4 className="text-[16px] md:text-[20px] font-bold text-slate-900 dark:text-white tracking-tight">Danh sách bệnh nhân nguy cơ cao</h4>
                                     )}
                                     {isLoading ? (
                                         <div className="h-5 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-32"></div>
@@ -331,7 +331,7 @@ export default function ClinicRiskAlerts() {
 
 
                             {/* Quick Actions Card */}
-                            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-primary/5">
+                            <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 md:p-6 shadow-sm border border-primary/5">
                                 {isLoading ? (
                                     <div className="h-5 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-28 mb-6"></div>
                                 ) : (

@@ -202,14 +202,14 @@ export default function ClinicAssignment() {
                     setNotifications={setNotifications}
                 />
 
-                <div className="p-8 flex-1 overflow-hidden flex flex-col space-y-6">
+                <div className="p-4 md:p-8 flex-1 overflow-hidden flex flex-col space-y-4 md:space-y-6">
 
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start flex-1 overflow-hidden">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-8 items-start flex-1 overflow-hidden">
                         {/* Selector Column */}
                         <div className="lg:col-span-4 h-full flex flex-col overflow-hidden">
-                            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-800 space-y-6 h-full flex flex-col">
+                            <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 md:p-6 shadow-sm border border-slate-200 dark:border-slate-800 space-y-4 md:space-y-6 h-full flex flex-col">
                                 <div className="space-y-4 flex-shrink-0">
-                                    <h4 className="text-[17px] font-bold text-slate-700">Danh sách chờ điều phối</h4>
+                                    <h4 className="text-[15px] md:text-[17px] font-bold text-slate-700">Danh sách chờ điều phối</h4>
                                     <div className="relative">
                                         <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">search</span>
                                         <input
@@ -251,7 +251,7 @@ export default function ClinicAssignment() {
 
                         {/* Form Column */}
                         <div className="lg:col-span-8 h-full overflow-hidden">
-                            <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 md:p-12 shadow-xl shadow-slate-200/20 dark:shadow-none border border-slate-200 dark:border-slate-800 relative overflow-hidden h-full flex flex-col md:flex-row gap-12">
+                            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 md:p-12 shadow-xl shadow-slate-200/20 dark:shadow-none border border-slate-200 dark:border-slate-800 relative overflow-hidden h-full flex flex-col md:flex-row gap-6 md:gap-12">
                                 <form onSubmit={handleSubmit} className="flex-1 space-y-4 relative z-10 overflow-y-auto custom-scrollbar pr-4 pb-1">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                                         <div className="col-span-2 space-y-1.5">

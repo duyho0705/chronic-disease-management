@@ -64,6 +64,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = {"admin_dashboard", "users", "user_stats"}, allEntries = true)
     public void deleteUser(Long id) {
         User user = userRepository.findById(Objects.requireNonNull(id))
                 .orElseThrow(() -> new ResourceNotFoundException("Người dùng không tồn tại với ID: " + id));
@@ -101,23 +102,20 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional(readOnly = true)
+    @org.springframework.cache.annotation.Cacheable(value = "admin_dashboard", key = "#timeRange + '_' + #metric")
     public AdminDashboardResponse getDashboardData(String timeRange, String metric) {
-        long totalPatients = userRepository.countByRoleAndIsDeletedFalse("PATIENT");
-        long activeClinics = clinicRepository.countByStatusAndIsDeletedFalse("ACTIVE");
-        long totalDoctors = userRepository.countByRoleAndIsDeletedFalse("DOCTOR");
-        long highRiskAlerts = 24; // Mocked for now
+        // Start independent queries in parallel
+        java.util.concurrent.CompletableFuture<Long> totalPatientsFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
+            userRepository.countByRoleAndIsDeletedFalse("PATIENT"));
+        
+        java.util.concurrent.CompletableFuture<Long> activeClinicsFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
+            clinicRepository.countByStatusAndIsDeletedFalse("ACTIVE"));
+            
+        java.util.concurrent.CompletableFuture<Long> totalDoctorsFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
+            userRepository.countByRoleAndIsDeletedFalse("DOCTOR"));
 
-        AdminDashboardResponse.AdminStatsDto stats = AdminDashboardResponse.AdminStatsDto.builder()
-                .totalPatients(totalPatients)
-                .activeClinics(activeClinics)
-                .totalDoctors(totalDoctors)
-                .highRiskAlerts(highRiskAlerts)
-                .patientGrowth("+12.5%")
-                .clinicTrend("Ổn định")
-                .doctorTrend("+4 mới")
-                .build();
-
-        List<AdminDashboardResponse.ClinicPerformanceDto> performances = clinicRepository.findByFilters("ACTIVE", null, org.springframework.data.domain.PageRequest.of(0, 5)).getContent().stream()
+        java.util.concurrent.CompletableFuture<List<AdminDashboardResponse.ClinicPerformanceDto>> performancesFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
+            clinicRepository.findByFilters("ACTIVE", null, org.springframework.data.domain.PageRequest.of(0, 5)).getContent().stream()
                 .map(c -> AdminDashboardResponse.ClinicPerformanceDto.builder()
                         .name(c.getName())
                         .clinicCode(c.getClinicCode())
@@ -127,31 +125,48 @@ public class AdminServiceImpl implements AdminService {
                         .growth("+5%")
                         .status(c.getStatus())
                         .build())
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
 
-        List<AdminDashboardResponse.SystemActivityDto> activities = auditLogRepository
+        java.util.concurrent.CompletableFuture<List<AdminDashboardResponse.SystemActivityDto>> activitiesFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> 
+            auditLogRepository
                 .findAll(org.springframework.data.domain.PageRequest.of(0, 3,
                         org.springframework.data.domain.Sort.by("createdAt").descending()))
                 .getContent().stream()
-                .map(log -> {
+                .map(logEntry -> {
                     String color = "blue";
                     String icon = "history";
-                    if (log.getModule().contains("CLINIC")) {
+                    if (logEntry.getModule().contains("CLINIC")) {
                         color = "emerald";
                         icon = "apartment";
-                    } else if (log.getModule().contains("USER")) {
+                    } else if (logEntry.getModule().contains("USER")) {
                         color = "indigo";
                         icon = "person";
                     }
                     return AdminDashboardResponse.SystemActivityDto.builder()
-                            .title(log.getAction())
-                            .description(log.getModule() + ": " + log.getDetails())
+                            .title(logEntry.getAction())
+                            .description(logEntry.getModule() + ": " + logEntry.getDetails())
                             .timeAgo("Vừa xong")
                             .icon(icon)
                             .color(color)
                             .build();
                 })
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
+
+        // Wait for all parallel tasks
+        java.util.concurrent.CompletableFuture.allOf(totalPatientsFuture, activeClinicsFuture, totalDoctorsFuture, performancesFuture, activitiesFuture).join();
+
+        AdminDashboardResponse.AdminStatsDto stats = AdminDashboardResponse.AdminStatsDto.builder()
+                .totalPatients(totalPatientsFuture.join())
+                .activeClinics(activeClinicsFuture.join())
+                .totalDoctors(totalDoctorsFuture.join())
+                .highRiskAlerts(24L) // Mocked
+                .patientGrowth("+12.5%")
+                .clinicTrend("Ổn định")
+                .doctorTrend("+4 mới")
+                .build();
+
+        List<AdminDashboardResponse.ClinicPerformanceDto> performances = performancesFuture.join();
+        List<AdminDashboardResponse.SystemActivityDto> activities = activitiesFuture.join();
 
         // Chart data logic
         List<AdminDashboardResponse.ChartDataDto> chartData = new ArrayList<>();
@@ -281,6 +296,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional(readOnly = true)
+    @org.springframework.cache.annotation.Cacheable(value = "clinic_stats")
     public AdminClinicStatsResponse getClinicStats() {
         long total = clinicRepository.countClinics();
         long active = clinicRepository.countByStatusAndIsDeletedFalse("ACTIVE");
@@ -297,6 +313,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional(readOnly = true)
+    @org.springframework.cache.annotation.Cacheable(value = "clinics", key = "#status + '_' + #keyword + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public Page<AdminClinicResponse> getClinics(String status, String keyword, Pageable pageable) {
         String search = (keyword != null && !keyword.isBlank()) ? "%" + keyword.toLowerCase().trim() + "%" : null;
         Page<Clinic> page = clinicRepository.findByFilters(status, search, pageable);
@@ -305,6 +322,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional(readOnly = true)
+    @org.springframework.cache.annotation.Cacheable(value = "clinics", key = "'id_' + #id")
     public AdminClinicResponse getClinicById(Long id) {
         Clinic clinic = clinicRepository.findById(Objects.requireNonNull(id))
                 .orElseThrow(() -> new ResourceNotFoundException("Phòng khám không tồn tại với ID: " + id));
@@ -313,6 +331,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = {"clinics", "clinic_stats", "admin_dashboard"}, allEntries = true)
     public AdminClinicResponse createClinic(CreateClinicRequest request) {
         if (clinicRepository.findByClinicCode(request.getClinicCode()).isPresent()) {
             throw new RuntimeException("Mã phòng khám [" + request.getClinicCode() + "] đã tồn tại trên hệ thống.");
@@ -361,6 +380,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = {"clinics", "clinic_stats", "admin_dashboard"}, allEntries = true)
     public AdminClinicResponse updateClinic(Long id, UpdateClinicRequest request) {
         Clinic clinic = clinicRepository.findById(Objects.requireNonNull(id))
                 .orElseThrow(() -> new ResourceNotFoundException("Phòng khám không tồn tại với ID: " + id));
@@ -407,6 +427,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = {"clinics", "clinic_stats", "admin_dashboard"}, allEntries = true)
     public void toggleClinicStatus(Long id) {
         if (id == null)
             return;
@@ -433,6 +454,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional(readOnly = true)
+    @org.springframework.cache.annotation.Cacheable(value = "user_stats")
     public AdminUserStatsResponse getUserStats() {
         long total = userRepository.countByIsDeletedFalse();
         long admins = userRepository.countByRoleAndIsDeletedFalse("ADMIN");
@@ -451,6 +473,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional(readOnly = true)
+    @org.springframework.cache.annotation.Cacheable(value = "users", key = "#role + '_' + #status + '_' + #clinicId + '_' + #keyword + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public Page<AdminUserResponse> getUsers(String role, String status, Long clinicId, String keyword,
             Pageable pageable) {
         String search = (keyword != null && !keyword.isBlank()) ? "%" + keyword.toLowerCase().trim() + "%" : null;
@@ -460,6 +483,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional(readOnly = true)
+    @org.springframework.cache.annotation.Cacheable(value = "users", key = "'id_' + #id")
     public AdminUserResponse getUserById(Long id) {
         User user = userRepository.findById(Objects.requireNonNull(id))
                 .orElseThrow(() -> new ResourceNotFoundException("Người dùng không tồn tại với ID: " + id));
@@ -468,6 +492,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = {"users", "user_stats", "admin_dashboard"}, allEntries = true)
     public AdminUserResponse createUser(CreateUserRequest request) {
         User user = User.builder()
                 .fullName(request.getFullName())
@@ -509,6 +534,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = {"users", "user_stats", "admin_dashboard"}, allEntries = true)
     public AdminUserResponse updateUser(Long id, UpdateUserRequest request) {
         User user = userRepository.findById(Objects.requireNonNull(id))
                 .orElseThrow(() -> new ResourceNotFoundException("Người dùng không tồn tại với ID: " + id));
@@ -538,6 +564,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = {"users", "user_stats", "admin_dashboard"}, allEntries = true)
     public void toggleUserStatus(Long id) {
         if (id == null)
             return;
