@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect, use
 import { AnimatePresence, motion } from 'framer-motion';
 
 // --- Types ---
-export type ToastType = 'success' | 'error' | 'warning';
+export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
 export interface ToastData {
   id: string;
@@ -55,13 +55,21 @@ const ToastItem: React.FC<{
       icon: 'warning',
       text: 'text-amber-600 dark:text-amber-400',
       progress: 'bg-amber-500'
+    },
+    info: {
+      bg: 'bg-blue-500/5',
+      border: 'border-blue-500/50',
+      iconBg: 'bg-blue-500',
+      icon: 'info',
+      text: 'text-blue-600 dark:text-blue-400',
+      progress: 'bg-blue-500'
     }
   }[type];
 
   return (
     <div className={`bg-white/95 dark:bg-slate-900/95 backdrop-blur-3xl border ${config.border} shadow-2xl rounded-2xl p-0.5 overflow-hidden w-fit min-w-[320px] max-w-[450px]`}>
         <div className={`px-6 py-4 flex items-center gap-4 ${config.bg}`}>
-          <div className={`w-10 h-10 ${config.iconBg} text-white rounded-xl flex items-center justify-center shadow-lg shadow-${type === 'success' ? 'emerald' : type === 'error' ? 'red' : 'amber'}-500/20`}>
+          <div className={`w-10 h-10 ${config.iconBg} text-white rounded-xl flex items-center justify-center shadow-lg shadow-${type === 'success' ? 'emerald' : type === 'error' ? 'red' : type === 'warning' ? 'amber' : 'blue'}-500/20`}>
             <span className="material-symbols-outlined font-extrabold text-2xl">{config.icon}</span>
           </div>
           <div className="flex-1 text-left">

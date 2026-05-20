@@ -183,6 +183,58 @@ export default function ClinicAppointments() {
     };
 
 
+    // Compute growth stats comparing current month vs previous month
+    const statsGrowth = (() => {
+        const curMonthStart = new Date(currentYear, currentMonth, 1);
+        const curMonthEnd = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59);
+        const prevMonthStart = new Date(currentYear, currentMonth - 1, 1);
+        const prevMonthEnd = new Date(currentYear, currentMonth, 0, 23, 59, 59);
+
+        const inRange = (dateStr: string, start: Date, end: Date) => {
+            const d = new Date(dateStr);
+            return d >= start && d <= end;
+        };
+
+        const curAll = appointments.filter(a => inRange(a.appointmentTime, curMonthStart, curMonthEnd));
+        const prevAll = appointments.filter(a => inRange(a.appointmentTime, prevMonthStart, prevMonthEnd));
+
+        const calcGrowth = (cur: number, prev: number) => {
+            if (prev === 0) return cur > 0 ? 100 : 0;
+            return Math.round(((cur - prev) / prev) * 100);
+        };
+
+        const totalGrowth = calcGrowth(curAll.length, prevAll.length);
+        const inPersonGrowth = calcGrowth(
+            curAll.filter(a => a.appointmentType === 'IN_PERSON').length,
+            prevAll.filter(a => a.appointmentType === 'IN_PERSON').length
+        );
+        const onlineGrowth = calcGrowth(
+            curAll.filter(a => a.appointmentType === 'ONLINE').length,
+            prevAll.filter(a => a.appointmentType === 'ONLINE').length
+        );
+        const pendingGrowth = calcGrowth(
+            curAll.filter(a => a.status === 'PENDING').length,
+            prevAll.filter(a => a.status === 'PENDING').length
+        );
+
+        return { totalGrowth, inPersonGrowth, onlineGrowth, pendingGrowth };
+    })();
+
+    const renderGrowth = (value: number) => {
+        if (value === 0) return (
+            <span className="text-xs font-bold text-slate-400 flex items-center gap-0.5">
+                <span className="material-symbols-outlined text-xs">horizontal_rule</span>
+                0%
+            </span>
+        );
+        const isPositive = value > 0;
+        return (
+            <span className={`text-xs font-bold flex items-center gap-0.5 ${isPositive ? 'text-primary' : 'text-red-500'}`}>
+                <span className="material-symbols-outlined text-xs">{isPositive ? 'trending_up' : 'trending_down'}</span>
+                {isPositive ? '+' : ''}{value}%
+            </span>
+        );
+    };
 
     // Filter for current selected day visually
     const agendaAppointments = appointments.filter(a => {
@@ -251,10 +303,7 @@ export default function ClinicAppointments() {
                             </div>
                             <div className="flex items-end justify-between">
                                 <span className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">{appointments.length}</span>
-                                <span className="text-xs font-bold text-primary flex items-center gap-0.5">
-                                    <span className="material-symbols-outlined text-xs">trending_up</span>
-                                    +5%
-                                </span>
+                                {renderGrowth(statsGrowth.totalGrowth)}
                             </div>
                         </div>
                         <div
@@ -270,10 +319,7 @@ export default function ClinicAppointments() {
                                 <span className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
                                     {appointments.filter(a => a.appointmentType === 'IN_PERSON').length}
                                 </span>
-                                <span className="text-xs font-bold text-primary flex items-center gap-0.5">
-                                    <span className="material-symbols-outlined text-xs">trending_up</span>
-                                    +2%
-                                </span>
+                                {renderGrowth(statsGrowth.inPersonGrowth)}
                             </div>
                         </div>
                         <div
@@ -289,10 +335,7 @@ export default function ClinicAppointments() {
                                 <span className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
                                     {appointments.filter(a => a.appointmentType === 'ONLINE').length}
                                 </span>
-                                <span className="text-xs font-bold text-red-500 flex items-center gap-0.5">
-                                    <span className="material-symbols-outlined text-xs">trending_down</span>
-                                    -1%
-                                </span>
+                                {renderGrowth(statsGrowth.onlineGrowth)}
                             </div>
                         </div>
                         <div
@@ -308,10 +351,7 @@ export default function ClinicAppointments() {
                                 <span className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
                                     {appointments.filter(a => a.status === 'PENDING').length}
                                 </span>
-                                <span className="text-xs font-bold text-slate-400 flex items-center gap-0.5">
-                                    <span className="material-symbols-outlined text-xs">horizontal_rule</span>
-                                    0%
-                                </span>
+                                {renderGrowth(statsGrowth.pendingGrowth)}
                             </div>
                         </div>
                     </div>

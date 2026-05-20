@@ -34,6 +34,7 @@ public class PatientMessageServiceImpl implements PatientMessageService {
     private final PatientRepository patientRepository;
     private final com.project.repository.UserRepository userRepository;
     private final com.project.repository.ClinicRepository clinicRepository;
+    private final org.springframework.messaging.simp.SimpMessagingTemplate messagingTemplate;
 
     @Override
     public List<ConversationResponse> getConversations() {
@@ -150,8 +151,17 @@ public class PatientMessageServiceImpl implements PatientMessageService {
         conversation.setLastMessageAt(LocalDateTime.now());
         conversationRepository.save(conversation);
 
+        MessageResponse response = mapToMessageResponse(saved);
+        try {
+            // Push to Doctor WebSocket
+            String destination = "/queue/messages";
+            messagingTemplate.convertAndSendToUser(conversation.getDoctorId().toString(), destination, response);
+        } catch (Exception e) {
+            log.warn("Failed to send WebSocket message to doctor {}: {}", conversation.getDoctorId(), e.getMessage());
+        }
+
         log.info("Message sent in conversation: convId={}", request.getConversationId());
-        return mapToMessageResponse(saved);
+        return response;
     }
 
     @Override

@@ -11,6 +11,7 @@ import com.project.repository.EmergencyContactRepository;
 import com.project.repository.PatientRepository;
 import com.project.repository.UserRepository;
 import com.project.service.PatientProfileService;
+import com.project.service.ExcelExportService;
 import com.project.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,7 @@ public class PatientProfileServiceImpl implements PatientProfileService {
     private final EmergencyContactRepository emergencyContactRepository;
     private final UserRepository userRepository;
     private final com.project.repository.PrescriptionRepository prescriptionRepository;
+    private final ExcelExportService excelExportService;
 
     @Override
     public PatientProfileResponse getCurrentPatientProfile() {
@@ -138,19 +140,13 @@ public class PatientProfileServiceImpl implements PatientProfileService {
 
     @Override
     public byte[] generateReport() {
-        Patient p = getCurrentPatient();
-        StringBuilder sb = new StringBuilder();
-        sb.append("BÁO CÁO SỨC KHỎE CÁ NHÂN\n");
-        sb.append("---------------------------------\n");
-        sb.append("Họ tên: ").append(p.getFullName()).append("\n");
-        sb.append("Mã BN: ").append(p.getPatientCode() != null ? p.getPatientCode() : "N/A").append("\n");
-        sb.append("SĐT: ").append(p.getPhone()).append("\n");
-        sb.append("Email: ").append(p.getEmail()).append("\n");
-        sb.append("Tình trạng: ").append(p.getChronicCondition() != null ? p.getChronicCondition() : "Bình thường").append("\n");
-        sb.append("---------------------------------\n");
-        sb.append("Ngày xuất báo cáo: ").append(java.time.LocalDate.now()).append("\n");
-        
-        return sb.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        try {
+            Long userId = SecurityUtils.getCurrentUserId()
+                    .orElseThrow(() -> new ResourceNotFoundException("User not authenticated"));
+            return excelExportService.generatePatientReport(userId);
+        } catch (java.io.IOException e) {
+            throw new RuntimeException("Failed to generate report", e);
+        }
     }
 
     // === Private Helpers ===

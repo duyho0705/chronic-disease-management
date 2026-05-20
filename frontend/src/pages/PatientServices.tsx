@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { medicalServiceApi } from '../api/medicalService';
+import { patientApi } from '../api/patient';
 import { useToast } from '../components/ui/ToastContext';
 
 const PatientServices: React.FC = () => {
@@ -8,8 +9,7 @@ const PatientServices: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
     const { showToast } = useToast();
     
-    // Simulation state for subscribed service
-    const [subscribedId, setSubscribedId] = useState<number | null>(null);
+    const [activeSubscription, setActiveSubscription] = useState<any>(null);
     const [confirmModalOpen, setConfirmModalOpen] = useState(false);
     const [selectedService, setSelectedService] = useState<any>(null);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -33,13 +33,22 @@ const PatientServices: React.FC = () => {
         }
     }, [showToast]);
 
+    const fetchSubscription = async () => {
+        try {
+            const res = await patientApi.getCurrentSubscription();
+            if (res.success && res.data) {
+                setActiveSubscription(res.data);
+            } else {
+                setActiveSubscription(null);
+            }
+        } catch (error) {
+            console.error('Failed to fetch subscription', error);
+        }
+    };
+
     useEffect(() => {
         fetchServices();
-        // Load subscription from simulator localStorage
-        const sub = localStorage.getItem('simulatedSubscribedServiceId');
-        if (sub) {
-            setSubscribedId(Number(sub));
-        }
+        fetchSubscription();
     }, [fetchServices]);
 
     const handleOpenConfirm = (service: any) => {
@@ -55,24 +64,31 @@ const PatientServices: React.FC = () => {
         await new Promise((resolve) => setTimeout(resolve, 1500));
 
         try {
-            localStorage.setItem('simulatedSubscribedServiceId', selectedService.id.toString());
-            setSubscribedId(selectedService.id);
-            showToast(`Đăng ký gói "${selectedService.name}" thành công!`, 'success');
-            setConfirmModalOpen(false);
-        } catch (e) {
-            showToast('Đăng ký thất bại, vui lòng thử lại sau', 'error');
+            const res = await patientApi.subscribeToService(selectedService.id);
+            if (res.success) {
+                setActiveSubscription(res.data);
+                showToast(`Đăng ký gói "${selectedService.name}" thành công!`, 'success');
+                setConfirmModalOpen(false);
+            }
+        } catch (e: any) {
+            showToast(e.response?.data?.message || 'Đăng ký thất bại, vui lòng thử lại sau', 'error');
         } finally {
             setIsProcessing(false);
         }
     };
 
-    const handleCancelSubscription = () => {
-        localStorage.removeItem('simulatedSubscribedServiceId');
-        setSubscribedId(null);
-        showToast('Đã hủy đăng ký gói dịch vụ hiện tại', 'success');
+    const handleCancelSubscription = async () => {
+        setIsProcessing(true);
+        try {
+            await patientApi.cancelSubscription();
+            setActiveSubscription(null);
+            showToast('Đã hủy đăng ký gói dịch vụ hiện tại', 'success');
+        } catch (error) {
+            showToast('Hủy gói thất bại', 'error');
+        } finally {
+            setIsProcessing(false);
+        }
     };
-
-    const activeSubscription = services.find(s => s.id === subscribedId);
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700 text-left font-display">
@@ -98,9 +114,9 @@ const PatientServices: React.FC = () => {
                             <div>
                                 <div className="flex items-center gap-2">
                                     <span className="text-[11px] font-extrabold bg-primary text-slate-900 px-2 py-0.5 rounded-full uppercase">Đang hoạt động</span>
-                                    <p className="text-slate-400 text-[13px] font-bold">Hạn gói: {activeSubscription.duration}</p>
+                                    <p className="text-slate-400 text-[13px] font-bold">Hạn gói: {activeSubscription.duration || "Không rõ"}</p>
                                 </div>
-                                <h3 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white mt-1">{activeSubscription.name}</h3>
+                                <h3 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white mt-1">{activeSubscription.serviceName}</h3>
                             </div>
                         </div>
                         <div className="flex gap-3 w-full md:w-auto">
@@ -147,7 +163,7 @@ const PatientServices: React.FC = () => {
                 ) : services.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
                         {services.map((service) => {
-                            const isCurrent = service.id === subscribedId;
+                            const isCurrent = activeSubscription?.serviceId === service.id;
                             const isPopular = service.category?.toLowerCase().includes('tiêu đường') || service.price >= 2000000; // Simulating recommendation logic
                             
                             return (

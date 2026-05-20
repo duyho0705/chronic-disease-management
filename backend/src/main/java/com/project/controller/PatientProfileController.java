@@ -69,8 +69,8 @@ public class PatientProfileController {
     public ResponseEntity<byte[]> downloadReport() {
         byte[] data = service.generateReport();
         return ResponseEntity.ok()
-                .header("Content-Disposition", "attachment; filename=health_report.txt")
-                .header("Content-Type", "text/plain")
+                .header("Content-Disposition", "attachment; filename=health_report.xlsx")
+                .header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
                 .body(data);
     }
 }

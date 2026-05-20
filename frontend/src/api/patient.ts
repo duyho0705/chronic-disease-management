@@ -130,6 +130,16 @@ export const patientApi = {
     const response = await axiosInstance.put(`/v1/patient/messages/conversations/${conversationId}/read`);
     return response.data;
   },
+  uploadFile: async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await axiosInstance.post('/v1/files/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    return response.data;
+  },
 
   // Notification management
   getNotifications: async () => {
@@ -150,6 +160,20 @@ export const patientApi = {
   },
   deleteNotification: async (id: number) => {
     const response = await axiosInstance.delete(`/v1/notifications/${id}`);
+    return response.data;
+  },
+
+  // Service Subscriptions
+  getCurrentSubscription: async () => {
+    const response = await axiosInstance.get('/v1/patient/services/subscription');
+    return response.data;
+  },
+  subscribeToService: async (serviceId: number) => {
+    const response = await axiosInstance.post(`/v1/patient/services/${serviceId}/subscribe`);
+    return response.data;
+  },
+  cancelSubscription: async () => {
+    const response = await axiosInstance.delete('/v1/patient/services/subscription');
     return response.data;
   }
 };

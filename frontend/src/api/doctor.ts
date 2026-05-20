@@ -94,5 +94,16 @@ export const doctorApi = {
   markMessagesAsRead: async (conversationId: number) => {
     const response = await axiosInstance.put(`/v1/doctor/messages/conversations/${conversationId}/read`);
     return response.data;
+  },
+
+  uploadFile: async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await axiosInstance.post('/v1/files/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    return response.data;
   }
 };

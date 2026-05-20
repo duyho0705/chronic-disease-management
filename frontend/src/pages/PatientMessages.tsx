@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { patientApi } from '../api/patient';
+import { useWebSocket } from '../hooks/useWebSocket';
 
 const PatientMessages: React.FC = () => {
     const [conversations, setConversations] = useState<any[]>([]);
@@ -9,6 +10,36 @@ const PatientMessages: React.FC = () => {
     const [msgInput, setMsgInput] = useState('');
     const [sending, setSending] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const imageInputRef = useRef<HTMLInputElement>(null);
+    const { lastMessage } = useWebSocket();
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !activeConv) return;
+        
+        setSending(true);
+        try {
+            const uploadRes = await patientApi.uploadFile(file);
+            if (uploadRes.success) {
+                const attachmentUrl = uploadRes.data;
+                const messageType = file.type.startsWith('image/') ? 'IMAGE' : 'FILE';
+                
+                const res = await patientApi.sendMessage({
+                    conversationId: activeConv.id,
+                    content: `[${messageType === 'IMAGE' ? 'Hình ảnh' : 'Tập tin'}]`,
+                    messageType,
+                    attachmentUrl
+                });
+                setMessages((prev: any[]) => [...prev, res.data]);
+            }
+        } catch (error) {
+            console.error('File upload failed:', error);
+        } finally {
+            setSending(false);
+            if (e.target) e.target.value = ''; // Reset input
+        }
+    };
 
     useEffect(() => {
         loadConversations();
@@ -21,6 +52,47 @@ const PatientMessages: React.FC = () => {
             patientApi.markMessagesAsRead(activeConv.id).catch(console.error);
         }
     }, [activeConv]);
+
+    useEffect(() => {
+        if (lastMessage) {
+            setConversations(prev => {
+                const updated = [...prev];
+                const convIndex = updated.findIndex(c => 
+                    // Patient receives message from Doctor. We need to match conversation by sender/receiver or conv ID if provided.
+                    // Assuming lastMessage contains senderId or conversation ID. Wait, lastMessage doesn't have conversation ID directly in DTO? 
+                    // Let's check MessageResponse. It doesn't have conversationId.
+                    // But we can match by senderId = doctorId.
+                    c.doctorId === lastMessage.senderId
+                );
+                
+                if (convIndex !== -1) {
+                    const conv = updated[convIndex];
+                    conv.lastMessage = lastMessage.content;
+                    conv.lastMessageAt = lastMessage.sentAt;
+                    if (!activeConv || activeConv.id !== conv.id) {
+                        conv.unreadCount = (conv.unreadCount || 0) + 1;
+                    }
+                    // Move to top
+                    updated.splice(convIndex, 1);
+                    updated.unshift(conv);
+                } else {
+                    // Reload if completely new conversation
+                    loadConversations();
+                }
+                return updated;
+            });
+
+            // If it's for the active conversation, append it
+            if (activeConv && activeConv.doctorId === lastMessage.senderId) {
+                setMessages(prev => {
+                    // Avoid duplicates
+                    if (prev.some(m => m.id === lastMessage.id)) return prev;
+                    return [...prev, lastMessage];
+                });
+                patientApi.markMessagesAsRead(activeConv.id).catch(console.error);
+            }
+        }
+    }, [lastMessage, activeConv]);
 
     useEffect(() => {
         scrollToBottom();
@@ -197,10 +269,12 @@ const PatientMessages: React.FC = () => {
                 {/* Chat Input */}
                 <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
                     <form onSubmit={handleSendMessage} className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 rounded-2xl p-2 transition-all focus-within:ring-2 focus-within:ring-primary/20">
-                        <button type="button" className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl text-slate-500 transition-colors">
+                        <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" />
+                        <input type="file" ref={imageInputRef} onChange={handleFileUpload} accept="image/*" className="hidden" />
+                        <button type="button" onClick={() => fileInputRef.current?.click()} className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl text-slate-500 transition-colors">
                             <span className="material-symbols-outlined">add_circle</span>
                         </button>
-                        <button type="button" className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl text-slate-500 transition-colors">
+                        <button type="button" onClick={() => imageInputRef.current?.click()} className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl text-slate-500 transition-colors">
                             <span className="material-symbols-outlined">image</span>
                         </button>
                         <button type="button" className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl text-slate-500 transition-colors">

@@ -21,6 +21,9 @@ import java.util.stream.Collectors;
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final org.springframework.messaging.simp.SimpMessagingTemplate messagingTemplate;
+    private final com.project.service.ZaloService zaloService;
+    private final com.project.repository.UserRepository userRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -74,7 +77,25 @@ public class NotificationServiceImpl implements NotificationService {
                 .read(false)
                 .targetUrl(targetUrl)
                 .build();
-        notificationRepository.save(notification);
+        Notification saved = notificationRepository.save(notification);
+        
+        try {
+            // Push to WebSocket
+            String destination = "/queue/notifications";
+            messagingTemplate.convertAndSendToUser(userId.toString(), destination, mapToResponse(saved));
+        } catch (Exception e) {
+            log.warn("Failed to send WebSocket notification to user {}: {}", userId, e.getMessage());
+        }
+
+        try {
+            userRepository.findById(userId).ifPresent(user -> {
+                if (user.getPhone() != null && !user.getPhone().isEmpty()) {
+                    zaloService.sendMessage(user.getPhone(), "[" + title + "] " + message);
+                }
+            });
+        } catch (Exception e) {
+            log.error("Failed to send Zalo message", e);
+        }
     }
 
     private NotificationResponse mapToResponse(Notification n) {

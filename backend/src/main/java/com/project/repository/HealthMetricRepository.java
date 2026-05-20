@@ -19,6 +19,9 @@ public interface HealthMetricRepository extends JpaRepository<HealthMetric, Long
     Page<HealthMetric> findByPatientIdAndIsDeletedFalseOrderByMeasuredAtDesc(
             Long patientId, Pageable pageable);
 
+    List<HealthMetric> findByPatientIdAndIsDeletedFalseOrderByMeasuredAtDesc(
+            Long patientId);
+
     List<HealthMetric> findByPatientIdAndMetricTypeAndMeasuredAtBetweenAndIsDeletedFalse(
             Long patientId, MetricType metricType, LocalDateTime from, LocalDateTime to);
 
@@ -29,6 +32,9 @@ public interface HealthMetricRepository extends JpaRepository<HealthMetric, Long
             Long patientId, MetricType metricType);
 
     List<HealthMetric> findTop2ByPatientIdAndMetricTypeAndIsDeletedFalseOrderByMeasuredAtDesc(
+            Long patientId, MetricType metricType);
+
+    List<HealthMetric> findTop3ByPatientIdAndMetricTypeAndIsDeletedFalseOrderByMeasuredAtDesc(
             Long patientId, MetricType metricType);
 
     @Query("SELECT h FROM HealthMetric h WHERE h.patient.id = :patientId " +

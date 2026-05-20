@@ -100,6 +100,30 @@ public class PatientHealthMetricServiceImpl implements PatientHealthMetricServic
 
         HealthMetric saved = Objects.requireNonNull(healthMetricRepository.save(metric));
         
+        // Check for 3 consecutive abnormal metrics
+        if (!"NORMAL".equals(status)) {
+            List<HealthMetric> recent3 = healthMetricRepository.findTop3ByPatientIdAndMetricTypeAndIsDeletedFalseOrderByMeasuredAtDesc(patient.getId(), metricType);
+            if (recent3.size() == 3 && recent3.stream().noneMatch(m -> "NORMAL".equals(m.getStatus()))) {
+                String title = "Cảnh báo liên tiếp: " + DISPLAY_NAMES.get(metricType);
+                String docMsg = "Chỉ số " + DISPLAY_NAMES.get(metricType) + " của bệnh nhân " + patient.getFullName() + " đã bất thường trong 3 lần đo liên tiếp. Khuyến nghị liên hệ bệnh nhân gấp.";
+                
+                if (patient.getDoctorId() != null) {
+                    notificationService.sendNotification(patient.getDoctorId(), "[Khẩn] " + title, docMsg, "error", "/doctor/patients/" + patient.getId());
+                }
+                
+                PatientAlert consecutiveAlert = PatientAlert.builder()
+                        .patient(patient)
+                        .alertType("CONSECUTIVE_ABNORMAL")
+                        .severity("CRITICAL")
+                        .title(title)
+                        .message("Chỉ số " + DISPLAY_NAMES.get(metricType) + " của bạn bất thường trong 3 lần đo liên tiếp. Hệ thống khuyến nghị bạn liên hệ ngay với bác sĩ phụ trách.")
+                        .isRead(false)
+                        .isDismissed(false)
+                        .build();
+                patientAlertRepository.save(Objects.requireNonNull(consecutiveAlert));
+            }
+        }
+
         // Notify Doctor and update risk level if risk detected
         if ("HIGH".equals(status) || "LOW".equals(status)) {
             patient.setRiskLevel("HIGH_RISK");

@@ -18,18 +18,21 @@ const queryClient = new QueryClient({
 });
 
 import { ToastProvider } from './components/ui/ToastContext';
+import { WebSocketProvider } from './hooks/useWebSocket';
 
 function App() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <ToastProvider>
-          <Router>
-            <ScrollToTop />
-            <AppRoutes />
-            <SessionTimeoutWarning />
-            <AiChatWidget />
-          </Router>
+          <WebSocketProvider>
+            <Router>
+              <ScrollToTop />
+              <AppRoutes />
+              <SessionTimeoutWarning />
+              <AiChatWidget />
+            </Router>
+          </WebSocketProvider>
         </ToastProvider>
       </QueryClientProvider>
     </ErrorBoundary>

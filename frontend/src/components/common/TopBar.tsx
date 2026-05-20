@@ -5,6 +5,7 @@ import AllNotificationsModal from './AllNotificationsModal';
 import { notificationApi } from '../../api/notification';
 import { clinicApi } from '../../api/clinic';
 import ConfirmActionModal from '../ui/ConfirmActionModal';
+import { useWebSocket } from '../../hooks/useWebSocket';
 
 interface TopBarProps {
   setIsSidebarOpen: (isOpen: boolean) => void;
@@ -22,6 +23,13 @@ const TopBar: React.FC<TopBarProps> = ({
   const navigate = useNavigate();
   const currentClinicId = localStorage.getItem('clinicId');
   const userRole = localStorage.getItem('userRole');
+  const { lastNotification } = useWebSocket();
+
+  useEffect(() => {
+    if (lastNotification) {
+      setNotifications(prev => [lastNotification, ...prev.filter(n => n.id !== lastNotification.id)]);
+    }
+  }, [lastNotification, setNotifications]);
 
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isAllNotificationsOpen, setIsAllNotificationsOpen] = useState(false);

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 @SpringBootApplication
 @org.springframework.scheduling.annotation.EnableAsync
+@org.springframework.scheduling.annotation.EnableScheduling
 @org.springframework.cache.annotation.EnableCaching
 @Slf4j
 public class BackendApplication {

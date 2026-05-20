@@ -8,6 +8,7 @@ import Skeleton from '../components/ui/Skeleton';
 import { doctorApi } from '../api/doctor';
 import TopBar from '../components/common/TopBar';
 import DoctorSidebar from '../components/common/DoctorSidebar';
+import { useWebSocket } from '../hooks/useWebSocket';
 
 export default function DoctorMessages() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -42,9 +43,43 @@ export default function DoctorMessages() {
     const [showToast, setShowToast] = useState(false);
     const [toastTitle, setToastTitle] = useState('');
     const [isSaving, setIsSaving] = useState(false);
+    const { lastMessage } = useWebSocket();
+
     useEffect(() => {
         loadConversations();
     }, []);
+
+    useEffect(() => {
+        if (lastMessage) {
+            setConversations(prev => {
+                const updated = [...prev];
+                const convIndex = updated.findIndex(c => c.patientId === lastMessage.senderId);
+
+                if (convIndex !== -1) {
+                    const conv = updated[convIndex];
+                    conv.lastMessage = lastMessage.content;
+                    conv.lastMessageAt = lastMessage.sentAt;
+                    if (!activeConv || activeConv.id !== conv.id) {
+                        conv.unreadCount = (conv.unreadCount || 0) + 1;
+                    }
+                    // Move to top
+                    updated.splice(convIndex, 1);
+                    updated.unshift(conv);
+                } else {
+                    loadConversations();
+                }
+                return updated;
+            });
+
+            if (activeConv && activeConv.patientId === lastMessage.senderId) {
+                setMessages(prev => {
+                    if (prev.some(m => m.id === lastMessage.id)) return prev;
+                    return [...prev, lastMessage];
+                });
+                doctorApi.markMessagesAsRead(activeConv.id).catch(console.error);
+            }
+        }
+    }, [lastMessage, activeConv]);
 
     useEffect(() => {
         if (activeConv) {
@@ -63,7 +98,7 @@ export default function DoctorMessages() {
                 const bp = list.find((m: any) => m.metricType === 'BLOOD_PRESSURE');
                 const hr = list.find((m: any) => m.metricType === 'HEART_RATE');
                 const gl = list.find((m: any) => m.metricType === 'BLOOD_SUGAR');
-                
+
                 setActivePatient({
                     ...(d.profile || {}),
                     latestBp: bp ? `${bp.value}/${bp.valueSecondary}` : null,
@@ -106,6 +141,36 @@ export default function DoctorMessages() {
             setMsgInput('');
             loadConversations();
         } catch (error) { console.error(error); } finally { setSending(false); }
+    };
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !activeConv) return;
+
+        setSending(true);
+        try {
+            const uploadRes = await doctorApi.uploadFile(file);
+            if (uploadRes.success) {
+                const attachmentUrl = uploadRes.data;
+                const messageType = file.type.startsWith('image/') ? 'IMAGE' : 'FILE';
+
+                const res = await doctorApi.sendMessage({
+                    conversationId: activeConv.id,
+                    content: `[${messageType === 'IMAGE' ? 'Hình ảnh' : 'Tập tin'}]`,
+                    messageType,
+                    attachmentUrl
+                });
+                setMessages((prev: any[]) => [...prev, res.data]);
+                loadConversations();
+            }
+        } catch (error) {
+            console.error('File upload failed:', error);
+            setToastTitle('Tải file thất bại');
+            setShowToast(true);
+        } finally {
+            setSending(false);
+            if (e.target) e.target.value = '';
+        }
     };
 
     const formatTime = (dateStr: string) => {
@@ -226,8 +291,8 @@ export default function DoctorMessages() {
                                             <div key={i} className="flex items-center gap-3 p-2">
                                                 <Skeleton variant="circular" className="size-12 flex-shrink-0" />
                                                 <div className="flex-1 space-y-2">
-                                                    <div className="flex justify-between"><Skeleton className="h-4 w-2/3"/><Skeleton className="h-3 w-8"/></div>
-                                                    <Skeleton className="h-3 w-3/4"/>
+                                                    <div className="flex justify-between"><Skeleton className="h-4 w-2/3" /><Skeleton className="h-3 w-8" /></div>
+                                                    <Skeleton className="h-3 w-3/4" />
                                                 </div>
                                             </div>
                                         ))}
@@ -258,114 +323,106 @@ export default function DoctorMessages() {
                     <section className="flex-1 flex flex-col bg-background-light dark:bg-background-dark">
                         {/* Chat Header */}
                         {activeConv ? (
-                        <>
-                        <div className="h-16 px-6 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="size-10 rounded-full bg-slate-200 overflow-hidden relative">
-                                    <img className="w-full h-full object-cover" src={activeConv.patientAvatarUrl || "https://ui-avatars.com/api/?name=" + encodeURIComponent(activeConv.patientName)} alt="P" />
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-bold leading-none">{activeConv.patientName}</h3>
-                                    <div className="flex items-center gap-2 mt-1">
-                                        <span className={`size-2 rounded-full ${(activeConv.online ?? activeConv.isOnline) ? 'bg-green-500' : 'bg-slate-300'}`}></span>
-                                        <span className="text-xs text-slate-500">{(activeConv.online ?? activeConv.isOnline) ? 'Đang hoạt động' : 'Ngoại tuyến'}</span>
+                            <>
+                                <div className="h-16 px-6 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="size-10 rounded-full bg-slate-200 overflow-hidden relative">
+                                            <img className="w-full h-full object-cover" src={activeConv.patientAvatarUrl || "https://ui-avatars.com/api/?name=" + encodeURIComponent(activeConv.patientName)} alt="P" />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-sm font-bold leading-none">{activeConv.patientName}</h3>
+                                            <div className="flex items-center gap-2 mt-1">
+                                                <span className={`size-2 rounded-full ${(activeConv.online ?? activeConv.isOnline) ? 'bg-green-500' : 'bg-slate-300'}`}></span>
+                                                <span className="text-xs text-slate-500">{(activeConv.online ?? activeConv.isOnline) ? 'Đang hoạt động' : 'Ngoại tuyến'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <button className="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"><span className="material-symbols-outlined">call</span></button>
+                                        <button className="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"><span className="material-symbols-outlined">videocam</span></button>
                                     </div>
                                 </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <button className="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"><span className="material-symbols-outlined">call</span></button>
-                                <button className="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"><span className="material-symbols-outlined">videocam</span></button>
-                            </div>
-                        </div>
 
-                        {/* Chat History */}
-                        <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
-                            {messages.map((msg, i) => (
-                                <div key={msg.id || i} className={`flex gap-3 max-w-[80%] ${msg.senderType === 'DOCTOR' ? 'flex-row-reverse ml-auto' : ''}`}>
-                                    {msg.senderType !== 'DOCTOR' && (
-                                        <img className="size-8 rounded-full self-end bg-slate-200" src={activeConv.patientAvatarUrl || "https://ui-avatars.com/api/?name=" + encodeURIComponent(activeConv.patientName)} alt="P" />
-                                    )}
-                                    <div className={`${msg.senderType === 'DOCTOR' ? 'bg-primary text-white rounded-br-none' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-bl-none border border-slate-100 dark:border-slate-700'} p-4 rounded-2xl shadow-sm`}>
-                                        <p className="text-[15px] font-medium leading-relaxed">{msg.content}</p>
-                                        <span className={`text-[12px] mt-1.5 block font-medium ${msg.senderType === 'DOCTOR' ? 'text-white/70 text-right' : 'text-slate-400'}`}>
-                                            {formatTime(msg.sentAt)}
-                                        </span>
+                                {/* Chat History */}
+                                <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
+                                    {messages.map((msg, i) => (
+                                        <div key={msg.id || i} className={`flex gap-3 max-w-[80%] ${msg.senderType === 'DOCTOR' ? 'flex-row-reverse ml-auto' : ''}`}>
+                                            {msg.senderType !== 'DOCTOR' && (
+                                                <img className="size-8 rounded-full self-end bg-slate-200" src={activeConv.patientAvatarUrl || "https://ui-avatars.com/api/?name=" + encodeURIComponent(activeConv.patientName)} alt="P" />
+                                            )}
+                                            <div className={`${msg.senderType === 'DOCTOR' ? 'bg-primary text-white rounded-br-none' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-bl-none border border-slate-100 dark:border-slate-700'} p-4 rounded-2xl shadow-sm`}>
+                                                <p className="text-[15px] font-medium leading-relaxed">{msg.content}</p>
+                                                <span className={`text-[12px] mt-1.5 block font-medium ${msg.senderType === 'DOCTOR' ? 'text-white/70 text-right' : 'text-slate-400'}`}>
+                                                    {formatTime(msg.sentAt)}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    <div ref={messagesEndRef} />
+                                </div>
+
+                                {/* Message Input Area */}
+                                <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
+                                    <div className="flex gap-2 mb-3 overflow-x-auto pb-1 no-scrollbar text-left font-medium">
+                                        <button
+                                            onClick={() => setIsAdviceModalOpen(true)}
+                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary text-xs font-extrabold rounded-full whitespace-nowrap hover:bg-primary hover:text-white transition-all">
+                                            <span className="material-symbols-outlined text-sm font-medium">recommend</span> Gửi khuyến nghị
+                                        </button>
+                                        <button className="flex items-center gap-1.5 px-3 py-1.5 bg-red-100 text-red-600 text-xs font-extrabold rounded-full whitespace-nowrap hover:bg-red-500 hover:text-white transition-all">
+                                            <span className="material-symbols-outlined text-sm font-medium">warning</span> Gửi cảnh báo
+                                        </button>
+                                        <button
+                                            onClick={() => setIsPrescriptionModalOpen(true)}
+                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-blue-600 text-xs font-extrabold rounded-full whitespace-nowrap hover:bg-blue-500 hover:text-white transition-all">
+                                            <span className="material-symbols-outlined text-sm font-medium">medication</span> Đơn thuốc mới
+                                        </button>
+                                    </div>
+                                    <div className="flex items-end gap-2 px-1">
+                                        <div className="flex gap-1 mb-1.5 font-medium">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                className="hidden"
+                                                ref={imageInputRef}
+                                                onChange={handleFileUpload}
+                                            />
+                                            <input
+                                                type="file"
+                                                className="hidden"
+                                                ref={fileInputRef}
+                                                onChange={handleFileUpload}
+                                            />
+                                            <button
+                                                onClick={() => imageInputRef.current?.click()}
+                                                className="p-2 text-slate-400 hover:text-primary transition-all active:bg-slate-50 dark:active:bg-slate-800 rounded-lg">
+                                                <span className="material-symbols-outlined">image</span>
+                                            </button>
+                                            <button
+                                                onClick={() => fileInputRef.current?.click()}
+                                                className="p-2 text-slate-400 hover:text-primary transition-all active:bg-slate-50 dark:active:bg-slate-800 rounded-lg">
+                                                <span className="material-symbols-outlined">attach_file</span>
+                                            </button>
+                                        </div>
+                                        <div className="flex-1 relative">
+                                            <textarea
+                                                rows={1}
+                                                value={msgInput}
+                                                onChange={(e) => setMsgInput(e.target.value)}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                                        e.preventDefault();
+                                                        handleSendMessage();
+                                                    }
+                                                }}
+                                                className="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl py-3 px-4 text-[15px] font-medium focus:ring-2 focus:ring-primary/50 resize-none outline-none text-slate-700 dark:text-slate-200" placeholder="Nhập tin nhắn..." />
+                                        </div>
+                                        <button onClick={handleSendMessage} disabled={sending || !msgInput.trim()} className="bg-primary hover:bg-primary/90 text-slate-900 p-3 rounded-xl shadow-lg transition-transform flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
+                                            <span className="material-symbols-outlined font-bold">send</span>
+                                        </button>
                                     </div>
                                 </div>
-                            ))}
-                            <div ref={messagesEndRef} />
-                        </div>
-
-                        {/* Message Input Area */}
-                        <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
-                            <div className="flex gap-2 mb-3 overflow-x-auto pb-1 no-scrollbar text-left font-medium">
-                                <button
-                                    onClick={() => setIsAdviceModalOpen(true)}
-                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary text-xs font-extrabold rounded-full whitespace-nowrap hover:bg-primary hover:text-white transition-all">
-                                    <span className="material-symbols-outlined text-sm font-medium">recommend</span> Gửi khuyến nghị
-                                </button>
-                                <button className="flex items-center gap-1.5 px-3 py-1.5 bg-red-100 text-red-600 text-xs font-extrabold rounded-full whitespace-nowrap hover:bg-red-500 hover:text-white transition-all">
-                                    <span className="material-symbols-outlined text-sm font-medium">warning</span> Gửi cảnh báo
-                                </button>
-                                <button
-                                    onClick={() => setIsPrescriptionModalOpen(true)}
-                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-blue-600 text-xs font-extrabold rounded-full whitespace-nowrap hover:bg-blue-500 hover:text-white transition-all">
-                                    <span className="material-symbols-outlined text-sm font-medium">medication</span> Đơn thuốc mới
-                                </button>
-                            </div>
-                            <div className="flex items-end gap-2 px-1">
-                                <div className="flex gap-1 mb-1.5 font-medium">
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        className="hidden"
-                                        ref={imageInputRef}
-                                        onChange={(e) => {
-                                            if (e.target.files?.[0]) {
-                                                console.log("Selected image:", e.target.files[0]);
-                                            }
-                                        }}
-                                    />
-                                    <input
-                                        type="file"
-                                        className="hidden"
-                                        ref={fileInputRef}
-                                        onChange={(e) => {
-                                            if (e.target.files?.[0]) {
-                                                console.log("Selected file:", e.target.files[0]);
-                                            }
-                                        }}
-                                    />
-                                    <button
-                                        onClick={() => imageInputRef.current?.click()}
-                                        className="p-2 text-slate-400 hover:text-primary transition-all active:bg-slate-50 dark:active:bg-slate-800 rounded-lg">
-                                        <span className="material-symbols-outlined">image</span>
-                                    </button>
-                                    <button
-                                        onClick={() => fileInputRef.current?.click()}
-                                        className="p-2 text-slate-400 hover:text-primary transition-all active:bg-slate-50 dark:active:bg-slate-800 rounded-lg">
-                                        <span className="material-symbols-outlined">attach_file</span>
-                                    </button>
-                                </div>
-                                <div className="flex-1 relative">
-                                    <textarea 
-                                        rows={1} 
-                                        value={msgInput}
-                                        onChange={(e) => setMsgInput(e.target.value)}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter' && !e.shiftKey) {
-                                                e.preventDefault();
-                                                handleSendMessage();
-                                            }
-                                        }}
-                                        className="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl py-3 px-4 text-[15px] font-medium focus:ring-2 focus:ring-primary/50 resize-none outline-none text-slate-700 dark:text-slate-200" placeholder="Nhập tin nhắn..." />
-                                </div>
-                                <button onClick={handleSendMessage} disabled={sending || !msgInput.trim()} className="bg-primary hover:bg-primary/90 text-slate-900 p-3 rounded-xl shadow-lg transition-transform flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
-                                    <span className="material-symbols-outlined font-bold">send</span>
-                                </button>
-                            </div>
-                        </div>
-                        </>
+                            </>
                         ) : (
                             <div className="flex-1 flex items-center justify-center flex-col text-slate-400 gap-4">
                                 <span className="material-symbols-outlined text-6xl opacity-20">forum</span>
@@ -377,74 +434,74 @@ export default function DoctorMessages() {
                     {/* Right Column: Patient Summary */}
                     <section className="w-72 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col p-5 overflow-y-auto custom-scrollbar">
                         {activePatient ? (
-                        <>
-                        <div className="text-center mb-6">
-                            <div className="size-20 mx-auto rounded-full border-4 border-primary/20 p-1 mb-3">
-                                <img className="w-full h-full rounded-full object-cover bg-slate-200" src={activeConv?.patientAvatarUrl || "https://ui-avatars.com/api/?name=" + encodeURIComponent(activePatient.fullName)} alt="Profile" />
-                            </div>
-                            <h3 className="font-bold text-xl mb-2">{activePatient.fullName}</h3>
-                            <div className="flex flex-col text-[15px] font-medium text-slate-500">
-                                <span>Giới tính: {activePatient.gender === 'MALE' ? 'Nam' : activePatient.gender === 'FEMALE' ? 'Nữ' : 'Khác'}</span>
-                                <span>Tuổi: {activePatient.dateOfBirth ? (new Date().getFullYear() - new Date(activePatient.dateOfBirth).getFullYear()) : 'Trống'}</span>
-                            </div>
-                        </div>
-
-                        <div className="space-y-4">
-                            <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
-                                <div className="flex items-center justify-between mb-4 px-1">
-                                    <h4 className="text-[15px] font-medium text-slate-700 leading-none">Chỉ số sinh tồn</h4>
-                                    <span className="text-[13px] text-primary font-black tracking-tighter">Mới nhất</span>
-                                </div>
-                                <div className="space-y-3">
-                                    <div className="flex items-center justify-between px-1">
-                                        <div className="flex items-center gap-2">
-                                            <span className="material-symbols-outlined text-red-500 text-sm">blood_pressure</span>
-                                            <span className="text-[15px] font-medium text-slate-600 dark:text-slate-400">Huyết áp</span>
-                                        </div>
-                                        <span className="text-[15px] font-bold text-red-500">{activePatient.latestBp || 'N/A'}</span>
+                            <>
+                                <div className="text-center mb-6">
+                                    <div className="size-20 mx-auto rounded-full border-4 border-primary/20 p-1 mb-3">
+                                        <img className="w-full h-full rounded-full object-cover bg-slate-200" src={activeConv?.patientAvatarUrl || "https://ui-avatars.com/api/?name=" + encodeURIComponent(activePatient.fullName)} alt="Profile" />
                                     </div>
-                                    <div className="flex items-center justify-between px-1">
-                                        <div className="flex items-center gap-2">
-                                            <span className="material-symbols-outlined text-blue-500 text-sm">favorite</span>
-                                            <span className="text-[15px] font-medium text-slate-600 dark:text-slate-400">Nhịp tim</span>
-                                        </div>
-                                        <span className="text-[15px] font-bold text-slate-900 dark:text-white">{activePatient.latestHeartRate || 'N/A'} bpm</span>
-                                    </div>
-                                    <div className="flex items-center justify-between px-1">
-                                        <div className="flex items-center gap-2">
-                                            <span className="material-symbols-outlined text-orange-500 text-sm">water_drop</span>
-                                            <span className="text-[15px] font-medium text-slate-600 dark:text-slate-400">Đường huyết</span>
-                                        </div>
-                                        <span className="text-[15px] font-bold text-slate-900 dark:text-white">{activePatient.latestGlucose ? `${activePatient.latestGlucose} mmol/L` : 'N/A'}</span>
+                                    <h3 className="font-bold text-xl mb-2">{activePatient.fullName}</h3>
+                                    <div className="flex flex-col text-[15px] font-medium text-slate-500">
+                                        <span>Giới tính: {activePatient.gender === 'MALE' ? 'Nam' : activePatient.gender === 'FEMALE' ? 'Nữ' : 'Khác'}</span>
+                                        <span>Tuổi: {activePatient.dateOfBirth ? (new Date().getFullYear() - new Date(activePatient.dateOfBirth).getFullYear()) : 'Trống'}</span>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div className="space-y-1.5">
-                                <h4 className="text-[15px] font-medium text-slate-700 pl-1 mb-3">Lối tắt</h4>
-                                {[
-                                { icon: 'description', label: 'Hồ sơ đầy đủ', action: () => setIsDetailModalOpen(true) },
-                                { icon: 'pill', label: 'Kê đơn thuốc', action: () => setIsPrescriptionModalOpen(true) },
-                                { icon: 'history', label: 'Lịch sử khám', action: () => setIsHistoryModalOpen(true) }
-                            ].map((item, idx) => (
-                                <button
-                                    key={idx}
-                                    onClick={item.action}
-                                    className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group"
-                                >
-                                    <span className="material-symbols-outlined text-primary">{item.icon}</span>
-                                    <span className="flex-1 text-center text-sm font-medium">{item.label}</span>
-                                    <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors">chevron_right</span>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                    </>
-                    ) : (
-                        <div className="text-center text-slate-500 mt-10">Chọn bệnh nhân để xem tóm tắt</div>
-                    )}
-                </section>
-            </div>
+                                <div className="space-y-4">
+                                    <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
+                                        <div className="flex items-center justify-between mb-4 px-1">
+                                            <h4 className="text-[15px] font-medium text-slate-700 leading-none">Chỉ số sinh tồn</h4>
+                                            <span className="text-[13px] text-primary font-black tracking-tighter">Mới nhất</span>
+                                        </div>
+                                        <div className="space-y-3">
+                                            <div className="flex items-center justify-between px-1">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="material-symbols-outlined text-red-500 text-sm">blood_pressure</span>
+                                                    <span className="text-[15px] font-medium text-slate-600 dark:text-slate-400">Huyết áp</span>
+                                                </div>
+                                                <span className="text-[15px] font-bold text-red-500">{activePatient.latestBp || 'N/A'}</span>
+                                            </div>
+                                            <div className="flex items-center justify-between px-1">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="material-symbols-outlined text-blue-500 text-sm">favorite</span>
+                                                    <span className="text-[15px] font-medium text-slate-600 dark:text-slate-400">Nhịp tim</span>
+                                                </div>
+                                                <span className="text-[15px] font-bold text-slate-900 dark:text-white">{activePatient.latestHeartRate || 'N/A'} bpm</span>
+                                            </div>
+                                            <div className="flex items-center justify-between px-1">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="material-symbols-outlined text-orange-500 text-sm">water_drop</span>
+                                                    <span className="text-[15px] font-medium text-slate-600 dark:text-slate-400">Đường huyết</span>
+                                                </div>
+                                                <span className="text-[15px] font-bold text-slate-900 dark:text-white">{activePatient.latestGlucose ? `${activePatient.latestGlucose} mmol/L` : 'N/A'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <h4 className="text-[15px] font-medium text-slate-700 pl-1 mb-3">Lối tắt</h4>
+                                        {[
+                                            { icon: 'description', label: 'Hồ sơ đầy đủ', action: () => setIsDetailModalOpen(true) },
+                                            { icon: 'pill', label: 'Kê đơn thuốc', action: () => setIsPrescriptionModalOpen(true) },
+                                            { icon: 'history', label: 'Lịch sử khám', action: () => setIsHistoryModalOpen(true) }
+                                        ].map((item, idx) => (
+                                            <button
+                                                key={idx}
+                                                onClick={item.action}
+                                                className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group"
+                                            >
+                                                <span className="material-symbols-outlined text-primary">{item.icon}</span>
+                                                <span className="flex-1 text-center text-sm font-medium">{item.label}</span>
+                                                <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors">chevron_right</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            <div className="text-center text-slate-500 mt-10">Chọn bệnh nhân để xem tóm tắt</div>
+                        )}
+                    </section>
+                </div>
             </main>
 
             <AdviceModal
