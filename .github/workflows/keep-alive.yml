@@ -1,0 +1,16 @@
+name: Keep Render App Alive
+
+on:
+  schedule:
+    - cron: '*/14 * * * *' # Chạy mỗi 14 phút để tránh app bị sleep (Render sleep sau 15p)
+  workflow_dispatch: # Cho phép kích hoạt chạy thủ công trên GitHub
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Backend API
+        run: |
+          echo "Pinging backend to keep it awake..."
+          curl -s --max-time 120 https://chronic-disease-management.onrender.com/api/v1/auth/health
+          echo -e "\n\nSuccess!"
