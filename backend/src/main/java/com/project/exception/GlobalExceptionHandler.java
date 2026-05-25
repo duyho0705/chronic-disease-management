@@ -31,18 +31,19 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
-    public ResponseEntity<ApiResponse<Object>> handleAuthenticationException(org.springframework.security.core.AuthenticationException ex) {
+    public ResponseEntity<ApiResponse<Object>> handleAuthenticationException(
+            org.springframework.security.core.AuthenticationException ex) {
         log.warn("Authentication failed: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(ApiResponse.error("Đăng nhập thất bại: " + ex.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationExceptions(
+            MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error -> 
-            errors.put(error.getField(), error.getDefaultMessage())
-        );
+        ex.getBindingResult().getFieldErrors()
+                .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
         log.warn("Validation failed: {}", errors);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error("Validation failed", errors));
@@ -52,7 +53,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleRuntimeException(RuntimeException ex) {
         log.error("Runtime exception: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("Hệ thống đang bận hoặc có lỗi xảy ra. Vui lòng thử lại sau."));
+                .body(ApiResponse.error("Debug Error: " + ex.toString()));
     }
 
     @ExceptionHandler(Exception.class)
@@ -62,4 +63,3 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error("Đã xảy ra lỗi không xác định. Vui lòng liên hệ quản trị viên."));
     }
 }
-
