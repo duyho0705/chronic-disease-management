@@ -9,7 +9,7 @@ const VelorahLandingPage: React.FC = () => {
     const [faqOpen, setFaqOpen] = useState<{ [key: number]: boolean }>({
         0: true, // first one open by default
     });
-    
+
     const [bookingForm, setBookingForm] = useState({
         name: '',
         phone: '',
@@ -109,10 +109,8 @@ const VelorahLandingPage: React.FC = () => {
             <header className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-gutter h-16 bg-surface/95 shadow-sm backdrop-blur-md">
                 <div className="flex items-center gap-2">
                     <a href="/" className="text-lg md:text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2 select-none cursor-pointer hover:opacity-90 transition-opacity">
-                        <div className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-tr from-[#008fcc] to-[#6CD1FD] text-slate-950 font-black text-sm tracking-tighter shadow-sm">
-                            DD
-                        </div>
-                        <span className="font-extrabold tracking-tight">Dam<span className="text-[#008fcc]">Diep</span></span>
+                        <img src="/logo.png" alt="DamDiep Logo" className="w-16 h-16 object-contain drop-shadow-sm" />
+                        <span className="font-extrabold tracking-tight"><span className="text-[#008fcc]">D</span>am<span className="text-[#008fcc]">D</span>iep</span>
                     </a>
                 </div>
                 <nav className="hidden lg:flex items-center gap-8">
@@ -157,7 +155,7 @@ const VelorahLandingPage: React.FC = () => {
                                     Tìm Hiểu Cơ Chế Hợp Tác
                                 </a>
                             </div>
-                            
+
                             {/* Short rating / trust numbers in Hero */}
                             <div className="pt-6 border-t border-slate-200 dark:border-slate-800 flex items-center gap-8">
                                 <div>
@@ -171,10 +169,10 @@ const VelorahLandingPage: React.FC = () => {
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div className="relative hidden md:block">
                             <div className="rounded-2xl overflow-hidden shadow-2xl transform rotate-2 hover:rotate-0 transition-transform duration-700">
-                                <img className="w-full h-auto object-cover" alt="Professional doctor medical team standing together" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0Y9Ci5_18-JlAS8604YAJ-iTkJskctpY3DL0XpMZWTCi6MLtoqHMofdHi3L43zACPGbYyhMvJEeGOtavQmOCxV8bD_y1s5GGWmiO9PmEj3TP41x5GZoTA0RnypG0-0t1G3EjqgGO_JDDiUCAlQTuQzygukHjFI7JhrKL-AVPb9FzpAjHuufdhWKiuyx7Fe99NJ36rhaznkcmqN5H0wr69cCW1NYyh2ySXEsnP7Ntz9ywvyVchz9crlym_ReAv68E_3Tbi0bVNlA6H"/>
+                                <img className="w-full h-auto object-cover" alt="Professional doctor medical team standing together" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0Y9Ci5_18-JlAS8604YAJ-iTkJskctpY3DL0XpMZWTCi6MLtoqHMofdHi3L43zACPGbYyhMvJEeGOtavQmOCxV8bD_y1s5GGWmiO9PmEj3TP41x5GZoTA0RnypG0-0t1G3EjqgGO_JDDiUCAlQTuQzygukHjFI7JhrKL-AVPb9FzpAjHuufdhWKiuyx7Fe99NJ36rhaznkcmqN5H0wr69cCW1NYyh2ySXEsnP7Ntz9ywvyVchz9crlym_ReAv68E_3Tbi0bVNlA6H" />
                             </div>
                             {/* Floating satisfaction tag */}
                             <div className="absolute -bottom-6 -left-6 bg-surface-container-lowest p-5 rounded-xl soft-elevation max-w-xs animate-bounce-slow border border-slate-100 dark:border-slate-800">
@@ -215,7 +213,7 @@ const VelorahLandingPage: React.FC = () => {
                                 DamDiep mang đến bộ công cụ phần mềm quản lý phòng khám toàn diện, được chuẩn hóa theo nghiệp vụ y khoa thực tế.
                             </p>
                         </div>
-                        
+
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                             {services.map(service => (
                                 <div key={service.id} className="bg-surface-container-lowest p-6 rounded-xl soft-elevation hover-elevation transition-all group border border-outline-variant/30 flex flex-col justify-between">
@@ -246,7 +244,7 @@ const VelorahLandingPage: React.FC = () => {
                             <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
                                 Chúng tôi xây dựng hệ thống phần mềm nhằm giúp các phòng khám quản lý hồ sơ, tối ưu hóa quá trình tương tác và theo dõi các bệnh nhân mãn tính. Nền tảng được phát triển dựa trên sự phối hợp chặt chẽ giữa các chuyên gia công nghệ và các bác sĩ đầu ngành để bảo đảm tính chuẩn hóa y khoa cao nhất.
                             </p>
-                            
+
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
                                     <h4 className="font-bold text-[#008fcc] text-lg mb-1">Mục Tiêu</h4>
@@ -259,7 +257,7 @@ const VelorahLandingPage: React.FC = () => {
                             </div>
                         </div>
                         <div className="relative">
-                            <img className="rounded-xl shadow-lg w-full h-[320px] object-cover" alt="Clinic modern facilities and equipment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0Y9Ci5_18-JlAS8604YAJ-iTkJskctpY3DL0XpMZWTCi6MLtoqHMofdHi3L43zACPGbYyhMvJEeGOtavQmOCxV8bD_y1s5GGWmiO9PmEj3TP41x5GZoTA0RnypG0-0t1G3EjqgGO_JDDiUCAlQTuQzygukHjFI7JhrKL-AVPb9FzpAjHuufdhWKiuyx7Fe99NJ36rhaznkcmqN5H0wr69cCW1NYyh2ySXEsnP7Ntz9ywvyVchz9crlym_ReAv68E_3Tbi0bVNlA6H"/>
+                            <img className="rounded-xl shadow-lg w-full h-[320px] object-cover" alt="Clinic modern facilities and equipment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0Y9Ci5_18-JlAS8604YAJ-iTkJskctpY3DL0XpMZWTCi6MLtoqHMofdHi3L43zACPGbYyhMvJEeGOtavQmOCxV8bD_y1s5GGWmiO9PmEj3TP41x5GZoTA0RnypG0-0t1G3EjqgGO_JDDiUCAlQTuQzygukHjFI7JhrKL-AVPb9FzpAjHuufdhWKiuyx7Fe99NJ36rhaznkcmqN5H0wr69cCW1NYyh2ySXEsnP7Ntz9ywvyVchz9crlym_ReAv68E_3Tbi0bVNlA6H" />
                             <div className="absolute -bottom-6 -right-6 bg-slate-900 text-white p-6 rounded-lg hidden md:block max-w-[200px]">
                                 <p className="text-3xl font-black text-[#6CD1FD]">100%</p>
                                 <p className="text-xs text-slate-300 font-medium">Bảo mật thông tin dữ liệu phòng khám theo tiêu chuẩn HIPAA.</p>
@@ -279,7 +277,7 @@ const VelorahLandingPage: React.FC = () => {
                             {/* Doctor 1 */}
                             <div className="bg-surface-container-lowest rounded-xl overflow-hidden soft-elevation group hover-elevation transition-all border border-slate-100 dark:border-slate-800">
                                 <div className="aspect-[3/4] overflow-hidden">
-                                    <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Doctor profile 1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB193elf3eybRvRJRZNlhXPpEHPQKGFsZuCUsgQvXNE1o1ZUVJA4vrLcOwZMhTJx284mPE3ahjSlLX80e2DJU9RHZy0VhTRFW4bA384NJhl9GgXY2TmaZZJ7DKa9EtRrGeT2ke25Yssk0DVFywB_X0qqJjh8g3xY0i1FkWxHH7CoetWCcA5ZWufgjBUU5DUJGJ6hlJxMv7eaH2IXNSOuo3aT98go39Tw_h2754yeDFVENq93INwJ8bjW24mJ3CWpbCu_QmvxyLsFsBg"/>
+                                    <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Doctor profile 1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB193elf3eybRvRJRZNlhXPpEHPQKGFsZuCUsgQvXNE1o1ZUVJA4vrLcOwZMhTJx284mPE3ahjSlLX80e2DJU9RHZy0VhTRFW4bA384NJhl9GgXY2TmaZZJ7DKa9EtRrGeT2ke25Yssk0DVFywB_X0qqJjh8g3xY0i1FkWxHH7CoetWCcA5ZWufgjBUU5DUJGJ6hlJxMv7eaH2IXNSOuo3aT98go39Tw_h2754yeDFVENq93INwJ8bjW24mJ3CWpbCu_QmvxyLsFsBg" />
                                 </div>
                                 <div className="p-6 text-center">
                                     <h4 className="font-bold text-slate-900 dark:text-white text-lg">PGS.TS Nguyễn Văn A</h4>
@@ -290,7 +288,7 @@ const VelorahLandingPage: React.FC = () => {
                             {/* Doctor 2 */}
                             <div className="bg-surface-container-lowest rounded-xl overflow-hidden soft-elevation group hover-elevation transition-all border border-slate-100 dark:border-slate-800">
                                 <div className="aspect-[3/4] overflow-hidden">
-                                    <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Doctor profile 2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhdP_MLPQOCqgClDWCX0qEgaIJry848yDsOuP4uxVM3I9XoNl4lTnotFBrUMYTZvNSKzZn9bjNva1X5htOeFQNkabKGnaN4Wd8SbeJAlHFFwloXxQ-TB_xbTuMnFEdpuPOJGU0hHI2FtopBp_cIVQ1lMcKgOPs56P2q6LM1aXsBx8tt_9GWqvMplXt-OFcDxXVmYsnNYIpWKSCzphgfpwxAnhxpkAkr7DLAzPZI7x1PJwgEPfPV8Qx8LhES5Yy-e7PTWqqOQfuzJ8j"/>
+                                    <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Doctor profile 2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhdP_MLPQOCqgClDWCX0qEgaIJry848yDsOuP4uxVM3I9XoNl4lTnotFBrUMYTZvNSKzZn9bjNva1X5htOeFQNkabKGnaN4Wd8SbeJAlHFFwloXxQ-TB_xbTuMnFEdpuPOJGU0hHI2FtopBp_cIVQ1lMcKgOPs56P2q6LM1aXsBx8tt_9GWqvMplXt-OFcDxXVmYsnNYIpWKSCzphgfpwxAnhxpkAkr7DLAzPZI7x1PJwgEPfPV8Qx8LhES5Yy-e7PTWqqOQfuzJ8j" />
                                 </div>
                                 <div className="p-6 text-center">
                                     <h4 className="font-bold text-slate-900 dark:text-white text-lg">BS.CKII Trần Thị B</h4>
@@ -301,7 +299,7 @@ const VelorahLandingPage: React.FC = () => {
                             {/* Doctor 3 */}
                             <div className="bg-surface-container-lowest rounded-xl overflow-hidden soft-elevation group hover-elevation transition-all border border-slate-100 dark:border-slate-800">
                                 <div className="aspect-[3/4] overflow-hidden">
-                                    <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Doctor profile 3" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVLbEXPCPzS6WINh39T33rfVEb4VZLxfHYYt7gb2gAjCkXjvitaolN5YG_26_9dDaPgHLvjXtnEq0A-kzubYODLq5mYNeYyviODrajwN9ylmZRmmnuTPEDIj5e13Fe0VvAfegiB6_s_Shu4D4vjMi5zwlu5sFUpVoT8UtIki5gLN5lFt9Z5E-0MXNKPZBUo4f0ZaxJh0pg6BwXhGUS67kxIlR1Zg5EFWVyY9R4b9bN3K8lJ_GwEu0RArgXJZSA8H7L6ss27dRjpeB3"/>
+                                    <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Doctor profile 3" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVLbEXPCPzS6WINh39T33rfVEb4VZLxfHYYt7gb2gAjCkXjvitaolN5YG_26_9dDaPgHLvjXtnEq0A-kzubYODLq5mYNeYyviODrajwN9ylmZRmmnuTPEDIj5e13Fe0VvAfegiB6_s_Shu4D4vjMi5zwlu5sFUpVoT8UtIki5gLN5lFt9Z5E-0MXNKPZBUo4f0ZaxJh0pg6BwXhGUS67kxIlR1Zg5EFWVyY9R4b9bN3K8lJ_GwEu0RArgXJZSA8H7L6ss27dRjpeB3" />
                                 </div>
                                 <div className="p-6 text-center">
                                     <h4 className="font-bold text-slate-900 dark:text-white text-lg">ThS.BS Lê Văn C</h4>
@@ -312,7 +310,7 @@ const VelorahLandingPage: React.FC = () => {
                             {/* Doctor 4 */}
                             <div className="bg-surface-container-lowest rounded-xl overflow-hidden soft-elevation group hover-elevation transition-all border border-slate-100 dark:border-slate-800">
                                 <div className="aspect-[3/4] overflow-hidden">
-                                    <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Doctor profile 4" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4_6lXQy6vK9GHSH5v9IXBcA2z2K8rhW1Y4pJuBcJxYpDCK5izPMKX5WwU9LUsXSvieEZc2K2sL6-Eifqyjc8HZbrRRZaOVRN-VW_7pOJaHjEPJRPzjQ_L3UU8Av7KwfhgrfMXgxUBqbySfTCy1_qG0yEfiXdEBV0DnzpNe21e1lLpIeE9SsAG86uCZi2hyWrkzfQWvH33xPVy2_jKachW-n0IspipcERheMbCw0xBUvBKGs4P6IUjxsItM680o_SZykYNAS5lkP7e"/>
+                                    <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Doctor profile 4" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4_6lXQy6vK9GHSH5v9IXBcA2z2K8rhW1Y4pJuBcJxYpDCK5izPMKX5WwU9LUsXSvieEZc2K2sL6-Eifqyjc8HZbrRRZaOVRN-VW_7pOJaHjEPJRPzjQ_L3UU8Av7KwfhgrfMXgxUBqbySfTCy1_qG0yEfiXdEBV0DnzpNe21e1lLpIeE9SsAG86uCZi2hyWrkzfQWvH33xPVy2_jKachW-n0IspipcERheMbCw0xBUvBKGs4P6IUjxsItM680o_SZykYNAS5lkP7e" />
                                 </div>
                                 <div className="p-6 text-center">
                                     <h4 className="font-bold text-slate-900 dark:text-white text-lg">ThS. Kỹ Sư Phạm Thị D</h4>
@@ -331,7 +329,7 @@ const VelorahLandingPage: React.FC = () => {
                             <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white">Tại Sao Nên Chọn Hệ Thống DamDiep?</h2>
                             <div className="w-20 h-1 bg-[#6CD1FD] mx-auto rounded-full"></div>
                         </div>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                             <div className="p-6 border border-slate-100 dark:border-slate-800 rounded-xl space-y-3 hover:shadow-lg transition-shadow">
                                 <span className="material-symbols-outlined text-4xl text-[#008fcc]">local_hospital</span>
@@ -374,7 +372,7 @@ const VelorahLandingPage: React.FC = () => {
                             <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white">Ý Kiến Đánh Giá Từ Đối Tác Phòng Khám</h2>
                             <div className="w-20 h-1 bg-[#6CD1FD] mx-auto rounded-full"></div>
                         </div>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             {/* Testimonial 1 */}
                             <div className="bg-white dark:bg-slate-900 p-6 rounded-xl soft-elevation border border-slate-100 dark:border-slate-800 space-y-4">
@@ -463,11 +461,11 @@ const VelorahLandingPage: React.FC = () => {
                             <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white">Giải Đáp Câu Hỏi Thường Gặp</h2>
                             <div className="w-20 h-1 bg-[#6CD1FD] mx-auto rounded-full"></div>
                         </div>
-                        
+
                         <div className="space-y-4">
                             {faqs.map((faq, idx) => (
                                 <div key={idx} className="border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
-                                    <button 
+                                    <button
                                         className="w-full flex justify-between items-center p-5 font-bold text-left text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
                                         onClick={() => toggleFaq(idx)}
                                     >
@@ -530,10 +528,10 @@ const VelorahLandingPage: React.FC = () => {
                                 <form className="space-y-4" onSubmit={handleFormSubmit}>
                                     <div>
                                         <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Tên Người Đăng Ký / Tên Cơ Sở Y Tế *</label>
-                                        <input 
-                                            className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#6CD1FD] focus:border-[#6CD1FD] bg-white text-gray-900 outline-none" 
-                                            placeholder="Nhập tên của bạn hoặc tên phòng khám" 
-                                            required 
+                                        <input
+                                            className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#6CD1FD] focus:border-[#6CD1FD] bg-white text-gray-900 outline-none"
+                                            placeholder="Nhập tên của bạn hoặc tên phòng khám"
+                                            required
                                             type="text"
                                             value={bookingForm.name}
                                             onChange={e => setBookingForm({ ...bookingForm, name: e.target.value })}
@@ -542,10 +540,10 @@ const VelorahLandingPage: React.FC = () => {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Số điện thoại liên hệ *</label>
-                                            <input 
-                                                className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#6CD1FD] focus:border-[#6CD1FD] bg-white text-gray-900 outline-none" 
-                                                placeholder="Nhập số điện thoại" 
-                                                required 
+                                            <input
+                                                className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#6CD1FD] focus:border-[#6CD1FD] bg-white text-gray-900 outline-none"
+                                                placeholder="Nhập số điện thoại"
+                                                required
                                                 type="tel"
                                                 value={bookingForm.phone}
                                                 onChange={e => setBookingForm({ ...bookingForm, phone: e.target.value })}
@@ -553,10 +551,10 @@ const VelorahLandingPage: React.FC = () => {
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Email liên hệ *</label>
-                                            <input 
-                                                className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#6CD1FD] focus:border-[#6CD1FD] bg-white text-gray-900 outline-none" 
-                                                placeholder="Nhập địa chỉ email" 
-                                                required 
+                                            <input
+                                                className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#6CD1FD] focus:border-[#6CD1FD] bg-white text-gray-900 outline-none"
+                                                placeholder="Nhập địa chỉ email"
+                                                required
                                                 type="email"
                                                 value={bookingForm.email}
                                                 onChange={e => setBookingForm({ ...bookingForm, email: e.target.value })}
@@ -579,9 +577,9 @@ const VelorahLandingPage: React.FC = () => {
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Ngày hẹn Demo trực tuyến *</label>
-                                            <input 
-                                                className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#6CD1FD] focus:border-[#6CD1FD] bg-white text-gray-900 outline-none" 
-                                                required 
+                                            <input
+                                                className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#6CD1FD] focus:border-[#6CD1FD] bg-white text-gray-900 outline-none"
+                                                required
                                                 type="date"
                                                 value={bookingForm.date}
                                                 onChange={e => setBookingForm({ ...bookingForm, date: e.target.value })}
@@ -590,15 +588,15 @@ const VelorahLandingPage: React.FC = () => {
                                     </div>
                                     <div>
                                         <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Nhu cầu cụ thể cần tư vấn</label>
-                                        <textarea 
-                                            className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#6CD1FD] focus:border-[#6CD1FD] bg-white text-gray-900 outline-none h-20 resize-none" 
+                                        <textarea
+                                            className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#6CD1FD] focus:border-[#6CD1FD] bg-white text-gray-900 outline-none h-20 resize-none"
                                             placeholder="Ví dụ: Cần kết nối với máy đo huyết áp Bluetooth của bệnh nhân, xuất dữ liệu báo cáo..."
                                             value={bookingForm.message}
                                             onChange={e => setBookingForm({ ...bookingForm, message: e.target.value })}
                                         />
                                     </div>
                                     <div className="pt-2">
-                                        <button 
+                                        <button
                                             className="w-full bg-[#6CD1FD] text-white py-3.5 rounded-lg font-bold text-sm hover:shadow-lg hover:bg-[#5bc0ec] active:scale-[0.98] transition-all disabled:opacity-50"
                                             type="submit"
                                             disabled={isSubmitting}
@@ -618,7 +616,7 @@ const VelorahLandingPage: React.FC = () => {
                         <div className="space-y-6">
                             <span className="text-xs font-bold text-[#008fcc] uppercase tracking-wider">Thông Tin Liên Hệ</span>
                             <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white">Trung Tâm Giải Pháp Công Nghệ Y Tế DamDiep</h2>
-                            
+
                             <div className="space-y-4">
                                 <div className="flex gap-4">
                                     <div className="w-10 h-10 rounded-full bg-[#6CD1FD]/10 flex items-center justify-center text-[#008fcc] flex-shrink-0">

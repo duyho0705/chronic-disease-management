@@ -66,12 +66,10 @@ const LoginPage: React.FC = () => {
                 {/* Content */}
                 <div className="relative z-10 flex flex-col justify-between p-16 w-full">
                     {/* Logo */}
-                    <Link to="/" className="flex items-center gap-3 group">
-                        <div className="w-11 h-11 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white font-black text-lg tracking-tighter border border-white/10 group-hover:bg-white/30 transition-colors">
-                            DD
-                        </div>
+                    <Link to="/" className="flex items-center gap-4 group">
+                        <img src="/logo.png" alt="DamDiep Logo" className="w-20 h-20 sm:w-24 sm:h-24 object-contain drop-shadow-md group-hover:scale-105 transition-transform" />
                         <span className="text-2xl font-extrabold text-white tracking-tight">
-                            Dam<span className="text-white/70">Diep</span>
+                            <span className="text-[#6CD1FD]">D</span>am<span className="text-[#6CD1FD]">D</span>iep
                         </span>
                     </Link>
 
@@ -139,12 +137,10 @@ const LoginPage: React.FC = () => {
                     className="w-full max-w-[420px] space-y-8"
                 >
                     {/* Mobile logo */}
-                    <div className="lg:hidden flex items-center gap-3 justify-center mb-4">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#008fcc] to-[#6CD1FD] flex items-center justify-center text-white font-black text-sm tracking-tighter shadow-lg">
-                            DD
-                        </div>
+                    <div className="lg:hidden flex items-center gap-4 justify-center mb-8">
+                        <img src="/logo.png" alt="DamDiep Logo" className="w-20 h-20 object-contain drop-shadow-md" />
                         <span className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                            Dam<span className="text-[#008fcc]">Diep</span>
+                            <span className="text-[#008fcc]">D</span>am<span className="text-[#008fcc]">D</span>iep
                         </span>
                     </div>
 

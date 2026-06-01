@@ -599,7 +599,7 @@ export default function AdminDashboard() {
                       </div>
                       <div>
                         <p className="text-[12px] md:text-[15px] font-bold text-slate-900 dark:text-white">{translatedTitle}</p>
-                        <p className="text-[11px] md:text-[14px] text-slate-500 font-medium mt-0.5 leading-relaxed">{translatedDesc}</p>
+                        <p className="text-[11px] md:text-[14px] text-slate-500 font-medium mt-0.5 leading-relaxed break-words break-all sm:break-words">{translatedDesc}</p>
                         <span className="text-[10px] md:text-[13px] font-medium text-slate-400 dark:text-slate-500 mt-2 inline-block italic-none tracking-tight">{act.timeAgo}</span>
                       </div>
                     </div>
