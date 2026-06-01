@@ -22,14 +22,18 @@ const LoginPage: React.FC = () => {
         setError('');
 
         try {
-            const data = await authApi.login({ email, password });
+            const responseData = await authApi.login({ email, password });
+            const data = responseData.data || responseData; // Fallback if backend stops wrapping
 
             // Store auth data
-            localStorage.setItem('token', data.token);
+            localStorage.setItem('token', data.accessToken);
             localStorage.setItem('userRole', data.role?.replace('ROLE_', '') || '');
             localStorage.setItem('role', data.role?.replace('ROLE_', '') || '');
-            localStorage.setItem('userId', String(data.userId || data.id || ''));
+            localStorage.setItem('userId', String(data.id || ''));
             localStorage.setItem('fullName', data.fullName || '');
+            if (data.clinicId) {
+                localStorage.setItem('clinicId', String(data.clinicId));
+            }
 
             // Navigate based on role
             const role = (data.role || '').replace('ROLE_', '');
@@ -272,13 +276,7 @@ const LoginPage: React.FC = () => {
                         </p>
                     </div>
 
-                    {/* Security badge */}
-                    <div className="flex items-center justify-center gap-2 pt-2">
-                        <span className="material-symbols-outlined text-slate-300 dark:text-slate-700 text-lg">lock</span>
-                        <span className="text-[11px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wider">
-                            Mã hóa đầu cuối SSL 256-bit
-                        </span>
-                    </div>
+
                 </motion.div>
             </div>
         </div>

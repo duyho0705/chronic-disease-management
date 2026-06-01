@@ -39,13 +39,13 @@ axiosInstance.interceptors.response.use(
 
     // Handle 401 Unauthorized - redirect to login
     if (status === 401) {
-      const isOnLoginPage = window.location.pathname === '/' || window.location.search.includes('action=login');
+      const isOnLoginPage = window.location.pathname === '/' || window.location.pathname === '/login';
       if (!isOnLoginPage) {
         localStorage.removeItem('token');
         localStorage.removeItem('userRole');
         localStorage.removeItem('clinicId');
         localStorage.removeItem('userId');
-        window.location.href = '/?action=login';
+        window.location.href = '/login';
       }
     }
 

@@ -13,7 +13,7 @@ interface Message {
 export default function AiChatWidget() {
   const location = useLocation();
 
-  if (location.pathname === '/') {
+  if (location.pathname === '/' || location.pathname === '/login') {
     return null;
   }
 
