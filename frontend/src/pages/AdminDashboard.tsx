@@ -543,8 +543,21 @@ export default function AdminDashboard() {
                     'DELETE_DOCTOR': 'Xóa Bác sĩ',
                     'CREATE_CLINIC': 'Thêm mới Phòng khám',
                     'UPDATE_CLINIC': 'Cập nhật Phòng khám',
+                    'UPDATE_CLINIC_PROFILE': 'Cập nhật hồ sơ Phòng khám',
+                    'DELETE_CLINIC': 'Xóa Phòng khám',
                     'CREATE_APPOINTMENT': 'Tạo Lịch hẹn khám',
                     'UPDATE_APPOINTMENT': 'Cập nhật Lịch hẹn',
+                    'UPDATE_APPOINTMENT_STATUS': 'Cập nhật trạng thái Lịch hẹn',
+                    'CANCEL_APPOINTMENT': 'Hủy Lịch hẹn',
+                    'CREATE_USER': 'Tạo mới Người dùng',
+                    'UPDATE_USER': 'Cập nhật Người dùng',
+                    'DELETE_USER': 'Xóa Người dùng',
+                    'UPDATE_PROFILE': 'Cập nhật Hồ sơ',
+                    'CREATE_SERVICE': 'Tạo mới Dịch vụ',
+                    'UPDATE_SERVICE': 'Cập nhật Dịch vụ',
+                    'DELETE_SERVICE': 'Xóa Dịch vụ',
+                    'CREATE_PRESCRIPTION': 'Tạo Đơn thuốc',
+                    'UPDATE_PRESCRIPTION': 'Cập nhật Đơn thuốc',
                     'LOGIN': 'Đăng nhập hệ thống',
                     'LOGOUT': 'Đăng xuất'
                   };
@@ -555,7 +568,11 @@ export default function AdminDashboard() {
                     'CLINIC_MANAGEMENT': 'Quản lý phòng khám',
                     'USER_MANAGEMENT': 'Quản lý tài khoản',
                     'APPOINTMENT_MANAGEMENT': 'Quản lý lịch hẹn',
-                    'AUTH_MANAGEMENT': 'Bảo mật hệ thống'
+                    'AUTH_MANAGEMENT': 'Bảo mật hệ thống',
+                    'SYSTEM_MANAGEMENT': 'Cấu hình hệ thống',
+                    'SERVICE_MANAGEMENT': 'Quản lý dịch vụ',
+                    'PRESCRIPTION_MANAGEMENT': 'Quản lý đơn thuốc',
+                    'SUPPORT': 'Trung tâm hỗ trợ'
                   };
 
                   const translatedTitle = actionMap[act.title] || act.title;

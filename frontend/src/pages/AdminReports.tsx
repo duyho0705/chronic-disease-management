@@ -86,7 +86,7 @@ export default function AdminReports() {
                   <button
                     key={type}
                     onClick={() => setReportType(type)}
-                    className={`px-5 py-2 text-[14px] font-medium rounded-full transition-all ${reportType === type ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-700'
+                    className={`px-5 py-2 text-[14px] font-bold rounded-full transition-all ${reportType === type ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-700'
                       }`}
                   >
                     Theo {type}
@@ -167,7 +167,7 @@ export default function AdminReports() {
               ) : (
                 <>
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={reportsData?.growthTrend || []} margin={{ top: 20, right: 15, left: 15, bottom: 25 }}>
+                    <AreaChart data={reportsData?.growthTrend || []} margin={{ top: 20, right: 35, left: 30, bottom: 25 }}>
                       <defs>
                         <linearGradient id="reportsChartGradient" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="5%" stopColor="#3bb9f3" stopOpacity={0.25} />
@@ -180,12 +180,23 @@ export default function AdminReports() {
                         tickLine={false}
                         tick={{
                           fill: '#94a3b8',
-                          fontSize: 10,
+                          fontSize: 13,
                           fontWeight: 800,
                           letterSpacing: '0.05em'
                         }}
                         dy={15}
-                        tickFormatter={(tick) => tick ? tick.toUpperCase() : ''}
+                        tickFormatter={(tick: string) => tick || ''}
+                        ticks={(() => {
+                          const data = reportsData?.growthTrend || [];
+                          if (data.length <= 4) return data.map((d: any) => d.label);
+                          return [
+                            data[0]?.label,
+                            data[Math.floor(data.length / 3)]?.label,
+                            data[Math.floor(data.length * 2 / 3)]?.label,
+                            data[data.length - 1]?.label
+                          ].filter(Boolean);
+                        })()}
+                        interval={0}
                       />
                       <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#3bb9f3', strokeWidth: 1.5, strokeDasharray: '4 4' }} />
                       <Area
@@ -209,36 +220,6 @@ export default function AdminReports() {
                 </>
               )}
             </div>
-
-            <div className="mt-12 pt-8 border-t border-slate-50 dark:border-slate-800">
-              <div className="grid grid-cols-2 gap-4 md:gap-8">
-                {isLoading ? (
-                  [...Array(4)].map((_, i) => (
-                    <div key={i} className="space-y-2">
-                       <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-24"></div>
-                       <div className="h-5 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-16"></div>
-                    </div>
-                  ))
-                ) : (
-                  [
-                    { label: 'Tỷ lệ tăng trưởng', val: reportsData?.analytics?.growthRate || '0%', icon: 'trending_up', color: 'emerald', sub: 'So với kỳ trước' },
-                    { label: 'Điểm cao nhất', val: reportsData?.analytics?.peakMonth || 'N/A', icon: 'event', color: 'primary', sub: 'Dữ liệu thô' },
-                    { label: 'Tỷ lệ quay lại', val: reportsData?.analytics?.returnRate || '0%', icon: 'replay', color: 'blue', sub: 'Bệnh nhân cũ' },
-                    { label: 'Dự báo kỳ tới', val: reportsData?.analytics?.forecast || '0%', icon: 'bolt', color: 'amber', sub: 'Dự đoán thông minh' }
-                  ].map((item, i) => (
-                    <div key={i} className="flex flex-col">
-                      <div className="flex items-center gap-1.5 text-slate-400 dark:text-slate-500 mb-1.5">
-                        <span className={`material-symbols-outlined text-[18px] text-${item.color}-500`} style={{ fontVariationSettings: "'FILL' 1" }}>{item.icon}</span>
-                        <span className="text-[14px] font-medium text-slate-600 line-clamp-1">{item.label}</span>
-                      </div>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-[15px] font-black text-slate-900 dark:text-white leading-none tracking-tight">{item.val}</span>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
           </div>
 
           <div className="bg-white dark:bg-slate-900 p-4 md:p-8 rounded-2xl shadow-sm border border-primary/5 flex flex-col">
@@ -255,7 +236,7 @@ export default function AdminReports() {
             )}
             <div className="space-y-6 flex-1">
               {isLoading ? (
-                [...Array(5)].map((_, i) => (
+                [...Array(3)].map((_, i) => (
                   <div key={i} className="space-y-3">
                     <div className="flex justify-between">
                        <div className="h-4 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-32"></div>
@@ -264,36 +245,44 @@ export default function AdminReports() {
                     <div className="h-2 bg-slate-50 dark:bg-slate-800/50 animate-pulse rounded-full w-full"></div>
                   </div>
                 ))
-              ) : (
-                reportsData?.clinicBreakdown?.map((item: any, idx: number) => (
-                  <div key={idx} className="group">
-                    <div className="flex items-center gap-3 mb-2 text-left">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                        <span className="material-symbols-outlined text-[20px]">{item.icon || 'home_health'}</span>
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-[15px] font-medium text-slate-600 truncate max-w-[200px]">{item.name}</span>
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-[14px] font-bold text-slate-900 dark:text-white">{item.value}</span>
-                          <span className="text-[12px] font-medium text-slate-600">{item.percentage}</span>
+              ) : (() => {
+                const sorted = [...(reportsData?.clinicBreakdown || [])].sort((a: any, b: any) => {
+                  const aVal = parseInt(String(a.value).replace(/\D/g, '')) || 0;
+                  const bVal = parseInt(String(b.value).replace(/\D/g, '')) || 0;
+                  return bVal - aVal;
+                });
+                const top3 = sorted.slice(0, 3);
+                const remaining = sorted.length - 3;
+                return (
+                  <>
+                    {top3.map((item: any, idx: number) => (
+                      <div key={idx} className="flex items-center gap-3 py-2 group">
+                        <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-[12px] font-black ${idx === 0 ? 'bg-amber-100 text-amber-600' : idx === 1 ? 'bg-slate-200 text-slate-600' : 'bg-orange-100 text-orange-600'}`}>
+                          #{idx + 1}
                         </div>
+                        <span className="text-[14px] font-medium text-slate-700 dark:text-slate-300 truncate flex-1">{item.name}</span>
+                        <span className="text-[14px] font-bold text-slate-900 dark:text-white shrink-0">{item.value}</span>
+                        <span className="text-[12px] font-medium text-slate-400 shrink-0">{item.percentage}</span>
                       </div>
-                    </div>
-                    <div className="w-full bg-slate-50 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                      <div className="bg-primary h-full rounded-full transition-all duration-1000" style={{ width: item.percentage }}></div>
-                    </div>
-                  </div>
-                ))
-              )}
+                    ))}
+                    {remaining > 0 && (
+                      <div className="text-center pt-2">
+                        <p className="text-[12px] text-slate-400 font-medium">và {remaining} phòng khám khác</p>
+                      </div>
+                    )}
+                  </>
+                );
+              })()
+              }
             </div>
             {isLoading ? (
               <div className="mt-10 h-14 bg-slate-900 dark:bg-slate-800 animate-pulse rounded-xl w-full"></div>
             ) : (
               <Link
-                to={ROUTES.ADMIN.USERS}
+                to={ROUTES.ADMIN.CLINICS}
                 className="mt-10 py-3.5 w-full bg-slate-900 text-white text-[13px] font-medium rounded-full hover:bg-slate-800 transition-all flex items-center justify-center gap-2 group shadow-xl shadow-slate-900/10"
               >
-                Xem chi tiết bệnh nhân
+                Xem tất cả phòng khám
                 <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
               </Link>
             )}

@@ -82,13 +82,26 @@ export default function AdminAuditLogs() {
       'DELETE_DOCTOR': 'Xóa tài khoản Bác sĩ',
       'CREATE_CLINIC': 'Khởi tạo Phòng khám mới',
       'UPDATE_CLINIC': 'Cập nhật Phòng khám',
+      'UPDATE_CLINIC_PROFILE': 'Cập nhật hồ sơ Phòng khám',
       'DELETE_CLINIC': 'Gỡ bỏ Phòng khám',
       'CREATE_APPOINTMENT': 'Đăng ký Lịch hẹn mới',
       'UPDATE_APPOINTMENT': 'Thay đổi trạng thái Lịch',
+      'UPDATE_APPOINTMENT_STATUS': 'Cập nhật trạng thái Lịch hẹn',
+      'CANCEL_APPOINTMENT': 'Hủy Lịch hẹn',
+      'CREATE_USER': 'Tạo mới Người dùng',
+      'UPDATE_USER': 'Cập nhật Người dùng',
+      'DELETE_USER': 'Xóa Người dùng',
+      'UPDATE_PROFILE': 'Cập nhật Hồ sơ',
+      'CREATE_SERVICE': 'Tạo mới Dịch vụ',
+      'UPDATE_SERVICE': 'Cập nhật Dịch vụ',
+      'DELETE_SERVICE': 'Xóa Dịch vụ',
+      'CREATE_PRESCRIPTION': 'Tạo Đơn thuốc',
+      'UPDATE_PRESCRIPTION': 'Cập nhật Đơn thuốc',
       'LOGIN': 'Đăng nhập',
       'LOGOUT': 'Đăng xuất',
       'CREATE_TICKET': 'Gửi yêu cầu hỗ trợ',
       'UPDATE_TICKET_STATUS': 'Cập nhật trạng thái yêu cầu',
+      'CHANGE_PASSWORD': 'Đổi mật khẩu',
       
       // Modules
       'PATIENT_MANAGEMENT': 'Quản lý Bệnh nhân',
@@ -98,6 +111,8 @@ export default function AdminAuditLogs() {
       'APPOINTMENT_MANAGEMENT': 'Quản lý Lịch hẹn',
       'AUTH_MANAGEMENT': 'Bảo mật Hệ thống',
       'SYSTEM_MANAGEMENT': 'Cấu hình Chung',
+      'SERVICE_MANAGEMENT': 'Quản lý Dịch vụ',
+      'PRESCRIPTION_MANAGEMENT': 'Quản lý Đơn thuốc',
       'SUPPORT': 'Trung tâm hỗ trợ'
     };
     

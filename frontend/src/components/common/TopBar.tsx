@@ -12,13 +12,17 @@ interface TopBarProps {
   notifications: any[];
   setNotifications: React.Dispatch<React.SetStateAction<any[]>>;
   actionButton?: React.ReactNode;
+  onOpenProfile?: () => void;
+  onOpenChangePassword?: () => void;
 }
 
 const TopBar: React.FC<TopBarProps> = ({
   setIsSidebarOpen,
   notifications,
   setNotifications,
-  actionButton
+  actionButton,
+  onOpenProfile,
+  onOpenChangePassword,
 }) => {
   const navigate = useNavigate();
   const currentClinicId = localStorage.getItem('clinicId');
@@ -34,25 +38,30 @@ const TopBar: React.FC<TopBarProps> = ({
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isAllNotificationsOpen, setIsAllNotificationsOpen] = useState(false);
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [clinicName, setClinicName] = useState(() => localStorage.getItem('cachedClinicName') || "");
   const [clinicLogo, setClinicLogo] = useState(() => localStorage.getItem('cachedClinicLogo') || "");
 
   const notificationRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
         setIsNotificationOpen(false);
       }
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
     };
 
-    if (isNotificationOpen) {
+    if (isNotificationOpen || isUserMenuOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isNotificationOpen]);
+  }, [isNotificationOpen, isUserMenuOpen]);
 
   useEffect(() => {
     if (currentClinicId && (userRole?.includes('CLINIC_MANAGER') || userRole?.includes('ADMIN'))) {
@@ -174,29 +183,77 @@ const TopBar: React.FC<TopBarProps> = ({
 
         {actionButton}
 
-        {/* Professional User Identity Header Card */}
-        <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800/40 rounded-2xl p-1.5 pl-3 border border-slate-100 dark:border-slate-800/50 shadow-sm ml-2 group hover:border-primary/20 hover:shadow-md transition-all duration-300 shrink-0">
-          <div className="text-left hidden md:block shrink-0">
-            <p className="text-[15px] font-semibold text-slate-700 dark:text-slate-200 leading-tight whitespace-nowrap pr-1" title={displayName}>
-              {displayName}
-            </p>
-          </div>
-          <img
-            src={displayAvatar}
-            alt="Avatar"
-            onError={(e) => {
-              e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random`;
-            }}
-            className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700 bg-white shadow-sm shrink-0 hover:scale-105 transition-transform"
-          />
-          <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-0.5"></div>
+        {/* Professional User Identity Header Card with Dropdown */}
+        <div className="relative" ref={userMenuRef}>
           <button
-            onClick={() => setIsLogoutConfirmOpen(true)}
-            className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-500 flex items-center justify-center shrink-0 hover:bg-red-500 hover:text-white transition-all active:scale-95 group/btn"
-            title="Đăng xuất"
+            onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+            className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800/40 rounded-2xl p-1.5 pl-3 border border-slate-100 dark:border-slate-800/50 shadow-sm ml-2 group hover:border-primary/20 hover:shadow-md transition-all duration-300 shrink-0 cursor-pointer"
           >
-            <span className="material-symbols-outlined text-[18px] font-bold group-hover/btn:scale-110 transition-transform">logout</span>
+            <div className="text-left hidden md:block shrink-0">
+              <p className="text-[15px] font-semibold text-slate-700 dark:text-slate-200 leading-tight whitespace-nowrap pr-1" title={displayName}>
+                {displayName}
+              </p>
+            </div>
+            <img
+              src={displayAvatar}
+              alt="Avatar"
+              onError={(e) => {
+                e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random`;
+              }}
+              className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700 bg-white shadow-sm shrink-0 group-hover:scale-105 transition-transform"
+            />
+            <span className={`material-symbols-outlined text-slate-400 text-lg transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`}>expand_more</span>
           </button>
+
+          {/* User Dropdown Menu */}
+          {isUserMenuOpen && (
+            <div className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden z-[200] animate-in fade-in slide-in-from-top-2 duration-200">
+              {/* User info header */}
+              <div className="px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
+                <p className="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">{displayName}</p>
+                <p className="text-xs text-slate-500 truncate mt-0.5">{(() => { const r = (localStorage.getItem('userRole') || '').replace('ROLE_', ''); if (r === 'ADMIN') return 'Quản trị viên'; if (r === 'CLINIC_MANAGER') return 'Quản lý phòng khám'; if (r === 'DOCTOR') return 'Bác sĩ'; if (r === 'PATIENT') return 'Bệnh nhân'; return r || 'Người dùng'; })()}</p>
+              </div>
+              
+              {/* Menu items */}
+              <div className="p-1.5">
+                {onOpenProfile && (
+                  <button
+                    onClick={() => {
+                      setIsUserMenuOpen(false);
+                      onOpenProfile();
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-primary/10 hover:text-primary transition-all text-left"
+                  >
+                    <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
+                    Hồ sơ cá nhân
+                  </button>
+                )}
+                {onOpenChangePassword && (
+                  <button
+                    onClick={() => {
+                      setIsUserMenuOpen(false);
+                      onOpenChangePassword();
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-primary/10 hover:text-primary transition-all text-left"
+                  >
+                    <span className="material-symbols-outlined text-lg">lock</span>
+                    Đổi mật khẩu
+                  </button>
+                )}
+                <div className="my-1 border-t border-slate-100 dark:border-slate-800"></div>
+                <button
+                  onClick={() => {
+                    setIsUserMenuOpen(false);
+                    setIsLogoutConfirmOpen(true);
+                  }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all text-left"
+                >
+                  <span className="material-symbols-outlined text-lg">logout</span>
+                  Đăng xuất
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <style>{`

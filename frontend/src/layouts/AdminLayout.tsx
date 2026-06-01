@@ -5,6 +5,7 @@ import TopBar from '../components/common/TopBar';
 import { authApi } from '../api/auth';
 import DamDiepLogo from '../components/common/DamDiepLogo';
 import ChangePasswordModal from '../components/common/ChangePasswordModal';
+import AdminProfileModal from '../components/common/AdminProfileModal';
 import { useToast } from '../components/ui/ToastContext';
 
 interface AdminLayoutProps {
@@ -42,6 +43,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const { showToast } = useToast();
   const [notifications, setNotifications] = useState([
     { id: 1, title: 'Cảnh báo hệ thống', message: 'Phòng khám Quận 1 đang quá tải bệnh nhân.', time: '5 phút trước', type: 'warning' },
@@ -131,6 +133,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           setIsSidebarOpen={setIsSidebarOpen}
           notifications={notifications}
           setNotifications={setNotifications}
+          onOpenProfile={() => setIsProfileOpen(true)}
+          onOpenChangePassword={() => setIsChangePasswordOpen(true)}
         />
         {children}
       </div>
@@ -139,6 +143,16 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         isOpen={isChangePasswordOpen}
         onClose={() => setIsChangePasswordOpen(false)}
         onSuccess={() => showToast('Đổi mật khẩu thành công!', 'success')}
+      />
+
+      <AdminProfileModal
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
+        onSuccess={() => {
+          showToast('Cập nhật hồ sơ thành công!', 'success');
+          // Re-fetch user info for TopBar
+          window.location.reload();
+        }}
       />
 
       <style>{`
