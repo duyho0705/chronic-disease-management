@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 import { aiApi, type ChatMessage } from '../../api/ai';
 
 interface Message {
@@ -10,6 +11,12 @@ interface Message {
 }
 
 export default function AiChatWidget() {
+  const location = useLocation();
+
+  if (location.pathname === '/') {
+    return null;
+  }
+
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {

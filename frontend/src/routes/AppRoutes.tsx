@@ -5,6 +5,7 @@ import { ROUTES } from '../constants/routes';
 
 // Landing page - load ngay vì là entry point
 import LandingPage from '../pages/VelorahLandingPage';
+import LoginPage from '../pages/LoginPage';
 import NotFoundPage from '../pages/NotFoundPage';
 
 // Layouts
@@ -77,6 +78,7 @@ const AppRoutes = () => {
     <Suspense fallback={<PageLoader />}>
       <Routes>
         <Route path={ROUTES.HOME} element={<LandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
 
         {/* Patient Portal Routes — Only PATIENT role */}
         <Route path="/patient" element={
