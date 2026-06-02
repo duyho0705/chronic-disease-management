@@ -269,7 +269,7 @@ const VelorahLandingPage: React.FC = () => {
                 <section className="py-20 bg-surface" id="bac-si">
                     <div className="container mx-auto px-gutter">
                         <div className="text-center mb-12 space-y-3">
-                            <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white">Hội Đồng Cố Vấn Y Khoa & Chuyên Gia</h2>
+                            <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white">Đội Ngũ Chuyên Gia & Cố Vấn Hệ Thống</h2>
                             <div className="w-20 h-1 bg-[#6CD1FD] mx-auto rounded-full"></div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -280,8 +280,8 @@ const VelorahLandingPage: React.FC = () => {
                                 </div>
                                 <div className="p-6 text-center">
                                     <h4 className="font-bold text-slate-900 dark:text-white text-lg">PGS.TS Nguyễn Văn A</h4>
-                                    <p className="text-[#008fcc] text-xs font-bold mt-1">Cố Vấn Chuyên Môn Hệ Thống - 25 năm KN</p>
-                                    <p className="text-[11px] text-slate-400 mt-2">Nguyên Phó Giám đốc Bệnh viện Đại học Y Dược</p>
+                                    <p className="text-[#008fcc] text-xs font-bold mt-1">Cố Vấn Quản Trị Hệ Thống Phòng Khám</p>
+                                    <p className="text-[11px] text-slate-400 mt-2">Chuyên gia tối ưu hóa quy trình và quản lý bệnh nhân mãn tính hiệu quả</p>
                                 </div>
                             </div>
                             {/* Doctor 2 */}
@@ -291,8 +291,8 @@ const VelorahLandingPage: React.FC = () => {
                                 </div>
                                 <div className="p-6 text-center">
                                     <h4 className="font-bold text-slate-900 dark:text-white text-lg">BS.CKII Trần Thị B</h4>
-                                    <p className="text-[#008fcc] text-xs font-bold mt-1">Chuyên Gia Chuẩn Hóa Quy Trình - 18 năm KN</p>
-                                    <p className="text-[11px] text-slate-400 mt-2">Trưởng bộ môn Quản lý Y tế đại học y khoa</p>
+                                    <p className="text-[#008fcc] text-xs font-bold mt-1">Chuyên Gia Chuẩn Hóa Phác Đồ Trực Tuyến</p>
+                                    <p className="text-[11px] text-slate-400 mt-2">Hỗ trợ các phòng khám chuẩn hóa quy trình theo dõi và chăm sóc từ xa</p>
                                 </div>
                             </div>
                             {/* Doctor 3 */}
@@ -302,8 +302,8 @@ const VelorahLandingPage: React.FC = () => {
                                 </div>
                                 <div className="p-6 text-center">
                                     <h4 className="font-bold text-slate-900 dark:text-white text-lg">ThS.BS Lê Văn C</h4>
-                                    <p className="text-[#008fcc] text-xs font-bold mt-1">Chuyên Gia Quản Trị Trải Nghiệm Bệnh Nhân</p>
-                                    <p className="text-[11px] text-slate-400 mt-2">Sáng lập chuỗi Phòng Khám Số Nha Khoa Đẹp</p>
+                                    <p className="text-[#008fcc] text-xs font-bold mt-1">Chuyên Gia Vận Hành Phòng Khám Số</p>
+                                    <p className="text-[11px] text-slate-400 mt-2">Tư vấn chuyển đổi số giúp phòng khám nâng cao hiệu suất làm việc</p>
                                 </div>
                             </div>
                             {/* Doctor 4 */}
@@ -313,8 +313,8 @@ const VelorahLandingPage: React.FC = () => {
                                 </div>
                                 <div className="p-6 text-center">
                                     <h4 className="font-bold text-slate-900 dark:text-white text-lg">ThS. Kỹ Sư Phạm Thị D</h4>
-                                    <p className="text-[#008fcc] text-xs font-bold mt-1">Giám Đốc Phát Triển Sản Phẩm AI MedTech</p>
-                                    <p className="text-[11px] text-slate-400 mt-2">Cựu kỹ sư phần mềm hệ thống tại Google Health</p>
+                                    <p className="text-[#008fcc] text-xs font-bold mt-1">Giám Đốc Giải Pháp Y Tế Số</p>
+                                    <p className="text-[11px] text-slate-400 mt-2">Thiết kế nền tảng quản lý chuyên biệt cho phòng khám bệnh mãn tính</p>
                                 </div>
                             </div>
                         </div>
