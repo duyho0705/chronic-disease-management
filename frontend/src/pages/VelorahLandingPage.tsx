@@ -20,6 +20,7 @@ const VelorahLandingPage: React.FC = () => {
     });
 
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [previewImage, setPreviewImage] = useState<string | null>(null);
 
     useEffect(() => {
         // Smooth scroll implementation
@@ -269,16 +270,17 @@ const VelorahLandingPage: React.FC = () => {
                 <section className="py-20 bg-surface" id="bac-si">
                     <div className="container mx-auto px-gutter">
                         <div className="text-center mb-12 space-y-3">
-                            <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white">4 Trụ Cột Công Nghệ Nổi Trội</h2>
+                            <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white">Chức Năng Nổi Trội Của Hệ Thống</h2>
                             <div className="w-20 h-1 bg-[#6CD1FD] mx-auto rounded-full"></div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             {/* Feature 1 */}
                             <div className="bg-surface-container-lowest rounded-xl overflow-hidden soft-elevation group hover-elevation transition-all border border-slate-100 dark:border-slate-800 flex flex-col">
-                                <div className="aspect-[4/3] overflow-hidden relative">
-                                    <div className="absolute inset-0 bg-gradient-to-br from-[#e0f2fe] to-[#bae6fd] group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
-                                        <div className="w-20 h-20 bg-white rounded-full shadow-sm flex items-center justify-center">
-                                            <span className="material-symbols-outlined text-[#0ea5e9] text-4xl">folder_managed</span>
+                                <div className="aspect-[4/3] overflow-hidden relative bg-slate-50 dark:bg-slate-800 group/image cursor-pointer" onClick={() => setPreviewImage('/benh-an-dien-tu.png')}>
+                                    <img className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Bệnh Án Điện Tử" src="/benh-an-dien-tu.png" />
+                                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/image:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                        <div className="bg-white/95 text-[#008fcc] px-5 py-2 rounded-lg font-bold flex items-center gap-2 transform translate-y-4 group-hover/image:translate-y-0 transition-all duration-300 shadow-lg">
+                                            <span className="material-symbols-outlined">visibility</span> Xem
                                         </div>
                                     </div>
                                 </div>
@@ -289,10 +291,11 @@ const VelorahLandingPage: React.FC = () => {
                             </div>
                             {/* Feature 2 */}
                             <div className="bg-surface-container-lowest rounded-xl overflow-hidden soft-elevation group hover-elevation transition-all border border-slate-100 dark:border-slate-800 flex flex-col">
-                                <div className="aspect-[4/3] overflow-hidden relative">
-                                    <div className="absolute inset-0 bg-gradient-to-br from-[#dbeafe] to-[#93c5fd] group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
-                                        <div className="w-20 h-20 bg-white rounded-full shadow-sm flex items-center justify-center">
-                                            <span className="material-symbols-outlined text-[#3b82f6] text-4xl">monitoring</span>
+                                <div className="aspect-[4/3] overflow-hidden relative bg-slate-50 dark:bg-slate-800 group/image cursor-pointer" onClick={() => setPreviewImage('/quan-tri-van-hanh.png')}>
+                                    <img className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Quản Trị Vận Hành" src="/quan-tri-van-hanh.png" />
+                                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/image:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                        <div className="bg-white/95 text-[#008fcc] px-5 py-2 rounded-lg font-bold flex items-center gap-2 transform translate-y-4 group-hover/image:translate-y-0 transition-all duration-300 shadow-lg">
+                                            <span className="material-symbols-outlined">visibility</span> Xem
                                         </div>
                                     </div>
                                 </div>
@@ -303,10 +306,11 @@ const VelorahLandingPage: React.FC = () => {
                             </div>
                             {/* Feature 3 */}
                             <div className="bg-surface-container-lowest rounded-xl overflow-hidden soft-elevation group hover-elevation transition-all border border-slate-100 dark:border-slate-800 flex flex-col">
-                                <div className="aspect-[4/3] overflow-hidden relative">
-                                    <div className="absolute inset-0 bg-gradient-to-br from-[#f3e8ff] to-[#d8b4fe] group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
-                                        <div className="w-20 h-20 bg-white rounded-full shadow-sm flex items-center justify-center">
-                                            <span className="material-symbols-outlined text-[#a855f7] text-4xl">diversity_1</span>
+                                <div className="aspect-[4/3] overflow-hidden relative bg-slate-50 dark:bg-slate-800 group/image cursor-pointer" onClick={() => setPreviewImage('/lich-hen-kham.png')}>
+                                    <img className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="CRM Chăm Sóc Y Tế" src="/lich-hen-kham.png" />
+                                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/image:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                        <div className="bg-white/95 text-[#008fcc] px-5 py-2 rounded-lg font-bold flex items-center gap-2 transform translate-y-4 group-hover/image:translate-y-0 transition-all duration-300 shadow-lg">
+                                            <span className="material-symbols-outlined">visibility</span> Xem
                                         </div>
                                     </div>
                                 </div>
@@ -317,16 +321,17 @@ const VelorahLandingPage: React.FC = () => {
                             </div>
                             {/* Feature 4 */}
                             <div className="bg-surface-container-lowest rounded-xl overflow-hidden soft-elevation group hover-elevation transition-all border border-slate-100 dark:border-slate-800 flex flex-col">
-                                <div className="aspect-[4/3] overflow-hidden relative">
-                                    <div className="absolute inset-0 bg-gradient-to-br from-[#fce7f3] to-[#f9a8d4] group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
-                                        <div className="w-20 h-20 bg-white rounded-full shadow-sm flex items-center justify-center">
-                                            <span className="material-symbols-outlined text-[#ec4899] text-4xl">security</span>
+                                <div className="aspect-[4/3] overflow-hidden relative bg-slate-50 dark:bg-slate-800 group/image cursor-pointer" onClick={() => setPreviewImage('/quan-ly-suc-khoe.png')}>
+                                    <img className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Theo Dõi Sức Khỏe" src="/quan-ly-suc-khoe.png" />
+                                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/image:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                        <div className="bg-white/95 text-[#008fcc] px-5 py-2 rounded-lg font-bold flex items-center gap-2 transform translate-y-4 group-hover/image:translate-y-0 transition-all duration-300 shadow-lg">
+                                            <span className="material-symbols-outlined">visibility</span> Xem
                                         </div>
                                     </div>
                                 </div>
                                 <div className="p-6 text-center flex-1 flex flex-col justify-center">
-                                    <h4 className="font-bold text-slate-900 dark:text-white text-lg mb-2">Bảo Mật & Liên Thông</h4>
-                                    <p className="text-xs text-slate-500 leading-relaxed">Đạt chuẩn bảo mật quốc tế, cho phép liên thông mượt mà với các hệ thống xét nghiệm (LIS) và chẩn đoán.</p>
+                                    <h4 className="font-bold text-slate-900 dark:text-white text-lg mb-2">Theo Dõi Sức Khỏe</h4>
+                                    <p className="text-xs text-slate-500 leading-relaxed">Cập nhật và theo dõi liên tục các chỉ số sinh tồn của bệnh nhân mãn tính, hệ thống tự động cảnh báo bất thường.</p>
                                 </div>
                             </div>
                         </div>
@@ -698,6 +703,35 @@ const VelorahLandingPage: React.FC = () => {
                 </div>
                 <a href="#dat-lich" className="bg-[#6CD1FD] text-slate-950 px-6 py-2 rounded-lg font-bold active:scale-95 transition-transform">Dùng thử ngay</a>
             </div>
+
+            {/* Image Preview Modal */}
+            <AnimatePresence>
+                {previewImage && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4"
+                        onClick={() => setPreviewImage(null)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            className="relative max-w-5xl w-full"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <button
+                                className="absolute -top-12 right-0 text-white hover:text-red-400 bg-white/10 hover:bg-white/20 rounded-full w-10 h-10 flex items-center justify-center transition-colors"
+                                onClick={() => setPreviewImage(null)}
+                            >
+                                <span className="material-symbols-outlined">close</span>
+                            </button>
+                            <img src={previewImage} alt="Preview" className="w-full h-auto rounded-xl shadow-2xl" />
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
         </div>
     );
