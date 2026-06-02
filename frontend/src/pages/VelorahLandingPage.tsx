@@ -129,7 +129,7 @@ const VelorahLandingPage: React.FC = () => {
 
             <main>
                 {/* Hero Section */}
-                <section className="relative pt-24 pb-16 md:pt-32 md:pb-24 medical-gradient overflow-hidden">
+                <section className="relative py-[170px] medical-gradient overflow-hidden">
                     <div className="container mx-auto px-gutter grid md:grid-cols-2 gap-12 items-center relative z-10">
                         <div className="space-y-5">
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#6CD1FD]/10 text-secondary text-xs uppercase tracking-wider font-bold">
@@ -170,8 +170,8 @@ const VelorahLandingPage: React.FC = () => {
                         </div>
 
                         <div className="relative hidden md:block">
-                            <div className="rounded-2xl overflow-hidden shadow-2xl transform rotate-2 hover:rotate-0 transition-transform duration-700">
-                                <img className="w-full h-auto object-cover" alt="Professional doctor medical team standing together" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0Y9Ci5_18-JlAS8604YAJ-iTkJskctpY3DL0XpMZWTCi6MLtoqHMofdHi3L43zACPGbYyhMvJEeGOtavQmOCxV8bD_y1s5GGWmiO9PmEj3TP41x5GZoTA0RnypG0-0t1G3EjqgGO_JDDiUCAlQTuQzygukHjFI7JhrKL-AVPb9FzpAjHuufdhWKiuyx7Fe99NJ36rhaznkcmqN5H0wr69cCW1NYyh2ySXEsnP7Ntz9ywvyVchz9crlym_ReAv68E_3Tbi0bVNlA6H" />
+                            <div className="rounded-2xl overflow-hidden shadow-2xl transition-transform duration-700 hover:-translate-y-2">
+                                <img className="w-full h-auto object-cover" alt="DamDiep Medical System" src="/hero-image.png" />
                             </div>
                             {/* Floating satisfaction tag */}
                             <div className="absolute -bottom-6 -left-6 bg-surface-container-lowest p-5 rounded-xl soft-elevation max-w-xs animate-bounce-slow border border-slate-100 dark:border-slate-800">
@@ -256,7 +256,7 @@ const VelorahLandingPage: React.FC = () => {
                             </div>
                         </div>
                         <div className="relative">
-                            <img className="rounded-xl shadow-lg w-full h-[320px] object-cover" alt="Clinic modern facilities and equipment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0Y9Ci5_18-JlAS8604YAJ-iTkJskctpY3DL0XpMZWTCi6MLtoqHMofdHi3L43zACPGbYyhMvJEeGOtavQmOCxV8bD_y1s5GGWmiO9PmEj3TP41x5GZoTA0RnypG0-0t1G3EjqgGO_JDDiUCAlQTuQzygukHjFI7JhrKL-AVPb9FzpAjHuufdhWKiuyx7Fe99NJ36rhaznkcmqN5H0wr69cCW1NYyh2ySXEsnP7Ntz9ywvyVchz9crlym_ReAv68E_3Tbi0bVNlA6H" />
+                            <img className="rounded-xl shadow-lg w-full h-[320px] object-cover" alt="DamDiep B2B Solutions" src="/giai-phap.png" />
                             <div className="absolute -bottom-6 -right-6 bg-slate-900 text-white p-6 rounded-lg hidden md:block max-w-[200px]">
                                 <p className="text-3xl font-black text-[#6CD1FD]">100%</p>
                                 <p className="text-xs text-slate-300 font-medium">Bảo mật thông tin dữ liệu phòng khám theo tiêu chuẩn HIPAA.</p>
@@ -269,52 +269,64 @@ const VelorahLandingPage: React.FC = () => {
                 <section className="py-20 bg-surface" id="bac-si">
                     <div className="container mx-auto px-gutter">
                         <div className="text-center mb-12 space-y-3">
-                            <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white">Đội Ngũ Chuyên Gia & Cố Vấn Hệ Thống</h2>
+                            <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white">4 Trụ Cột Công Nghệ Nổi Trội</h2>
                             <div className="w-20 h-1 bg-[#6CD1FD] mx-auto rounded-full"></div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {/* Doctor 1 */}
-                            <div className="bg-surface-container-lowest rounded-xl overflow-hidden soft-elevation group hover-elevation transition-all border border-slate-100 dark:border-slate-800">
-                                <div className="aspect-[3/4] overflow-hidden">
-                                    <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Doctor profile 1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB193elf3eybRvRJRZNlhXPpEHPQKGFsZuCUsgQvXNE1o1ZUVJA4vrLcOwZMhTJx284mPE3ahjSlLX80e2DJU9RHZy0VhTRFW4bA384NJhl9GgXY2TmaZZJ7DKa9EtRrGeT2ke25Yssk0DVFywB_X0qqJjh8g3xY0i1FkWxHH7CoetWCcA5ZWufgjBUU5DUJGJ6hlJxMv7eaH2IXNSOuo3aT98go39Tw_h2754yeDFVENq93INwJ8bjW24mJ3CWpbCu_QmvxyLsFsBg" />
+                            {/* Feature 1 */}
+                            <div className="bg-surface-container-lowest rounded-xl overflow-hidden soft-elevation group hover-elevation transition-all border border-slate-100 dark:border-slate-800 flex flex-col">
+                                <div className="aspect-[4/3] overflow-hidden relative">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-[#e0f2fe] to-[#bae6fd] group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
+                                        <div className="w-20 h-20 bg-white rounded-full shadow-sm flex items-center justify-center">
+                                            <span className="material-symbols-outlined text-[#0ea5e9] text-4xl">folder_managed</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="p-6 text-center">
-                                    <h4 className="font-bold text-slate-900 dark:text-white text-lg">PGS.TS Nguyễn Văn A</h4>
-                                    <p className="text-[#008fcc] text-xs font-bold mt-1">Cố Vấn Quản Trị Hệ Thống Phòng Khám</p>
-                                    <p className="text-[11px] text-slate-400 mt-2">Chuyên gia tối ưu hóa quy trình và quản lý bệnh nhân mãn tính hiệu quả</p>
-                                </div>
-                            </div>
-                            {/* Doctor 2 */}
-                            <div className="bg-surface-container-lowest rounded-xl overflow-hidden soft-elevation group hover-elevation transition-all border border-slate-100 dark:border-slate-800">
-                                <div className="aspect-[3/4] overflow-hidden">
-                                    <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Doctor profile 2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhdP_MLPQOCqgClDWCX0qEgaIJry848yDsOuP4uxVM3I9XoNl4lTnotFBrUMYTZvNSKzZn9bjNva1X5htOeFQNkabKGnaN4Wd8SbeJAlHFFwloXxQ-TB_xbTuMnFEdpuPOJGU0hHI2FtopBp_cIVQ1lMcKgOPs56P2q6LM1aXsBx8tt_9GWqvMplXt-OFcDxXVmYsnNYIpWKSCzphgfpwxAnhxpkAkr7DLAzPZI7x1PJwgEPfPV8Qx8LhES5Yy-e7PTWqqOQfuzJ8j" />
-                                </div>
-                                <div className="p-6 text-center">
-                                    <h4 className="font-bold text-slate-900 dark:text-white text-lg">BS.CKII Trần Thị B</h4>
-                                    <p className="text-[#008fcc] text-xs font-bold mt-1">Chuyên Gia Chuẩn Hóa Phác Đồ Trực Tuyến</p>
-                                    <p className="text-[11px] text-slate-400 mt-2">Hỗ trợ các phòng khám chuẩn hóa quy trình theo dõi và chăm sóc từ xa</p>
+                                <div className="p-6 text-center flex-1 flex flex-col justify-center">
+                                    <h4 className="font-bold text-slate-900 dark:text-white text-lg mb-2">Bệnh Án Điện Tử (EMR)</h4>
+                                    <p className="text-xs text-slate-500 leading-relaxed">Quản lý hồ sơ, phác đồ điều trị và lịch sử y khoa của bệnh nhân một cách hệ thống, không cần giấy tờ.</p>
                                 </div>
                             </div>
-                            {/* Doctor 3 */}
-                            <div className="bg-surface-container-lowest rounded-xl overflow-hidden soft-elevation group hover-elevation transition-all border border-slate-100 dark:border-slate-800">
-                                <div className="aspect-[3/4] overflow-hidden">
-                                    <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Doctor profile 3" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVLbEXPCPzS6WINh39T33rfVEb4VZLxfHYYt7gb2gAjCkXjvitaolN5YG_26_9dDaPgHLvjXtnEq0A-kzubYODLq5mYNeYyviODrajwN9ylmZRmmnuTPEDIj5e13Fe0VvAfegiB6_s_Shu4D4vjMi5zwlu5sFUpVoT8UtIki5gLN5lFt9Z5E-0MXNKPZBUo4f0ZaxJh0pg6BwXhGUS67kxIlR1Zg5EFWVyY9R4b9bN3K8lJ_GwEu0RArgXJZSA8H7L6ss27dRjpeB3" />
+                            {/* Feature 2 */}
+                            <div className="bg-surface-container-lowest rounded-xl overflow-hidden soft-elevation group hover-elevation transition-all border border-slate-100 dark:border-slate-800 flex flex-col">
+                                <div className="aspect-[4/3] overflow-hidden relative">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-[#dbeafe] to-[#93c5fd] group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
+                                        <div className="w-20 h-20 bg-white rounded-full shadow-sm flex items-center justify-center">
+                                            <span className="material-symbols-outlined text-[#3b82f6] text-4xl">monitoring</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="p-6 text-center">
-                                    <h4 className="font-bold text-slate-900 dark:text-white text-lg">ThS.BS Lê Văn C</h4>
-                                    <p className="text-[#008fcc] text-xs font-bold mt-1">Chuyên Gia Vận Hành Phòng Khám Số</p>
-                                    <p className="text-[11px] text-slate-400 mt-2">Tư vấn chuyển đổi số giúp phòng khám nâng cao hiệu suất làm việc</p>
+                                <div className="p-6 text-center flex-1 flex flex-col justify-center">
+                                    <h4 className="font-bold text-slate-900 dark:text-white text-lg mb-2">Quản Trị Vận Hành</h4>
+                                    <p className="text-xs text-slate-500 leading-relaxed">Theo dõi doanh thu, lượt khám và hiệu suất làm việc của nhân sự qua hệ thống Dashboard thông minh.</p>
                                 </div>
                             </div>
-                            {/* Doctor 4 */}
-                            <div className="bg-surface-container-lowest rounded-xl overflow-hidden soft-elevation group hover-elevation transition-all border border-slate-100 dark:border-slate-800">
-                                <div className="aspect-[3/4] overflow-hidden">
-                                    <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Doctor profile 4" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4_6lXQy6vK9GHSH5v9IXBcA2z2K8rhW1Y4pJuBcJxYpDCK5izPMKX5WwU9LUsXSvieEZc2K2sL6-Eifqyjc8HZbrRRZaOVRN-VW_7pOJaHjEPJRPzjQ_L3UU8Av7KwfhgrfMXgxUBqbySfTCy1_qG0yEfiXdEBV0DnzpNe21e1lLpIeE9SsAG86uCZi2hyWrkzfQWvH33xPVy2_jKachW-n0IspipcERheMbCw0xBUvBKGs4P6IUjxsItM680o_SZykYNAS5lkP7e" />
+                            {/* Feature 3 */}
+                            <div className="bg-surface-container-lowest rounded-xl overflow-hidden soft-elevation group hover-elevation transition-all border border-slate-100 dark:border-slate-800 flex flex-col">
+                                <div className="aspect-[4/3] overflow-hidden relative">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-[#f3e8ff] to-[#d8b4fe] group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
+                                        <div className="w-20 h-20 bg-white rounded-full shadow-sm flex items-center justify-center">
+                                            <span className="material-symbols-outlined text-[#a855f7] text-4xl">diversity_1</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="p-6 text-center">
-                                    <h4 className="font-bold text-slate-900 dark:text-white text-lg">ThS. Kỹ Sư Phạm Thị D</h4>
-                                    <p className="text-[#008fcc] text-xs font-bold mt-1">Giám Đốc Giải Pháp Y Tế Số</p>
-                                    <p className="text-[11px] text-slate-400 mt-2">Thiết kế nền tảng quản lý chuyên biệt cho phòng khám bệnh mãn tính</p>
+                                <div className="p-6 text-center flex-1 flex flex-col justify-center">
+                                    <h4 className="font-bold text-slate-900 dark:text-white text-lg mb-2">CRM Chăm Sóc Y Tế</h4>
+                                    <p className="text-xs text-slate-500 leading-relaxed">Tự động nhắc lịch tái khám, tương tác từ xa và chăm sóc bệnh nhân mãn tính liên tục sau khi rời phòng khám.</p>
+                                </div>
+                            </div>
+                            {/* Feature 4 */}
+                            <div className="bg-surface-container-lowest rounded-xl overflow-hidden soft-elevation group hover-elevation transition-all border border-slate-100 dark:border-slate-800 flex flex-col">
+                                <div className="aspect-[4/3] overflow-hidden relative">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-[#fce7f3] to-[#f9a8d4] group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
+                                        <div className="w-20 h-20 bg-white rounded-full shadow-sm flex items-center justify-center">
+                                            <span className="material-symbols-outlined text-[#ec4899] text-4xl">security</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="p-6 text-center flex-1 flex flex-col justify-center">
+                                    <h4 className="font-bold text-slate-900 dark:text-white text-lg mb-2">Bảo Mật & Liên Thông</h4>
+                                    <p className="text-xs text-slate-500 leading-relaxed">Đạt chuẩn bảo mật quốc tế, cho phép liên thông mượt mà với các hệ thống xét nghiệm (LIS) và chẩn đoán.</p>
                                 </div>
                             </div>
                         </div>
