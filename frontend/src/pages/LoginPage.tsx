@@ -67,10 +67,7 @@ const LoginPage: React.FC = () => {
                 <div className="relative z-10 flex flex-col justify-between p-16 w-full">
                     {/* Logo */}
                     <Link to="/" className="flex items-center gap-4 group">
-                        <img src="/logo.png" alt="DamDiep Logo" className="w-20 h-20 sm:w-24 sm:h-24 object-contain drop-shadow-md group-hover:scale-105 transition-transform" />
-                        <span className="text-2xl font-extrabold text-white tracking-tight">
-                            <span className="text-[#6CD1FD]">D</span>am<span className="text-[#6CD1FD]">D</span>iep
-                        </span>
+                        <img src="/logo.png?v=2" alt="DamDiep Logo" className="w-64 h-auto sm:w-80 object-contain drop-shadow-md group-hover:scale-105 transition-transform" />
                     </Link>
 
                     {/* Center content */}
@@ -138,10 +135,7 @@ const LoginPage: React.FC = () => {
                 >
                     {/* Mobile logo */}
                     <div className="lg:hidden flex items-center gap-4 justify-center mb-8">
-                        <img src="/logo.png" alt="DamDiep Logo" className="w-20 h-20 object-contain drop-shadow-md" />
-                        <span className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                            <span className="text-[#008fcc]">D</span>am<span className="text-[#008fcc]">D</span>iep
-                        </span>
+                        <img src="/logo.png?v=2" alt="DamDiep Logo" className="w-48 h-auto object-contain drop-shadow-md" />
                     </div>
 
                     {/* Header */}

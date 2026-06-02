@@ -16,22 +16,16 @@ const DamDiepLogo: React.FC<DamDiepLogoProps> = ({
   return (
     <div className={`flex items-center gap-3 ${className}`}>
       <div
-        className="relative shrink-0"
-        style={{ width: size, height: size }}
+        className="relative shrink-0 flex justify-center items-center"
+        style={{ width: size * 2.2, height: size * 1.5 }}
       >
         <img
-          src="/logo.png"
+          src="/logo.png?v=2"
           alt="DamDiep Logo"
           className="w-full h-full object-contain drop-shadow-md"
         />
       </div>
-      {showText && (
-        <div>
-          <h1 className={textClassName}>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0891B2] to-[#059669]">D</span>am<span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0891B2] to-[#059669]">D</span>iep
-          </h1>
-        </div>
-      )}
+
     </div>
   );
 };

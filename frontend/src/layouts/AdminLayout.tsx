@@ -78,7 +78,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       <aside className={`fixed left-0 top-0 bottom-0 bg-white dark:bg-slate-900 border-r border-primary/10 flex flex-col z-[150] transition-transform duration-300 ease-out w-[280px] lg:w-72 lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} shadow-2xl lg:shadow-none shadow-primary/10`}>
         <div className="p-6 flex items-center justify-between border-b border-primary/5">
           <Link to={ROUTES.HOME} target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity cursor-pointer">
-            <DamDiepLogo size={40} />
+            <DamDiepLogo size={80} />
           </Link>
           <button
             onClick={() => setIsSidebarOpen(false)}

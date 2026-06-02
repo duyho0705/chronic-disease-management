@@ -48,7 +48,7 @@ const PatientSidebar: React.FC<PatientSidebarProps> = ({ isSidebarOpen, setIsSid
     return (
         <aside className={`fixed left-0 top-0 bottom-0 bg-white dark:bg-slate-900 border-r border-primary/10 flex flex-col z-[150] transition-transform duration-300 w-72 lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} shadow-2xl lg:shadow-none shadow-primary/10 font-display`}>
             <div className="p-6 border-b border-primary/5">
-                <DamDiepLogo size={40} />
+                <DamDiepLogo size={80} />
             </div>
 
             <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar">
