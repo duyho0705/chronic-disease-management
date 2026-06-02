@@ -108,8 +108,8 @@ const VelorahLandingPage: React.FC = () => {
             {/* Header: TopNavBar */}
             <header className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-gutter h-16 bg-surface/95 shadow-sm backdrop-blur-md">
                 <div className="flex items-center gap-2">
-                    <a href="/" className="text-lg md:text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2 select-none cursor-pointer hover:opacity-90 transition-opacity">
-                        <img src="/logo.png?v=2" alt="DamDiep Logo" className="w-48 h-auto object-contain drop-shadow-sm scale-[1.2]" />
+                    <a href="/" className="text-lg md:text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2 select-none cursor-pointer">
+                        <img src="/logo.png?v=3" alt="DamDiep Logo" className="w-36 h-auto object-contain" />
                     </a>
                 </div>
                 <nav className="hidden lg:flex items-center gap-8">

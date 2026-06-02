@@ -66,8 +66,8 @@ const LoginPage: React.FC = () => {
                 {/* Content */}
                 <div className="relative z-10 flex flex-col justify-between p-16 w-full">
                     {/* Logo */}
-                    <Link to="/" className="flex items-center gap-4 group">
-                        <img src="/logo.png?v=2" alt="DamDiep Logo" className="w-64 h-auto sm:w-80 object-contain drop-shadow-md group-hover:scale-105 transition-transform" />
+                    <Link to="/" className="flex items-center gap-4">
+                        <img src="/logo.png?v=3" alt="DamDiep Logo" className="w-64 h-auto sm:w-80 object-contain" />
                     </Link>
 
                     {/* Center content */}
@@ -135,7 +135,7 @@ const LoginPage: React.FC = () => {
                 >
                     {/* Mobile logo */}
                     <div className="lg:hidden flex items-center gap-4 justify-center mb-8">
-                        <img src="/logo.png?v=2" alt="DamDiep Logo" className="w-48 h-auto object-contain drop-shadow-md" />
+                        <img src="/logo.png?v=3" alt="DamDiep Logo" className="w-48 h-auto object-contain" />
                     </div>
 
                     {/* Header */}
