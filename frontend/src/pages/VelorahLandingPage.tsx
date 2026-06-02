@@ -21,6 +21,8 @@ const VelorahLandingPage: React.FC = () => {
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
+    const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+    const [submitSuccess, setSubmitSuccess] = useState(false);
 
     useEffect(() => {
         // Smooth scroll implementation
@@ -69,21 +71,54 @@ const VelorahLandingPage: React.FC = () => {
         }));
     };
 
-    const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const validateForm = () => {
+        const errors: Record<string, string> = {};
+        if (!bookingForm.name.trim()) errors.name = "Vui lòng nhập tên của bạn hoặc tên phòng khám.";
+        
+        const phoneRegex = /^(0[3|5|7|8|9])+([0-9]{8})$/;
+        if (!bookingForm.phone.trim()) {
+            errors.phone = "Vui lòng nhập số điện thoại.";
+        } else if (!phoneRegex.test(bookingForm.phone)) {
+            errors.phone = "Số điện thoại không hợp lệ (VD: 0912345678).";
+        }
+        
+        if (bookingForm.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(bookingForm.email)) {
+            errors.email = "Địa chỉ email không hợp lệ.";
+        }
+        
+        if (!bookingForm.date) errors.date = "Vui lòng chọn ngày hẹn demo.";
+        
+        setFormErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+    const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if (!validateForm()) return;
+        
         setIsSubmitting(true);
-        setTimeout(() => {
-            alert(`Đăng ký thành công! Cảm ơn Quý phòng khám / bác sĩ ${bookingForm.name}. Đội ngũ kỹ thuật của DamDiep sẽ liên hệ qua số điện thoại ${bookingForm.phone} trong vòng 10-15 phút để tư vấn giải pháp và gửi tài khoản dùng thử.`);
-            setIsSubmitting(false);
-            setBookingForm({
-                name: '',
-                phone: '',
-                email: '',
-                date: '',
-                department: 'Quy mô Dưới 10 Bác Sĩ',
-                message: ''
+        try {
+            const response = await fetch('http://localhost:8080/v1/consultations', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(bookingForm)
             });
-        }, 1500);
+            
+            if (response.ok) {
+                setSubmitSuccess(true);
+                setBookingForm({
+                    name: '', phone: '', email: '', date: '', department: 'Quy mô Dưới 10 Bác Sĩ', message: ''
+                });
+                setTimeout(() => setSubmitSuccess(false), 5000);
+            } else {
+                alert('Có lỗi xảy ra khi đăng ký. Vui lòng thử lại sau.');
+            }
+        } catch (error) {
+            console.error('Submit error:', error);
+            alert('Không thể kết nối đến máy chủ. Vui lòng thử lại sau.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const services = [
@@ -541,40 +576,56 @@ const VelorahLandingPage: React.FC = () => {
                                 </div>
                             </div>
                             <div className="p-10">
-                                <form className="space-y-4" onSubmit={handleFormSubmit}>
+                                <form className="space-y-4" onSubmit={handleFormSubmit} noValidate>
+                                    {submitSuccess && (
+                                        <div className="p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm font-medium flex items-center gap-2">
+                                            <span className="material-symbols-outlined">check_circle</span>
+                                            Đăng ký thành công! Đội ngũ tư vấn sẽ liên hệ sớm nhất.
+                                        </div>
+                                    )}
+                                    
                                     <div>
                                         <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Tên Người Đăng Ký / Tên Cơ Sở Y Tế *</label>
                                         <input
-                                            className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#6CD1FD] focus:border-[#6CD1FD] bg-white text-gray-900 outline-none"
+                                            className={`w-full border ${formErrors.name ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-slate-300 focus:ring-[#6CD1FD] focus:border-[#6CD1FD]'} rounded-lg p-3 text-sm focus:ring-2 bg-white text-gray-900 outline-none transition-colors`}
                                             placeholder="Nhập tên của bạn hoặc tên phòng khám"
-                                            required
                                             type="text"
                                             value={bookingForm.name}
-                                            onChange={e => setBookingForm({ ...bookingForm, name: e.target.value })}
+                                            onChange={e => {
+                                                setBookingForm({ ...bookingForm, name: e.target.value });
+                                                if (formErrors.name) setFormErrors({ ...formErrors, name: '' });
+                                            }}
                                         />
+                                        {formErrors.name && <p className="text-red-500 text-xs mt-1 font-medium">{formErrors.name}</p>}
                                     </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Số điện thoại liên hệ *</label>
                                             <input
-                                                className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#6CD1FD] focus:border-[#6CD1FD] bg-white text-gray-900 outline-none"
+                                                className={`w-full border ${formErrors.phone ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-slate-300 focus:ring-[#6CD1FD] focus:border-[#6CD1FD]'} rounded-lg p-3 text-sm focus:ring-2 bg-white text-gray-900 outline-none transition-colors`}
                                                 placeholder="Nhập số điện thoại"
-                                                required
                                                 type="tel"
                                                 value={bookingForm.phone}
-                                                onChange={e => setBookingForm({ ...bookingForm, phone: e.target.value })}
+                                                onChange={e => {
+                                                    setBookingForm({ ...bookingForm, phone: e.target.value });
+                                                    if (formErrors.phone) setFormErrors({ ...formErrors, phone: '' });
+                                                }}
                                             />
+                                            {formErrors.phone && <p className="text-red-500 text-xs mt-1 font-medium">{formErrors.phone}</p>}
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Email liên hệ *</label>
+                                            <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Email liên hệ</label>
                                             <input
-                                                className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#6CD1FD] focus:border-[#6CD1FD] bg-white text-gray-900 outline-none"
-                                                placeholder="Nhập địa chỉ email"
-                                                required
+                                                className={`w-full border ${formErrors.email ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-slate-300 focus:ring-[#6CD1FD] focus:border-[#6CD1FD]'} rounded-lg p-3 text-sm focus:ring-2 bg-white text-gray-900 outline-none transition-colors`}
+                                                placeholder="Nhập địa chỉ email (tuỳ chọn)"
                                                 type="email"
                                                 value={bookingForm.email}
-                                                onChange={e => setBookingForm({ ...bookingForm, email: e.target.value })}
+                                                onChange={e => {
+                                                    setBookingForm({ ...bookingForm, email: e.target.value });
+                                                    if (formErrors.email) setFormErrors({ ...formErrors, email: '' });
+                                                }}
                                             />
+                                            {formErrors.email && <p className="text-red-500 text-xs mt-1 font-medium">{formErrors.email}</p>}
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -594,18 +645,21 @@ const VelorahLandingPage: React.FC = () => {
                                         <div>
                                             <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Ngày hẹn Demo trực tuyến *</label>
                                             <input
-                                                className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#6CD1FD] focus:border-[#6CD1FD] bg-white text-gray-900 outline-none"
-                                                required
+                                                className={`w-full border ${formErrors.date ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-slate-300 focus:ring-[#6CD1FD] focus:border-[#6CD1FD]'} rounded-lg p-3 text-sm focus:ring-2 bg-white text-gray-900 outline-none transition-colors`}
                                                 type="date"
                                                 value={bookingForm.date}
-                                                onChange={e => setBookingForm({ ...bookingForm, date: e.target.value })}
+                                                onChange={e => {
+                                                    setBookingForm({ ...bookingForm, date: e.target.value });
+                                                    if (formErrors.date) setFormErrors({ ...formErrors, date: '' });
+                                                }}
                                             />
+                                            {formErrors.date && <p className="text-red-500 text-xs mt-1 font-medium">{formErrors.date}</p>}
                                         </div>
                                     </div>
                                     <div>
                                         <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Nhu cầu cụ thể cần tư vấn</label>
                                         <textarea
-                                            className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#6CD1FD] focus:border-[#6CD1FD] bg-white text-gray-900 outline-none h-20 resize-none"
+                                            className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#6CD1FD] focus:border-[#6CD1FD] bg-white text-gray-900 outline-none h-20 resize-none transition-colors"
                                             placeholder="Ví dụ: Cần kết nối với máy đo huyết áp Bluetooth của bệnh nhân, xuất dữ liệu báo cáo..."
                                             value={bookingForm.message}
                                             onChange={e => setBookingForm({ ...bookingForm, message: e.target.value })}
