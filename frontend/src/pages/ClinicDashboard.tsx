@@ -513,12 +513,12 @@ export default function ClinicDashboard() {
                   )}
                 </div>
                 {stats && (
-                  <div className="mt-6 bg-gradient-to-br from-[#3bb9f3] to-blue-600 p-4 rounded-2xl text-white shadow-lg shadow-[#3bb9f3]/20">
-                    <h4 className="font-bold mb-1 text-[13px] md:text-[15px]">Thông tin Phân tích</h4>
-                    <p className="text-white/80 text-[12px] md:text-[13px] mb-3 leading-relaxed">
+                  <div className="mt-6 bg-gradient-to-br from-[#3bb9f3] to-blue-600 p-5 rounded-2xl text-white shadow-lg shadow-[#3bb9f3]/20">
+                    <h4 className="font-bold mb-1.5 text-[15px] md:text-[17px]">Thông tin Phân tích</h4>
+                    <p className="text-white/90 text-[13.5px] md:text-[15px] mb-4 leading-relaxed font-medium">
                       {stats?.insight || "Hệ thống đang phân tích dữ liệu để đưa ra các khuyến nghị lâm sàng phù hợp."}
                     </p>
-                    <Link to={ROUTES.CLINIC.ALERTS} className="inline-block px-3 py-1.5 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-xl text-[12px] font-bold transition-all">
+                    <Link to={ROUTES.CLINIC.ALERTS} className="inline-block px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-xl text-[13px] md:text-[14px] font-bold transition-all shadow-sm">
                       Xem phân tích
                     </Link>
                   </div>

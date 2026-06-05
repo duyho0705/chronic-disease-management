@@ -26,6 +26,11 @@ export default function ClinicDoctors() {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
+    // Bulk Delete State
+    const [selectedDoctorIds, setSelectedDoctorIds] = useState<any[]>([]);
+    const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
+    const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+
     // Assignment Modal State
     const [isAssignmentModalOpen, setIsAssignmentModalOpen] = useState(false);
 
@@ -75,6 +80,7 @@ export default function ClinicDoctors() {
                 setTotalPages(pageData.totalPages || 0);
                 setTotalElements(pageData.totalElements || 0);
                 setCurrentPage(pageData.number || 0);
+                setSelectedDoctorIds([]); // Reset selection on page change
             }
         } catch (error) {
             console.error('Failed to fetch doctors:', error);
@@ -111,6 +117,7 @@ export default function ClinicDoctors() {
             const res = await clinicApi.createDoctor(currentClinicId, doctorData);
             if (res.success) {
                 fetchDoctors();
+                fetchStats();
                 setIsCreateModalOpen(false);
                 setToastMessage(`Đã thêm bác sĩ ${doctorData.name} vào hệ thống!`);
                 setShowToast(true);
@@ -130,6 +137,7 @@ export default function ClinicDoctors() {
             const res = await clinicApi.updateDoctor(currentClinicId, doctorData.dbId, doctorData);
             if (res.success) {
                 fetchDoctors();
+                fetchStats();
                 setIsEditing(false);
                 setIsEditModalOpen(false);
                 setToastMessage(`Đã cập nhật thông tin bác sĩ ${doctorData.name}`);
@@ -152,6 +160,7 @@ export default function ClinicDoctors() {
             const res = await clinicApi.deleteDoctor(currentClinicId, dbId);
             if (res.success) {
                 fetchDoctors();
+                fetchStats();
                 setIsDeleting(false);
                 setIsDeleteModalOpen(false);
                 setToastMessage('Đã gỡ bỏ hồ sơ bác sĩ khỏi hệ thống');
@@ -163,6 +172,43 @@ export default function ClinicDoctors() {
             setShowToast(true);
         } finally {
             setIsDeleting(false);
+        }
+    };
+
+    const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.checked) {
+            setSelectedDoctorIds(doctors.map(dr => dr.dbId || dr.id));
+        } else {
+            setSelectedDoctorIds([]);
+        }
+    };
+
+    const handleSelectRow = (doctorId: any) => {
+        setSelectedDoctorIds(prev => {
+            if (prev.includes(doctorId)) {
+                return prev.filter(id => id !== doctorId);
+            } else {
+                return [...prev, doctorId];
+            }
+        });
+    };
+
+    const handleBulkDelete = async () => {
+        setIsBulkDeleting(true);
+        try {
+            await Promise.all(selectedDoctorIds.map(id => clinicApi.deleteDoctor(currentClinicId, id)));
+            fetchDoctors();
+            fetchStats();
+            setSelectedDoctorIds([]);
+            setIsBulkDeleteModalOpen(false);
+            setToastMessage(`Đã xóa ${selectedDoctorIds.length} bác sĩ khỏi hệ thống`);
+            setShowToast(true);
+        } catch (error) {
+            console.error('Failed to bulk delete doctors:', error);
+            setToastMessage('Lỗi khi xóa các mục đã chọn');
+            setShowToast(true);
+        } finally {
+            setIsBulkDeleting(false);
         }
     };
 
@@ -216,13 +262,24 @@ export default function ClinicDoctors() {
                         {isLoading ? (
                             <div className="w-52 h-12 bg-primary/20 animate-pulse rounded-2xl shadow-sm"></div>
                         ) : (
-                            <button
-                                onClick={() => setIsCreateModalOpen(true)}
-                                className="bg-primary text-white px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all font-display whitespace-nowrap group shadow-sm"
-                            >
-                                <span className="material-symbols-outlined text-[20px]">person_add</span>
-                                Thêm bác sĩ mới
-                            </button>
+                            <div className="flex items-center gap-3">
+                                {selectedDoctorIds.length > 0 && (
+                                    <button
+                                        onClick={() => setIsBulkDeleteModalOpen(true)}
+                                        className="bg-rose-50 text-rose-600 px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-rose-100 transition-all font-display whitespace-nowrap shadow-sm border border-rose-200"
+                                    >
+                                        <span className="material-symbols-outlined text-[20px]">delete_sweep</span>
+                                        Xóa {selectedDoctorIds.length} mục
+                                    </button>
+                                )}
+                                <button
+                                    onClick={() => setIsCreateModalOpen(true)}
+                                    className="bg-primary text-white px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all font-display whitespace-nowrap group shadow-sm"
+                                >
+                                    <span className="material-symbols-outlined text-[20px]">person_add</span>
+                                    Thêm bác sĩ mới
+                                </button>
+                            </div>
                         )}
                     </div>
 
@@ -365,6 +422,14 @@ export default function ClinicDoctors() {
                                 {/* ... thead */}
                                 <thead>
                                     <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
+                                        <th className="px-4 py-4 w-12 text-center">
+                                            <input 
+                                                type="checkbox" 
+                                                className="w-4 h-4 rounded text-primary border-slate-300 focus:ring-primary/20 cursor-pointer"
+                                                checked={doctors.length > 0 && selectedDoctorIds.length === doctors.length}
+                                                onChange={handleSelectAll}
+                                            />
+                                        </th>
                                         <th className="px-8 py-4">
                                             <span className="text-[15px] font-medium text-slate-700 dark:text-slate-300">Thông tin bác sĩ</span>
                                         </th>
@@ -395,6 +460,9 @@ export default function ClinicDoctors() {
                                     {isLoading ? (
                                         [...Array(6)].map((_, i) => (
                                             <tr key={`dr-skeleton-${i}`} className="animate-pulse">
+                                                <td className="px-4 py-4 text-center">
+                                                    <div className="w-4 h-4 rounded bg-slate-100 dark:bg-slate-800 mx-auto"></div>
+                                                </td>
                                                 <td className="px-8 py-4">
                                                     <div className="flex items-center gap-4">
                                                         <div className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-800 shrink-0"></div>
@@ -427,7 +495,15 @@ export default function ClinicDoctors() {
                                         ))
                                     ) : doctors.length > 0 ? (
                                         doctors.map((dr, idx) => (
-                                            <tr key={idx} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors group cursor-pointer border-b border-slate-50 dark:border-slate-800 last:border-0">
+                                            <tr key={idx} className={`hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors group cursor-pointer border-b border-slate-50 dark:border-slate-800 last:border-0 ${selectedDoctorIds.includes(dr.dbId || dr.id) ? 'bg-primary/5 dark:bg-primary/10' : ''}`}>
+                                                <td className="px-4 py-4 text-center" onClick={(e) => e.stopPropagation()}>
+                                                    <input 
+                                                        type="checkbox" 
+                                                        className="w-4 h-4 rounded text-primary border-slate-300 focus:ring-primary/20 cursor-pointer"
+                                                        checked={selectedDoctorIds.includes(dr.dbId || dr.id)}
+                                                        onChange={() => handleSelectRow(dr.dbId || dr.id)}
+                                                    />
+                                                </td>
                                                 <td className="px-8 py-4">
                                                     <div className="flex items-center gap-4">
                                                         <button
@@ -503,7 +579,7 @@ export default function ClinicDoctors() {
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan={8} className="px-8 py-20 text-center">
+                                            <td colSpan={9} className="px-8 py-20 text-center">
                                                 <div className="flex flex-col items-center gap-3 text-slate-400">
                                                     <span className="material-symbols-outlined text-4xl opacity-20">person_off</span>
                                                     <p className="text-sm font-medium text-slate-500">Không tìm thấy bác sĩ phù hợp</p>
@@ -550,6 +626,48 @@ export default function ClinicDoctors() {
                 <CreateDoctorModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} isSaving={isSaving} onSave={handleCreateDoctor} />
                 <EditDoctorModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} isSaving={isEditing} onSave={handleEditDoctor} initialData={selectedDoctor} />
                 <DeleteDoctorModal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} isDeleting={isDeleting} onDelete={handleDeleteDoctor} doctorData={selectedDoctor} />
+                
+                {/* Bulk Delete Modal */}
+                {isBulkDeleteModalOpen && (
+                    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 font-display">
+                        <div 
+                            className="absolute inset-0 bg-slate-900/10 backdrop-blur-[2px] transition-all duration-300" 
+                            onClick={() => !isBulkDeleting && setIsBulkDeleteModalOpen(false)}
+                        ></div>
+                        <div className="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl p-6 text-center animate-in fade-in zoom-in duration-300 border border-slate-200 dark:border-slate-800">
+                            <div className="w-16 h-16 bg-rose-100 dark:bg-rose-900/30 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <span className="material-symbols-outlined text-3xl">delete_sweep</span>
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Xóa {selectedDoctorIds.length} bác sĩ</h3>
+                            <p className="text-[15px] text-slate-500 dark:text-slate-400 mb-6 font-medium italic-none leading-relaxed">Bạn có chắc chắn muốn xóa những bác sĩ đã chọn khỏi hệ thống? Hành động này không thể hoàn tác.</p>
+                            
+                            <div className="flex gap-3 mt-6">
+                                <button
+                                    onClick={() => setIsBulkDeleteModalOpen(false)}
+                                    disabled={isBulkDeleting}
+                                    className="flex-1 py-2.5 rounded-xl text-slate-600 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 font-bold transition-colors disabled:opacity-50 text-[14px]"
+                                >
+                                    Hủy bỏ
+                                </button>
+                                <button
+                                    onClick={handleBulkDelete}
+                                    disabled={isBulkDeleting}
+                                    className="flex-1 py-2.5 rounded-xl text-white bg-rose-600 hover:bg-rose-700 font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50 text-[14px] shadow-md shadow-rose-500/20"
+                                >
+                                    {isBulkDeleting ? (
+                                        <>
+                                            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                                            Đang xóa...
+                                        </>
+                                    ) : (
+                                        'Xác nhận xóa'
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 <DoctorAssignmentModal isOpen={isAssignmentModalOpen} onClose={() => setIsAssignmentModalOpen(false)} doctorData={selectedDoctor} />
                 <ImageModal isOpen={isPreviewModalOpen} onClose={() => setIsPreviewModalOpen(false)} imageUrl={previewImageUrl} title={previewTitle} />
 

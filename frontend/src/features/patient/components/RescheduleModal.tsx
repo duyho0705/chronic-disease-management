@@ -95,7 +95,7 @@ const RescheduleModal: React.FC<RescheduleModalProps> = ({
                 </label>
                 <Dropdown
                   options={patients.map(p => ({
-                    label: `${p.fullName} - Mã BN: ${p.patientCode || p.id}${!p.doctorId ? ' (⚠️ Chưa gán BS)' : ''}`,
+                    label: `${p.fullName} - Mã BN: ${p.patientCode || p.id}`,
                     value: p.id.toString()
                   }))}
                   value={selectedPatientId}
@@ -105,8 +105,8 @@ const RescheduleModal: React.FC<RescheduleModalProps> = ({
                   icon={<span className="material-symbols-outlined text-[20px] text-slate-400">person</span>}
                 />
                 {selectedPatientId && patients.find(p => p.id.toString() === selectedPatientId) && !patients.find(p => p.id.toString() === selectedPatientId).doctorId && (
-                  <p className="text-xs text-red-500 font-medium mt-1 pl-2">
-                    <span className="material-symbols-outlined text-[14px] align-text-bottom mr-1">warning</span>
+                  <p className="text-[13.5px] text-red-500 font-medium mt-1 pl-2">
+                    <span className="material-symbols-outlined text-[16px] align-text-bottom mr-1">warning</span>
                     Bệnh nhân này chưa có BS phụ trách. Vui lòng gán BS trước khi đặt lịch.
                   </p>
                 )}

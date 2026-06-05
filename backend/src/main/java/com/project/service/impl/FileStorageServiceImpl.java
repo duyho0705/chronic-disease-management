@@ -1,7 +1,10 @@
 package com.project.service.impl;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.project.exception.ResourceNotFoundException;
 import com.project.service.FileStorageService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
@@ -15,30 +18,59 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @SuppressWarnings("null")
 @Service
 public class FileStorageServiceImpl implements FileStorageService {
 
     private final Path fileStorageLocation;
+    private final Cloudinary cloudinary;
 
-    public FileStorageServiceImpl() {
+    public FileStorageServiceImpl(Cloudinary cloudinary) {
+        this.cloudinary = cloudinary;
         this.fileStorageLocation = Paths.get("uploads").toAbsolutePath().normalize();
 
         try {
             Files.createDirectories(this.fileStorageLocation);
         } catch (Exception ex) {
-            throw new RuntimeException("Could not create the directory where the uploaded files will be stored.", ex);
+            log.error("Could not create the directory where the uploaded files will be stored.", ex);
         }
+    }
+
+    private boolean isCloudinaryConfigured() {
+        return cloudinary.config.cloudName != null 
+            && !cloudinary.config.cloudName.isBlank() 
+            && !cloudinary.config.cloudName.equals("your_cloud_name");
     }
 
     @Override
     public String storeFile(MultipartFile file) {
-        // Normalize file name
+        if (isCloudinaryConfigured()) {
+            // Upload to Cloudinary
+            try {
+                @SuppressWarnings("rawtypes")
+                Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
+                        "resource_type", "auto",
+                        "folder", "damdiep_healthcare"
+                ));
+                log.info("✅ File uploaded to Cloudinary successfully.");
+                return uploadResult.get("secure_url").toString();
+            } catch (Exception e) {
+                log.error("❌ Error uploading to Cloudinary, falling back to local storage", e);
+                return storeLocalFile(file);
+            }
+        } else {
+            // Fallback to local storage if Cloudinary is not configured
+            log.warn("⚠️ Cloudinary is not configured. Uploading file to local disk.");
+            return storeLocalFile(file);
+        }
+    }
+
+    private String storeLocalFile(MultipartFile file) {
         String originalFileName = StringUtils.cleanPath(file.getOriginalFilename() != null ? file.getOriginalFilename() : "file");
-        
-        // Generate a unique file name to avoid conflicts
         String fileExtension = "";
         try {
             fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
@@ -49,12 +81,10 @@ public class FileStorageServiceImpl implements FileStorageService {
         String fileName = UUID.randomUUID().toString() + fileExtension;
 
         try {
-            // Check if the file's name contains invalid characters
             if (fileName.contains("..")) {
                 throw new RuntimeException("Sorry! Filename contains invalid path sequence " + fileName);
             }
 
-            // Copy file to the target location (Replacing existing file with the same name)
             Path targetLocation = this.fileStorageLocation.resolve(fileName);
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
@@ -69,6 +99,7 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     @Override
     public Resource loadFileAsResource(String fileName) {
+        // This is only used for local files. Cloudinary files use direct URL.
         try {
             Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
             Resource resource = new UrlResource(filePath.toUri());

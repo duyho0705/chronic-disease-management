@@ -39,7 +39,11 @@ export default function AiChatWidget() {
   useEffect(() => {
     if (isOpen) {
       setHasUnread(false);
-      setTimeout(() => inputRef.current?.focus(), 300);
+      // Wait for animation to complete before focusing and scrolling
+      setTimeout(() => {
+        inputRef.current?.focus();
+        messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+      }, 250);
     }
   }, [isOpen]);
 
@@ -121,17 +125,9 @@ export default function AiChatWidget() {
       {/* Floating Toggle Button */}
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-[200] w-[60px] h-[60px] rounded-2xl text-white shadow-2xl flex items-center justify-center transition-all"
-        style={{
-          background: isOpen
-            ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
-            : 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%)',
-          boxShadow: isOpen
-            ? '0 8px 32px rgba(239,68,68,0.4)'
-            : '0 8px 32px rgba(59,130,246,0.4)'
-        }}
-        whileHover={{ scale: 1.08, y: -2 }}
-        whileTap={{ scale: 0.92 }}
+        className="fixed bottom-6 right-6 z-[200] w-[60px] h-[60px] rounded-full text-white shadow-xl flex items-center justify-center transition-all bg-[#60c5fa] hover:bg-[#4ab0e4]"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
         title="DamDiep AI Assistant"
       >
         <motion.span
@@ -140,12 +136,10 @@ export default function AiChatWidget() {
           animate={{ rotate: isOpen ? 90 : 0 }}
           transition={{ duration: 0.2 }}
         >
-          {isOpen ? 'close' : 'smart_toy'}
+          {isOpen ? 'close' : 'support_agent'}
         </motion.span>
         {hasUnread && !isOpen && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full border-[2.5px] border-white flex items-center justify-center">
-            <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
-          </span>
+          <span className="absolute top-0 right-0 w-4 h-4 bg-red-500 rounded-full border-2 border-white" />
         )}
       </motion.button>
 
@@ -153,99 +147,83 @@ export default function AiChatWidget() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 24, scale: 0.92 }}
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 24, scale: 0.92 }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed bottom-[100px] right-6 z-[200] w-[400px] max-h-[600px] bg-white dark:bg-slate-950 rounded-3xl shadow-2xl flex flex-col overflow-hidden"
-            style={{
-              boxShadow: '0 25px 60px -12px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05)'
-            }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="fixed bottom-[90px] right-6 z-[200] w-[360px] max-h-[600px] bg-[#f5f6f8] rounded-xl shadow-2xl flex flex-col overflow-hidden border border-gray-200"
           >
             {/* Header */}
-            <div className="relative px-6 py-5 shrink-0 overflow-hidden">
-              {/* Animated gradient background */}
-              <div className="absolute inset-0" style={{
-                background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 40%, #8b5cf6 70%, #a855f7 100%)'
-              }} />
-              <div className="absolute inset-0 opacity-20" style={{
-                backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(255,255,255,0.3) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.2) 0%, transparent 40%)'
-              }} />
-              
-              <div className="relative flex items-center gap-3.5">
-                <div className="w-11 h-11 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-md border border-white/10">
-                  <span className="material-symbols-outlined text-white text-[22px]" style={{ fontVariationSettings: "'FILL' 1" }}>
-                    neurology
-                  </span>
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-bold text-[15px] text-white tracking-tight">DamDiep AI</h3>
-                  <p className="text-[12px] text-white/70 flex items-center gap-1.5 font-medium mt-0.5">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
-                    </span>
-                    Trợ lý sức khỏe thông minh
-                  </p>
-                </div>
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/25 flex items-center justify-center transition-all backdrop-blur-sm border border-white/10"
-                >
-                  <span className="material-symbols-outlined text-white/90 text-[18px]">keyboard_arrow_down</span>
+            <div className="bg-[#60c5fa] px-4 py-3 shrink-0 flex items-center justify-between rounded-t-xl">
+              <div className="w-16"></div> {/* Spacer for centering */}
+              <h3 className="font-bold text-[15px] text-white flex-1 text-center">
+                Chat cùng DamDiep AI
+              </h3>
+              <div className="w-16 flex justify-end gap-1">
+                <button className="text-white/90 hover:text-white hover:bg-white/20 p-1 rounded transition-colors flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[18px]">open_in_new</span>
+                </button>
+                <button onClick={() => setIsOpen(false)} className="text-white/90 hover:text-white hover:bg-white/20 p-1 rounded transition-colors flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[20px]">close</span>
                 </button>
               </div>
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto px-5 py-5 space-y-5 min-h-[280px] max-h-[380px] ai-chat-scroll">
+            <div className="flex-1 overflow-y-auto px-4 py-5 space-y-4 min-h-[300px] max-h-[420px] ai-chat-scroll bg-[#f5f6f8]">
               {messages.map(msg => (
-                <div
-                  key={msg.id}
-                  className={`flex gap-2.5 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
-                >
-                  {msg.role === 'assistant' && (
-                    <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5" style={{
-                      background: 'linear-gradient(135deg, #06b6d4, #3b82f6)'
-                    }}>
-                      <span className="material-symbols-outlined text-white text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>
-                        neurology
-                      </span>
+                <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  {msg.id === 0 ? (
+                    // Special Welcome Card
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden w-[95%]">
+                      <div className="bg-[#60c5fa] h-32 flex items-center justify-center relative overflow-hidden">
+                        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white to-transparent"></div>
+                        <span className="material-symbols-outlined text-white text-[64px] z-10" style={{ fontVariationSettings: "'FILL' 1" }}>support_agent</span>
+                      </div>
+                      <div className="p-4 bg-white">
+                        <div className="flex items-center gap-1.5 mb-3 text-gray-800 font-bold text-[14px] justify-center">
+                          <span className="material-symbols-outlined text-[18px] text-[#60c5fa]">auto_awesome</span>
+                          Hỏi đáp cùng trợ lý AI
+                        </div>
+                        <div className="space-y-0">
+                          {quickQuestions.map((q, idx) => (
+                            <button 
+                              key={idx}
+                              onClick={() => {
+                                setInput(q.text);
+                                setTimeout(() => handleSend(), 50);
+                              }}
+                              className="w-full flex items-center justify-center gap-2 py-3 px-3 text-[13.5px] text-[#60c5fa] hover:bg-gray-50 border-b border-gray-100 last:border-b-0 transition-colors"
+                            >
+                              <span>{q.icon}</span> {q.text}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    // Normal Chat Bubbles
+                    <div className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-[14px] leading-[1.6] ${
+                      msg.role === 'user' 
+                        ? 'bg-[#60c5fa] text-white rounded-br-sm shadow-sm' 
+                        : 'bg-white text-gray-800 rounded-bl-sm shadow-sm border border-gray-100'
+                    }`}>
+                      <div dangerouslySetInnerHTML={{ __html: formatContent(msg.content) }} />
+                      <div className={`text-[10px] mt-1.5 opacity-70 ${msg.role === 'user' ? 'text-right text-white/80' : 'text-left text-gray-400'}`}>
+                        {formatTime(msg.timestamp)}
+                      </div>
                     </div>
                   )}
-                  <div className="flex flex-col gap-1 max-w-[82%]">
-                    <div
-                      className={`px-4 py-3 text-[13.5px] leading-[1.7] ${
-                        msg.role === 'user'
-                          ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-2xl rounded-br-md shadow-lg shadow-blue-500/20'
-                          : 'bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-200 rounded-2xl rounded-bl-md border border-slate-100 dark:border-slate-800'
-                      }`}
-                      dangerouslySetInnerHTML={{ __html: formatContent(msg.content) }}
-                    />
-                    <span className={`text-[10px] text-slate-400 font-medium px-1 ${msg.role === 'user' ? 'text-right' : ''}`}>
-                      {formatTime(msg.timestamp)}
-                    </span>
-                  </div>
                 </div>
               ))}
 
               {/* Typing indicator */}
               {isLoading && (
-                <div className="flex gap-2.5">
-                  <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{
-                    background: 'linear-gradient(135deg, #06b6d4, #3b82f6)'
-                  }}>
-                    <span className="material-symbols-outlined text-white text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>
-                      neurology
-                    </span>
-                  </div>
-                  <div className="bg-slate-50 dark:bg-slate-900 px-5 py-3.5 rounded-2xl rounded-bl-md flex items-center gap-2 border border-slate-100 dark:border-slate-800">
-                    <div className="flex items-center gap-1">
-                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                    </div>
-                    <span className="text-[11px] text-slate-400 font-medium ml-1">Đang suy nghĩ...</span>
+                <div className="flex justify-start">
+                  <div className="bg-white px-4 py-3 rounded-2xl rounded-bl-sm shadow-sm border border-gray-100 flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
                 </div>
               )}
@@ -253,62 +231,41 @@ export default function AiChatWidget() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Quick Questions */}
-            {messages.length <= 1 && (
-              <div className="px-5 pb-3 flex gap-2 flex-wrap">
-                {quickQuestions.map((q, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => {
-                      setInput(q.text);
-                      setTimeout(() => handleSend(), 50);
-                    }}
-                    className="text-[12px] px-3.5 py-2 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-slate-800 dark:to-slate-800 border border-blue-100 dark:border-slate-700 text-blue-600 dark:text-blue-400 rounded-xl font-medium hover:shadow-md hover:shadow-blue-100/50 hover:-translate-y-0.5 transition-all flex items-center gap-1.5"
-                  >
-                    <span>{q.icon}</span>
-                    {q.text}
-                  </button>
-                ))}
-              </div>
-            )}
-
             {/* Input Area */}
-            <div className="px-4 py-3.5 border-t border-slate-100 dark:border-slate-800 shrink-0 bg-slate-50/50 dark:bg-slate-900/50">
-              <div className="flex items-center gap-2.5 bg-white dark:bg-slate-900 rounded-2xl px-4 py-1.5 border border-slate-200 dark:border-slate-700 focus-within:border-blue-400 focus-within:ring-4 focus-within:ring-blue-500/10 transition-all shadow-sm">
+            <div className="bg-white px-2 py-2.5 border-t border-gray-200 shrink-0">
+              <div className="flex items-center gap-1">
+                <button className="text-[#60c5fa] p-2 hover:bg-gray-100 rounded-full transition-colors flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[24px]">menu</span>
+                </button>
+                <button className="text-[#60c5fa] p-2 hover:bg-gray-100 rounded-full transition-colors flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[22px]">attach_file</span>
+                </button>
                 <input
                   ref={inputRef}
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Hỏi về sức khỏe..."
+                  placeholder="Nhập tin nhắn"
                   disabled={isLoading}
-                  className="flex-1 bg-transparent text-[14px] text-slate-700 dark:text-white outline-none placeholder-slate-400 py-2 disabled:opacity-50 font-medium"
+                  className="flex-1 bg-transparent border-0 focus:ring-0 text-[14px] text-gray-800 outline-none placeholder-gray-400 py-1.5 min-w-0"
                 />
                 <button
                   onClick={handleSend}
                   disabled={isLoading || !input.trim()}
-                  className="w-9 h-9 rounded-xl text-white flex items-center justify-center transition-all disabled:opacity-30 shrink-0 hover:shadow-lg hover:shadow-blue-500/25 active:scale-90"
-                  style={{
-                    background: isLoading || !input.trim()
-                      ? '#cbd5e1'
-                      : 'linear-gradient(135deg, #3b82f6, #8b5cf6)'
-                  }}
+                  className={`p-2 rounded-full transition-colors flex items-center justify-center ${
+                    !input.trim() || isLoading ? 'text-gray-300' : 'text-[#60c5fa] hover:bg-gray-100'
+                  }`}
                 >
-                  <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>
-                    {isLoading ? 'progress_activity' : 'arrow_upward'}
-                  </span>
+                  <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: !input.trim() || isLoading ? "'FILL' 0" : "'FILL' 1" }}>send</span>
                 </button>
               </div>
-              <p className="text-[10px] text-slate-400 mt-2 text-center font-medium tracking-wide">
-                🩺 AI chỉ tư vấn chung, không thay thế bác sĩ chuyên khoa
-              </p>
             </div>
 
             <style>{`
-              .ai-chat-scroll::-webkit-scrollbar { width: 4px; }
+              .ai-chat-scroll::-webkit-scrollbar { width: 6px; }
               .ai-chat-scroll::-webkit-scrollbar-track { background: transparent; }
-              .ai-chat-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 20px; }
-              .ai-chat-scroll::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+              .ai-chat-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 20px; }
+              .ai-chat-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
             `}</style>
           </motion.div>
         )}

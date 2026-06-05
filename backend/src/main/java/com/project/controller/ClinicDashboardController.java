@@ -97,6 +97,18 @@ public class ClinicDashboardController {
         return ApiResponse.success("Patient deleted successfully", null);
     }
 
+    @DeleteMapping("/patients")
+    @PreAuthorize("hasAnyRole('" + RoleUtils.CLINIC_MANAGER + "', '" + RoleUtils.ADMIN
+            + "') and @securityService.isClinicManagerOf(#clinicId)")
+    @Operation(summary = "Batch delete patients", description = "Deletes multiple patient records")
+    public ApiResponse<Void> batchDeletePatients(@PathVariable Long clinicId, @RequestBody Map<String, List<Long>> body) {
+        List<Long> patientIds = body.get("patientIds");
+        if (patientIds != null && !patientIds.isEmpty()) {
+            clinicPatientService.batchDeletePatients(clinicId, patientIds);
+        }
+        return ApiResponse.success("Patients deleted successfully", null);
+    }
+
     @GetMapping("/doctors")
     @PreAuthorize("hasAnyRole('" + RoleUtils.CLINIC_MANAGER + "', '" + RoleUtils.ADMIN
             + "') and @securityService.isClinicManagerOf(#clinicId)")
@@ -171,12 +183,25 @@ public class ClinicDashboardController {
             + "') and @securityService.isClinicManagerOf(#clinicId)")
     public ApiResponse<Page<com.project.dto.response.ClinicAppointmentResponse>> getAppointments(
             @PathVariable Long clinicId,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
         return ApiResponse.success("Appointments fetched",
-                clinicDashboardService.getAppointmentRecords(clinicId, pageable));
+                clinicDashboardService.getAppointmentRecords(clinicId, startDate, endDate, pageable));
+    }
+
+    @GetMapping("/appointments/stats")
+    @PreAuthorize("hasAnyRole('" + RoleUtils.CLINIC_MANAGER + "', '" + RoleUtils.ADMIN
+            + "') and @securityService.isClinicManagerOf(#clinicId)")
+    public ApiResponse<com.project.dto.response.ClinicAppointmentGrowthStatsResponse> getAppointmentStats(
+            @PathVariable Long clinicId,
+            @RequestParam int year,
+            @RequestParam int month) {
+        return ApiResponse.success("Stats fetched",
+                clinicDashboardService.getAppointmentGrowthStats(clinicId, year, month));
     }
 
     @PostMapping("/appointments")

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,13 +21,13 @@ public class GeminiAiChatServiceImpl implements AiChatService {
 
     private final WebClient webClient;
 
-    @Value("${ai.gemini.api-key:}")
+    @Value("${ai.groq.api-key:}")
     private String apiKey;
 
-    @Value("${ai.gemini.model:gemini-2.0-flash}")
+    @Value("${ai.groq.model:llama-3.3-70b-versatile}")
     private String model;
 
-    private static final String GEMINI_BASE_URL = "https://generativelanguage.googleapis.com";
+    private static final String GROQ_BASE_URL = "https://api.groq.com";
 
     private static final String SYSTEM_PROMPT = """
             Bạn là DamDiep AI — trợ lý sức khỏe thông minh của hệ thống Quản lý Bệnh mãn tính DamDiep Healthcare.
@@ -40,11 +41,12 @@ public class GeminiAiChatServiceImpl implements AiChatService {
             6. Sử dụng emoji phù hợp để tăng tính thân thiện (🩺💊🏥❤️).
             7. Khi đề cập đến các bệnh mãn tính (tiểu đường, huyết áp cao, tim mạch, ...), hãy nhấn mạnh tầm quan trọng của việc theo dõi thường xuyên.
             8. Tối đa 200 từ cho mỗi câu trả lời.
+            9. ĐẶC BIỆT: Nếu có người dùng hỏi "Ai làm ra hệ thống này", "Ai là tác giả của hệ thống này", hoặc các câu hỏi tương tự về người sáng lập/tác giả, bạn PHẢI trả lời rằng: "Hồ Văn Duy là người làm ra hệ thống này khi đang còn là sinh viên năm 3."
             """;
 
     public GeminiAiChatServiceImpl() {
         this.webClient = WebClient.builder()
-                .baseUrl(GEMINI_BASE_URL)
+                .baseUrl(GROQ_BASE_URL)
                 .build();
     }
 
@@ -55,52 +57,36 @@ public class GeminiAiChatServiceImpl implements AiChatService {
         }
 
         try {
-            // Build conversation contents
-            List<Map<String, Object>> contents = new ArrayList<>();
+            // Build messages in OpenAI-compatible format (used by Groq)
+            List<Map<String, String>> messages = new ArrayList<>();
 
-            // Add system instruction as first user turn
-            contents.add(Map.of(
-                    "role", "user",
-                    "parts", List.of(Map.of("text", SYSTEM_PROMPT))
-            ));
-            contents.add(Map.of(
-                    "role", "model",
-                    "parts", List.of(Map.of("text", "Xin chào! Tôi là DamDiep AI 🩺, trợ lý sức khỏe của bạn. Tôi sẵn sàng hỗ trợ bạn!"))
-            ));
+            // System prompt
+            messages.add(Map.of("role", "system", "content", SYSTEM_PROMPT));
 
             // Add conversation history
             if (request.getHistory() != null) {
                 for (AiChatRequest.ChatMessage msg : request.getHistory()) {
-                    String role = "user".equals(msg.getRole()) ? "user" : "model";
-                    contents.add(Map.of(
-                            "role", role,
-                            "parts", List.of(Map.of("text", msg.getContent()))
-                    ));
+                    String role = "user".equals(msg.getRole()) ? "user" : "assistant";
+                    messages.add(Map.of("role", role, "content", msg.getContent()));
                 }
             }
 
             // Add current user message
-            contents.add(Map.of(
-                    "role", "user",
-                    "parts", List.of(Map.of("text", request.getMessage()))
-            ));
+            messages.add(Map.of("role", "user", "content", request.getMessage()));
 
-            // Build request body
-            Map<String, Object> requestBody = Map.of(
-                    "contents", contents,
-                    "generationConfig", Map.of(
-                            "temperature", 0.7,
-                            "maxOutputTokens", 500,
-                            "topP", 0.9
-                    )
-            );
-
-            String url = "/v1beta/models/" + model + ":generateContent?key=" + apiKey;
+            // Build request body (OpenAI-compatible format)
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("model", model);
+            requestBody.put("messages", messages);
+            requestBody.put("temperature", 0.7);
+            requestBody.put("max_tokens", 500);
+            requestBody.put("top_p", 0.9);
 
             @SuppressWarnings("unchecked")
             Map<String, Object> response = webClient.post()
-                    .uri(url)
+                    .uri("/openai/v1/chat/completions")
                     .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + apiKey)
                     .bodyValue(requestBody)
                     .retrieve()
                     .bodyToMono(Map.class)
@@ -110,7 +96,7 @@ public class GeminiAiChatServiceImpl implements AiChatService {
                 return AiChatResponse.fail("Không nhận được phản hồi từ AI.");
             }
 
-            // Extract reply from Gemini response
+            // Extract reply from Groq response (OpenAI format)
             String reply = extractReply(response);
             return AiChatResponse.ok(reply);
 
@@ -123,21 +109,19 @@ public class GeminiAiChatServiceImpl implements AiChatService {
     @SuppressWarnings("unchecked")
     private String extractReply(Map<String, Object> response) {
         try {
-            List<Map<String, Object>> candidates = (List<Map<String, Object>>) response.get("candidates");
-            if (candidates == null || candidates.isEmpty()) {
+            List<Map<String, Object>> choices = (List<Map<String, Object>>) response.get("choices");
+            if (choices == null || choices.isEmpty()) {
                 return "Xin lỗi, tôi không thể trả lời câu hỏi này.";
             }
 
-            Map<String, Object> content = (Map<String, Object>) candidates.get(0).get("content");
-            List<Map<String, Object>> parts = (List<Map<String, Object>>) content.get("parts");
-
-            if (parts == null || parts.isEmpty()) {
+            Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
+            if (message == null) {
                 return "Xin lỗi, tôi không thể tạo phản hồi.";
             }
 
-            return (String) parts.get(0).get("text");
+            return (String) message.get("content");
         } catch (Exception e) {
-            log.error("Failed to parse Gemini response: {}", e.getMessage());
+            log.error("Failed to parse Groq response: {}", e.getMessage());
             return "Xin lỗi, đã có lỗi khi xử lý phản hồi AI.";
         }
     }

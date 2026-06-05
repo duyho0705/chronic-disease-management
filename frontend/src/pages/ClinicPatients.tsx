@@ -3,6 +3,7 @@ import { clinicApi } from '../api/clinic';
 import CreatePatientModal from '../features/clinic/components/CreatePatientModal';
 import EditPatientModal from '../features/clinic/components/EditPatientModal';
 import DeletePatientModal from '../features/clinic/components/DeletePatientModal';
+import BatchDeletePatientModal from '../features/clinic/components/BatchDeletePatientModal';
 import ClinicFilterDropdown from '../components/common/ClinicFilterDropdown';
 import ClinicSidebar from '../components/common/ClinicSidebar';
 import TopBar from '../components/common/TopBar';
@@ -30,6 +31,11 @@ export default function ClinicPatients() {
     const [selectedPatient, setSelectedPatient] = useState<any>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    
+    // Batch Delete States
+    const [selectedPatients, setSelectedPatients] = useState<number[]>([]);
+    const [isBatchDeleteModalOpen, setIsBatchDeleteModalOpen] = useState(false);
+    const [isBatchDeleting, setIsBatchDeleting] = useState(false);
 
     // Toast State
     const [showToast, setShowToast] = useState(false);
@@ -54,6 +60,7 @@ export default function ClinicPatients() {
 
     const [stats, setStats] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
 
     const fetchPatients = async (page = currentPage, isSilent = false) => {
         if (!isSilent) setIsLoading(true);
@@ -78,11 +85,13 @@ export default function ClinicPatients() {
                 setTotalPages(pageData.totalPages || 0);
                 setTotalElements(pageData.totalElements || 0);
                 setCurrentPage(pageData.number || 0);
+                setSelectedPatients([]);
             }
         } catch (error) {
             console.error('Failed to fetch patients:', error);
         } finally {
             if (!isSilent) setIsLoading(false);
+            setIsInitialLoading(false);
         }
     };
 
@@ -202,6 +211,30 @@ export default function ClinicPatients() {
         }
     };
 
+    const handleBatchDelete = async () => {
+        if (selectedPatients.length === 0) return;
+        
+        setIsBatchDeleting(true);
+        try {
+            const res = await clinicApi.batchDeletePatients(currentClinicId, selectedPatients);
+            if (res.success) {
+                fetchPatients();
+                setSelectedPatients([]);
+                setIsBatchDeleteModalOpen(false);
+                setToastMessage('Xóa bệnh nhân thành công');
+                setToastType('success');
+                setShowToast(true);
+            }
+        } catch (error) {
+            console.error('Lỗi khi xóa nhiều bệnh nhân:', error);
+            setToastMessage('Lỗi khi xóa nhiều bệnh nhân');
+            setToastType('error');
+            setShowToast(true);
+        } finally {
+            setIsBatchDeleting(false);
+        }
+    };
+
 
 
     return (
@@ -220,7 +253,7 @@ export default function ClinicPatients() {
                 <main className="flex-1 overflow-y-auto">
                     <div className="p-4 md:p-8 space-y-6">
                         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                            {isLoading ? (
+                            {isInitialLoading ? (
                                 <div className="space-y-2">
                                     <div className="h-8 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-64"></div>
                                     <div className="h-4 bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded w-80"></div>
@@ -232,16 +265,27 @@ export default function ClinicPatients() {
                                 </div>
                             )}
 
-                            {isLoading ? (
+                            {isInitialLoading ? (
                                 <div className="w-48 h-10 bg-primary/20 animate-pulse rounded-xl shadow-sm"></div>
                             ) : (
-                                <button
-                                    onClick={() => setIsCreateModalOpen(true)}
-                                    className="bg-primary text-white px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all font-display whitespace-nowrap group shadow-sm"
-                                >
-                                    <span className="material-symbols-outlined text-[20px]">person_add</span>
-                                    Thêm bệnh nhân mới
-                                </button>
+                                <div className="flex gap-3">
+                                    {selectedPatients.length > 0 && (
+                                        <button
+                                            onClick={() => setIsBatchDeleteModalOpen(true)}
+                                            className="bg-red-500 text-white px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-red-600 transition-all font-display whitespace-nowrap shadow-sm"
+                                        >
+                                            <span className="material-symbols-outlined text-[20px]">delete</span>
+                                            Xóa ({selectedPatients.length})
+                                        </button>
+                                    )}
+                                    <button
+                                        onClick={() => setIsCreateModalOpen(true)}
+                                        className="bg-primary text-white px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all font-display whitespace-nowrap group shadow-sm"
+                                    >
+                                        <span className="material-symbols-outlined text-[20px]">person_add</span>
+                                        Thêm bệnh nhân mới
+                                    </button>
+                                </div>
                             )}
                         </div>
 
@@ -311,7 +355,7 @@ export default function ClinicPatients() {
 
                         {/* Combined Filters Container */}
                         <div className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm grid grid-cols-2 md:flex md:flex-wrap items-center gap-4">
-                            {isLoading ? (
+                            {isInitialLoading ? (
                                 <>
                                     <div className="col-span-2 md:w-[450px] h-11 bg-white/50 dark:bg-slate-800/50 rounded-full animate-pulse"></div>
                                     <div className="w-full h-11 bg-white/50 dark:bg-slate-800/50 rounded-full animate-pulse"></div>
@@ -350,6 +394,23 @@ export default function ClinicPatients() {
                                             options={['Tất cả bác sĩ', ...availableDoctors.map(dr => dr.name)]}
                                             onChange={setDoctorFilter}
                                         />
+                                        
+                                        {(searchTerm !== '' || conditionFilter !== 'Tất cả bệnh lý' || riskFilter !== 'Mức độ rủi ro' || statusFilter !== 'Tất cả trạng thái' || doctorFilter !== 'Tất cả bác sĩ') && (
+                                            <button
+                                                onClick={() => {
+                                                    setSearchTerm('');
+                                                    setConditionFilter('Tất cả bệnh lý');
+                                                    setRiskFilter('Mức độ rủi ro');
+                                                    setStatusFilter('Tất cả trạng thái');
+                                                    setDoctorFilter('Tất cả bác sĩ');
+                                                }}
+                                                className="flex items-center gap-1.5 px-3 py-2 text-[13px] font-medium text-slate-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                                                title="Xóa tất cả bộ lọc"
+                                            >
+                                                <span className="material-symbols-outlined text-[18px]">filter_alt_off</span>
+                                                <span className="hidden sm:inline">Xóa lọc</span>
+                                            </button>
+                                        )}
                                     </div>
                                 </>
                             )}
@@ -360,7 +421,21 @@ export default function ClinicPatients() {
                                 <table className="w-full text-left">
                                     <thead>
                                         <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
-                                            <th className="px-8 py-4">
+                                            <th className="px-6 py-4 w-12">
+                                                <input 
+                                                    type="checkbox" 
+                                                    className="w-4 h-4 rounded text-primary border-slate-300 focus:ring-primary cursor-pointer"
+                                                    checked={patients.length > 0 && selectedPatients.length === patients.length}
+                                                    onChange={(e) => {
+                                                        if (e.target.checked) {
+                                                            setSelectedPatients(patients.map(p => p.dbId));
+                                                        } else {
+                                                            setSelectedPatients([]);
+                                                        }
+                                                    }}
+                                                />
+                                            </th>
+                                            <th className="px-6 py-4">
                                                 <span className="text-[15px] font-medium text-slate-700 dark:text-slate-300">Người bệnh</span>
                                             </th>
                                             <th className="px-6 py-4">
@@ -390,7 +465,10 @@ export default function ClinicPatients() {
                                         {isLoading ? (
                                             [...Array(pageSize)].map((_, i) => (
                                                 <tr key={`skeleton-${i}`} className="animate-pulse">
-                                                    <td className="px-8 py-4">
+                                                    <td className="px-6 py-4">
+                                                        <div className="w-4 h-4 bg-slate-100 dark:bg-slate-800 rounded"></div>
+                                                    </td>
+                                                    <td className="px-6 py-4">
                                                         <div className="flex items-center gap-4">
                                                             <div className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-800"></div>
                                                             <div className="space-y-2">
@@ -410,7 +488,21 @@ export default function ClinicPatients() {
                                             ))
                                         ) : patients.length > 0 ? patients.map((p, idx) => (
                                             <tr key={idx} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors group cursor-pointer border-b border-slate-50 dark:border-slate-800 last:border-0">
-                                                <td className="px-8 py-4">
+                                                <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                                                    <input 
+                                                        type="checkbox" 
+                                                        className="w-4 h-4 rounded text-primary border-slate-300 focus:ring-primary cursor-pointer"
+                                                        checked={selectedPatients.includes(p.dbId)}
+                                                        onChange={(e) => {
+                                                            if (e.target.checked) {
+                                                                setSelectedPatients([...selectedPatients, p.dbId]);
+                                                            } else {
+                                                                setSelectedPatients(selectedPatients.filter(id => id !== p.dbId));
+                                                            }
+                                                        }}
+                                                    />
+                                                </td>
+                                                <td className="px-6 py-4">
                                                     <div className="flex items-center gap-4">
                                                         <img alt={p.name} className="w-11 h-11 rounded-xl object-cover ring-2 ring-primary/10" src={p.avatarUrl || p.img} />
                                                         <div className="text-left">
@@ -482,7 +574,7 @@ export default function ClinicPatients() {
                                             </tr>
                                         )) : (
                                             <tr>
-                                                <td colSpan={7} className="px-8 py-20 text-center">
+                                                <td colSpan={9} className="px-8 py-20 text-center">
                                                     <div className="flex flex-col items-center">
                                                         <span className="material-symbols-outlined text-4xl opacity-20">person_off</span>
                                                         <p className="text-sm font-medium text-slate-500">Không tìm thấy bệnh nhân nào</p>
@@ -552,6 +644,14 @@ export default function ClinicPatients() {
                 isDeleting={isDeleting}
                 onDelete={handleDeletePatient}
                 patientData={selectedPatient}
+            />
+
+            <BatchDeletePatientModal
+                isOpen={isBatchDeleteModalOpen}
+                onClose={() => setIsBatchDeleteModalOpen(false)}
+                isDeleting={isBatchDeleting}
+                onDelete={handleBatchDelete}
+                count={selectedPatients.length}
             />
 
             <PatientDetailModal

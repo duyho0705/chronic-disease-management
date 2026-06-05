@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import TopBar from '../components/common/TopBar';
 import BatchRescheduleModal from '../components/ui/BatchRescheduleModal';
 import RescheduleModal from '../features/patient/components/RescheduleModal';
+import CancelAppointmentModal from '../features/clinic/components/CancelAppointmentModal';
 import Toast from '../components/ui/Toast';
 import { clinicApi } from '../api/clinic';
 import ClinicSidebar from '../components/common/ClinicSidebar';
@@ -25,6 +26,14 @@ export default function ClinicAppointments() {
     const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
     const [isBatchSaving, setIsBatchSaving] = useState(false);
     const [agendaFilter, setAgendaFilter] = useState<'ALL' | 'COMPLETED' | 'CANCELLED'>('ALL');
+
+    // Cancel Modal States
+    const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+    const [selectedAppointmentForCancel, setSelectedAppointmentForCancel] = useState<any>(null);
+    const [isCancelling, setIsCancelling] = useState(false);
+
+    // Growth Stats State
+    const [statsGrowth, setStatsGrowth] = useState({ totalGrowth: 0, inPersonGrowth: 0, onlineGrowth: 0, pendingGrowth: 0 });
 
     const handleConfirmBatchReschedule = async (sourceDate: string, targetDate: string) => {
         setIsBatchSaving(true);
@@ -89,9 +98,13 @@ export default function ClinicAppointments() {
     };
 
     useEffect(() => {
-        loadAppointments();
         loadPatients();
     }, []);
+
+    useEffect(() => {
+        loadAppointments();
+        loadStatsGrowth();
+    }, [currentMonth, currentYear]);
 
     const loadPatients = async () => {
         try {
@@ -110,7 +123,9 @@ export default function ClinicAppointments() {
 
     const loadAppointments = async () => {
         try {
-            const res = await clinicApi.getAppointments(currentClinicId, { size: 100 });
+            const startDate = new Date(currentYear, currentMonth, 1).toISOString();
+            const endDate = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59).toISOString();
+            const res = await clinicApi.getAppointments(currentClinicId, { size: 1000, startDate, endDate });
             setAppointments(res.data.content || []);
         } catch (error) {
             console.error(error);
@@ -119,7 +134,18 @@ export default function ClinicAppointments() {
         }
     };
 
-    const updateStatus = async (id: number, status: string) => {
+    const loadStatsGrowth = async () => {
+        try {
+            const res = await clinicApi.getAppointmentStats(currentClinicId, currentYear, currentMonth + 1);
+            if (res.success && res.data) {
+                setStatsGrowth(res.data);
+            }
+        } catch (error) {
+            console.error("Error fetching stats:", error);
+        }
+    };
+
+    const updateStatus = useCallback(async (id: number, status: string) => {
         try {
             await clinicApi.updateAppointmentStatus(currentClinicId, id, status);
             loadAppointments();
@@ -128,14 +154,45 @@ export default function ClinicAppointments() {
             console.error(error);
             setToast({ show: true, title: 'Lỗi khi cập nhật', type: 'error' });
         }
-    };
+    }, [currentClinicId]);
 
-    const formatTime = (dateStr: string) => {
+    const handleConfirmCancel = useCallback(async () => {
+        if (!selectedAppointmentForCancel) return;
+        setIsCancelling(true);
+        try {
+            await clinicApi.updateAppointmentStatus(currentClinicId, selectedAppointmentForCancel.id, 'CANCELLED');
+            await loadAppointments();
+            setToast({ show: true, title: 'Hủy lịch hẹn thành công', type: 'success' });
+            setIsCancelModalOpen(false);
+            setSelectedAppointmentForCancel(null);
+        } catch (error) {
+            console.error(error);
+            setToast({ show: true, title: 'Lỗi khi hủy lịch hẹn', type: 'error' });
+        } finally {
+            setIsCancelling(false);
+        }
+    }, [currentClinicId, selectedAppointmentForCancel]);
+
+    const formatTime = useCallback((dateStr: string) => {
         if (!dateStr) return '';
         return new Date(dateStr).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-    };
+    }, []);
 
-    const handleExportCSV = () => {
+    // Filter for current selected day visually
+    const agendaAppointments = useMemo(() => {
+        return appointments.filter(a => {
+            const d = new Date(a.appointmentTime);
+            const isSameDay = d.getDate() === selectedDay && d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+            if (!isSameDay) return false;
+            
+            if (agendaFilter === 'ALL') return true;
+            if (agendaFilter === 'COMPLETED') return a.status === 'COMPLETED';
+            if (agendaFilter === 'CANCELLED') return a.status === 'CANCELLED';
+            return true;
+        });
+    }, [appointments, selectedDay, currentMonth, currentYear, agendaFilter]);
+
+    const handleExportCSV = useCallback(() => {
         if (agendaAppointments.length === 0) return;
 
         // Define CSV Headers in Vietnamese
@@ -180,47 +237,11 @@ export default function ClinicAppointments() {
         URL.revokeObjectURL(downloadUrl);
 
         setToast({ show: true, title: 'Đã xuất lịch khám của ngày thành file CSV thành công!', type: 'success' });
-    };
+    }, [agendaAppointments, currentMonth, currentYear, selectedDay, formatTime]);
 
+    // Stats growth is now fetched directly from the backend via loadStatsGrowth
 
-    // Compute growth stats comparing current month vs previous month
-    const statsGrowth = (() => {
-        const curMonthStart = new Date(currentYear, currentMonth, 1);
-        const curMonthEnd = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59);
-        const prevMonthStart = new Date(currentYear, currentMonth - 1, 1);
-        const prevMonthEnd = new Date(currentYear, currentMonth, 0, 23, 59, 59);
-
-        const inRange = (dateStr: string, start: Date, end: Date) => {
-            const d = new Date(dateStr);
-            return d >= start && d <= end;
-        };
-
-        const curAll = appointments.filter(a => inRange(a.appointmentTime, curMonthStart, curMonthEnd));
-        const prevAll = appointments.filter(a => inRange(a.appointmentTime, prevMonthStart, prevMonthEnd));
-
-        const calcGrowth = (cur: number, prev: number) => {
-            if (prev === 0) return cur > 0 ? 100 : 0;
-            return Math.round(((cur - prev) / prev) * 100);
-        };
-
-        const totalGrowth = calcGrowth(curAll.length, prevAll.length);
-        const inPersonGrowth = calcGrowth(
-            curAll.filter(a => a.appointmentType === 'IN_PERSON').length,
-            prevAll.filter(a => a.appointmentType === 'IN_PERSON').length
-        );
-        const onlineGrowth = calcGrowth(
-            curAll.filter(a => a.appointmentType === 'ONLINE').length,
-            prevAll.filter(a => a.appointmentType === 'ONLINE').length
-        );
-        const pendingGrowth = calcGrowth(
-            curAll.filter(a => a.status === 'PENDING').length,
-            prevAll.filter(a => a.status === 'PENDING').length
-        );
-
-        return { totalGrowth, inPersonGrowth, onlineGrowth, pendingGrowth };
-    })();
-
-    const renderGrowth = (value: number) => {
+    const renderGrowth = useCallback((value: number) => {
         if (value === 0) return (
             <span className="text-xs font-bold text-slate-400 flex items-center gap-0.5">
                 <span className="material-symbols-outlined text-xs">horizontal_rule</span>
@@ -234,19 +255,7 @@ export default function ClinicAppointments() {
                 {isPositive ? '+' : ''}{value}%
             </span>
         );
-    };
-
-    // Filter for current selected day visually
-    const agendaAppointments = appointments.filter(a => {
-        const d = new Date(a.appointmentTime);
-        const isSameDay = d.getDate() === selectedDay && d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-        if (!isSameDay) return false;
-        
-        if (agendaFilter === 'ALL') return true;
-        if (agendaFilter === 'COMPLETED') return a.status === 'COMPLETED';
-        if (agendaFilter === 'CANCELLED') return a.status === 'CANCELLED';
-        return true;
-    });
+    }, []);
     return (
         <div className="flex min-h-screen font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100">
             {/* Sidebar Navigation */}
@@ -395,23 +404,6 @@ export default function ClinicAppointments() {
                                             </button>
                                         </div>
                                     </div>
-                                    <div className="flex bg-slate-100 dark:bg-slate-700 p-1 rounded-lg">
-                                        <button
-                                            onClick={() => setActiveView('month')}
-                                            className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${activeView === 'month' ? 'bg-white dark:bg-slate-600 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500 hover:text-slate-700'}`}>
-                                            Tháng
-                                        </button>
-                                        <button
-                                            onClick={() => setActiveView('week')}
-                                            className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${activeView === 'week' ? 'bg-white dark:bg-slate-600 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500 hover:text-slate-700'}`}>
-                                            Tuần
-                                        </button>
-                                        <button
-                                            onClick={() => setActiveView('day')}
-                                            className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${activeView === 'day' ? 'bg-white dark:bg-slate-600 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500 hover:text-slate-700'}`}>
-                                            Ngày
-                                        </button>
-                                    </div>
                                 </div>
                                 <div className="p-6">
                                     <div
@@ -484,6 +476,10 @@ export default function ClinicAppointments() {
                                                 </div>
                                             );
                                         })}
+
+                                        {Array.from({ length: 42 - (new Date(currentYear, currentMonth, 1).getDay() + new Date(currentYear, currentMonth + 1, 0).getDate()) }).map((_, i) => (
+                                            <div key={`empty-end-${i}`} className="bg-white dark:bg-slate-800 min-h-[100px] p-2 opacity-50"></div>
+                                        ))}
                                     </div>
                                 </div>
                             </div>
@@ -590,7 +586,15 @@ export default function ClinicAppointments() {
                                                                     Xác nhận
                                                                 </button>
                                                                 <button 
-                                                                    onClick={() => { if (window.confirm("Bạn có chắc muốn hủy yêu cầu đặt lịch này không?")) updateStatus(appt.id, 'CANCELLED'); }} 
+                                                                    onClick={() => {
+                                                                        setSelectedAppointmentForCancel({
+                                                                            id: appt.id,
+                                                                            patientName: appt.patientName,
+                                                                            date: `${String(selectedDay).padStart(2, '0')}/${String(currentMonth + 1).padStart(2, '0')}/${currentYear}`,
+                                                                            time: formatTime(appt.appointmentTime)
+                                                                        });
+                                                                        setIsCancelModalOpen(true);
+                                                                    }} 
                                                                     className="p-1.5 text-slate-400 hover:text-red-500 transition-colors"
                                                                 >
                                                                     <span className="material-symbols-outlined text-lg">cancel</span>
@@ -610,7 +614,15 @@ export default function ClinicAppointments() {
                                                                     <span className="material-symbols-outlined text-lg">edit_calendar</span>
                                                                 </button>
                                                                 <button 
-                                                                    onClick={() => { if (window.confirm("Bạn có chắc chắn muốn hủy lịch hẹn này không?")) updateStatus(appt.id, 'CANCELLED'); }} 
+                                                                    onClick={() => {
+                                                                        setSelectedAppointmentForCancel({
+                                                                            id: appt.id,
+                                                                            patientName: appt.patientName,
+                                                                            date: `${String(selectedDay).padStart(2, '0')}/${String(currentMonth + 1).padStart(2, '0')}/${currentYear}`,
+                                                                            time: formatTime(appt.appointmentTime)
+                                                                        });
+                                                                        setIsCancelModalOpen(true);
+                                                                    }} 
                                                                     className="p-1.5 text-slate-400 hover:text-red-500 transition-colors" 
                                                                     title="Hủy lịch hẹn"
                                                                 >
@@ -667,25 +679,25 @@ export default function ClinicAppointments() {
             </main>
 
             <RescheduleModal
-                                                isOpen={isRescheduleModalOpen}
-                                                onClose={() => {
-                                                    setIsRescheduleModalOpen(false);
-                                                    setEditingAppointment(null);
-                                                }}
-                                                currentMonth={currentMonth}
-                                                setCurrentMonth={setCurrentMonth}
-                                                currentYear={currentYear}
-                                                setCurrentYear={setCurrentYear}
-                                                selectedDay={selectedDay}
-                                                setSelectedDay={setSelectedDay}
-                                                selectedTime={selectedTime}
-                                                setSelectedTime={setSelectedTime}
-                                                isSaving={isSaving}
-                                                onSave={handleSaveReschedule}
-                                                patients={patients}
-                                                isRescheduling={Boolean(editingAppointment)}
-                                                initialPatientId={editingAppointment?.patientId?.toString()}
-                                            />
+                isOpen={isRescheduleModalOpen}
+                onClose={() => {
+                    setIsRescheduleModalOpen(false);
+                    setEditingAppointment(null);
+                }}
+                currentMonth={currentMonth}
+                setCurrentMonth={setCurrentMonth}
+                currentYear={currentYear}
+                setCurrentYear={setCurrentYear}
+                selectedDay={selectedDay}
+                setSelectedDay={setSelectedDay}
+                selectedTime={selectedTime}
+                setSelectedTime={setSelectedTime}
+                isSaving={isSaving}
+                onSave={handleSaveReschedule}
+                patients={patients}
+                isRescheduling={Boolean(editingAppointment)}
+                initialPatientId={editingAppointment?.patientId?.toString()}
+            />
 
             <BatchRescheduleModal
                 isOpen={isBatchModalOpen}
@@ -694,15 +706,21 @@ export default function ClinicAppointments() {
                 onClose={() => setIsBatchModalOpen(false)}
                 onConfirm={handleConfirmBatchReschedule}
             />
+            
+            <CancelAppointmentModal
+                isOpen={isCancelModalOpen}
+                onClose={() => setIsCancelModalOpen(false)}
+                onConfirm={handleConfirmCancel}
+                isCancelling={isCancelling}
+                appointmentData={selectedAppointmentForCancel}
+            />
 
-            {toast.show && (
-                <Toast
-                    show={toast.show}
-                    title={toast.title}
-                    type={toast.type}
-                    onClose={() => setToast({ ...toast, show: false })}
-                />
-            )}
+            <Toast
+                show={toast.show}
+                title={toast.title}
+                type={toast.type}
+                onClose={() => setToast({ ...toast, show: false })}
+            />
         </div>
     );
 }

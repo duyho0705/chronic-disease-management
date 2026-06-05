@@ -1,6 +1,10 @@
 package com.project.service;
 
 import com.project.dto.response.ClinicDashboardResponse;
+import com.project.dto.response.ClinicAppointmentResponse;
+import com.project.dto.response.ClinicAppointmentGrowthStatsResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface ClinicDashboardService {
@@ -8,14 +12,15 @@ public interface ClinicDashboardService {
 
         List<String> getChronicConditions();
 
-        org.springframework.data.domain.Page<com.project.dto.response.ClinicAppointmentResponse> getAppointmentRecords(
-                        Long clinicId, org.springframework.data.domain.Pageable pageable);
+        Page<ClinicAppointmentResponse> getAppointmentRecords(Long clinicId, String startDate, String endDate, Pageable pageable);
+
+        ClinicAppointmentGrowthStatsResponse getAppointmentGrowthStats(Long clinicId, int year, int month);
 
         com.project.dto.response.ClinicResponse getClinicDetails(Long clinicId);
 
         void updateClinicDetails(Long clinicId, com.project.dto.request.UpdateClinicRequest request);
 
-        void updateAppointmentStatus(Long clinicId, Long appointmentId, String status);
+        void updateAppointmentStatus(Long clinicId, Long appointmentId, String newStatus);
 
         void createAppointment(Long clinicId, com.project.dto.request.DoctorCreateAppointmentRequest request);
 

@@ -92,16 +92,16 @@ export default function ClinicRiskAlerts() {
                         {isLoading ? (
                             <div className="w-48 h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl"></div>
                         ) : (
-                            <div className="flex bg-slate-200/50 dark:bg-slate-800 p-1 rounded-xl gap-1 border border-primary/5">
+                            <div className="flex bg-slate-200/50 dark:bg-slate-800 p-1.5 rounded-xl gap-1.5 border border-primary/5">
                                 <button
                                     onClick={() => setAlertTimeFilter('Hôm nay')}
-                                    className={`px-6 py-2 text-[13px] font-bold rounded-lg transition-all ${alertTimeFilter === 'Hôm nay' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-700'}`}
+                                    className={`px-8 py-2.5 text-[15px] font-bold rounded-lg transition-all ${alertTimeFilter === 'Hôm nay' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-700'}`}
                                 >
                                     Hôm nay
                                 </button>
                                 <button
                                     onClick={() => setAlertTimeFilter('Tuần này')}
-                                    className={`px-6 py-2 text-[13px] font-bold rounded-lg transition-all ${alertTimeFilter === 'Tuần này' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-700'}`}
+                                    className={`px-8 py-2.5 text-[15px] font-bold rounded-lg transition-all ${alertTimeFilter === 'Tuần này' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-700'}`}
                                 >
                                     Tuần này
                                 </button>

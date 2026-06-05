@@ -5,9 +5,9 @@ spring:
     init:
       mode: never
   datasource:
-    url: ${DB_URL:jdbc:postgresql://ep-delicate-moon-a1jfnlax-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&preparedThreshold=0}
-    username: ${DB_USERNAME:neondb_owner}
-    password: ${DB_PASSWORD:npg_N1lq4SYCHGov}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/neondb}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
@@ -53,8 +53,22 @@ springdoc:
     path: /swagger-ui.html
     enabled: ${SWAGGER_ENABLED:false}
 
-# AI Health Assistant (Google Gemini)
+# AI Health Assistant (Groq - Llama)
 ai:
-  gemini:
-    api-key: ${GEMINI_API_KEY:your_api_key_here}
-    model: ${GEMINI_MODEL:gemini-1.5-flash}
+  groq:
+    api-key: ${GROQ_API_KEY:your_groq_api_key}
+    model: ${GROQ_MODEL:llama-3.3-70b-versatile}
+
+# Zalo Official Account Integration
+zalo:
+  oa:
+    app-id: ${ZALO_APP_ID:your_app_id}
+    app-secret: ${ZALO_APP_SECRET:your_app_secret}
+    access-token: ${ZALO_ACCESS_TOKEN:your_access_token}
+    refresh-token: ${ZALO_REFRESH_TOKEN:your_refresh_token}
+
+# Cloudinary for Image Uploads
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME:your_cloud_name}
+  api-key: ${CLOUDINARY_API_KEY:your_api_key}
+  api-secret: ${CLOUDINARY_API_SECRET:your_api_secret}

@@ -217,6 +217,24 @@ public class ClinicPatientServiceImpl implements ClinicPatientService {
 
     @Override
     @Transactional
+    @Audit(action = "BATCH_DELETE_PATIENTS", module = "CLINIC_MANAGEMENT")
+    public void batchDeletePatients(Long clinicId, java.util.List<Long> patientIds) {
+        for (Long patientId : patientIds) {
+            Patient patient = patientRepository.findById(patientId)
+                    .orElse(null);
+            if (patient != null && patient.getClinicId().equals(clinicId) && !patient.isDeleted()) {
+                patient.setDeleted(true);
+                patientRepository.save(patient);
+                userRepository.findById(patient.getUserId()).ifPresent(u -> {
+                    u.setDeleted(true);
+                    userRepository.save(u);
+                });
+            }
+        }
+    }
+
+    @Override
+    @Transactional
     public void sendNotificationToPatient(Long clinicId, Long patientId, String message) {
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new RuntimeException("Patient not found"));

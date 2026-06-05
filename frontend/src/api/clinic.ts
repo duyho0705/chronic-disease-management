@@ -27,6 +27,13 @@ export const clinicApi = {
     return response.data;
   },
 
+  batchDeletePatients: async (clinicId: string | number, patientIds: number[]) => {
+    const response = await axiosInstance.delete(`/v1/clinics/${clinicId}/patients`, {
+      data: { patientIds }
+    });
+    return response.data;
+  },
+
   getDoctors: async (clinicId: string | number, params?: any) => {
     const response = await axiosInstance.get(`/v1/clinics/${clinicId}/doctors`, { params });
     return response.data;
@@ -64,6 +71,13 @@ export const clinicApi = {
 
   getAppointments: async (clinicId: string | number, params?: any) => {
     const response = await axiosInstance.get(`/v1/clinics/${clinicId}/appointments`, { params });
+    return response.data;
+  },
+
+  getAppointmentStats: async (clinicId: string | number, year: number, month: number) => {
+    const response = await axiosInstance.get(`/v1/clinics/${clinicId}/appointments/stats`, { 
+        params: { year, month } 
+    });
     return response.data;
   },
 
@@ -127,6 +141,17 @@ export const clinicApi = {
 
   getClinicStats: async () => {
     const response = await axiosInstance.get('/v1/admin/clinics/stats');
+    return response.data;
+  },
+
+  uploadFile: async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await axiosInstance.post('/v1/files/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data;
   },
 };

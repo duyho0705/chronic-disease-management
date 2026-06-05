@@ -228,7 +228,7 @@ class ClinicDashboardControllerTest {
         @WithMockUser(roles = "CLINIC_MANAGER")
         void shouldGetAppointments() throws Exception {
             when(securityService.isClinicManagerOf(100L)).thenReturn(true);
-            when(dashboardService.getAppointmentRecords(eq(100L), any()))
+            when(dashboardService.getAppointmentRecords(eq(100L), isNull(), isNull(), any()))
                     .thenReturn(new PageImpl<>(Collections.emptyList()));
 
             mockMvc.perform(get(BASE + "/appointments"))

@@ -48,7 +48,7 @@ const DoctorSidebar: React.FC<DoctorSidebarProps> = ({
 
     return (
         <aside className={`fixed left-0 top-0 bottom-0 bg-white dark:bg-slate-900 border-r border-slate-200/60 dark:border-slate-800/50 flex flex-col z-[150] transition-transform duration-300 w-72 lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} shadow-2xl lg:shadow-none shadow-primary/10 font-display`}>
-            <div className="p-6 border-b border-slate-100 dark:border-slate-800/50">
+            <div className="p-6">
                 <DamDiepLogo size={80} />
             </div>
 

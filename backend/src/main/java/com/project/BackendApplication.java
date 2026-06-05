@@ -46,6 +46,15 @@ public class BackendApplication {
                     log.info("Admin user already exists. Skipping password update.");
                 }
 
+                // Check and seed secondary admin user
+                String admin2Email = "admin2@care.com";
+                Integer admin2Count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users WHERE email = ?", Integer.class, admin2Email);
+                if (admin2Count == null || admin2Count == 0) {
+                    log.info("Secondary Admin user not found. Seeding secondary system admin...");
+                    jdbcTemplate.update("INSERT INTO users (email, password, role, full_name, status, created_at, is_deleted) VALUES (?, ?, 'ADMIN', 'Secondary Admin', 'ACTIVE', NOW(), false)", 
+                        admin2Email, hashedPwd);
+                }
+
                 // Check if patient exists
                 Integer patientCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM patients", Integer.class);
                 if (patientCount == null || patientCount == 0) {

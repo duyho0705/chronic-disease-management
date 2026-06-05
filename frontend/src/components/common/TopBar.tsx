@@ -78,6 +78,15 @@ const TopBar: React.FC<TopBarProps> = ({
     }
   }, [currentClinicId, userRole]);
 
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      setClinicName(localStorage.getItem('cachedClinicName') || "");
+      setClinicLogo(localStorage.getItem('cachedClinicLogo') || "");
+    };
+    window.addEventListener('clinicProfileUpdated', handleProfileUpdate);
+    return () => window.removeEventListener('clinicProfileUpdated', handleProfileUpdate);
+  }, []);
+
   const handleLogout = () => {
     localStorage.clear();
     navigate('/?action=login');
@@ -226,6 +235,18 @@ const TopBar: React.FC<TopBarProps> = ({
                   >
                     <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
                     Hồ sơ cá nhân
+                  </button>
+                )}
+                {(userRole === 'ROLE_CLINIC_MANAGER' || userRole === 'CLINIC_MANAGER') && (
+                  <button
+                    onClick={() => {
+                      setIsUserMenuOpen(false);
+                      navigate('/clinic/settings');
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-primary/10 hover:text-primary transition-all text-left"
+                  >
+                    <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>settings</span>
+                    Cấu hình phòng khám
                   </button>
                 )}
                 {onOpenChangePassword && (

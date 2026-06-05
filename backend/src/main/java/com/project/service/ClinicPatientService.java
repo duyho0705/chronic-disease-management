@@ -14,6 +14,8 @@ public interface ClinicPatientService {
     void updatePatient(Long clinicId, Long patientId, CreatePatientRequest request);
 
     void deletePatient(Long clinicId, Long patientId);
+    
+    void batchDeletePatients(Long clinicId, java.util.List<Long> patientIds);
 
     void sendNotificationToPatient(Long clinicId, Long patientId, String message);
 }

@@ -76,6 +76,19 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
         @Query("SELECT a FROM Appointment a JOIN User u ON a.doctorId = u.id WHERE u.clinicId = :clinicId AND a.isDeleted = false ORDER BY a.appointmentTime DESC")
         Page<Appointment> findByClinicId(@org.springframework.data.repository.query.Param("clinicId") Long clinicId, Pageable pageable);
 
+        @Query("SELECT a FROM Appointment a JOIN User u ON a.doctorId = u.id WHERE u.clinicId = :clinicId AND a.isDeleted = false AND a.appointmentTime >= :start AND a.appointmentTime <= :end ORDER BY a.appointmentTime DESC")
+        Page<Appointment> findByClinicIdAndAppointmentTimeBetweenPageable(
+                @org.springframework.data.repository.query.Param("clinicId") Long clinicId,
+                @org.springframework.data.repository.query.Param("start") LocalDateTime start,
+                @org.springframework.data.repository.query.Param("end") LocalDateTime end,
+                Pageable pageable);
+
+        @Query("SELECT a FROM Appointment a JOIN User u ON a.doctorId = u.id WHERE u.clinicId = :clinicId AND a.isDeleted = false AND a.appointmentTime >= :start AND a.appointmentTime <= :end")
+        List<Appointment> findByClinicIdAndAppointmentTimeBetween(
+                @org.springframework.data.repository.query.Param("clinicId") Long clinicId,
+                @org.springframework.data.repository.query.Param("start") LocalDateTime start,
+                @org.springframework.data.repository.query.Param("end") LocalDateTime end);
+
         @Query("SELECT COUNT(a) FROM Appointment a JOIN User u ON a.doctorId = u.id WHERE u.clinicId = :clinicId AND a.isDeleted = false AND a.createdAt >= :since")
         long countByClinicIdAndCreatedAtAfter(@org.springframework.data.repository.query.Param("clinicId") Long clinicId, @org.springframework.data.repository.query.Param("since") LocalDateTime since);
 

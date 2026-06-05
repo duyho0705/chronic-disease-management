@@ -3,6 +3,7 @@ package com.project.service.impl;
 import com.project.dto.response.ClinicDashboardResponse;
 import com.project.dto.response.ClinicAppointmentResponse;
 import com.project.dto.response.ClinicResponse;
+import com.project.dto.response.ClinicAppointmentGrowthStatsResponse;
 import com.project.entity.Appointment;
 import com.project.entity.User;
 import com.project.repository.*;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.project.entity.UserRole;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -240,8 +242,32 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<ClinicAppointmentResponse> getAppointmentRecords(Long clinicId, Pageable pageable) {
-        Page<Appointment> appointments = appointmentRepository.findByClinicId(clinicId, pageable);
+    public Page<ClinicAppointmentResponse> getAppointmentRecords(Long clinicId, String startDate, String endDate, Pageable pageable) {
+        Page<Appointment> appointments;
+        if (startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
+            LocalDateTime start;
+            LocalDateTime end;
+            try {
+                // If it contains 'T', it's ISO, otherwise parse as Date and set time
+                if (startDate.contains("T")) {
+                    start = LocalDateTime.parse(startDate, java.time.format.DateTimeFormatter.ISO_DATE_TIME);
+                } else {
+                    start = LocalDate.parse(startDate).atStartOfDay();
+                }
+                if (endDate.contains("T")) {
+                    end = LocalDateTime.parse(endDate, java.time.format.DateTimeFormatter.ISO_DATE_TIME);
+                } else {
+                    end = LocalDate.parse(endDate).atTime(23, 59, 59);
+                }
+            } catch (Exception e) {
+                // fallback if string is weird
+                start = LocalDateTime.parse(startDate.substring(0, 19));
+                end = LocalDateTime.parse(endDate.substring(0, 19));
+            }
+            appointments = appointmentRepository.findByClinicIdAndAppointmentTimeBetweenPageable(clinicId, start, end, pageable);
+        } else {
+            appointments = appointmentRepository.findByClinicId(clinicId, pageable);
+        }
         List<Long> doctorIds = appointments.stream()
                 .map(Appointment::getDoctorId)
                 .filter(java.util.Objects::nonNull)
@@ -276,6 +302,42 @@ public class ClinicDashboardServiceImpl implements ClinicDashboardService {
                 .patientId(a.getPatient() != null ? a.getPatient().getId() : null)
                 .build();
         });
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ClinicAppointmentGrowthStatsResponse getAppointmentGrowthStats(Long clinicId, int year, int month) {
+        LocalDateTime curMonthStart = LocalDateTime.of(year, month, 1, 0, 0);
+        LocalDateTime curMonthEnd = curMonthStart.plusMonths(1).minusSeconds(1);
+
+        LocalDateTime prevMonthStart = curMonthStart.minusMonths(1);
+        LocalDateTime prevMonthEnd = curMonthStart.minusSeconds(1);
+
+        List<Appointment> curAll = appointmentRepository.findByClinicIdAndAppointmentTimeBetween(clinicId, curMonthStart, curMonthEnd);
+        List<Appointment> prevAll = appointmentRepository.findByClinicIdAndAppointmentTimeBetween(clinicId, prevMonthStart, prevMonthEnd);
+
+        int totalGrowth = calculateGrowth(curAll.size(), prevAll.size());
+        int inPersonGrowth = calculateGrowth(
+                (int) curAll.stream().filter(a -> "IN_PERSON".equals(a.getType())).count(),
+                (int) prevAll.stream().filter(a -> "IN_PERSON".equals(a.getType())).count());
+        int onlineGrowth = calculateGrowth(
+                (int) curAll.stream().filter(a -> "ONLINE".equals(a.getType())).count(),
+                (int) prevAll.stream().filter(a -> "ONLINE".equals(a.getType())).count());
+        int pendingGrowth = calculateGrowth(
+                (int) curAll.stream().filter(a -> AppointmentStatus.PENDING.equals(a.getStatus())).count(),
+                (int) prevAll.stream().filter(a -> AppointmentStatus.PENDING.equals(a.getStatus())).count());
+
+        return ClinicAppointmentGrowthStatsResponse.builder()
+                .totalGrowth(totalGrowth)
+                .inPersonGrowth(inPersonGrowth)
+                .onlineGrowth(onlineGrowth)
+                .pendingGrowth(pendingGrowth)
+                .build();
+    }
+
+    private int calculateGrowth(int cur, int prev) {
+        if (prev == 0) return cur > 0 ? 100 : 0;
+        return Math.round(((float) (cur - prev) / prev) * 100);
     }
 
     @Override
