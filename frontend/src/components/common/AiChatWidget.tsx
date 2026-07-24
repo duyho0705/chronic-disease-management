@@ -12,11 +12,6 @@ interface Message {
 
 export default function AiChatWidget() {
   const location = useLocation();
-
-  if (location.pathname === '/' || location.pathname === '/login') {
-    return null;
-  }
-
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -46,6 +41,10 @@ export default function AiChatWidget() {
       }, 250);
     }
   }, [isOpen]);
+
+  if (location.pathname === '/' || location.pathname === '/login') {
+    return null;
+  }
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
