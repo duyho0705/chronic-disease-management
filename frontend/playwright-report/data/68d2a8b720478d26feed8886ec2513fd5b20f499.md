@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: roles-automation.spec.ts >> Chronic Disease Management - Multi-Role E2E Automation Suite >> ROLE 2: CLINIC MANAGER - Clinic Operation Flow
-- Location: e2e\roles-automation.spec.ts:41:3
+- Name: roles-automation.spec.ts >> Chronic Disease Management - Multi-Role E2E Automation Suite >> ROLE 3: DOCTOR - Medical Management Flow
+- Location: e2e\roles-automation.spec.ts:61:3
 
 # Error details
 
@@ -84,8 +84,7 @@ Call log:
   39 | 
   40 |   // 2. CLINIC MANAGER ROLE TEST
   41 |   test('ROLE 2: CLINIC MANAGER - Clinic Operation Flow', async ({ page }) => {
-> 42 |     await page.goto('/login');
-     |                ^ Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+  42 |     await page.goto('/login');
   43 |     await page.waitForLoadState('domcontentloaded');
   44 | 
   45 |     await page.fill('input[name="email"], input[type="email"]', 'manager@care.com');
@@ -105,7 +104,8 @@ Call log:
   59 | 
   60 |   // 3. DOCTOR ROLE TEST
   61 |   test('ROLE 3: DOCTOR - Medical Management Flow', async ({ page }) => {
-  62 |     await page.goto('/login');
+> 62 |     await page.goto('/login');
+     |                ^ Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
   63 |     await page.waitForLoadState('domcontentloaded');
   64 | 
   65 |     await page.fill('input[name="email"], input[type="email"]', 'mai.le@care.com');
