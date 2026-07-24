@@ -175,7 +175,8 @@ const LoginPage: React.FC = () => {
                                     mail
                                 </span>
                                 <input
-                                    type="text"
+                                    type="email"
+                                    name="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="email@phongkham.vn"
