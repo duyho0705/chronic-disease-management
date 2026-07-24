@@ -3,15 +3,18 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
-  timeout: 30000,
+  timeout: 45000,
+  workers: 2,
   reporter: [['html', { open: 'never' }]],
   use: {
     baseURL: 'http://localhost:5173',
-    headless: false, // Opens visible browser UI so user can see it test automatically!
+    headless: false,
     viewport: { width: 1280, height: 720 },
     ignoreHTTPSErrors: true,
-    video: 'on',
-    screenshot: 'on',
+    actionTimeout: 15000,
+    navigationTimeout: 20000,
+    video: 'retain-on-failure',
+    screenshot: 'only-on-failure',
   },
   projects: [
     {

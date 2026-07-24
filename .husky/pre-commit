@@ -1,0 +1,13 @@
+#!/bin/sh
+echo "🔍 [Pre-commit Hook] Running Playwright E2E automated tests before git commit..."
+
+cd frontend
+npx playwright test
+
+if [ $? -ne 0 ]; then
+  echo "❌ [Pre-commit Error] Playwright E2E tests failed! Git commit aborted."
+  echo "💡 Tip: Review error logs or ask AI assistant to auto-fix the failed tests."
+  exit 1
+fi
+
+echo "✅ [Pre-commit Success] All Playwright E2E tests passed! Proceeding with commit."
