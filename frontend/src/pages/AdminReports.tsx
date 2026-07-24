@@ -326,8 +326,8 @@ export default function AdminReports() {
                   </div>
                 </div>
               ))
-            ) : (
-              reportsData?.clinicPerformances?.map((row: any, idx: number) => (
+            ) : reportsData?.clinicPerformances?.length > 0 ? (
+              reportsData.clinicPerformances.map((row: any, idx: number) => (
                 <div key={idx} className="p-4 border-b border-slate-50 dark:border-slate-800">
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-[14px] font-bold text-slate-900 dark:text-white truncate flex-1">{row.name}</p>
@@ -353,6 +353,14 @@ export default function AdminReports() {
                   </div>
                 </div>
               ))
+            ) : (
+              <div className="p-8 text-center">
+                <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800/60 flex items-center justify-center text-slate-400 mx-auto mb-2">
+                  <span className="material-symbols-outlined text-2xl">domain_disabled</span>
+                </div>
+                <p className="font-bold text-[14px] text-slate-700 dark:text-slate-200">Chưa có dữ liệu phòng khám</p>
+                <p className="text-[12px] text-slate-400 font-medium mt-0.5">Hiện tại chưa ghi nhận hiệu suất vận hành nào.</p>
+              </div>
             )}
           </div>
           {/* Desktop Table View */}
@@ -398,8 +406,8 @@ export default function AdminReports() {
                       </td>
                     </tr>
                   ))
-                ) : (
-                  reportsData?.clinicPerformances?.map((row: any, idx: number) => (
+                ) : reportsData?.clinicPerformances?.length > 0 ? (
+                  reportsData.clinicPerformances.map((row: any, idx: number) => (
                     <tr key={idx} className="hover:bg-primary/5 transition-colors group">
                       <td className="px-8 py-5 text-[15px] font-bold text-slate-900 dark:text-white tracking-tight">{row.name}</td>
                       <td className="px-6 py-5 text-[15px] font-extrabold text-slate-900 dark:text-white">{row.cases}</td>
@@ -419,6 +427,18 @@ export default function AdminReports() {
                       </td>
                     </tr>
                   ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="py-12 text-center">
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800/60 flex items-center justify-center text-slate-400 mb-1">
+                          <span className="material-symbols-outlined text-2xl">domain_disabled</span>
+                        </div>
+                        <p className="font-bold text-[15px] text-slate-700 dark:text-slate-200">Chưa có dữ liệu phòng khám</p>
+                        <p className="text-[13px] text-slate-400 font-medium">Hiện tại chưa ghi nhận hiệu suất vận hành nào.</p>
+                      </div>
+                    </td>
+                  </tr>
                 )}
               </tbody>
             </table>

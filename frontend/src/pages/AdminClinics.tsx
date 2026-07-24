@@ -8,7 +8,8 @@ import ClinicDetailsModal from '../features/admin/components/ClinicDetailsModal'
 import Dropdown from '../components/ui/Dropdown';
 import { clinicApi } from '../api/clinic';
 import { useToast } from '../components/ui/ToastContext';
-import { Pencil, Eye, CheckCircle2, XCircle } from 'lucide-react';
+import { Pencil, Eye, CheckCircle2, XCircle, Trash2 } from 'lucide-react';
+import DeleteConfirmModal from '../components/ui/DeleteConfirmModal';
 
 interface ClinicStat {
   title: string;
@@ -40,11 +41,63 @@ export default function AdminClinics() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [selectedClinic, setSelectedClinic] = useState<ClinicData | null>(null);
+  const [selectedClinicIds, setSelectedClinicIds] = useState<number[]>([]);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isBatchDeleteModalOpen, setIsBatchDeleteModalOpen] = useState(false);
+  const [clinicToDelete, setClinicToDelete] = useState<ClinicData | null>(null);
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'INACTIVE'>('ALL');
   const [isSaving, setIsSaving] = useState(false);
   const { showToast: showNotification } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [isQuerying, setIsQuerying] = useState(false);
+
+  const handleSelectAllClinics = (checked: boolean) => {
+    if (checked) {
+      setSelectedClinicIds(clinicList.map((c: ClinicData) => c.realId));
+    } else {
+      setSelectedClinicIds([]);
+    }
+  };
+
+  const handleToggleSelectClinic = (realId: number) => {
+    setSelectedClinicIds(prev =>
+      prev.includes(realId) ? prev.filter(id => id !== realId) : [...prev, realId]
+    );
+  };
+
+  const handleDeleteSingleClinic = async () => {
+    if (!clinicToDelete) return;
+    setIsSaving(true);
+    try {
+      await clinicApi.deleteClinic(clinicToDelete.realId);
+      showNotification(`Đã xóa cơ sở ${clinicToDelete.name} thành công!`, 'success');
+      setIsDeleteModalOpen(false);
+      setClinicToDelete(null);
+      fetchClinics(true);
+    } catch (error: any) {
+      console.error('Failed to delete clinic:', error);
+      showNotification('Lỗi khi xóa phòng khám', 'error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleConfirmBatchDeleteClinics = async () => {
+    if (selectedClinicIds.length === 0) return;
+    setIsSaving(true);
+    try {
+      await clinicApi.batchDeleteClinics(selectedClinicIds);
+      showNotification(`Đã xóa hàng loạt ${selectedClinicIds.length} phòng khám thành công!`, 'success');
+      setSelectedClinicIds([]);
+      setIsBatchDeleteModalOpen(false);
+      fetchClinics(true);
+    } catch (error: any) {
+      console.error('Failed to batch delete clinics:', error);
+      showNotification('Lỗi khi xóa hàng loạt phòng khám', 'error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const [clinicList, setClinicList] = useState<ClinicData[]>([]);
   const [stats, setStats] = useState<ClinicStat[]>([
@@ -283,6 +336,15 @@ export default function AdminClinics() {
               )}
             </div>
             <div className="flex flex-wrap gap-2">
+              {selectedClinicIds.length > 0 && (
+                <button
+                  onClick={() => setIsBatchDeleteModalOpen(true)}
+                  className="bg-rose-600 hover:bg-rose-700 text-white px-3 md:px-5 py-1.5 md:py-2.5 rounded-full font-bold flex items-center gap-1.5 md:gap-2 transition-all text-[12px] md:text-[13px] shadow-lg shadow-rose-200 dark:shadow-none animate-in fade-in"
+                >
+                  <span className="material-symbols-outlined text-[16px] md:text-[18px]">delete_sweep</span>
+                  Xóa ({selectedClinicIds.length}) phòng khám
+                </button>
+              )}
               {isLoading ? (
                 <>
                   <div className="w-40 h-10 bg-slate-900 dark:bg-slate-800 animate-pulse rounded-lg shadow-sm"></div>
@@ -313,7 +375,7 @@ export default function AdminClinics() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
             {isLoading ? (
               [...Array(4)].map((_, idx) => (
-                <div key={`stat-skeleton-${idx}`} className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl border border-primary/5 shadow-sm animate-pulse text-left">
+                <div key={`stat-skeleton-${idx}`} className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl border border-primary/5 shadow-sm text-left animate-pulse">
                   <div className="flex items-center justify-between mb-4">
                     <div className="w-12 h-12 rounded-2xl bg-slate-200 dark:bg-slate-800"></div>
                   </div>
@@ -481,6 +543,14 @@ export default function AdminClinics() {
               <table className="w-full text-left">
                 <thead>
                   <tr className="bg-slate-50/50 dark:bg-slate-800/50">
+                    <th className="px-4 py-4 w-12 text-center">
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary cursor-pointer"
+                        checked={filteredClinics.length > 0 && selectedClinicIds.length === filteredClinics.length}
+                        onChange={(e) => handleSelectAllClinics(e.target.checked)}
+                      />
+                    </th>
                     <th className="px-8 py-4">
                       {isLoading || isQuerying ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-48"></div> : <span className="text-[14px] font-bold text-slate-900 dark:text-white leading-none">Tên phòng khám</span>}
                     </th>
@@ -508,6 +578,7 @@ export default function AdminClinics() {
                   {isLoading || isQuerying ? (
                     [...Array(5)].map((_, i) => (
                       <tr key={`clinic-skeleton-${i}`} className="animate-pulse">
+                        <td className="px-4 py-5 text-center"><div className="w-4 h-4 bg-slate-200 dark:bg-slate-800 rounded mx-auto"></div></td>
                         <td className="px-8 py-5">
                           <div className="flex items-center gap-4">
                             <div className="w-12 h-12 rounded-xl bg-slate-200 dark:bg-slate-800 shrink-0"></div>
@@ -540,13 +611,21 @@ export default function AdminClinics() {
                     ))
                   ) : filteredClinics.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="px-8 py-20 text-center">
+                      <td colSpan={8} className="px-8 py-20 text-center">
                         <p className="text-slate-500 font-medium">Không tìm thấy phòng khám nào phù hợp.</p>
                       </td>
                     </tr>
                   ) : (
                     filteredClinics.map((clinic: ClinicData, idx: number) => (
-                      <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
+                      <tr key={idx} className={`transition-colors group ${selectedClinicIds.includes(clinic.realId) ? 'bg-primary/5 dark:bg-primary/10' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}>
+                        <td className="px-4 py-5 text-center">
+                          <input
+                            type="checkbox"
+                            className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary cursor-pointer"
+                            checked={selectedClinicIds.includes(clinic.realId)}
+                            onChange={() => handleToggleSelectClinic(clinic.realId)}
+                          />
+                        </td>
                         <td className="px-8 py-5">
                           <div className="flex items-center gap-4">
                             <div className="w-12 h-12 rounded-xl bg-primary/5 flex items-center justify-center overflow-hidden border border-primary/10">
@@ -616,6 +695,13 @@ export default function AdminClinics() {
                             >
                               <Eye className="w-4 h-4" strokeWidth={2.5} />
                             </button>
+                            <button
+                              onClick={() => { setClinicToDelete(clinic); setIsDeleteModalOpen(true); }}
+                              className="w-9 h-9 flex items-center justify-center rounded-xl bg-rose-50 dark:bg-rose-950/30 text-rose-600 hover:bg-rose-600 hover:text-white hover:shadow-lg hover:shadow-rose-500/20 dark:hover:shadow-none active:scale-90 transition-all duration-300"
+                              title="Xóa phòng khám"
+                            >
+                              <Trash2 className="w-4 h-4" strokeWidth={2.5} />
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -678,6 +764,32 @@ export default function AdminClinics() {
             isOpen={isDetailsModalOpen}
             onClose={() => setIsDetailsModalOpen(false)}
             clinic={selectedClinic}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isDeleteModalOpen && (
+          <DeleteConfirmModal
+            isOpen={isDeleteModalOpen}
+            onClose={() => setIsDeleteModalOpen(false)}
+            onConfirm={handleDeleteSingleClinic}
+            title="Xác nhận xóa phòng khám"
+            description={`Bạn có chắc chắn muốn xóa cơ sở ${clinicToDelete?.name}? Thao tác này sẽ chuyển phòng khám và các tài khoản thuộc cơ sở này sang trạng thái ngưng hoạt động.`}
+            isLoading={isSaving}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isBatchDeleteModalOpen && (
+          <DeleteConfirmModal
+            isOpen={isBatchDeleteModalOpen}
+            onClose={() => setIsBatchDeleteModalOpen(false)}
+            onConfirm={handleConfirmBatchDeleteClinics}
+            title="Xác nhận xóa hàng loạt phòng khám"
+            description={`Bạn có chắc chắn muốn xóa ${selectedClinicIds.length} phòng khám đã chọn? Thao tác này sẽ cập nhật trạng thái các cơ sở được chọn sang đã xóa.`}
+            isLoading={isSaving}
           />
         )}
       </AnimatePresence>

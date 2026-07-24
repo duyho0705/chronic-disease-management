@@ -7,6 +7,8 @@ import com.project.dto.response.AdminClinicStatsResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface AdminClinicService {
     AdminClinicStatsResponse getClinicStats();
     Page<AdminClinicResponse> getClinics(String status, String keyword, Pageable pageable);
@@ -14,4 +16,6 @@ public interface AdminClinicService {
     AdminClinicResponse createClinic(CreateClinicRequest request);
     AdminClinicResponse updateClinic(Long id, UpdateClinicRequest request);
     void toggleClinicStatus(Long id);
+    void deleteClinic(Long id);
+    void deleteClinicsBatch(List<Long> ids);
 }

@@ -1,0 +1,25 @@
+# ==========================================
+# PRODUCTION PROFILE CONFIGURATION (PROD)
+# ==========================================
+spring:
+  config:
+    activate:
+      on-profile: prod
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: false
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+logging:
+  level:
+    root: WARN
+    com.project: INFO

@@ -34,6 +34,8 @@ export default function AdminUsers() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
+  const [isBatchDeleteModalOpen, setIsBatchDeleteModalOpen] = useState(false);
   const [deletingUser, setDeletingUser] = useState<any>(null);
   const [isSaving, setIsSaving] = useState(false);
   const { showToast: showNotification } = useToast();
@@ -41,6 +43,38 @@ export default function AdminUsers() {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [pagination, setPagination] = useState({ page: 0, size: 10 });
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+
+  const handleSelectAllUsers = (checked: boolean) => {
+    if (checked) {
+      setSelectedUserIds(userList.map((u: any) => u.id));
+    } else {
+      setSelectedUserIds([]);
+    }
+  };
+
+  const handleToggleSelectUser = (id: number) => {
+    setSelectedUserIds(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleConfirmBatchDeleteUsers = async () => {
+    if (selectedUserIds.length === 0) return;
+    setIsSaving(true);
+    try {
+      await userApi.batchDeleteUsers(selectedUserIds);
+      showNotification(`Đã xóa hàng loạt ${selectedUserIds.length} tài khoản thành công!`, 'success');
+      setSelectedUserIds([]);
+      setIsBatchDeleteModalOpen(false);
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      queryClient.invalidateQueries({ queryKey: ['userStats'] });
+    } catch (error: any) {
+      console.error('Failed to batch delete users:', error);
+      showNotification('Lỗi khi xóa hàng loạt tài khoản', 'error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -330,6 +364,15 @@ export default function AdminUsers() {
               )}
             </div>
             <div className="flex items-center gap-2">
+              {selectedUserIds.length > 0 && (
+                <button
+                  onClick={() => setIsBatchDeleteModalOpen(true)}
+                  className="flex items-center justify-center gap-1.5 md:gap-2 px-3 md:px-5 py-2 md:py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-full font-bold transition-all text-[11px] md:text-[13px] shadow-lg shadow-rose-200 dark:shadow-none animate-in fade-in"
+                >
+                  <span className="material-symbols-outlined text-[16px] md:text-[18px]">delete_sweep</span>
+                  <span>Xóa ({selectedUserIds.length}) người dùng</span>
+                </button>
+              )}
               {isInitialLoad ? (
                 <>
                   <div className="w-24 md:w-32 h-8 md:h-10 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-full shadow-sm"></div>
@@ -396,7 +439,7 @@ export default function AdminUsers() {
           </div>
 
           {/* Filter Section */}
-          <div className="bg-white dark:bg-slate-900 p-4 md:p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-4 md:space-y-6">
+          <div className="bg-white dark:bg-slate-900 p-4 md:p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-4 md:space-y-6 relative z-20">
             <div className="grid grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1fr_auto] items-end gap-4 md:gap-6">
               <div className="relative">
                 <label className="text-[14px] font-medium text-slate-500  mb-2 block px-1">
@@ -560,6 +603,14 @@ export default function AdminUsers() {
               <table className="w-full text-left">
                 <thead>
                   <tr className="px-8 py-4 text-[15px] text-slate-500 leading-none">
+                    <th className="px-4 py-5 w-12 text-center">
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary cursor-pointer"
+                        checked={userList.length > 0 && selectedUserIds.length === userList.length}
+                        onChange={(e) => handleSelectAllUsers(e.target.checked)}
+                      />
+                    </th>
                     <th className="px-6 py-5">
                       {isLoading || isFetching ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-24"></div> : <span className="text-[14px] font-bold leading-tight text-slate-900 dark:text-white">Họ và tên</span>}
                     </th>
@@ -588,6 +639,7 @@ export default function AdminUsers() {
                     // Skeleton Rows
                     [...Array(5)].map((_, i) => (
                       <tr key={`skeleton-${i}`} className="animate-pulse">
+                        <td className="px-4 py-4 text-center"><div className="w-4 h-4 bg-slate-200 dark:bg-slate-800 rounded mx-auto"></div></td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 shrink-0"></div>
@@ -605,7 +657,6 @@ export default function AdminUsers() {
                         </td>
                         <td className="px-6 py-4">
                           <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-28"></div>
-                          <div className="h-3 bg-slate-100 dark:bg-slate-800/50 rounded w-20 mt-1"></div>
                         </td>
                         <td className="px-6 py-4">
                           <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-16"></div>
@@ -635,7 +686,15 @@ export default function AdminUsers() {
                     userList.map((user: UserSnippet, idx: number) => {
                       const isActive = user.status === 'Hoạt động';
                       return (
-                        <tr key={idx} className="transition-colors group">
+                        <tr key={idx} className={`transition-colors group ${selectedUserIds.includes(user.id) ? 'bg-primary/5 dark:bg-primary/10' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}>
+                          <td className="px-4 py-4 text-center">
+                            <input
+                              type="checkbox"
+                              className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary cursor-pointer"
+                              checked={selectedUserIds.includes(user.id)}
+                              onChange={() => handleToggleSelectUser(user.id)}
+                            />
+                          </td>
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 ring-2 ring-primary/10">
@@ -751,6 +810,19 @@ export default function AdminUsers() {
             onConfirm={handleConfirmDelete}
             title="Xác nhận xóa tài khoản"
             description={`Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản ${deletingUser?.name}? Hành động này sẽ xóa tất cả dữ liệu liên quan và không thể hoàn tác.`}
+            isLoading={isSaving}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isBatchDeleteModalOpen && (
+          <DeleteConfirmModal
+            isOpen={isBatchDeleteModalOpen}
+            onClose={() => setIsBatchDeleteModalOpen(false)}
+            onConfirm={handleConfirmBatchDeleteUsers}
+            title="Xác nhận xóa hàng loạt tài khoản"
+            description={`Bạn có chắc chắn muốn xóa ${selectedUserIds.length} tài khoản đã chọn? Các tài khoản này sẽ được chuyển sang trạng thái đã xóa khỏi hệ thống.`}
             isLoading={isSaving}
           />
         )}

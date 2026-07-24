@@ -16,6 +16,8 @@ interface DropdownProps {
   icon?: React.ReactNode;
   disabled?: boolean;
   size?: 'sm' | 'md' | 'lg';
+  direction?: 'auto' | 'top' | 'bottom';
+  placeholder?: string;
 }
 
 export default function Dropdown({
@@ -26,16 +28,32 @@ export default function Dropdown({
   variant = 'default',
   icon,
   disabled = false,
-  size = 'md'
+  size = 'md',
+  direction = 'bottom',
+  placeholder
 }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [placement, setPlacement] = useState<'top' | 'bottom'>('bottom');
   const containerRef = useRef<HTMLDivElement>(null);
 
   const normalizedOptions: DropdownOption[] = options.map(opt =>
     typeof opt === 'string' ? { label: opt, value: opt } : opt
   );
 
-  const selectedOption = normalizedOptions.find(opt => opt.value === value) || normalizedOptions[0];
+  const selectedOption = normalizedOptions.find(opt => opt.value === value) || (normalizedOptions.length > 0 ? normalizedOptions[0] : null);
+  const displayLabel = selectedOption?.label || placeholder || (normalizedOptions.length === 0 ? "Chưa có dữ liệu" : "Chọn...");
+
+  const handleToggle = () => {
+    if (disabled) return;
+    if (!isOpen && containerRef.current) {
+      if (direction === 'top') {
+        setPlacement('top');
+      } else {
+        setPlacement('bottom');
+      }
+    }
+    setIsOpen(!isOpen);
+  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -51,7 +69,7 @@ export default function Dropdown({
     <div className={`relative ${className}`} ref={containerRef}>
       <button
         type="button"
-        onClick={() => !disabled && setIsOpen(!isOpen)}
+        onClick={handleToggle}
         disabled={disabled}
         className={`
           relative flex items-center justify-between gap-3 transition-all duration-300
@@ -79,7 +97,7 @@ export default function Dropdown({
               ? 'text-[16px]' 
               : 'text-[14px] md:text-[15px]'
         } font-medium font-display whitespace-nowrap ${variant === 'badge' ? 'text-slate-600 dark:text-slate-300' : 'text-slate-700 dark:text-slate-200'}`}>
-          {selectedOption?.label}
+          {displayLabel}
         </span>
         <ChevronDown
           className={`
@@ -92,7 +110,8 @@ export default function Dropdown({
       {/* Dropdown Menu */}
       <div
         className={`
-          absolute left-0 right-0 top-full mt-2
+          absolute left-0 right-0
+          ${placement === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'}
           bg-white dark:bg-slate-900
           border border-slate-100 dark:border-slate-800
           rounded-2xl shadow-2xl shadow-slate-200/50 dark:shadow-black/100
@@ -100,38 +119,44 @@ export default function Dropdown({
           transition-all duration-200
           ${isOpen
             ? 'opacity-100 translate-y-0 pointer-events-auto'
-            : 'opacity-0 -translate-y-2 pointer-events-none'
+            : placement === 'top' ? 'opacity-0 translate-y-2 pointer-events-none' : 'opacity-0 -translate-y-2 pointer-events-none'
           }
         `}
       >
         <div className="py-1">
-          {normalizedOptions.map((option) => {
-            const isSelected = option.value === value;
-            return (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() => {
-                  onChange(option.value);
-                  setIsOpen(false);
-                }}
-                className={`
-                  w-full flex items-center justify-between px-4 py-2.5 
-                  text-${size === 'sm' ? '[13.5px]' : size === 'lg' ? 'base' : '[14.5px]'} font-medium transition-colors
-                  ${isSelected
-                    ? 'bg-primary/10 text-primary font-semibold'
-                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
-                  }
-                `}
-              >
-                <div className="flex items-center gap-3">
-                  {option.icon}
-                  <span className="font-display">{option.label}</span>
-                </div>
-                {isSelected && <Check className="w-4 h-4" strokeWidth={3} />}
-              </button>
-            );
-          })}
+          {normalizedOptions.length === 0 ? (
+            <div className="px-4 py-3 text-[13px] text-slate-400 font-medium text-center italic">
+              Chưa có dữ liệu lựa chọn
+            </div>
+          ) : (
+            normalizedOptions.map((option) => {
+              const isSelected = option.value === value;
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => {
+                    onChange(option.value);
+                    setIsOpen(false);
+                  }}
+                  className={`
+                    w-full flex items-center justify-between px-4 py-2.5 
+                    text-${size === 'sm' ? '[13.5px]' : size === 'lg' ? 'base' : '[14.5px]'} font-medium transition-colors
+                    ${isSelected
+                      ? 'bg-primary/10 text-primary font-semibold'
+                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                    }
+                  `}
+                >
+                  <div className="flex items-center gap-3">
+                    {option.icon}
+                    <span className="font-display">{option.label}</span>
+                  </div>
+                  {isSelected && <Check className="w-4 h-4" strokeWidth={3} />}
+                </button>
+              );
+            })
+          )}
         </div>
       </div>
     </div>

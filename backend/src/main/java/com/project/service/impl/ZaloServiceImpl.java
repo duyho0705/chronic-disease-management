@@ -14,6 +14,7 @@ import java.util.Map;
 
 @Slf4j
 @Service
+@SuppressWarnings("null")
 public class ZaloServiceImpl implements ZaloService {
 
     @Value("${zalo.oa.app-id:}")
@@ -235,7 +236,6 @@ public class ZaloServiceImpl implements ZaloService {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void retrySendZNS(String phoneNumber, String templateId, Object templateData) {
         try {
             String formattedPhone = formatPhoneNumber(phoneNumber);
@@ -274,7 +274,6 @@ public class ZaloServiceImpl implements ZaloService {
         return phone;
     }
 
-    @SuppressWarnings("unchecked")
     private int getErrorCode(Map<String, Object> response) {
         Object error = response.get("error");
         if (error instanceof Number) {

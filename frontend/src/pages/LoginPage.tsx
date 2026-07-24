@@ -45,7 +45,10 @@ const LoginPage: React.FC = () => {
             };
             navigate(redirectMap[role] || '/patient');
         } catch (err: any) {
-            const msg = err?.response?.data?.message || err?.response?.data?.error || 'Email hoặc mật khẩu không chính xác';
+            let msg = err?.response?.data?.message || err?.response?.data?.error || 'Tên đăng nhập hoặc mật khẩu không chính xác';
+            if (msg.includes('Bad credentials')) {
+                msg = 'Tên đăng nhập hoặc mật khẩu không chính xác';
+            }
             setError(msg);
         } finally {
             setIsLoading(false);

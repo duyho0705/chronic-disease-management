@@ -32,21 +32,24 @@ ALTER TABLE appointments ALTER COLUMN reminder_enabled SET NOT NULL;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS specialization TEXT;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS department TEXT;
 
+-- 0. Ensure Sample Clinic exists
+INSERT INTO clinics (id, clinic_code, name, address, phone, status, is_deleted, created_at)
+VALUES (1, 'CLN-001', 'Phòng khám Đa khoa Quốc tế Care', '123 Nguyễn Trãi, Hà Nội', '0243888999', 'ACTIVE', FALSE, CURRENT_TIMESTAMP)
+ON CONFLICT (id) DO NOTHING;
+
 -- 1. Create Sample Users (Admin, Manager, Doctors, Patients)
 INSERT INTO users (email, password, full_name, phone, role, status, clinic_id, is_deleted, created_at)
 VALUES 
-('admin@care.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMne.9Lb8sY.', 'Hùng Admin', '0888999000', 'ADMIN', 'ACTIVE', NULL, FALSE, CURRENT_TIMESTAMP),
-('manager@care.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMne.9Lb8sY.', 'Dr. Manager', '0999888777', 'CLINIC_MANAGER', 'ACTIVE', 1, FALSE, CURRENT_TIMESTAMP),
-('mai.le@care.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMne.9Lb8sY.', 'Lê Thị Mai', '0911222333', 'DOCTOR', 'ACTIVE', 1, FALSE, CURRENT_TIMESTAMP),
-('hung.nguyen@care.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMne.9Lb8sY.', 'Nguyễn Văn Hùng', '0922333444', 'DOCTOR', 'ACTIVE', 1, FALSE, CURRENT_TIMESTAMP),
-('van.tran@care.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMne.9Lb8sY.', 'Trần Thanh Vân', '0933444555', 'DOCTOR', 'ACTIVE', 1, FALSE, CURRENT_TIMESTAMP),
-('truongquocan@patient.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMne.9Lb8sY.', 'Trương Quốc An', '0359891652', 'PATIENT', 'ACTIVE', 1, FALSE, CURRENT_TIMESTAMP),
-('truonghue@patient.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMne.9Lb8sY.', 'Trương Đình Huệ', '0359891653', 'PATIENT', 'ACTIVE', 1, FALSE, CURRENT_TIMESTAMP),
-('tolam@gmail.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMne.9Lb8sY.', 'Tô Lâm', '0359891654', 'PATIENT', 'ACTIVE', 1, FALSE, CURRENT_TIMESTAMP)
-ON CONFLICT (email) DO UPDATE SET 
-    password = EXCLUDED.password,
-    role = EXCLUDED.role,
-    full_name = EXCLUDED.full_name;
+('admin@care.com', '$2a$10$g2anR.Na1LJB.lGSACo6MuQjBB2hQ4zPhFcCsGZHoOUSxk0GUuSoe', 'Hùng Admin', '0888999000', 'ADMIN', 'ACTIVE', NULL, FALSE, CURRENT_TIMESTAMP),
+('admin.dev@care.com', '$2a$10$g2anR.Na1LJB.lGSACo6MuQjBB2hQ4zPhFcCsGZHoOUSxk0GUuSoe', 'Quản trị viên Hệ thống', '0909123456', 'ADMIN', 'ACTIVE', NULL, FALSE, CURRENT_TIMESTAMP),
+('manager@care.com', '$2a$10$g2anR.Na1LJB.lGSACo6MuQjBB2hQ4zPhFcCsGZHoOUSxk0GUuSoe', 'Dr. Manager', '0999888777', 'CLINIC_MANAGER', 'ACTIVE', 1, FALSE, CURRENT_TIMESTAMP),
+('mai.le@care.com', '$2a$10$g2anR.Na1LJB.lGSACo6MuQjBB2hQ4zPhFcCsGZHoOUSxk0GUuSoe', 'Lê Thị Mai', '0911222333', 'DOCTOR', 'ACTIVE', 1, FALSE, CURRENT_TIMESTAMP),
+('hung.nguyen@care.com', '$2a$10$g2anR.Na1LJB.lGSACo6MuQjBB2hQ4zPhFcCsGZHoOUSxk0GUuSoe', 'Nguyễn Văn Hùng', '0922333444', 'DOCTOR', 'ACTIVE', 1, FALSE, CURRENT_TIMESTAMP),
+('van.tran@care.com', '$2a$10$g2anR.Na1LJB.lGSACo6MuQjBB2hQ4zPhFcCsGZHoOUSxk0GUuSoe', 'Trần Thanh Vân', '0933444555', 'DOCTOR', 'ACTIVE', 1, FALSE, CURRENT_TIMESTAMP),
+('truongquocan@patient.com', '$2a$10$g2anR.Na1LJB.lGSACo6MuQjBB2hQ4zPhFcCsGZHoOUSxk0GUuSoe', 'Trương Quốc An', '0359891652', 'PATIENT', 'ACTIVE', 1, FALSE, CURRENT_TIMESTAMP),
+('truonghue@patient.com', '$2a$10$g2anR.Na1LJB.lGSACo6MuQjBB2hQ4zPhFcCsGZHoOUSxk0GUuSoe', 'Trương Đình Huệ', '0359891653', 'PATIENT', 'ACTIVE', 1, FALSE, CURRENT_TIMESTAMP),
+('tolam@gmail.com', '$2a$10$g2anR.Na1LJB.lGSACo6MuQjBB2hQ4zPhFcCsGZHoOUSxk0GUuSoe', 'Tô Lâm', '0359891654', 'PATIENT', 'ACTIVE', 1, FALSE, CURRENT_TIMESTAMP)
+ON CONFLICT (email) DO NOTHING;
 
 -- 2. Create corresponding Patient records for Clinic 1
 INSERT INTO patients (user_id, clinic_id, full_name, phone, email, gender, date_of_birth, address, patient_code, doctor_id, joined_date, chronic_condition, treatment_status, risk_level, clinical_notes, room_location, identity_card, occupation, ethnicity, health_insurance_number, is_deleted, created_at)

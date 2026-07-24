@@ -19,6 +19,8 @@ export default function AdminServices() {
   const [isSaving, setIsSaving] = useState(false);
   const [editingService, setEditingService] = useState<any>(null);
   const [deletingService, setDeletingService] = useState<any>(null);
+  const [selectedServiceIds, setSelectedServiceIds] = useState<number[]>([]);
+  const [isBatchDeleteModalOpen, setIsBatchDeleteModalOpen] = useState(false);
   const [services, setServices] = useState<any[]>([]);
   const [stats, setStats] = useState<any>({
     totalServices: 0,
@@ -27,6 +29,37 @@ export default function AdminServices() {
     newRegistrations: 0,
     registrationGrowth: '+0%'
   });
+
+  const handleSelectAllServices = (checked: boolean) => {
+    if (checked) {
+      setSelectedServiceIds(filteredServices.map(s => s.id));
+    } else {
+      setSelectedServiceIds([]);
+    }
+  };
+
+  const handleToggleSelectService = (id: number) => {
+    setSelectedServiceIds(prev =>
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleConfirmBatchDeleteServices = async () => {
+    if (selectedServiceIds.length === 0) return;
+    setIsSaving(true);
+    try {
+      await medicalServiceApi.batchDelete(selectedServiceIds);
+      showNotification(`Đã xóa hàng loạt ${selectedServiceIds.length} dịch vụ thành công!`, 'success');
+      setSelectedServiceIds([]);
+      setIsBatchDeleteModalOpen(false);
+      fetchServices();
+    } catch (error) {
+      console.error('Failed to batch delete services:', error);
+      showNotification('Lỗi khi xóa hàng loạt dịch vụ', 'error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const fetchServices = useCallback(async () => {
     setIsLoading(true);
@@ -160,17 +193,28 @@ export default function AdminServices() {
               </>
             )}
           </div>
-          {isLoading ? (
-            <div className="w-40 h-10 bg-slate-900 dark:bg-slate-800 animate-pulse rounded-lg shadow-sm"></div>
-          ) : (
-            <button
-              onClick={handleCreateOpen}
-              className="bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-full font-bold flex items-center gap-2 shadow-lg shadow-primary/20 active:scale-95 transition-all text-[14px]"
-            >
-              <span className="material-symbols-outlined text-[20px]">add_box</span>
-              Tạo dịch vụ mới
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {selectedServiceIds.length > 0 && (
+              <button
+                onClick={() => setIsBatchDeleteModalOpen(true)}
+                className="bg-rose-600 hover:bg-rose-700 text-white px-5 py-2.5 rounded-full font-bold flex items-center gap-2 shadow-lg shadow-rose-200 dark:shadow-none transition-all text-[14px] animate-in fade-in"
+              >
+                <span className="material-symbols-outlined text-[20px]">delete_sweep</span>
+                Xóa ({selectedServiceIds.length}) dịch vụ
+              </button>
+            )}
+            {isLoading ? (
+              <div className="w-40 h-10 bg-slate-900 dark:bg-slate-800 animate-pulse rounded-lg shadow-sm"></div>
+            ) : (
+              <button
+                onClick={handleCreateOpen}
+                className="bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-full font-bold flex items-center gap-2 shadow-lg shadow-primary/20 active:scale-95 transition-all text-[14px]"
+              >
+                <span className="material-symbols-outlined text-[20px]">add_box</span>
+                Tạo dịch vụ mới
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Stats Grid */}
@@ -208,7 +252,7 @@ export default function AdminServices() {
         </div>
 
         {/* Filters */}
-        <div className="bg-white dark:bg-slate-900 p-4 md:p-8 rounded-2xl shadow-sm border border-primary/5 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+        <div className="bg-white dark:bg-slate-900 p-4 md:p-8 rounded-2xl shadow-sm border border-primary/5 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 relative z-20">
           <div className="relative">
             <label className="text-[14px] font-medium text-slate-500 mb-2 block px-1">
               {isLoading ? <div className="h-3 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-32 mb-2"></div> : "Tìm kiếm dịch vụ"}
@@ -299,10 +343,18 @@ export default function AdminServices() {
             ))
           ) : (
             filteredServices.map((service) => (
-              <div key={service.id} className={`bg-white dark:bg-slate-900 rounded-2xl border border-primary/5 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col ${service.status === 'Ngừng kinh doanh' ? 'opacity-75 grayscale-[0.5]' : ''}`}>
+              <div key={service.id} className={`bg-white dark:bg-slate-900 rounded-2xl border transition-all duration-300 group flex flex-col ${selectedServiceIds.includes(service.id) ? 'border-primary ring-2 ring-primary/20 shadow-md' : 'border-primary/5 shadow-sm hover:shadow-xl'} ${service.status === 'Ngừng kinh doanh' ? 'opacity-75 grayscale-[0.5]' : ''}`}>
                 <div className="p-6 space-y-4 flex-1">
                   <div className="flex justify-between items-start">
-                    <span className="px-2.5 py-1 rounded-lg bg-primary/10 text-primary text-[13px] font-bold">{service.category}</span>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        className="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary cursor-pointer"
+                        checked={selectedServiceIds.includes(service.id)}
+                        onChange={() => handleToggleSelectService(service.id)}
+                      />
+                      <span className="px-2.5 py-1 rounded-lg bg-primary/10 text-primary text-[13px] font-bold">{service.category}</span>
+                    </div>
                     <span className={`px-4 py-1.5 rounded-full text-[13px] md:text-[14px] font-black tracking-tight ${service.status === 'Đang kinh doanh' ? 'bg-emerald-500 text-white' : 'bg-slate-400 text-white'}`}>
                       {service.status}
                     </span>
@@ -391,6 +443,17 @@ export default function AdminServices() {
             onConfirm={handleConfirmDelete}
             title="Xác nhận xóa dịch vụ"
             description={`Bạn có chắc chắn muốn xóa dịch vụ "${deletingService?.name}" không? Hành động này không thể hoàn tác và sẽ ảnh hưởng đến các cơ sở đang sử dụng dịch vụ này.`}
+            isLoading={isSaving}
+          />
+        )}
+
+        {isBatchDeleteModalOpen && (
+          <DeleteConfirmModal
+            isOpen={isBatchDeleteModalOpen}
+            onClose={() => setIsBatchDeleteModalOpen(false)}
+            onConfirm={handleConfirmBatchDeleteServices}
+            title="Xác nhận xóa hàng loạt dịch vụ"
+            description={`Bạn có chắc chắn muốn xóa ${selectedServiceIds.length} dịch vụ đã chọn? Thao tác này sẽ xóa hoàn toàn các dịch vụ khỏi hệ thống.`}
             isLoading={isSaving}
           />
         )}

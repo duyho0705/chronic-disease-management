@@ -84,7 +84,8 @@ public class AdminUserServiceImpl implements AdminUserService {
                     .joinedDate(java.time.LocalDate.now()).riskLevel("Chưa xác định").build());
         }
 
-        auditService.recordActivity("Tạo mới", "Quản lý người dùng", "Tạo tài khoản: " + saved.getEmail(), "success");
+        String displayName = (saved.getFullName() != null && !saved.getFullName().isBlank()) ? saved.getFullName() : saved.getEmail();
+        auditService.recordActivity("Tạo mới tài khoản", "Quản lý người dùng", "Đã tạo tài khoản " + displayName, "success");
         return userMapper.toAdminUserResponse(saved);
     }
 
@@ -112,7 +113,8 @@ public class AdminUserServiceImpl implements AdminUserService {
         if (request.getExperience() != null) user.setExperience(request.getExperience());
         
         User saved = userRepository.save(user);
-        auditService.recordActivity("Cập nhật", "Quản lý người dùng", "Cập nhật tài khoản: " + saved.getEmail(), "success");
+        String displayName = (saved.getFullName() != null && !saved.getFullName().isBlank()) ? saved.getFullName() : saved.getEmail();
+        auditService.recordActivity("Cập nhật tài khoản", "Quản lý người dùng", "Đã cập nhật thông tin tài khoản " + displayName, "success");
         return userMapper.toAdminUserResponse(saved);
     }
 
@@ -123,7 +125,8 @@ public class AdminUserServiceImpl implements AdminUserService {
         String nextStatus = "ACTIVE".equals(user.getStatus()) ? "INACTIVE" : "ACTIVE";
         user.setStatus(nextStatus);
         userRepository.save(user);
-        auditService.recordActivity("Đổi trạng thái", "Quản lý người dùng", "Đổi trạng thái tài khoản " + user.getEmail() + " sang " + nextStatus, "warning");
+        String displayName = (user.getFullName() != null && !user.getFullName().isBlank()) ? user.getFullName() : user.getEmail();
+        auditService.recordActivity("Chuyển trạng thái tài khoản", "Quản lý người dùng", "Đã đổi trạng thái " + displayName + " sang " + ("ACTIVE".equals(nextStatus) ? "Hoạt động" : "Ngưng hoạt động"), "warning");
     }
 
     @Override
@@ -140,7 +143,36 @@ public class AdminUserServiceImpl implements AdminUserService {
             });
         }
         
-        auditService.recordActivity("Xóa", "Quản lý người dùng", "Xóa tài khoản: " + user.getEmail(), "danger");
+        String displayName = (user.getFullName() != null && !user.getFullName().isBlank()) ? user.getFullName() : user.getEmail();
+        auditService.recordActivity("Xóa tài khoản", "Quản lý người dùng", "Đã xóa tài khoản " + displayName, "danger");
+    }
+
+    @Override
+    @Transactional
+    public void deleteUsersBatch(java.util.List<Long> ids) {
+        if (ids == null || ids.isEmpty()) return;
+        int count = 0;
+        for (Long id : ids) {
+            try {
+                User user = userRepository.findById(id).orElse(null);
+                if (user != null && !user.isDeleted()) {
+                    user.setDeleted(true);
+                    userRepository.save(user);
+                    if (UserRole.PATIENT.equals(user.getRole())) {
+                        patientRepository.findByUserIdAndIsDeletedFalse(user.getId()).ifPresent(p -> {
+                            p.setDeleted(true);
+                            patientRepository.save(p);
+                        });
+                    }
+                    count++;
+                }
+            } catch (Exception e) {
+                log.warn("Failed to delete user ID {}: {}", id, e.getMessage());
+            }
+        }
+        if (count > 0) {
+            auditService.recordActivity("Xóa tài khoản", "Quản lý người dùng", "Đã xóa hàng loạt " + count + " tài khoản", "danger");
+        }
     }
 
     private void validatePasswordPolicy(String password) {

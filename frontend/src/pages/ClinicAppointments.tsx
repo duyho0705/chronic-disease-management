@@ -21,7 +21,6 @@ export default function ClinicAppointments() {
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
     const [isSaving, setIsSaving] = useState(false);
     const [toast, setToast] = useState({ show: false, title: '', type: 'success' as 'success' | 'warning' | 'error' });
-    const [activeView, setActiveView] = useState<'month' | 'week' | 'day'>('month');
     const [editingAppointment, setEditingAppointment] = useState<any>(null);
     const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
     const [isBatchSaving, setIsBatchSaving] = useState(false);

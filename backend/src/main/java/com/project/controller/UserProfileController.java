@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 @Tag(name = "User Profile", description = "User profile management APIs")
+@SuppressWarnings("null")
 public class UserProfileController {
 
     private final UserRepository userRepository;

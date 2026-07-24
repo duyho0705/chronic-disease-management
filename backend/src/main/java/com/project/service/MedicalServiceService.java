@@ -10,6 +10,7 @@ public interface MedicalServiceService {
     MedicalService createService(MedicalService service);
     MedicalService updateService(Long id, MedicalService service);
     void deleteService(Long id);
+    void deleteServicesBatch(List<Long> ids);
     MedicalService toggleStatus(Long id);
     AdminMedicalServiceStatsResponse getServiceStats();
 }

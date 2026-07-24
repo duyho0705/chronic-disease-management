@@ -37,6 +37,10 @@ public class RateLimitFilter implements Filter {
         // Only rate-limit login endpoint
         if (path.contains("/api/v1/auth/login") && "POST".equalsIgnoreCase(httpReq.getMethod())) {
             String clientIp = getClientIp(httpReq);
+            if ("127.0.0.1".equals(clientIp) || "0:0:0:0:0:0:0:1".equals(clientIp) || "localhost".equals(clientIp)) {
+                chain.doFilter(request, response);
+                return;
+            }
             RateInfo info = rateLimitMap.compute(clientIp, (ip, existing) -> {
                 long now = System.currentTimeMillis();
                 if (existing == null || (now - existing.windowStart) > WINDOW_MS) {

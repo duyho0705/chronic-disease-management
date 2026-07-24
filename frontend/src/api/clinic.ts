@@ -139,6 +139,16 @@ export const clinicApi = {
     return response.data;
   },
 
+  deleteClinic: async (id: number) => {
+    const response = await axiosInstance.delete(`/v1/admin/clinics/${id}`);
+    return response.data;
+  },
+
+  batchDeleteClinics: async (ids: number[]) => {
+    const response = await axiosInstance.post('/v1/admin/clinics/batch-delete', { ids });
+    return response.data;
+  },
+
   getClinicStats: async () => {
     const response = await axiosInstance.get('/v1/admin/clinics/stats');
     return response.data;

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -44,6 +45,13 @@ public class MedicalServiceController {
     public ResponseEntity<ApiResponse<String>> deleteService(@PathVariable Long id) {
         medicalServiceService.deleteService(id);
         return ResponseEntity.ok(ApiResponse.success("Đã xóa dịch vụ thành công"));
+    }
+
+    @PostMapping("/batch-delete")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLINIC_MANAGER')")
+    public ResponseEntity<ApiResponse<String>> deleteServicesBatch(@Valid @RequestBody com.project.dto.request.BatchDeleteServiceRequest request) {
+        medicalServiceService.deleteServicesBatch(request.getIds());
+        return ResponseEntity.ok(ApiResponse.success("Đã xóa hàng loạt dịch vụ thành công"));
     }
 
     @PatchMapping("/{id}/toggle-status")

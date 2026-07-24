@@ -1,8 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import * as ExcelJS from 'exceljs';
+import { AnimatePresence } from 'framer-motion';
 import AdminLayout from '../layouts/AdminLayout';
 import Dropdown from '../components/ui/Dropdown';
+import DeleteConfirmModal from '../components/ui/DeleteConfirmModal';
 import { auditApi } from '../api/audit';
+import { useToast } from '../components/ui/ToastContext';
 
 export default function AdminAuditLogs() {
   const [selectedUser, setSelectedUser] = useState('');
@@ -14,6 +17,78 @@ export default function AdminAuditLogs() {
   const [isLoading, setIsLoading] = useState(true);
   const [pagination, setPagination] = useState({ page: 0, size: 10, total: 0 });
   const totalPages = Math.ceil(pagination.total / pagination.size) || 1;
+
+  const [selectedLogIds, setSelectedLogIds] = useState<number[]>([]);
+  const [isBatchDeleteModalOpen, setIsBatchDeleteModalOpen] = useState(false);
+  const [isSingleDeleteModalOpen, setIsSingleDeleteModalOpen] = useState(false);
+  const [isClearAllModalOpen, setIsClearAllModalOpen] = useState(false);
+  const [deletingLogId, setDeletingLogId] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { showToast: showNotification } = useToast();
+
+  const handleSelectAllLogs = (checked: boolean) => {
+    if (checked) {
+      setSelectedLogIds(logList.map((log: any) => log.id));
+    } else {
+      setSelectedLogIds([]);
+    }
+  };
+
+  const handleToggleSelectLog = (id: number) => {
+    setSelectedLogIds(prev =>
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleSingleDelete = async () => {
+    if (!deletingLogId) return;
+    setIsDeleting(true);
+    try {
+      await auditApi.deleteAuditLog(deletingLogId);
+      showNotification('Đã xóa bản ghi nhật ký thành công!', 'success');
+      setDeletingLogId(null);
+      setIsSingleDeleteModalOpen(false);
+      fetchLogs();
+    } catch (error) {
+      console.error('Failed to delete audit log:', error);
+      showNotification('Không thể xóa nhật ký hệ thống', 'error');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleBatchDelete = async () => {
+    if (selectedLogIds.length === 0) return;
+    setIsDeleting(true);
+    try {
+      await auditApi.batchDeleteAuditLogs(selectedLogIds);
+      showNotification(`Đã xóa thành công ${selectedLogIds.length} bản ghi nhật ký!`, 'success');
+      setSelectedLogIds([]);
+      setIsBatchDeleteModalOpen(false);
+      fetchLogs();
+    } catch (error) {
+      console.error('Failed to batch delete audit logs:', error);
+      showNotification('Lỗi khi xóa hàng loạt nhật ký', 'error');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleClearAll = async () => {
+    setIsDeleting(true);
+    try {
+      await auditApi.clearAllAuditLogs();
+      showNotification('Đã xóa toàn bộ nhật ký hệ thống thành công!', 'success');
+      setSelectedLogIds([]);
+      setIsClearAllModalOpen(false);
+      fetchLogs();
+    } catch (error) {
+      console.error('Failed to clear all audit logs:', error);
+      showNotification('Lỗi khi dọn dẹp nhật ký hệ thống', 'error');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const fetchLogs = useCallback(async () => {
     setIsLoading(true);
@@ -254,17 +329,37 @@ export default function AdminAuditLogs() {
               </>
             )}
           </div>
-          {isLoading ? (
-            <div className="w-32 h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl shadow-sm"></div>
-          ) : (
-            <button
-              onClick={handleExport}
-              className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 px-4 py-2 rounded-xl font-medium flex items-center gap-2 transition-all text-[13px] border border-primary/10 active:scale-95 shadow-sm"
-            >
-              <span className="material-symbols-outlined text-[18px]">download</span>
-              Xuất dữ liệu
-            </button>
-          )}
+          <div className="flex items-center gap-2 flex-wrap">
+            {selectedLogIds.length > 0 && (
+              <button
+                onClick={() => setIsBatchDeleteModalOpen(true)}
+                className="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-rose-200 dark:shadow-none transition-all text-[13px] animate-in fade-in"
+              >
+                <span className="material-symbols-outlined text-[18px]">delete_sweep</span>
+                Xóa ({selectedLogIds.length}) nhật ký
+              </button>
+            )}
+            {logList.length > 0 && (
+              <button
+                onClick={() => setIsClearAllModalOpen(true)}
+                className="bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white dark:bg-slate-800 dark:text-rose-400 dark:hover:bg-rose-600 dark:hover:text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 transition-all text-[13px] border border-rose-200 dark:border-rose-900/30"
+              >
+                <span className="material-symbols-outlined text-[18px]">auto_delete</span>
+                Xóa tất cả
+              </button>
+            )}
+            {isLoading ? (
+              <div className="w-32 h-10 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl shadow-sm"></div>
+            ) : (
+              <button
+                onClick={handleExport}
+                className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 px-4 py-2 rounded-xl font-medium flex items-center gap-2 transition-all text-[13px] border border-primary/10 active:scale-95 shadow-sm"
+              >
+                <span className="material-symbols-outlined text-[18px]">download</span>
+                Xuất dữ liệu
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Filter Section */}
@@ -402,7 +497,15 @@ export default function AdminAuditLogs() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50/50 dark:bg-slate-800/50">
-                  <th className="px-8 py-5">
+                  <th className="pl-6 pr-2 py-5 w-10">
+                    <input
+                      type="checkbox"
+                      className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary cursor-pointer"
+                      checked={logList.length > 0 && selectedLogIds.length === logList.length}
+                      onChange={(e) => handleSelectAllLogs(e.target.checked)}
+                    />
+                  </th>
+                  <th className="px-6 py-5">
                     {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-20"></div> : <span className="text-[15px] font-medium text-slate-500 dark:text-slate-500 leading-none">Thời gian</span>}
                   </th>
                   <th className="px-6 py-5">
@@ -417,8 +520,8 @@ export default function AdminAuditLogs() {
                   <th className="px-6 py-5">
                     {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-48"></div> : <span className="text-[15px] font-medium text-slate-500 dark:text-slate-500 leading-none">Chi tiết</span>}
                   </th>
-                  <th className="px-8 py-5 text-right">
-                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-24 ml-auto"></div> : <span className="text-[15px] font-medium text-slate-500 dark:text-slate-500 leading-none text-right">Địa chỉ IP</span>}
+                  <th className="px-6 py-5 text-right">
+                    {isLoading ? <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-24 ml-auto"></div> : <span className="text-[15px] font-medium text-slate-500 dark:text-slate-500 leading-none text-right">Thao tác</span>}
                   </th>
                 </tr>
               </thead>
@@ -427,7 +530,10 @@ export default function AdminAuditLogs() {
                   // Skeleton Rows
                   [...Array(pagination.size)].map((_, i) => (
                     <tr key={`skeleton-${i}`} className="animate-pulse">
-                      <td className="px-8 py-5">
+                      <td className="pl-6 pr-2 py-5">
+                        <div className="w-4 h-4 bg-slate-200 dark:bg-slate-800 rounded"></div>
+                      </td>
+                      <td className="px-6 py-5">
                         <div className="space-y-2">
                           <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-20"></div>
                           <div className="h-3 bg-slate-100 dark:bg-slate-800/50 rounded w-16"></div>
@@ -448,7 +554,7 @@ export default function AdminAuditLogs() {
                       <td className="px-6 py-5">
                         <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-48"></div>
                       </td>
-                      <td className="px-8 py-5 text-right flex justify-end">
+                      <td className="px-6 py-5 text-right flex justify-end">
                         <div className="h-7 bg-slate-200 dark:bg-slate-800 rounded-xl w-24"></div>
                       </td>
                     </tr>
@@ -464,8 +570,16 @@ export default function AdminAuditLogs() {
                       : '';
 
                     return (
-                      <tr key={log.id} className="hover:bg-primary/5 transition-colors group">
-                        <td className="px-8 py-5">
+                      <tr key={log.id} className={`hover:bg-primary/5 transition-colors group ${selectedLogIds.includes(log.id) ? 'bg-primary/5' : ''}`}>
+                        <td className="pl-6 pr-2 py-5">
+                          <input
+                            type="checkbox"
+                            className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary cursor-pointer"
+                            checked={selectedLogIds.includes(log.id)}
+                            onChange={() => handleToggleSelectLog(log.id)}
+                          />
+                        </td>
+                        <td className="px-6 py-5">
                           <div className="flex flex-col">
                             <span className="text-[14px] font-medium text-slate-600 dark:text-white leading-tight">{displayTime}</span>
                             <span className="text-[13px] font-medium text-slate-500 dark:text-slate-500 mt-0.5">{displayDate}</span>
@@ -502,21 +616,33 @@ export default function AdminAuditLogs() {
                             </div>
                           </div>
                         </td>
-                        <td className="px-8 py-5 text-right flex justify-end">
-                          <code
-                            onClick={() => handleIpClick(log.ip)}
-                            className="text-[12px] font-mono font-bold text-white bg-emerald-500 px-3 py-1.5 rounded-xl shadow-sm cursor-pointer hover:bg-emerald-600 transition-all flex items-center gap-1.5 select-none"
-                          >
-                            <span className="material-symbols-outlined text-[16px]">info</span>
-                            {log.ip}
-                          </code>
+                        <td className="px-6 py-5 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <code
+                              onClick={() => handleIpClick(log.ip)}
+                              className="text-[12px] font-mono font-bold text-white bg-emerald-500 px-3 py-1.5 rounded-xl shadow-sm cursor-pointer hover:bg-emerald-600 transition-all flex items-center gap-1.5 select-none"
+                            >
+                              <span className="material-symbols-outlined text-[16px]">info</span>
+                              {log.ip}
+                            </code>
+                            <button
+                              onClick={() => {
+                                setDeletingLogId(log.id);
+                                setIsSingleDeleteModalOpen(true);
+                              }}
+                              className="w-8 h-8 rounded-xl flex items-center justify-center bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-sm"
+                              title="Xóa nhật ký này"
+                            >
+                              <span className="material-symbols-outlined text-[18px]">delete</span>
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );
                   })
                 ) : (
                   <tr>
-                    <td colSpan={6} className="px-8 py-12 text-center">
+                    <td colSpan={7} className="px-8 py-12 text-center">
                       <div className="flex flex-col items-center gap-2 text-slate-400">
                         <span className="material-symbols-outlined text-3xl">search_off</span>
                         <p className="font-medium text-[14px]">Không tìm thấy nhật ký nào phù hợp</p>
@@ -657,6 +783,44 @@ export default function AdminAuditLogs() {
           </div>
         </div>
       )}
+
+      <AnimatePresence>
+        {isSingleDeleteModalOpen && (
+          <DeleteConfirmModal
+            isOpen={isSingleDeleteModalOpen}
+            onClose={() => {
+              setIsSingleDeleteModalOpen(false);
+              setDeletingLogId(null);
+            }}
+            onConfirm={handleSingleDelete}
+            title="Xác nhận xóa nhật ký"
+            description="Bạn có chắc chắn muốn xóa bản ghi nhật ký hệ thống này không? Thao tác này sẽ gỡ bỏ bản ghi khỏi hệ thống và không thể hoàn tác."
+            isLoading={isDeleting}
+          />
+        )}
+
+        {isBatchDeleteModalOpen && (
+          <DeleteConfirmModal
+            isOpen={isBatchDeleteModalOpen}
+            onClose={() => setIsBatchDeleteModalOpen(false)}
+            onConfirm={handleBatchDelete}
+            title="Xác nhận xóa hàng loạt nhật ký"
+            description={`Bạn có chắc chắn muốn xóa ${selectedLogIds.length} bản ghi nhật ký đã chọn? Thao tác này không thể hoàn tác.`}
+            isLoading={isDeleting}
+          />
+        )}
+
+        {isClearAllModalOpen && (
+          <DeleteConfirmModal
+            isOpen={isClearAllModalOpen}
+            onClose={() => setIsClearAllModalOpen(false)}
+            onConfirm={handleClearAll}
+            title="Xác nhận xóa tất cả nhật ký"
+            description="CẢNH BÁO: Thao tác này sẽ XÓA VĨNH VIỄN TOÀN BỘ nhật ký hệ thống! Bạn có chắc chắn muốn tiếp tục dọn dẹp không?"
+            isLoading={isDeleting}
+          />
+        )}
+      </AnimatePresence>
     </AdminLayout>
   );
 }

@@ -85,7 +85,19 @@ public class MedicalServiceServiceImpl implements MedicalServiceService {
         MedicalService service = getServiceById(id);
         validateWriteAccess(service);
         medicalServiceRepository.delete(Objects.requireNonNull(service));
-        recordActivity("Xóa", "Dịch vụ", "Đã xóa dịch vụ: " + service.getName(), "danger");
+        recordActivity("Xóa", "Dịch vụ", "Đã xóa dịch vụ " + service.getName(), "danger");
+    }
+
+    @Override
+    @Transactional
+    public void deleteServicesBatch(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) return;
+        List<MedicalService> services = medicalServiceRepository.findAllById(ids);
+        for (MedicalService service : services) {
+            validateWriteAccess(service);
+        }
+        medicalServiceRepository.deleteAll(services);
+        recordActivity("Xóa hàng loạt", "Dịch vụ", "Đã xóa hàng loạt " + services.size() + " dịch vụ", "danger");
     }
 
     @Override

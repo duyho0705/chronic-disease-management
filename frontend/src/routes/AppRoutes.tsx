@@ -53,23 +53,9 @@ const AdminSettings = lazy(() => import('../pages/AdminSettings'));
 const AdminAuditLogs = lazy(() => import('../pages/AdminAuditLogs'));
 const AdminSupport = lazy(() => import('../pages/AdminSupport'));
 
-// Loading fallback component
 const PageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
-    <div className="flex flex-col items-center gap-5">
-      <div className="relative">
-        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-xl shadow-primary/20 animate-pulse">
-          <span className="material-symbols-outlined text-white text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
-            favorite
-          </span>
-        </div>
-        <div className="absolute -bottom-1 -right-1 w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-      </div>
-      <div className="text-center">
-        <p className="text-sm font-bold text-slate-600 dark:text-slate-300">Đang tải trang...</p>
-        <p className="text-xs text-slate-400 mt-0.5">DamDiep Healthcare</p>
-      </div>
-    </div>
+  <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
+    <div className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin"></div>
   </div>
 );
 

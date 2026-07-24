@@ -109,4 +109,40 @@ public class AdminClinicServiceImpl implements AdminClinicService {
         userRepository.updateStatusByClinicId(id, nextStatus);
         auditService.recordActivity("Đổi trạng thái", "Quản lý phòng khám", "Đổi trạng thái phòng khám " + clinic.getName() + " sang " + nextStatus, "warning");
     }
+
+    @Override
+    @Transactional
+    public void deleteClinic(Long id) {
+        Clinic clinic = clinicRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Phòng khám không tồn tại"));
+        clinic.setDeleted(true);
+        clinicRepository.save(clinic);
+        
+        // Soft delete associated users
+        userRepository.updateStatusByClinicId(id, "INACTIVE");
+        
+        auditService.recordActivity("Xóa phòng khám", "Quản lý phòng khám", "Đã xóa phòng khám " + clinic.getName(), "danger");
+    }
+
+    @Override
+    @Transactional
+    public void deleteClinicsBatch(java.util.List<Long> ids) {
+        if (ids == null || ids.isEmpty()) return;
+        int count = 0;
+        for (Long id : ids) {
+            try {
+                Clinic clinic = clinicRepository.findById(id).orElse(null);
+                if (clinic != null && !clinic.isDeleted()) {
+                    clinic.setDeleted(true);
+                    clinicRepository.save(clinic);
+                    userRepository.updateStatusByClinicId(id, "INACTIVE");
+                    count++;
+                }
+            } catch (Exception e) {
+                log.warn("Failed to delete clinic {}: {}", id, e.getMessage());
+            }
+        }
+        if (count > 0) {
+            auditService.recordActivity("Xóa phòng khám", "Quản lý phòng khám", "Đã xóa hàng loạt " + count + " phòng khám", "danger");
+        }
+    }
 }

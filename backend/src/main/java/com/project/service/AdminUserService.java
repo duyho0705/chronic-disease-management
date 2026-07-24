@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 
 import com.project.entity.UserRole;
 
+import java.util.List;
+
 public interface AdminUserService {
     AdminUserStatsResponse getUserStats();
     Page<AdminUserResponse> getUsers(UserRole role, String status, Long clinicId, String keyword, Pageable pageable);
@@ -17,4 +19,5 @@ public interface AdminUserService {
     AdminUserResponse updateUser(Long id, UpdateUserRequest request);
     void toggleUserStatus(Long id);
     void deleteUser(Long id);
+    void deleteUsersBatch(List<Long> ids);
 }

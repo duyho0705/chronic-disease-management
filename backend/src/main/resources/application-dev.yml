@@ -1,0 +1,35 @@
+# ==========================================
+# DEVELOPMENT PROFILE CONFIGURATION (DEV - LOCAL POSTGRESQL)
+# ==========================================
+spring:
+  config:
+    activate:
+      on-profile: dev
+  sql:
+    init:
+      mode: never
+  datasource:
+    url: jdbc:postgresql://localhost:5432/neondb
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    defer-datasource-initialization: false
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+
+logging:
+  level:
+    com.project: DEBUG
+    org.springframework.web: INFO

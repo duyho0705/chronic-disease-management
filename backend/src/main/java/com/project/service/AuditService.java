@@ -23,7 +23,7 @@ public class AuditService {
 
     private final AuditLogRepository auditLogRepository;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
     public void recordActivity(String action, String module, String details, String status) {
         try {
             Long userId = 1L;
@@ -74,7 +74,7 @@ public class AuditService {
     /**
      * Version that accepts explicit user info
      */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
     public void recordActivity(Long userId, String userName, String action, String module, String details, String status) {
         try {
             String ipAddress = "127.0.0.1";

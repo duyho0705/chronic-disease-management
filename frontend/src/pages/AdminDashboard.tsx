@@ -535,6 +535,10 @@ export default function AdminDashboard() {
               ) : activities.length > 0 ? (
                 activities.slice(0, 3).map((act, idx) => {
                   const actionMap: Record<string, string> = {
+                    'Xóa': 'Xóa tài khoản',
+                    'Tạo mới': 'Tạo mới tài khoản',
+                    'Cập nhật': 'Cập nhật tài khoản',
+                    'Đổi trạng thái': 'Chuyển trạng thái tài khoản',
                     'UPDATE_PATIENT': 'Cập nhật Bệnh nhân',
                     'CREATE_PATIENT': 'Tạo mới Bệnh nhân',
                     'DELETE_PATIENT': 'Xóa Bệnh nhân',
@@ -575,27 +579,59 @@ export default function AdminDashboard() {
                     'SUPPORT': 'Trung tâm hỗ trợ'
                   };
 
-                  const translatedTitle = actionMap[act.title] || act.title;
-
+                  let translatedTitle = actionMap[act.title] || act.title;
                   let translatedDesc = act.description || '';
+
+                  // Parse and format natural Vietnamese descriptions
                   if (translatedDesc.includes(':')) {
                     const parts = translatedDesc.split(':');
-                    const mod = parts[0].trim();
-                    const details = parts.slice(1).join(':').trim();
-
-                    const transMod = moduleMap[mod] || mod;
-                    const transDetails = details
-                      .replace('Action completed successfully', 'Thao tác hoàn thành thành công')
-                      .replace('successful', 'thành công')
-                      .replace(/\bINACTIVE\b/g, 'NGƯNG HOẠT ĐỘNG')
-                      .replace(/\bACTIVE\b/g, 'HOẠT ĐỘNG');
-                    translatedDesc = `${transMod}: ${transDetails}`;
+                    if (parts.length >= 3 && (parts[0].trim() === 'Quản lý người dùng' || parts[0].trim() === 'USER_MANAGEMENT')) {
+                      const actionText = parts[1].trim();
+                      const detailText = parts.slice(2).join(':').trim();
+                      translatedTitle = actionMap[actionText] || actionText;
+                      translatedDesc = `Đã ${actionText.toLowerCase()} ${detailText}`;
+                    } else if (parts.length === 2 && moduleMap[parts[0].trim()]) {
+                      const mod = parts[0].trim();
+                      const details = parts[1].trim();
+                      translatedDesc = `${moduleMap[mod]}: ${details}`;
+                    }
                   }
+
+                  const colorStyleMap: Record<string, { bg: string; text: string }> = {
+                    rose: { bg: 'bg-rose-100 dark:bg-rose-900/30', text: 'text-rose-600 dark:text-rose-400' },
+                    emerald: { bg: 'bg-emerald-100 dark:bg-emerald-900/30', text: 'text-emerald-600 dark:text-emerald-400' },
+                    indigo: { bg: 'bg-indigo-100 dark:bg-indigo-900/30', text: 'text-indigo-600 dark:text-indigo-400' },
+                    amber: { bg: 'bg-amber-100 dark:bg-amber-900/30', text: 'text-amber-600 dark:text-amber-400' },
+                    sky: { bg: 'bg-sky-100 dark:bg-sky-900/30', text: 'text-sky-600 dark:text-sky-400' },
+                    slate: { bg: 'bg-slate-100 dark:bg-slate-900/30', text: 'text-slate-600 dark:text-slate-400' },
+                    blue: { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-600 dark:text-blue-400' },
+                  };
+
+                  let activeColor = act.color || 'blue';
+                  let activeIcon = act.icon || 'history';
+
+                  // Dynamic icon & color fallback based on action title
+                  const lowerTitle = (translatedTitle || '').toLowerCase();
+                  if (lowerTitle.includes('xóa') || lowerTitle.includes('delete')) {
+                    activeIcon = 'person_remove';
+                    activeColor = 'rose';
+                  } else if (lowerTitle.includes('tạo') || lowerTitle.includes('thêm') || lowerTitle.includes('create')) {
+                    activeIcon = 'person_add';
+                    activeColor = 'emerald';
+                  } else if (lowerTitle.includes('cập nhật') || lowerTitle.includes('sửa') || lowerTitle.includes('update')) {
+                    activeIcon = 'edit_note';
+                    activeColor = 'indigo';
+                  } else if (lowerTitle.includes('trạng thái') || lowerTitle.includes('status')) {
+                    activeIcon = 'published_with_changes';
+                    activeColor = 'amber';
+                  }
+
+                  const colorClass = colorStyleMap[activeColor] || colorStyleMap['blue'];
 
                   return (
                     <div key={idx} className="flex gap-4 group">
-                      <div className={`w-10 h-10 rounded-full bg-${act.color || 'blue'}-100 dark:bg-${act.color || 'blue'}-900/30 flex items-center justify-center text-${act.color || 'blue'}-600 dark:text-${act.color || 'blue'}-400 shrink-0`}>
-                        <span className="material-symbols-outlined text-lg">{act.icon || 'history'}</span>
+                      <div className={`w-10 h-10 rounded-full ${colorClass.bg} flex items-center justify-center ${colorClass.text} shrink-0`}>
+                        <span className="material-symbols-outlined text-lg">{activeIcon}</span>
                       </div>
                       <div>
                         <p className="text-[12px] md:text-[15px] font-bold text-slate-900 dark:text-white">{translatedTitle}</p>
@@ -647,6 +683,11 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               ))
+            ) : clinics.length === 0 ? (
+              <div className="p-8 text-center text-slate-400 opacity-60 flex flex-col items-center gap-2">
+                <span className="material-symbols-outlined text-3xl">storefront</span>
+                <p className="text-sm font-medium">Chưa có chi nhánh nào</p>
+              </div>
             ) : (
               clinics.map((clinic) => (
                 <div key={clinic.id} className="p-4 border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
@@ -726,6 +767,15 @@ export default function AdminDashboard() {
                       <td className="px-6 py-4"><div className="h-6 bg-slate-200 dark:bg-slate-800 rounded-full w-24"></div></td>
                     </tr>
                   ))
+                ) : clinics.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-8 py-16 text-center">
+                      <div className="flex flex-col items-center justify-center text-slate-400 gap-2 opacity-60">
+                        <span className="material-symbols-outlined text-4xl">storefront</span>
+                        <p className="text-sm font-medium">Chưa có chi nhánh nào</p>
+                      </div>
+                    </td>
+                  </tr>
                 ) : (
                   clinics.map((clinic) => (
                     <tr key={clinic.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">

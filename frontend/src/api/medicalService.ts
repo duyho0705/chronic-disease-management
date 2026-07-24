@@ -6,6 +6,7 @@ export const medicalServiceApi = {
   create: (data: any) => axiosInstance.post('/v1/medical-services', data),
   update: (id: number, data: any) => axiosInstance.put(`/v1/medical-services/${id}`, data),
   delete: (id: number) => axiosInstance.delete(`/v1/medical-services/${id}`),
+  batchDelete: (ids: number[]) => axiosInstance.post('/v1/medical-services/batch-delete', { ids }),
   toggleStatus: (id: number) => axiosInstance.patch(`/v1/medical-services/${id}/toggle-status`),
   getStats: () => axiosInstance.get('/v1/medical-services/stats'),
 };

@@ -168,7 +168,7 @@ const CreateServiceModal: React.FC<CreateServiceModalProps> = ({
                     <h3 className="font-medium text-slate-500 dark:text-slate-100 text-[15px] italic-none ml-1">Thông tin cơ bản</h3>
                   </div>
 
-                  <div className="bg-white dark:bg-slate-900 p-4 lg:p-5 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm">
+                  <div className="bg-white dark:bg-slate-900 p-4 lg:p-5 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm relative z-20">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-3">
 
 

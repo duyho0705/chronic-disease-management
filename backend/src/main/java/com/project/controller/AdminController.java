@@ -5,6 +5,7 @@ import com.project.dto.request.CreateUserRequest;
 import com.project.dto.request.UpdateClinicRequest;
 import com.project.dto.request.UpdateUserRequest;
 import com.project.dto.request.UpdateSystemConfigRequest;
+import com.project.dto.request.BatchDeleteClinicRequest;
 import com.project.dto.response.*;
 import com.project.entity.UserRole;
 import com.project.service.AdminDashboardService;
@@ -95,6 +96,20 @@ public class AdminController {
         return ApiResponse.success("Clinic status toggled successfully", null);
     }
 
+    @DeleteMapping("/clinics/{id}")
+    @Operation(summary = "Permanently delete or soft-delete clinic record")
+    public ApiResponse<Void> deleteClinic(@PathVariable Long id) {
+        adminClinicService.deleteClinic(id);
+        return ApiResponse.success("Clinic deleted successfully", null);
+    }
+
+    @PostMapping("/clinics/batch-delete")
+    @Operation(summary = "Batch delete multiple clinics")
+    public ApiResponse<Void> batchDeleteClinics(@RequestBody @Valid BatchDeleteClinicRequest request) {
+        adminClinicService.deleteClinicsBatch(request.getIds());
+        return ApiResponse.success("Batch delete clinics completed successfully", null);
+    }
+
     // === User Management ===
 
     @GetMapping("/users/stats")
@@ -153,6 +168,13 @@ public class AdminController {
         return ApiResponse.success("User deleted successfully", null);
     }
 
+    @PostMapping("/users/batch-delete")
+    @Operation(summary = "Batch delete multiple users")
+    public ApiResponse<Void> batchDeleteUsers(@RequestBody @Valid BatchDeleteClinicRequest request) {
+        adminUserService.deleteUsersBatch(request.getIds());
+        return ApiResponse.success("Batch delete users completed successfully", null);
+    }
+
     // === Reports ===
 
     @GetMapping("/reports")
@@ -177,6 +199,27 @@ public class AdminController {
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         return ApiResponse.success("Audit logs fetched successfully", adminDashboardService.getAuditLogs(userName, module, keyword, pageable));
+    }
+
+    @DeleteMapping("/audit-logs/{id}")
+    @Operation(summary = "Delete audit log by ID")
+    public ApiResponse<Void> deleteAuditLog(@PathVariable Long id) {
+        adminDashboardService.deleteAuditLog(id);
+        return ApiResponse.success("Deleted audit log successfully", null);
+    }
+
+    @PostMapping("/audit-logs/batch-delete")
+    @Operation(summary = "Batch delete audit logs")
+    public ApiResponse<Void> batchDeleteAuditLogs(@Valid @RequestBody com.project.dto.request.BatchDeleteAuditLogRequest request) {
+        adminDashboardService.deleteAuditLogsBatch(request.getIds());
+        return ApiResponse.success("Batch deleted audit logs successfully", null);
+    }
+
+    @DeleteMapping("/audit-logs/clear-all")
+    @Operation(summary = "Clear all audit logs")
+    public ApiResponse<Void> clearAllAuditLogs() {
+        adminDashboardService.clearAllAuditLogs();
+        return ApiResponse.success("Cleared all audit logs successfully", null);
     }
 
     // === System Config ===

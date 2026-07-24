@@ -49,9 +49,9 @@ input:-webkit-autofill:active {
 }
 
 body {
-  background: var(--bg-gradient);
+  background: #f8fafc;
   background-attachment: fixed;
-  color: var(--text-main);
+  color: #0f172a;
   min-height: 100vh;
   margin: 0;
   -webkit-font-smoothing: antialiased;

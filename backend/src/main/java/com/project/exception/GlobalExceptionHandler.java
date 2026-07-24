@@ -27,7 +27,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleAccessDenied(AccessDeniedException ex) {
         log.warn("Access denied: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(ApiResponse.error("Access Denied: " + ex.getMessage()));
+                .body(ApiResponse.error("Bạn không có quyền thực hiện thao tác này."));
     }
 
     @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
             org.springframework.security.core.AuthenticationException ex) {
         log.warn("Authentication failed: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(ApiResponse.error("Đăng nhập thất bại: " + ex.getMessage()));
+                .body(ApiResponse.error("Tên đăng nhập hoặc mật khẩu không chính xác."));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -46,14 +46,14 @@ public class GlobalExceptionHandler {
                 .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
         log.warn("Validation failed: {}", errors);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error("Validation failed", errors));
+                .body(ApiResponse.error("Dữ liệu nhập vào không hợp lệ", errors));
     }
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiResponse<Object>> handleRuntimeException(RuntimeException ex) {
         log.error("Runtime exception: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("Debug Error: " + ex.toString()));
+                .body(ApiResponse.error("Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau."));
     }
 
     @ExceptionHandler(Exception.class)

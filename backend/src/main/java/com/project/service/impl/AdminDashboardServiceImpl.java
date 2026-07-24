@@ -302,6 +302,28 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
                 .status(logEntry.getStatus()).build());
     }
 
+    @Override
+    @Transactional
+    public void deleteAuditLog(Long id) {
+        log.info("Deleting audit log entry with ID: {}", id);
+        auditLogRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public void deleteAuditLogsBatch(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) return;
+        log.info("Batch deleting {} audit log entries", ids.size());
+        auditLogRepository.deleteAllById(ids);
+    }
+
+    @Override
+    @Transactional
+    public void clearAllAuditLogs() {
+        log.info("Clearing all audit log entries from system");
+        auditLogRepository.deleteAll();
+    }
+
     private List<AdminDashboardResponse.ClinicPerformanceDto> getTopPerformances() {
         List<Clinic> topClinics = clinicRepository.findByFilters("ACTIVE", null, PageRequest.of(0, 5)).getContent();
         Map<Long, Long> realDoctorCounts = userRepository.countByRoleGroupedByClinic(UserRole.DOCTOR).stream()
@@ -348,11 +370,81 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
 
     private List<AdminDashboardResponse.SystemActivityDto> getRecentActivities() {
         return auditLogRepository.findAll(PageRequest.of(0, 3, Sort.by("createdAt").descending())).getContent().stream().map(logEntry -> {
-            String color = logEntry.getModule().contains("CLINIC") ? "emerald" : logEntry.getModule().contains("USER") ? "indigo" : "blue";
+            String action = logEntry.getAction() != null ? logEntry.getAction().toLowerCase() : "";
+            String icon = "history";
+            String color = "blue";
+
+            if (action.contains("xóa") || action.contains("delete")) {
+                icon = "person_remove";
+                color = "rose";
+            } else if (action.contains("tạo") || action.contains("thêm") || action.contains("create") || action.contains("add")) {
+                icon = "person_add";
+                color = "emerald";
+            } else if (action.contains("cập nhật") || action.contains("sửa") || action.contains("update") || action.contains("edit")) {
+                icon = "edit_note";
+                color = "indigo";
+            } else if (action.contains("trạng thái") || action.contains("status") || action.contains("toggle")) {
+                icon = "published_with_changes";
+                color = "amber";
+            } else if (action.contains("đăng nhập") || action.contains("login")) {
+                icon = "login";
+                color = "sky";
+            } else if (action.contains("đăng xuất") || action.contains("logout")) {
+                icon = "logout";
+                color = "slate";
+            }
+
+            String title = logEntry.getAction() != null ? logEntry.getAction() : "Hoạt động hệ thống";
+            String details = logEntry.getDetails() != null ? logEntry.getDetails() : "";
+            
+            // Clean up redundant prefixes for user-friendly UI display
+            if (logEntry.getModule() != null && details.startsWith(logEntry.getModule() + ": ")) {
+                details = details.substring((logEntry.getModule() + ": ").length());
+            }
+            if (details.startsWith("Xóa tài khoản: ")) {
+                details = details.replace("Xóa tài khoản: ", "Đã xóa tài khoản ");
+            } else if (details.startsWith("Tạo tài khoản: ")) {
+                details = details.replace("Tạo tài khoản: ", "Đã tạo tài khoản ");
+            } else if (details.startsWith("Cập nhật tài khoản: ")) {
+                details = details.replace("Cập nhật tài khoản: ", "Đã cập nhật tài khoản ");
+            }
+
             return AdminDashboardResponse.SystemActivityDto.builder()
-                    .title(logEntry.getAction()).description(logEntry.getModule() + ": " + logEntry.getDetails())
-                    .timeAgo("Vừa xong").icon("history").color(color).build();
+                    .title(title)
+                    .description(details)
+                    .timeAgo(calculateTimeAgo(logEntry.getCreatedAt()))
+                    .icon(icon)
+                    .color(color)
+                    .build();
         }).collect(Collectors.toList());
+    }
+
+    private String calculateTimeAgo(java.time.LocalDateTime createdAt) {
+        if (createdAt == null) return "Vừa xong";
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        long seconds = java.time.Duration.between(createdAt, now).getSeconds();
+        if (seconds < 0) seconds = 0;
+        
+        if (seconds < 60) {
+            return "Vừa xong";
+        }
+        long minutes = seconds / 60;
+        if (minutes < 60) {
+            return minutes + " phút trước";
+        }
+        long hours = minutes / 60;
+        if (hours < 24) {
+            return hours + " giờ trước";
+        }
+        long days = hours / 24;
+        if (days < 30) {
+            return days + " ngày trước";
+        }
+        long months = days / 30;
+        if (months < 12) {
+            return months + " tháng trước";
+        }
+        return (months / 12) + " năm trước";
     }
 
     private List<AdminDashboardResponse.ChartDataDto> generateChartData(String timeRange, String metric) {
