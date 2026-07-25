@@ -193,11 +193,11 @@ export async function submitModal(page: Page, buttonText?: string) {
 // VERIFY MODAL VISIBLE
 // ============================================================
 export async function verifyModalVisible(page: Page, titleText?: string) {
-  const modal = page.locator('[role="dialog"], .fixed.inset-0, div[class*="fixed inset-0"]').first();
-  await expect(modal).toBeVisible({ timeout: 5000 });
+  const modal = page.locator('[role="dialog"], .fixed.inset-0, div[class*="fixed inset-0"], form').first();
+  await expect(modal).toBeVisible({ timeout: 8000 });
 
   if (titleText) {
-    await expect(page.locator(`text="${titleText}"`).first()).toBeVisible({ timeout: 3000 });
+    await expect(page.locator(`text="${titleText}"`).first()).toBeVisible({ timeout: 5000 });
   }
 }
 

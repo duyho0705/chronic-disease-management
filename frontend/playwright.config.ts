@@ -17,7 +17,7 @@ export default defineConfig({
 
   use: {
     baseURL: 'http://localhost:5173',
-    headless: false,
+    headless: process.env.CI ? true : false,
     viewport: { width: 1280, height: 720 },
     ignoreHTTPSErrors: true,
     actionTimeout: 15000,
