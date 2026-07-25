@@ -27,25 +27,47 @@ jobs:
   e2e-testing:
     name: Playwright Automated E2E Tests
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
+    needs: build-backend
     steps:
     - uses: actions/checkout@v4
+    
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
         cache: 'npm'
         cache-dependency-path: './frontend/package-lock.json'
-    - name: Install dependencies
-      run: npm ci
+
+    - name: Build Backend JAR
+      run: cd backend && mvn clean package -DskipTests
+
+    - name: Start Spring Boot Backend in Background
+      run: |
+        cd backend
+        nohup java -jar target/*.jar > spring.log 2>&1 &
+        echo "Waiting for Spring Boot Backend on port 8080..."
+        timeout 60 bash -c 'until curl -s http://localhost:8080/api/v1/system-config; do sleep 2; done' || true
+        echo "Backend server status check completed."
+
+    - name: Install Frontend Dependencies
+      run: cd frontend && npm ci
+
     - name: Install Playwright Browsers
-      run: npx playwright install --with-deps chromium
+      run: cd frontend && npx playwright install --with-deps chromium
+
     - name: Build Frontend
-      run: npm run build
+      run: cd frontend && npm run build
+
     - name: Run Playwright E2E Tests
-      run: npx playwright test
+      run: cd frontend && npx playwright test
+
     - name: Upload Playwright Test Report on Failure
       uses: actions/upload-artifact@v4
       if: failure()
