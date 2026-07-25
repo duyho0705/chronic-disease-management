@@ -467,7 +467,7 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
             startDate = now.withDayOfYear(1).withHour(0).withMinute(0).withSecond(0);
             results = isPatient ? userRepository.countNewPatientsByMonthNative(startDate) : appointmentRepository.countAllAppointmentsByMonthNative(startDate);
             for (int i = 1; i <= 12; i++) {
-                String label = "Th. " + i;
+                String label = "tháng " + i;
                 long count = findValueInResults(results, String.format("-%02d-", i));
                 data.add(AdminDashboardResponse.ChartDataDto.builder().label(label).value(count).build());
             }

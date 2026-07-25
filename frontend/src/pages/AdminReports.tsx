@@ -40,7 +40,7 @@ export default function AdminReports() {
           ...res.data,
           growthTrend: (res.data.growthTrend || []).map((pt: any) => ({
             ...pt,
-            label: pt.label.replace(/^Th\. /i, 'Tháng ')
+            label: pt.label.replace(/^Th\. /i, 'tháng ')
           }))
         };
         setReportsData(processedData);

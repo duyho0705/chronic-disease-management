@@ -91,10 +91,10 @@ export default function ClinicDashboard() {
               // It's a daily date: "YYYY-MM-DD" -> Format as "DD/MM"
               label = `${segments[2].padStart(2, '0')}/${segments[1].padStart(2, '0')}`;
             } else if (segments.length === 2) {
-              // It's a monthly date: "YYYY/MM" -> Format as "Tháng MM"
-              label = `Tháng ${segments[1].padStart(2, '0')}`;
+              // It's a monthly date: "YYYY/MM" -> Format as "tháng MM"
+              label = `tháng ${segments[1].padStart(2, '0')}`;
             } else {
-              label = item.month.replace(/^Th. /i, 'Tháng ');
+              label = item.month.replace(/^Th. /i, 'tháng ');
             }
           }
           return {
