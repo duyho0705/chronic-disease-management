@@ -95,7 +95,7 @@ const RescheduleModal: React.FC<RescheduleModalProps> = ({
                 </label>
                 <Dropdown
                   options={patients.map(p => ({
-                    label: `${p.fullName} - Mã BN: ${p.patientCode || p.id}`,
+                    label: `${p.fullName} - Mã bệnh nhân: ${p.patientCode || p.id}`,
                     value: p.id.toString()
                   }))}
                   value={selectedPatientId}

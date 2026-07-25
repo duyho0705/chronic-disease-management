@@ -102,7 +102,7 @@ const AdviceModal: React.FC<AdviceModalProps> = ({
                     </p>
                   )}
                   <p className="text-[13px] text-slate-500 font-medium">
-                    {patientData?.treatmentStatus || 'BN quản lý thường trực'} - Mã bệnh nhân: {patientData?.patientCode || 'Chưa cập nhật'}
+                    {patientData?.treatmentStatus || 'Bệnh nhân quản lý thường trực'} - Mã bệnh nhân: {patientData?.patientCode || 'Chưa cập nhật'}
                   </p>
                 </div>
               </div>

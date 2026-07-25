@@ -163,7 +163,7 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
 
             List<AdminReportsResponse.ClinicBreakdown> breakdowns = clinics.stream().map(c -> AdminReportsResponse.ClinicBreakdown.builder()
                     .name(c.getName())
-                    .value(patientCounts.getOrDefault(c.getId(), 0L) + " BN")
+                    .value(patientCounts.getOrDefault(c.getId(), 0L) + " bệnh nhân")
                     .percentage((totalP > 0 ? (patientCounts.getOrDefault(c.getId(), 0L) * 100 / totalP) : 0) + "%")
                     .icon("home_health").build()).collect(Collectors.toList());
 
@@ -258,7 +258,7 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
             long forecastVal = Math.round(currentVal * (1.0 + growthRateVal / 100.0));
             if (forecastVal <= currentVal && currentVal > 0) forecastVal = currentVal + 1;
             if (currentVal == 0) forecastVal = 2; // min reasonable guess if completely empty
-            String forecastStr = "+" + forecastVal + " BN";
+            String forecastStr = "+" + forecastVal + " bệnh nhân";
 
             return AdminReportsResponse.builder()
                     .summary(AdminReportsResponse.ReportSummary.builder()
