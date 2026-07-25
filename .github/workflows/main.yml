@@ -39,9 +39,9 @@ jobs:
           - 5432:5432
         options: >-
           --health-cmd pg_isready
-          --health-interval 10s
+          --health-interval 5s
           --health-timeout 5s
-          --health-retries 5
+          --health-retries 10
 
     steps:
     - uses: actions/checkout@v4
@@ -74,8 +74,21 @@ jobs:
         cd backend
         nohup java -jar target/*.jar > spring.log 2>&1 &
         echo "Waiting for Spring Boot Backend on port 8080..."
-        timeout 60 bash -c 'until curl -s http://localhost:8080/api/v1/system-config; do sleep 2; done'
-        echo "Backend server status check completed."
+        SUCCESS=0
+        for i in {1..60}; do
+          if curl -s -m 2 http://localhost:8080/api/v1/system-config > /dev/null 2>&1; then
+            echo "Spring Boot Backend is UP & RUNNING!"
+            SUCCESS=1
+            break
+          fi
+          echo "Waiting for backend startup... ($i/60)"
+          sleep 2
+        done
+        if [ $SUCCESS -eq 0 ]; then
+          echo "=== ERROR: Spring Boot Backend failed to start. Log output ==="
+          cat spring.log
+          exit 1
+        fi
 
     - name: Install Frontend Dependencies
       run: cd frontend && npm ci
