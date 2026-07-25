@@ -28,6 +28,12 @@ export default function AiChatWidget() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    const handleToggle = () => setIsOpen(prev => !prev);
+    window.addEventListener('toggleAiChat', handleToggle);
+    return () => window.removeEventListener('toggleAiChat', handleToggle);
+  }, []);
+
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
@@ -121,16 +127,24 @@ export default function AiChatWidget() {
 
   return (
     <>
+      {/* Mobile Backdrop */}
+      {isOpen && (
+        <div 
+          onClick={() => setIsOpen(false)}
+          className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-[195] md:hidden"
+        />
+      )}
+
       {/* Floating Toggle Button */}
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-[200] w-[60px] h-[60px] rounded-full text-white shadow-xl flex items-center justify-center transition-all bg-[#60c5fa] hover:bg-[#4ab0e4]"
+        className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-[190] w-12 h-12 md:w-[60px] md:h-[60px] rounded-full text-white shadow-xl flex items-center justify-center transition-all bg-[#60c5fa] hover:bg-[#4ab0e4]"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         title="DamDiep AI Assistant"
       >
         <motion.span
-          className="material-symbols-outlined text-[28px]"
+          className="material-symbols-outlined text-[24px] md:text-[28px]"
           style={{ fontVariationSettings: "'FILL' 1" }}
           animate={{ rotate: isOpen ? 90 : 0 }}
           transition={{ duration: 0.2 }}
@@ -138,7 +152,7 @@ export default function AiChatWidget() {
           {isOpen ? 'close' : 'support_agent'}
         </motion.span>
         {hasUnread && !isOpen && (
-          <span className="absolute top-0 right-0 w-4 h-4 bg-red-500 rounded-full border-2 border-white" />
+          <span className="absolute top-0 right-0 w-3.5 h-3.5 md:w-4 md:h-4 bg-red-500 rounded-full border-2 border-white" />
         )}
       </motion.button>
 
@@ -150,7 +164,7 @@ export default function AiChatWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-[90px] right-6 z-[200] w-[360px] max-h-[600px] bg-[#f5f6f8] rounded-xl shadow-2xl flex flex-col overflow-hidden border border-gray-200"
+            className="fixed inset-x-3 bottom-3 md:bottom-[90px] md:right-6 md:left-auto z-[200] w-[calc(100%-24px)] md:w-[360px] h-[85vh] max-h-[580px] md:max-h-[600px] bg-[#f5f6f8] rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200"
           >
             {/* Header */}
             <div className="bg-[#60c5fa] px-4 py-3 shrink-0 flex items-center justify-between rounded-t-xl">

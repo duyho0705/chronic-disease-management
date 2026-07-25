@@ -162,20 +162,20 @@ export default function AdminProfileModal({ isOpen, onClose, onSuccess }: AdminP
   const inputClass = "w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-slate-400";
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 font-display">
-      <div className="absolute inset-0 bg-slate-900/10 backdrop-blur-[2px] transition-all duration-300" onClick={onClose} />
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4 font-display">
+      <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] transition-all duration-300" onClick={onClose} />
       
-      <div className="relative bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-300 border border-slate-200 dark:border-slate-800 max-h-[90vh] flex flex-col">
+      <div className="relative bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-300 border border-slate-200 dark:border-slate-800 max-h-[92vh] sm:max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="p-6 pb-0 shrink-0">
+        <div className="p-4 sm:p-6 pb-0 shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-                <span className="material-symbols-outlined text-primary text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
+              <div className="w-9 h-9 sm:w-10 sm:h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                <span className="material-symbols-outlined text-primary text-lg sm:text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
               </div>
               <div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white">Hồ sơ cá nhân</h3>
-                <p className="text-xs text-slate-500">Quản lý thông tin tài khoản của bạn</p>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Hồ sơ cá nhân</h3>
+                <p className="text-[11px] sm:text-xs text-slate-500">Quản lý thông tin tài khoản của bạn</p>
               </div>
             </div>
             <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition-colors">
@@ -186,20 +186,20 @@ export default function AdminProfileModal({ isOpen, onClose, onSuccess }: AdminP
 
         {/* Loading State */}
         {loading ? (
-          <div className="p-12 flex flex-col items-center gap-4">
+          <div className="p-8 sm:p-12 flex flex-col items-center gap-4">
             <div className="w-10 h-10 border-3 border-primary/20 border-t-primary rounded-full animate-spin" />
             <p className="text-sm text-slate-500 font-medium">Đang tải thông tin...</p>
           </div>
         ) : success ? (
-          <div className="p-8 text-center">
-            <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="material-symbols-outlined text-emerald-500 text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+          <div className="p-6 sm:p-8 text-center">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="material-symbols-outlined text-emerald-500 text-2xl sm:text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
             </div>
-            <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-1">Cập nhật thành công!</h4>
-            <p className="text-sm text-slate-500">Hồ sơ cá nhân đã được cập nhật.</p>
+            <h4 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-1">Cập nhật thành công!</h4>
+            <p className="text-xs sm:text-sm text-slate-500">Hồ sơ cá nhân đã được cập nhật.</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto custom-scrollbar">
+          <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto custom-scrollbar">
             {error && (
               <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/30 rounded-xl flex items-center gap-2">
                 <span className="material-symbols-outlined text-red-500 text-lg shrink-0">error</span>

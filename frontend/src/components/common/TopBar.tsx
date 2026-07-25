@@ -188,7 +188,14 @@ const TopBar: React.FC<TopBarProps> = ({
           />
         </div>
 
-
+        {/* AI Assistant Quick Option Button */}
+        <button
+          onClick={() => window.dispatchEvent(new CustomEvent('toggleAiChat'))}
+          className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400 border border-sky-100 dark:border-sky-800/40 transition-all hover:bg-sky-100 dark:hover:bg-sky-900/60 shadow-sm"
+          title="Mở Trợ lý y tế DamDiep AI"
+        >
+          <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
+        </button>
 
         {actionButton}
 

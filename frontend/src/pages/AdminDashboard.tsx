@@ -582,6 +582,13 @@ export default function AdminDashboard() {
                   let translatedTitle = actionMap[act.title] || act.title;
                   let translatedDesc = act.description || '';
 
+                  // Clean dev terms & translate English text to friendly Vietnamese
+                  translatedDesc = translatedDesc
+                    .replace(/Action completed successfully/gi, 'Thao tác đã hoàn tất thành công')
+                    .replace(/E2E User/gi, 'Tài khoản người dùng')
+                    .replace(/E2E/gi, 'Hệ thống')
+                    .replace(/successful/gi, 'thành công');
+
                   // Parse and format natural Vietnamese descriptions
                   if (translatedDesc.includes(':')) {
                     const parts = translatedDesc.split(':');

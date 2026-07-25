@@ -23,7 +23,7 @@ public class AuditAspect {
 
         try {
             result = joinPoint.proceed();
-            details = "Action completed successfully";
+            details = "Thao tác đã hoàn tất thành công";
         } catch (Throwable e) {
             status = "danger";
             details = "Error: " + e.getMessage();

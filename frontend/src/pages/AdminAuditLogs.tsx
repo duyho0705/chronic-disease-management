@@ -196,8 +196,10 @@ export default function AdminAuditLogs() {
     }
     
     let result = text
-      .replace('Action completed successfully', 'Thao tác hoàn thành thành công')
-      .replace('successful', 'thành công');
+      .replace(/Action completed successfully/gi, 'Thao tác đã hoàn tất thành công')
+      .replace(/E2E User/gi, 'Tài khoản người dùng')
+      .replace(/E2E/gi, 'Hệ thống')
+      .replace(/successful/gi, 'thành công');
 
     return result
       .replace(/DOCTOR/g, 'Bác sĩ')

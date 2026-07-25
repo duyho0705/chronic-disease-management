@@ -85,12 +85,14 @@ const PatientHeader: React.FC<PatientHeaderProps> = ({ setIsSidebarOpen }) => {
                     <span className="material-symbols-outlined text-xl dark:hidden">dark_mode</span>
                     <span className="material-symbols-outlined text-xl hidden dark:block">light_mode</span>
                 </button>
-                <div className="relative">
-                    <button className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl bg-background-light dark:bg-slate-800 text-slate-600 relative transition-all hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95 group">
-                        <span className="material-symbols-outlined text-xl font-bold group-hover:text-primary transition-colors">notifications</span>
-                        <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-white animate-pulse"></span>
-                    </button>
-                </div>
+                {/* AI Assistant Quick Option Button */}
+                <button
+                    onClick={() => window.dispatchEvent(new CustomEvent('toggleAiChat'))}
+                    className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400 border border-sky-100 dark:border-sky-800/40 transition-all hover:bg-sky-100 dark:hover:bg-sky-900/60 shadow-sm"
+                    title="Mở Trợ lý y tế DamDiep AI"
+                >
+                    <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
+                </button>
 
                 <button className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl bg-background-light dark:bg-slate-800 text-slate-600 transition-all hover:bg-slate-200 dark:hover:bg-slate-700 group">
                     <span className="material-symbols-outlined text-xl font-bold group-hover:text-primary transition-colors">settings</span>

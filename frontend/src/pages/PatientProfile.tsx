@@ -113,57 +113,57 @@ const PatientProfile: React.FC = () => {
         : "Chưa đo";
 
     return (
-        <div className="max-w-5xl mx-auto px-6 py-8 animate-in fade-in duration-500 font-display">
+        <div className="max-w-5xl mx-auto px-3 sm:px-6 py-4 sm:py-8 animate-in fade-in duration-500 font-display">
             {/* Profile Header */}
-            <header className="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-800 mb-6 font-display">
-                <div className="flex flex-col md:flex-row gap-6 items-center">
+            <header className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200 dark:border-slate-800 mb-4 sm:mb-6 font-display">
+                <div className="flex flex-col md:flex-row gap-4 sm:gap-6 items-center">
                     <div className="relative group cursor-pointer" onClick={() => setIsEditProfileOpen(true)}>
-                        <div className="size-32 rounded-full border-4 border-primary/20 bg-primary/10 flex items-center justify-center text-primary overflow-hidden group-hover:opacity-80 transition-opacity">
+                        <div className="size-24 sm:size-32 rounded-full border-4 border-primary/20 bg-primary/10 flex items-center justify-center text-primary overflow-hidden group-hover:opacity-80 transition-opacity">
                             {profile.avatarUrl ? (
                                 <img src={profile.avatarUrl} alt="Avatar" className="size-full object-cover" />
                             ) : (
-                                <span className="material-symbols-outlined text-6xl">person</span>
+                                <span className="material-symbols-outlined text-4xl sm:text-6xl">person</span>
                             )}
                         </div>
                         <div className="absolute inset-0 rounded-full bg-slate-900/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span className="material-symbols-outlined text-white text-3xl">photo_camera</span>
+                            <span className="material-symbols-outlined text-white text-2xl sm:text-3xl">photo_camera</span>
                         </div>
                     </div>
                     <div className="flex-1 text-center md:text-left">
-                        <div className="flex flex-col md:flex-row md:items-center gap-3 mb-2">
-                            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{profile.fullName}</h2>
+                        <div className="flex flex-col md:flex-row md:items-center gap-2 sm:gap-3 mb-2">
+                            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">{profile.fullName}</h2>
                         </div>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm">
+                        <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm">
                             Mã hồ sơ: <span className="font-semibold">{profile.patientCode || 'N/A'}</span>
                             <br />
                             Tham gia: {profile.joinedDate ? formatDateVN(profile.joinedDate) : 'Mới tham gia'}
                         </p>
-                        <div className="flex flex-wrap gap-4 justify-center md:justify-start mt-2">
-                            <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
-                                <span className="material-symbols-outlined text-primary text-lg">badge</span>
+                        <div className="flex flex-wrap gap-2 sm:gap-4 justify-center md:justify-start mt-2">
+                            <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                                <span className="material-symbols-outlined text-primary text-base sm:text-lg">badge</span>
                                 <span>CCCD: {profile.identityCard || 'Chưa cập nhật'}</span>
                             </div>
-                            <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
-                                <span className="material-symbols-outlined text-primary text-lg">work</span>
+                            <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                                <span className="material-symbols-outlined text-primary text-base sm:text-lg">work</span>
                                 <span>{profile.occupation || 'Nghề nghiệp: Chưa cập nhật'}</span>
                             </div>
-                            <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
-                                <span className="material-symbols-outlined text-primary text-lg">monitoring</span>
+                            <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                                <span className="material-symbols-outlined text-primary text-base sm:text-lg">monitoring</span>
                                 <span>BMI: {bmiValue}</span>
                             </div>
                         </div>
                     </div>
-                    <div className="flex flex-col gap-2 w-full md:w-auto">
+                    <div className="flex flex-col sm:flex-row md:flex-col gap-2 w-full md:w-auto">
                         <button 
                             onClick={handleDownloadReport}
-                            className="px-5 py-2 bg-primary text-white font-bold rounded-full hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2 text-sm"
+                            className="flex-1 md:flex-none px-4 sm:px-5 py-2 bg-primary text-white font-bold rounded-full hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2 text-xs sm:text-sm"
                         >
                             <span className="material-symbols-outlined text-base">download</span>
                             Tải báo cáo
                         </button>
                         <button 
                             onClick={() => setIsEditProfileOpen(true)}
-                            className="px-5 py-2 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2 text-sm"
+                            className="flex-1 md:flex-none px-4 sm:px-5 py-2 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2 text-xs sm:text-sm"
                         >
                             <span className="material-symbols-outlined text-base">edit_note</span>
                             Chỉnh sửa hồ sơ
