@@ -1,5 +1,5 @@
 import AdminLayout from '../layouts/AdminLayout';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../constants/routes';
 import Dropdown from '../components/ui/Dropdown';
@@ -11,6 +11,8 @@ export default function AdminReports() {
   const [performanceFilter, setPerformanceFilter] = useState('Tất cả kết quả');
   const [reportsData, setReportsData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isTableLoading, setIsTableLoading] = useState(false);
+  const isMounted = useRef(false);
 
   // Custom Chart Tooltip
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -28,11 +30,23 @@ export default function AdminReports() {
   };
 
   useEffect(() => {
-    fetchReports();
-  }, [reportType, performanceFilter]);
+    fetchReports(false);
+  }, [reportType]);
 
-  const fetchReports = async () => {
-    setIsLoading(true);
+  useEffect(() => {
+    if (isMounted.current) {
+      fetchReports(true);
+    } else {
+      isMounted.current = true;
+    }
+  }, [performanceFilter]);
+
+  const fetchReports = async (isFilterOnly = false) => {
+    if (isFilterOnly) {
+      setIsTableLoading(true);
+    } else {
+      setIsLoading(true);
+    }
     try {
       const res = await adminApi.getReportsData(reportType, performanceFilter);
       if (res && res.data) {
@@ -40,7 +54,7 @@ export default function AdminReports() {
           ...res.data,
           growthTrend: (res.data.growthTrend || []).map((pt: any) => ({
             ...pt,
-            label: pt.label.replace(/^Th\. /i, 'tháng ')
+            label: pt.label.replace(/^Th\. /i, 'Tháng ')
           }))
         };
         setReportsData(processedData);
@@ -49,6 +63,7 @@ export default function AdminReports() {
       console.error('Failed to fetch report data:', error);
     } finally {
       setIsLoading(false);
+      setIsTableLoading(false);
     }
   };
 
@@ -239,8 +254,8 @@ export default function AdminReports() {
                 [...Array(3)].map((_, i) => (
                   <div key={i} className="space-y-3">
                     <div className="flex justify-between">
-                       <div className="h-4 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-32"></div>
-                       <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-12"></div>
+                      <div className="h-4 bg-slate-100 dark:bg-slate-800 animate-pulse rounded w-32"></div>
+                      <div className="h-4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-12"></div>
                     </div>
                     <div className="h-2 bg-slate-50 dark:bg-slate-800/50 animate-pulse rounded-full w-full"></div>
                   </div>
@@ -316,7 +331,7 @@ export default function AdminReports() {
           </div>
           {/* Mobile Card View */}
           <div className="block md:hidden">
-            {isLoading ? (
+            {isLoading || isTableLoading ? (
               [...Array(5)].map((_, i) => (
                 <div key={i} className="p-4 border-b border-slate-100 dark:border-slate-800 animate-pulse">
                   <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-40 mb-2"></div>
@@ -386,23 +401,23 @@ export default function AdminReports() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-primary/5">
-                {isLoading ? (
+                {isLoading || isTableLoading ? (
                   [...Array(5)].map((_, i) => (
                     <tr key={i} className="animate-pulse">
                       <td className="px-8 py-5">
-                         <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-48"></div>
+                        <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-48"></div>
                       </td>
                       <td className="px-6 py-5">
-                         <div className="h-4 bg-slate-100 dark:bg-slate-800/50 rounded w-16"></div>
+                        <div className="h-4 bg-slate-100 dark:bg-slate-800/50 rounded w-16"></div>
                       </td>
                       <td className="px-6 py-5">
-                         <div className="h-4 bg-slate-100 dark:bg-slate-800/50 rounded w-20"></div>
+                        <div className="h-4 bg-slate-100 dark:bg-slate-800/50 rounded w-20"></div>
                       </td>
                       <td className="px-6 py-5">
-                         <div className="h-7 bg-slate-200 dark:bg-slate-800 rounded-full w-20"></div>
+                        <div className="h-7 bg-slate-200 dark:bg-slate-800 rounded-full w-20"></div>
                       </td>
                       <td className="px-8 py-5 text-right">
-                         <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-16 ml-auto"></div>
+                        <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-16 ml-auto"></div>
                       </td>
                     </tr>
                   ))

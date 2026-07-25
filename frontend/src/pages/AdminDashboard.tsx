@@ -39,7 +39,7 @@ export default function AdminDashboard() {
         setActivities(res.data.recentActivities || []);
         const processedChart = (res.data.chartData || []).map((item: any) => ({
           ...item,
-          label: item.label.replace(/^Th\. /i, 'tháng ')
+          label: item.label.replace(/^Th\. /i, 'Tháng ')
         }));
         setChartData(processedChart);
       }
