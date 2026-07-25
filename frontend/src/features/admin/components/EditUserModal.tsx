@@ -126,16 +126,28 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
 
   const validateForm = () => {
     const errors: Record<string, string> = {};
-    if (!formData.name.trim()) errors.name = 'Vui lòng nhập họ và tên';
+    if (!formData.name.trim()) {
+      errors.name = 'Vui lòng nhập họ và tên';
+    } else if (formData.name.trim().length > 100) {
+      errors.name = 'Họ và tên không được quá 100 ký tự';
+    }
+
     if (!formData.email.trim()) {
       errors.email = 'Vui lòng nhập email';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errors.email = 'Email không đúng định dạng';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      errors.email = 'Email không đúng định dạng (VD: example@domain.com)';
     }
     
+    if (formData.phone.trim() && !/^(0[35789]\d{8})$/.test(formData.phone.trim())) {
+      errors.phone = 'Số điện thoại phải gồm 10 chữ số (bắt đầu bằng 03, 05, 07, 08, 09)';
+    }
+
     if (formData.role === 'DOCTOR') {
       if (!formData.licenseNumber?.trim()) errors.licenseNumber = 'Vui lòng nhập số CCHN';
       if (!formData.licenseImageUrl?.trim()) errors.licenseImageUrl = 'Vui lòng tải ảnh bằng chứng CCHN';
+      if (formData.experience?.trim() && !/^\d+$/.test(formData.experience.trim())) {
+        errors.experience = 'Kinh nghiệm phải là số năm (ví dụ: 5)';
+      }
     }
 
     setFormErrors(errors);
@@ -248,9 +260,10 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                             value={formData.phone}
                             onChange={handleChange}
                             placeholder="Số điện thoại cá nhân"
-                            className={`w-full pl-11 pr-4 h-[42px] rounded-lg border border-slate-400 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all`}
+                            className={`w-full pl-11 pr-4 h-[42px] rounded-lg border ${formErrors.phone ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all`}
                           />
                         </div>
+                        {formErrors.phone && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.phone}</p>}
                       </div>
                     </div>
                   </div>

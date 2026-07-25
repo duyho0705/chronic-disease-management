@@ -59,13 +59,30 @@ public class AdminUserServiceImpl implements AdminUserService {
         return userRepository.findById(id).map(userMapper::toAdminUserResponse).orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
+    @Override
     @Transactional
     public AdminUserResponse createUser(CreateUserRequest request) {
+        // Check duplicate email
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email " + request.getEmail() + " đã tồn tại trong hệ thống");
+        }
         validatePasswordPolicy(request.getPassword());
+
+        UserRole role = UserRole.valueOf(request.getRole().toUpperCase());
+        if (UserRole.DOCTOR.equals(role)) {
+            if (request.getLicenseNumber() == null || request.getLicenseNumber().isBlank()) {
+                throw new IllegalArgumentException("Vui lòng nhập số CCHN cho bác sĩ");
+            }
+            if (request.getLicenseImageUrl() == null || request.getLicenseImageUrl().isBlank()) {
+                throw new IllegalArgumentException("Vui lòng tải ảnh bằng chứng CCHN cho bác sĩ");
+            }
+        }
+
         User user = User.builder()
                 .fullName(request.getFullName()).email(request.getEmail())
+                .phone(request.getPhone())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(UserRole.valueOf(request.getRole().toUpperCase()))
+                .role(role)
                 .clinicId(request.getClinicId()).status("ACTIVE")
                 .avatarUrl(request.getAvatarUrl())
                 .licenseNumber(request.getLicenseNumber())
@@ -92,9 +109,17 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Override
     @Transactional
     public AdminUserResponse updateUser(Long id, UpdateUserRequest request) {
-        User user = userRepository.findById(id).orElseThrow();
+        User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Người dùng không tồn tại"));
+
+        if (request.getEmail() != null && !request.getEmail().isBlank() && !request.getEmail().equalsIgnoreCase(user.getEmail())) {
+            if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+                throw new IllegalArgumentException("Email " + request.getEmail() + " đã tồn tại trong hệ thống");
+            }
+            user.setEmail(request.getEmail());
+        }
+
         if (request.getFullName() != null) user.setFullName(request.getFullName());
-        if (request.getEmail() != null) user.setEmail(request.getEmail());
+        if (request.getPhone() != null) user.setPhone(request.getPhone());
         if (request.getRole() != null) user.setRole(UserRole.valueOf(request.getRole().toUpperCase()));
         if (request.getStatus() != null) user.setStatus(request.getStatus());
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
@@ -111,6 +136,15 @@ public class AdminUserServiceImpl implements AdminUserService {
         if (request.getLicenseImageUrl() != null) user.setLicenseImageUrl(request.getLicenseImageUrl());
         if (request.getSpecialization() != null) user.setSpecialization(request.getSpecialization());
         if (request.getExperience() != null) user.setExperience(request.getExperience());
+
+        if (UserRole.DOCTOR.equals(user.getRole())) {
+            if (user.getLicenseNumber() == null || user.getLicenseNumber().isBlank()) {
+                throw new IllegalArgumentException("Vui lòng nhập số CCHN cho bác sĩ");
+            }
+            if (user.getLicenseImageUrl() == null || user.getLicenseImageUrl().isBlank()) {
+                throw new IllegalArgumentException("Vui lòng tải ảnh bằng chứng CCHN cho bác sĩ");
+            }
+        }
         
         User saved = userRepository.save(user);
         String displayName = (saved.getFullName() != null && !saved.getFullName().isBlank()) ? saved.getFullName() : saved.getEmail();

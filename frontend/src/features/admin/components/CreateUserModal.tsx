@@ -121,28 +121,50 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
 
   const validateForm = () => {
     const errors: Record<string, string> = {};
-    if (!formData.name.trim()) errors.name = 'Vui lòng nhập họ và tên';
+    
+    // Họ và tên
+    if (!formData.name.trim()) {
+      errors.name = 'Vui lòng nhập họ và tên';
+    } else if (formData.name.trim().length > 100) {
+      errors.name = 'Họ và tên không được quá 100 ký tự';
+    }
+
+    // Email
     if (!formData.email.trim()) {
       errors.email = 'Vui lòng nhập email';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errors.email = 'Email không đúng định dạng';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      errors.email = 'Email không đúng định dạng (VD: example@domain.com)';
+    }
+
+    // Số điện thoại (nếu có)
+    if (formData.phone.trim() && !/^(0[35789]\d{8})$/.test(formData.phone.trim())) {
+      errors.phone = 'Số điện thoại phải gồm 10 chữ số (bắt đầu bằng 03, 05, 07, 08, 09)';
     }
     
-    if (!formData.username.trim()) errors.username = 'Vui lòng nhập tên đăng nhập';
+    // Tên đăng nhập
+    if (!formData.username.trim()) {
+      errors.username = 'Vui lòng nhập tên đăng nhập';
+    }
+
+    // Mật khẩu
     if (!formData.password) {
       errors.password = 'Vui lòng nhập mật khẩu';
     } else if (formData.password.length < 6) {
-      errors.password = 'Mật khẩu phải từ 6 ký tự';
+      errors.password = 'Mật khẩu phải từ 6 ký tự trở lên';
     }
 
     if (formData.password !== formData.confirmPassword) {
-      errors.confirmPassword = 'Mật khẩu xác nhận không khớp';
+      errors.confirmPassword = 'Mật khẩu xác nhận không khớp với mật khẩu';
     }
 
+    // Role specific: Bác sĩ
     const isDoctor = formData.role === 'Bác sĩ';
     if (isDoctor) {
       if (!formData.licenseNumber?.trim()) errors.licenseNumber = 'Vui lòng nhập số CCHN';
       if (!formData.licenseImageUrl?.trim()) errors.licenseImageUrl = 'Vui lòng tải ảnh bằng chứng CCHN';
+      if (formData.experience?.trim() && !/^\d+$/.test(formData.experience.trim())) {
+        errors.experience = 'Kinh nghiệm phải là số năm (ví dụ: 5)';
+      }
     }
 
     setFormErrors(errors);
@@ -267,9 +289,10 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                             value={formData.phone}
                             onChange={handleChange}
                             placeholder="Nhập số điện thoại"
-                            className={`w-full pl-11 pr-4 h-[42px] rounded-lg border border-slate-400 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all`}
+                            className={`w-full pl-11 pr-4 h-[42px] rounded-lg border ${formErrors.phone ? 'border-red-500/50' : 'border-slate-400 dark:border-slate-700'} bg-white dark:bg-slate-900 shadow-sm text-[14px] font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all`}
                           />
                         </div>
+                        {formErrors.phone && <p className="text-[11px] font-bold text-red-500 ml-1 mt-1">{formErrors.phone}</p>}
                       </div>
                     </div>
                   </div>
