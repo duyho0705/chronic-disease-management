@@ -86,7 +86,7 @@ const VelorahLandingPage: React.FC = () => {
             errors.email = "Địa chỉ email không hợp lệ.";
         }
         
-        if (!bookingForm.date) errors.date = "Vui lòng chọn ngày hẹn demo.";
+        if (!bookingForm.date) errors.date = "Vui lòng chọn ngày hẹn tư vấn.";
         
         setFormErrors(errors);
         return Object.keys(errors).length === 0;
@@ -231,9 +231,9 @@ const VelorahLandingPage: React.FC = () => {
                         <p className="text-xs uppercase font-bold text-slate-400 tracking-widest">Tiêu chuẩn an toàn bảo mật & Chứng nhận y khoa</p>
                         <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-60">
                             <span className="font-bold text-slate-500 text-sm tracking-widest border border-slate-300 dark:border-slate-700 px-3 py-1.5 rounded">BẢO MẬT ISO 27001</span>
-                            <span className="font-bold text-slate-500 text-sm tracking-widest border border-slate-300 dark:border-slate-700 px-3 py-1.5 rounded">MÃ HÓA ĐẦU CUỐI HL7</span>
+                            <span className="font-bold text-slate-500 text-sm tracking-widest border border-slate-300 dark:border-slate-700 px-3 py-1.5 rounded">MÃ HÓA BẢO MẬT Y TẾ</span>
                             <span className="font-bold text-slate-500 text-sm tracking-widest border border-slate-300 dark:border-slate-700 px-3 py-1.5 rounded">TIÊU CHUẨN BỘ Y TẾ</span>
-                            <span className="font-bold text-slate-500 text-sm tracking-widest border border-slate-300 dark:border-slate-700 px-3 py-1.5 rounded">ĐỒNG BỘ DỮ LIỆU THỜI GIAN THỰC</span>
+                            <span className="font-bold text-slate-500 text-sm tracking-widest border border-slate-300 dark:border-slate-700 px-3 py-1.5 rounded">ĐỒNG BỘ CHỈ SỐ TỨC THÌ</span>
                         </div>
                     </div>
                 </section>
@@ -261,7 +261,7 @@ const VelorahLandingPage: React.FC = () => {
                                     </div>
                                     <div className="pt-4">
                                         <a href="#dat-lich" className="text-xs font-bold text-[#008fcc] hover:text-[#006ab8] inline-flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                                            Xem Demo Tính Năng <span className="material-symbols-outlined text-xs">arrow_forward</span>
+                                            Khám Phá Tính Năng <span className="material-symbols-outlined text-xs">arrow_forward</span>
                                         </a>
                                     </div>
                                 </div>
@@ -275,7 +275,7 @@ const VelorahLandingPage: React.FC = () => {
                     <div className="container mx-auto px-gutter grid lg:grid-cols-2 gap-12 items-center">
                         <div className="space-y-6">
                             <span className="text-xs font-bold text-[#008fcc] uppercase tracking-wider">Hệ Sinh Thái Công Nghệ Y Tế DamDiep</span>
-                            <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white leading-tight">Giải Pháp B2B Số Hóa Trải Nghiệm Bệnh Nhân</h2>
+                            <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white leading-tight">Giải Pháp Số Hóa & Chăm Sóc Bệnh Nhân Toàn Diện</h2>
                             <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
                                 Chúng tôi xây dựng hệ thống phần mềm nhằm giúp các phòng khám quản lý hồ sơ, tối ưu hóa quá trình tương tác và theo dõi các bệnh nhân mãn tính. Nền tảng được phát triển dựa trên sự phối hợp chặt chẽ giữa các chuyên gia công nghệ và các bác sĩ đầu ngành để bảo đảm tính chuẩn hóa y khoa cao nhất.
                             </p>
@@ -287,7 +287,7 @@ const VelorahLandingPage: React.FC = () => {
                                 </div>
                                 <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
                                     <h4 className="font-bold text-[#008fcc] text-lg mb-1">Giải Pháp</h4>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400">Hệ thống SaaS chạy ổn định trên mọi thiết bị di động, bảng điều khiển thông minh cho nhà quản lý.</p>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">Hệ thống đám mây thông minh chạy ổn định trên mọi thiết bị di động, bảng điều khiển cho nhà quản lý.</p>
                                 </div>
                             </div>
                         </div>
@@ -320,7 +320,7 @@ const VelorahLandingPage: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="p-6 text-center flex-1 flex flex-col justify-center">
-                                    <h4 className="font-bold text-slate-900 dark:text-white text-lg mb-2">Bệnh Án Điện Tử (EMR)</h4>
+                                    <h4 className="font-bold text-slate-900 dark:text-white text-lg mb-2">Bệnh Án Điện Tử Thông Minh</h4>
                                     <p className="text-xs text-slate-500 leading-relaxed">Quản lý hồ sơ, phác đồ điều trị và lịch sử y khoa của bệnh nhân một cách hệ thống, không cần giấy tờ.</p>
                                 </div>
                             </div>
@@ -342,7 +342,7 @@ const VelorahLandingPage: React.FC = () => {
                             {/* Feature 3 */}
                             <div className="bg-surface-container-lowest rounded-xl overflow-hidden soft-elevation group hover-elevation transition-all border border-slate-100 dark:border-slate-800 flex flex-col">
                                 <div className="aspect-[4/3] overflow-hidden relative bg-slate-50 dark:bg-slate-800 group/image cursor-pointer" onClick={() => setPreviewImage('/lich-hen-kham.png')}>
-                                    <img className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="CRM Chăm Sóc Y Tế" src="/lich-hen-kham.png" />
+                                    <img className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Quản Lý & Chăm Sóc Bệnh Nhân" src="/lich-hen-kham.png" />
                                     <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/image:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                                         <div className="bg-white/95 text-[#008fcc] px-5 py-2 rounded-lg font-bold flex items-center gap-2 transform translate-y-4 group-hover/image:translate-y-0 transition-all duration-300 shadow-lg">
                                             <span className="material-symbols-outlined">visibility</span> Xem
@@ -350,7 +350,7 @@ const VelorahLandingPage: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="p-6 text-center flex-1 flex flex-col justify-center">
-                                    <h4 className="font-bold text-slate-900 dark:text-white text-lg mb-2">CRM Chăm Sóc Y Tế</h4>
+                                    <h4 className="font-bold text-slate-900 dark:text-white text-lg mb-2">Quản Lý & Chăm Sóc Bệnh Nhân</h4>
                                     <p className="text-xs text-slate-500 leading-relaxed">Tự động nhắc lịch tái khám, tương tác từ xa và chăm sóc bệnh nhân mãn tính liên tục sau khi rời phòng khám.</p>
                                 </div>
                             </div>
@@ -395,7 +395,7 @@ const VelorahLandingPage: React.FC = () => {
                             <div className="p-6 border border-slate-100 dark:border-slate-800 rounded-xl space-y-3 hover:shadow-lg transition-shadow">
                                 <span className="material-symbols-outlined text-4xl text-[#008fcc]">payments</span>
                                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">Tối Ưu Hóa Chi Phí</h3>
-                                <p className="text-sm text-slate-500 dark:text-slate-400">Mô hình thuê bao SaaS linh hoạt theo nhu cầu phòng khám, không mất chi phí mua phần cứng máy chủ ban đầu.</p>
+                                <p className="text-sm text-slate-500 dark:text-slate-400">Mô hình đăng ký dịch vụ linh hoạt theo nhu cầu phòng khám, không mất chi phí mua phần cứng máy chủ ban đầu.</p>
                             </div>
                             <div className="p-6 border border-slate-100 dark:border-slate-800 rounded-xl space-y-3 hover:shadow-lg transition-shadow">
                                 <span className="material-symbols-outlined text-4xl text-[#008fcc]">patient_list</span>
@@ -405,7 +405,7 @@ const VelorahLandingPage: React.FC = () => {
                             <div className="p-6 border border-slate-100 dark:border-slate-800 rounded-xl space-y-3 hover:shadow-lg transition-shadow">
                                 <span className="material-symbols-outlined text-4xl text-[#008fcc]">speed</span>
                                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">Triển Khai Nhanh Chóng</h3>
-                                <p className="text-sm text-slate-500 dark:text-slate-400">Đội ngũ kỹ thuật hỗ trợ khởi tạo dữ liệu phòng khám, kết nối API và đào tạo bác sĩ chỉ trong vòng 3 ngày.</p>
+                                <p className="text-sm text-slate-500 dark:text-slate-400">Đội ngũ chuyên viên hỗ trợ khởi tạo dữ liệu phòng khám, kết nối thiết bị y tế và hướng dẫn bác sĩ chỉ trong vòng 3 ngày.</p>
                             </div>
                             <div className="p-6 border border-slate-100 dark:border-slate-800 rounded-xl space-y-3 hover:shadow-lg transition-shadow">
                                 <span className="material-symbols-outlined text-4xl text-[#008fcc]">support_agent</span>
@@ -551,31 +551,31 @@ const VelorahLandingPage: React.FC = () => {
 
                 {/* Booking Form Section */}
                 <section className="py-20 bg-surface-container-low" id="dat-lich">
-                    <div className="container mx-auto px-gutter max-w-5xl">
-                        <div className="bg-white dark:bg-slate-900 rounded-2xl soft-elevation overflow-hidden grid lg:grid-cols-2 border border-slate-100 dark:border-slate-800">
-                            <div className="p-10 bg-[#005eb8] text-white flex flex-col justify-between space-y-8">
+                    <div className="container mx-auto px-4 max-w-6xl lg:max-w-7xl">
+                        <div className="bg-white dark:bg-slate-900 rounded-3xl soft-elevation overflow-hidden grid lg:grid-cols-12 border border-slate-100 dark:border-slate-800 shadow-xl">
+                            <div className="lg:col-span-5 p-8 md:p-12 bg-[#005eb8] text-white flex flex-col justify-between space-y-8">
                                 <div className="space-y-4">
-                                    <h2 className="text-3xl font-extrabold text-white">Đăng Ký Tư Vấn & Dùng Thử Hệ Thống</h2>
-                                    <p className="opacity-90 text-sm text-slate-100 leading-relaxed">
-                                        Quý phòng khám, bệnh viện hoặc bác sĩ có nhu cầu tìm hiểu và dùng thử giải pháp quản lý bệnh nhân trực tuyến DamDiep, vui lòng điền thông tin biểu mẫu. Kỹ sư tư vấn của chúng tôi sẽ liên hệ hỗ trợ demo trực tiếp trong ngày.
+                                    <h2 className="text-3xl md:text-4xl font-extrabold text-white leading-tight">Đăng Ký Tư Vấn & Dùng Thử Hệ Thống</h2>
+                                    <p className="opacity-90 text-sm md:text-base text-slate-100 leading-relaxed">
+                                        Quý phòng khám, bệnh viện hoặc bác sĩ có nhu cầu tìm hiểu và dùng thử giải pháp quản lý bệnh nhân trực tuyến DamDiep, vui lòng điền thông tin biểu mẫu. Chuyên viên tư vấn của chúng tôi sẽ liên hệ hỗ trợ & hướng dẫn trực tiếp trong ngày.
                                     </p>
                                 </div>
                                 <div className="space-y-4 border-t border-white/20 pt-6">
-                                    <div className="flex items-center gap-4 text-sm">
+                                    <div className="flex items-center gap-4 text-sm md:text-base">
                                         <span className="material-symbols-outlined text-white">call</span>
                                         <span>Hotline Giải Pháp: 1900 1234</span>
                                     </div>
-                                    <div className="flex items-center gap-4 text-sm">
+                                    <div className="flex items-center gap-4 text-sm md:text-base">
                                         <span className="material-symbols-outlined text-white">mail</span>
                                         <span>contact@damdiep.vn</span>
                                     </div>
-                                    <div className="flex items-center gap-4 text-sm">
+                                    <div className="flex items-center gap-4 text-sm md:text-base">
                                         <span className="material-symbols-outlined text-white">schedule</span>
                                         <span>Giờ tư vấn doanh nghiệp: 8:00 - 18:00 hàng ngày</span>
                                     </div>
                                 </div>
                             </div>
-                            <div className="p-10">
+                            <div className="lg:col-span-7 p-8 md:p-12">
                                 <form className="space-y-4" onSubmit={handleFormSubmit} noValidate>
                                     {submitSuccess && (
                                         <div className="p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm font-medium flex items-center gap-2">
@@ -643,7 +643,7 @@ const VelorahLandingPage: React.FC = () => {
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Ngày hẹn Demo trực tuyến *</label>
+                                            <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Ngày hẹn tư vấn & trải nghiệm *</label>
                                             <input
                                                 className={`w-full border ${formErrors.date ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-slate-300 focus:ring-[#6CD1FD] focus:border-[#6CD1FD]'} rounded-lg p-3 text-sm focus:ring-2 bg-white text-gray-900 outline-none transition-colors`}
                                                 type="date"
@@ -660,7 +660,7 @@ const VelorahLandingPage: React.FC = () => {
                                         <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Nhu cầu cụ thể cần tư vấn</label>
                                         <textarea
                                             className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#6CD1FD] focus:border-[#6CD1FD] bg-white text-gray-900 outline-none h-20 resize-none transition-colors"
-                                            placeholder="Ví dụ: Cần kết nối với máy đo huyết áp Bluetooth của bệnh nhân, xuất dữ liệu báo cáo..."
+                                            placeholder="Ví dụ: Cần kết nối máy đo huyết áp tự động, đồng bộ chỉ số bệnh nhân, xuất báo cáo y tế..."
                                             value={bookingForm.message}
                                             onChange={e => setBookingForm({ ...bookingForm, message: e.target.value })}
                                         />

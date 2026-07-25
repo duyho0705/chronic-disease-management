@@ -5,6 +5,7 @@ import Toast from '../components/ui/Toast';
 import MaintenanceConfirmModal from '../features/admin/components/MaintenanceConfirmModal';
 import ChangePasswordModal from '../components/common/ChangePasswordModal';
 import { configApi } from '../api/config';
+import { switchLanguage } from '../utils/googleTranslate';
 
 export default function AdminSettings() {
   const [showToast, setShowToast] = useState(false);
@@ -42,13 +43,22 @@ export default function AdminSettings() {
       setIsLoadingPage(true);
       try {
         const res = await configApi.getConfig();
+        console.log('📥 getConfig API response:', res);
         if (res && res.data) {
           const cfg = res.data;
           setLanguage(cfg.language);
+          if (cfg.language === 'English') {
+            switchLanguage('en');
+          }
           setTimezone(cfg.timezone);
           setIsMaintenance(cfg.maintenanceMode);
           if (cfg.security) {
-            setSecuritySettings(prev => ({ ...prev, specialChar: cfg.security.specialChar, upperNumber: cfg.security.upperNumber }));
+            console.log('🔒 Security settings from server:', cfg.security);
+            setSecuritySettings({
+              specialChar: Boolean(cfg.security.specialChar),
+              upperNumber: Boolean(cfg.security.upperNumber),
+              twoFactor: false
+            });
           }
           if (cfg.thresholds) {
             setThresholds(cfg.thresholds);
@@ -106,7 +116,16 @@ export default function AdminSettings() {
         thresholds,
         notifications
       };
-      await configApi.updateConfig(data);
+      console.log('📤 Sending updateConfig payload:', data);
+      const res = await configApi.updateConfig(data);
+      console.log('📥 updateConfig response:', res);
+      if (res && res.data && res.data.security) {
+        setSecuritySettings({
+          specialChar: Boolean(res.data.security.specialChar),
+          upperNumber: Boolean(res.data.security.upperNumber),
+          twoFactor: false
+        });
+      }
       setToastTitle('Lưu cấu hình hệ thống thành công');
       setShowToast(true);
     } catch (error) {
@@ -330,7 +349,21 @@ export default function AdminSettings() {
                     {isLoadingPage ? (
                       <div className="h-11 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl w-full"></div>
                     ) : (
-                      <Dropdown options={['Tiếng Việt', 'English']} value={language} onChange={setLanguage} />
+                      <Dropdown
+                        options={['Tiếng Việt', 'English']}
+                        value={language}
+                        onChange={(newLang) => {
+                          setLanguage(newLang);
+                          if (newLang === 'English') {
+                            switchLanguage('en');
+                            setToastTitle('Đã tự động dịch giao diện sang Tiếng Anh');
+                          } else {
+                            switchLanguage('vi');
+                            setToastTitle('Đã khôi phục giao diện Tiếng Việt');
+                          }
+                          setShowToast(true);
+                        }}
+                      />
                     )}
                   </div>
                   <div className="space-y-2">
@@ -373,7 +406,7 @@ export default function AdminSettings() {
                 {isLoadingPage ? (
                   <div className="h-6 bg-slate-200 dark:bg-slate-800 animate-pulse rounded w-40"></div>
                 ) : (
-                  <h3 className="text-[19px] font-black tracking-tight text-slate-900 dark:text-white">Chính sách bảo mật</h3>
+                  <h3 className="text-[19px] font-black tracking-tight text-slate-900 dark:text-white">Chính sách mật khẩu & Bảo mật</h3>
                 )}
               </div>
 
@@ -384,16 +417,24 @@ export default function AdminSettings() {
                   ))
                 ) : (
                   [
-                    { key: "specialChar", label: "Bắt buộc ký tự đặc biệt" },
-                    { key: "upperNumber", label: "Bắt buộc chữ hoa & số" },
+                    { key: "specialChar", label: "Mật khẩu bắt buộc chứa ký tự đặc biệt", desc: "Ví dụ: @, #, $, %, !, &, *" },
+                    { key: "upperNumber", label: "Mật khẩu bắt buộc gồm chữ hoa & số", desc: "Ví dụ: chứa A-Z và 0-9" },
                   ].map((item) => (
-                    <label key={item.key} className="flex items-center justify-between py-2.5 px-4 bg-slate-50/50 dark:bg-slate-800/30 rounded-2xl cursor-pointer hover:bg-primary/5 transition-all group border border-transparent hover:border-primary/5 text-left">
-                      <span className="text-[15px] font-medium text-slate-500 dark:text-slate-300">{item.label}</span>
-                      <div className="relative inline-flex items-center">
+                    <label key={item.key} className="flex items-center justify-between py-3 px-4 bg-slate-50/50 dark:bg-slate-800/30 rounded-2xl cursor-pointer hover:bg-primary/5 transition-all group border border-transparent hover:border-primary/5 text-left">
+                      <div className="flex flex-col">
+                        <span className="text-[14.5px] font-bold text-slate-700 dark:text-slate-200">{item.label}</span>
+                        <span className="text-[12px] font-medium text-slate-400">{item.desc}</span>
+                      </div>
+                      <div className="relative inline-flex items-center ml-3 shrink-0">
                         <input
                           type="checkbox"
                           checked={securitySettings[item.key as keyof typeof securitySettings]}
-                          onChange={(e) => setSecuritySettings({ ...securitySettings, [item.key]: e.target.checked })}
+                          onChange={(e) => {
+                            const newVal = e.target.checked;
+                            setSecuritySettings({ ...securitySettings, [item.key]: newVal });
+                            setToastTitle(`Đã ${newVal ? 'bật' : 'tắt'} ${item.label.toLowerCase()}`);
+                            setShowToast(true);
+                          }}
                           className="sr-only peer"
                         />
                         <div className="w-10 h-5 bg-slate-200 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-5 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>

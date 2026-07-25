@@ -25,6 +25,7 @@ public class BackendApplication {
     }
 
     @Bean
+    @org.springframework.boot.autoconfigure.condition.ConditionalOnBean(JdbcTemplate.class)
     public CommandLineRunner initSchema(JdbcTemplate jdbcTemplate, PasswordEncoder passwordEncoder) {
         return args -> {
             try {

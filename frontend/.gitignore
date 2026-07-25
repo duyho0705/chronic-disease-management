@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Test Reports
+playwright/.auth
+allure-results
+allure-report
+playwright-report
+test-results
