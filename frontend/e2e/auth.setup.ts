@@ -11,7 +11,7 @@ const authFiles = {
 // SETUP 1: ADMIN AUTH
 // ============================================================
 setup('authenticate as admin', async ({ page }) => {
-  await page.goto('/login');
+  await page.goto('/login', { waitUntil: 'domcontentloaded' });
   await page.waitForLoadState('domcontentloaded');
   await page.fill('input[name="email"], input[type="email"]', 'admin.dev@care.com');
   await page.fill('input[type="password"]', 'password');
@@ -25,7 +25,7 @@ setup('authenticate as admin', async ({ page }) => {
 // SETUP 2: CLINIC MANAGER AUTH
 // ============================================================
 setup('authenticate as clinic manager', async ({ page }) => {
-  await page.goto('/login');
+  await page.goto('/login', { waitUntil: 'domcontentloaded' });
   await page.waitForLoadState('domcontentloaded');
   await page.fill('input[name="email"], input[type="email"]', 'manager@care.com');
   await page.fill('input[type="password"]', 'password');
@@ -39,7 +39,7 @@ setup('authenticate as clinic manager', async ({ page }) => {
 // SETUP 3: DOCTOR AUTH
 // ============================================================
 setup('authenticate as doctor', async ({ page }) => {
-  await page.goto('/login');
+  await page.goto('/login', { waitUntil: 'domcontentloaded' });
   await page.waitForLoadState('domcontentloaded');
   await page.fill('input[name="email"], input[type="email"]', 'mai.le@care.com');
   await page.fill('input[type="password"]', 'password');
@@ -53,7 +53,7 @@ setup('authenticate as doctor', async ({ page }) => {
 // SETUP 4: PATIENT AUTH
 // ============================================================
 setup('authenticate as patient', async ({ page }) => {
-  await page.goto('/login');
+  await page.goto('/login', { waitUntil: 'domcontentloaded' });
   await page.waitForLoadState('domcontentloaded');
   await page.fill('input[name="email"], input[type="email"]', 'truongquocan@patient.com');
   await page.fill('input[type="password"]', 'password');

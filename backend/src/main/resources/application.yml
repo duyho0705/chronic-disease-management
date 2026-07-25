@@ -25,7 +25,7 @@ spring:
       # Modern validation
       validation-timeout: 5000
   jpa:
-    defer-datasource-initialization: false
+    defer-datasource-initialization: true
     hibernate:
       ddl-auto: update
     show-sql: true

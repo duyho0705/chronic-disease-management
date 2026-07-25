@@ -66,6 +66,7 @@ jobs:
     - name: Start Spring Boot Backend in Background
       env:
         SPRING_SQL_INIT_MODE: always
+        SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION: "true"
         SPRING_JPA_HIBERNATE_DDL_AUTO: update
         DB_URL: jdbc:postgresql://localhost:5432/neondb
         DB_USERNAME: postgres
