@@ -311,7 +311,8 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                       />
                     </div>
 
-                    {/* Clinic Selection */}
+                    {/* Clinic Selection - hidden for Admin role */}
+                    {formData.role !== 'Quản trị viên' && (
                     <div className="space-y-1.5 text-left relative z-[35]">
                       <label className="text-[14px] font-medium text-slate-500 ml-1">Đơn vị công tác</label>
                       <Dropdown
@@ -320,6 +321,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                         onChange={(clinic) => setFormData(prev => ({ ...prev, clinic }))}
                       />
                     </div>
+                    )}
 
                     {/* Passwords */}
                     <div className="space-y-1.5 md:col-span-1">
